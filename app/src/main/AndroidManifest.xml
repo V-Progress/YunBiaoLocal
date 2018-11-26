@@ -14,7 +14,8 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".Main2Activity"
+            android:launchMode="singleTask"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,14 +29,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <!-- <receiver android:name=".br.USBBroadcastReceiver"> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.intent.action.USB_STATE"/> -->
-        <!-- </intent-filter> -->
-        <!-- </receiver> -->
-        <activity
-            android:name=".Main2Activity"
-            android:launchMode="singleInstance" />
+
         <activity android:name=".MenuActivity"></activity>
     </application>
 

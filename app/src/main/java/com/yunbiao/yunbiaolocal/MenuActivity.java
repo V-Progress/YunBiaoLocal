@@ -1,6 +1,7 @@
 package com.yunbiao.yunbiaolocal;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
@@ -164,25 +165,37 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
         tvMenuOffline2Hints.setText(R.string.import_layout);
         tvMenuOffline2Hints2.setText(R.string.use_yun_import_layout);
         tvMenuOfflineHints3.setText(R.string.set_layout);
-//        TYTool.deviceNumber(equipmentMumTextView, accessCodeTextView);
         tvMenuInfoPrompt.setText(R.string.hint_click_play);
 
     }
 
-    @OnClick({R.id.btn_weiChat_page, R.id.btn_menu_start, R.id.btn_menu_offline, R.id.btn_menu_offline2, R.id.btn_menu_service, R.id.btn_menu_setting})
+    @OnClick({R.id.menu_info_bind_btn,R.id.btn_weiChat_page, R.id.btn_menu_start, R.id.btn_menu_offline, R.id.btn_menu_offline2, R.id.btn_menu_service, R.id.btn_menu_setting})
     public void onViewClicked(View view) {
         switch (view.getId()) {
-            case R.id.btn_weiChat_page:
-                break;
             case R.id.btn_menu_start:
+                if (false/*LayoutCache.getLayoutCacheAsArray() == null*/) {
+//                    startActivity(new Intent(this, SwitchLayout.class));
+                } else {
+                    finish();
+                }
                 break;
             case R.id.btn_menu_offline:
+                jumpAct(MainActivity.class);
                 break;
             case R.id.btn_menu_offline2:
+                jumpAct(MainActivity.class);
                 break;
             case R.id.btn_menu_service:
+                jumpAct(MainActivity.class);
                 break;
             case R.id.btn_menu_setting:
+                jumpAct(MainActivity.class);
+                break;
+            case R.id.btn_weiChat_page:
+                jumpAct(MainActivity.class);
+                break;
+            case R.id.menu_info_bind_btn:
+                jumpAct(MainActivity.class);
                 break;
         }
     }
@@ -192,5 +205,9 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
         if (hasFocus) {
             soundPool.play(music, 1, 1, 0, 0, 1);
         }
+    }
+
+    public void jumpAct(Class clz){
+        startActivity(new Intent(this,clz));
     }
 }

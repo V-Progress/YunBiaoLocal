@@ -1,12 +1,15 @@
 package com.yunbiao.yunbiaolocal;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
 import android.widget.TextView;
@@ -16,24 +19,40 @@ import com.yunbiao.yunbiaolocal.viewfactory.bean.Container;
 import com.yunbiao.yunbiaolocal.viewfactory.bean.LayoutInfo;
 import com.yunbiao.yunbiaolocal.viewfactory.bean.TextDetail;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class Main2Activity extends Activity {
+
+    private AbsoluteLayout absoluteLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.e("123","onCreate--------------Main");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
 
-        AbsoluteLayout absoluteLayout = new AbsoluteLayout(this);
+        absoluteLayout = new AbsoluteLayout(this);
         setContentView(absoluteLayout);
         LayoutInfo layoutInfo1 = getLayout("row1_col1", "0%", "0%", "我是第一。。。");
-        LayoutInfo layoutInfo3 = getLayout("row2_col1", "0%", "66%", "我是第三。。。");
+        LayoutInfo layoutInfo3 = getLayout("row2_col1", "0%", "50%", "我是第三。。。");
         LayoutInfo layoutInfo2 = getLayout("row1_col2", "50%", "0%", "我是第二。。。");
         LayoutInfo layoutInfo4 = getLayout("row2_col2", "50%", "50%", "我是第四。。。");
 
-        absoluteLayout.addView(ViewFactory.createView(ViewFactory.VIEW_TEXT_SCROLL,this,layoutInfo1,getWindowManager()));
-        absoluteLayout.addView(ViewFactory.createView(ViewFactory.VIEW_TEXT_SCROLL,this,layoutInfo2,getWindowManager()));
-        absoluteLayout.addView(ViewFactory.createView(ViewFactory.VIEW_TEXT_SCROLL,this,layoutInfo3,getWindowManager()));
-        absoluteLayout.addView(ViewFactory.createView(ViewFactory.VIEW_TEXT_SCROLL,this,layoutInfo4,getWindowManager()));
+        LayoutInfo[] layoutInfos = {layoutInfo1,layoutInfo2,layoutInfo3,layoutInfo4};
+        ArrayList<LayoutInfo> liList = new ArrayList<>();
+        liList.add(layoutInfo1);
+        liList.add(layoutInfo2);
+        liList.add(layoutInfo3);
+        liList.add(layoutInfo4);
+
+        absoluteLayout.addView(ViewFactory.createScrollText(Main2Activity.this,layoutInfo1,Main2Activity.this.getWindowManager()));
+        absoluteLayout.addView(ViewFactory.createScrollText(Main2Activity.this,layoutInfo2,Main2Activity.this.getWindowManager()));
+        absoluteLayout.addView(ViewFactory.createScrollText(Main2Activity.this,layoutInfo3,Main2Activity.this.getWindowManager()));
+        absoluteLayout.addView(ViewFactory.createScrollText(Main2Activity.this,layoutInfo4,Main2Activity.this.getWindowManager()));
     }
 
     private LayoutInfo getLayout(String id, String left, String top, String content){
@@ -66,9 +85,17 @@ public class Main2Activity extends Activity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_MENU) {//检测到菜单键点击事件
+            startActivity(new Intent(this,MenuActivity.class));
+            return false;
+        } else if (keyCode == KeyEvent.KEYCODE_BACK) {
+//            if (TYTool.pwdIsEmpty()) {
+//                BaseActivity.finishAll();
+//            } else {
+//                MenuDialog.showNormalEntryDialog(MainActivity.this, null, null, null, "2");
+//            }
+        }
 
-        startActivity(new Intent(this,MenuActivity.class));
-
-        return false;
+        return super.onKeyDown(keyCode,event);
     }
 }
