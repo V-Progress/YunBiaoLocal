@@ -1,0 +1,37 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.jakewharton.butterknife'
+
+android {
+    compileSdkVersion 26
+    buildToolsVersion "26.0.3"
+
+    defaultConfig {
+        applicationId "com.yunbiao.yunbiaolocal"
+        minSdkVersion 17
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:appcompat-v7:26.0.0-alpha1'
+    compile 'com.squareup.okhttp3:okhttp:3.10.0'
+    compile 'com.zhy:okhttputils:2.6.2'
+    compile 'com.alibaba:fastjson:1.1.56.android'
+    //约束布局
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    //百分比布局
+    compile 'com.android.support:percent:23.2.1'
+
+    compile 'com.jakewharton:butterknife:8.8.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+
+}
