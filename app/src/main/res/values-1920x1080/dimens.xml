@@ -1,0 +1,41 @@
+<resources>
+
+    <!--云标物联设置界面尺寸1920*1080-->
+    <dimen name="menu1080_tv_15_dp">15dp</dimen>
+    <dimen name="menu1080_tv_18_dp">18dp</dimen>
+    <dimen name="menu1080_tv_20_dp">20dp</dimen>
+    <dimen name="menu1080_tv_25_dp">25dp</dimen>
+    <dimen name="menu1080_tv_27_dp">27dp</dimen>
+    <dimen name="menu1080_tv_30_dp">30dp</dimen>
+    <dimen name="menu1080_tv_35_dp">35dp</dimen>
+    <dimen name="menu1080_tv_36_dp">36dp</dimen>
+    <dimen name="menu1080_tv_40_dp">40dp</dimen>
+    <dimen name="menu1080_tv_50_dp">50dp</dimen>
+    <dimen name="sys_left_btn_95_dp">95dp</dimen>
+    <dimen name="inner_sys_padding">20dp</dimen>
+    <dimen name="icon_50_dp">50dp</dimen>
+    <dimen name="icon_40_dp">40dp</dimen>
+    <dimen name="mar_50_dp">50dp</dimen>
+    <dimen name="mar_30_dp">30dp</dimen>
+    <dimen name="mar_20_dp">20dp</dimen>
+    <dimen name="mar_15_dp">15dp</dimen>
+    <dimen name="mar_10_dp">10dp</dimen>
+    <dimen name="mar_5_dp">5dp</dimen>
+    <dimen name="btn1080_w_120_dp">120dp</dimen>
+    <dimen name="btn1080_w_140_dp">140dp</dimen>
+    <dimen name="btn1080_w_40_dp">40dp</dimen>
+    <dimen name="btn1080_h_45_dp">45dp</dimen>
+    <dimen name="erwei_code_400_dp">400dp</dimen>
+
+    <!--触摸查询尺寸-->
+    <dimen name="mar_165_dp">165dp</dimen>
+    <dimen name="mar_135_dp">135dp</dimen>
+    <dimen name="mar_95_dp">95dp</dimen>
+    <dimen name="mar_84_dp">84dp</dimen>
+    <dimen name="mar_80_dp">80dp</dimen>
+    <dimen name="mar_60_dp">60dp</dimen>
+    <dimen name="mar_43_dp">43dp</dimen>
+    <dimen name="mar_40_dp">40dp</dimen>
+    <dimen name="tv_30_dp">30dp</dimen>
+
+</resources>

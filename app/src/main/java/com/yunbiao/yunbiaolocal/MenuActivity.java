@@ -180,22 +180,17 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
                 }
                 break;
             case R.id.btn_menu_offline:
-                jumpAct(MainActivity.class);
+                jumpAct(OffLineActivity.class);
                 break;
             case R.id.btn_menu_offline2:
-                jumpAct(MainActivity.class);
                 break;
             case R.id.btn_menu_service:
-                jumpAct(MainActivity.class);
                 break;
             case R.id.btn_menu_setting:
-                jumpAct(MainActivity.class);
                 break;
             case R.id.btn_weiChat_page:
-                jumpAct(MainActivity.class);
                 break;
             case R.id.menu_info_bind_btn:
-                jumpAct(MainActivity.class);
                 break;
         }
     }

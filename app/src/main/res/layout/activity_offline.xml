@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/fwsz_bj"
+    tools:context=".OffLineActivity">
+
+    <android.support.percent.PercentRelativeLayout
+        android:id="@+id/perRel_offline_1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="#151426"
+        app:layout_heightPercent="8%">
+
+        <ImageView
+            android:id="@+id/iv_sys_set"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_centerVertical="true"
+            android:src="@mipmap/plot"
+            app:layout_heightPercent="90%"
+            app:layout_marginLeftPercent="2%"
+            app:layout_widthPercent="3%" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/iv_sys_set"
+            android:text="@string/menu_offline_layout"
+            android:textColor="#fff"
+            android:textSize="@dimen/menu1080_tv_30_dp"
+            app:layout_marginLeftPercent="2%" />
+
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@mipmap/goback"
+            app:layout_heightPercent="90%"
+            app:layout_marginRightPercent="2%"
+            app:layout_widthPercent="3%" />
+    </android.support.percent.PercentRelativeLayout>
+
+    <android.support.percent.PercentRelativeLayout
+        android:id="@+id/perRel_offline_2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/perRel_offline_1"
+        app:layout_heightPercent="30%"
+        app:layout_marginTopPercent="3%">
+
+        <!--2-->
+        <android.support.percent.PercentRelativeLayout
+            android:id="@+id/prl_position_two"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            app:layout_widthPercent="20%">
+
+            <ImageButton
+                android:id="@+id/ibtn_layout_two"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:background="@mipmap/two_screen"
+                app:layout_heightPercent="70%" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/ibtn_layout_two"
+                android:layout_centerHorizontal="true"
+                android:text="@string/two_screen"
+                android:textColor="#53C9F9"
+                android:textSize="@dimen/menu1080_tv_35_dp"
+                app:layout_marginTopPercent="5%" />
+        </android.support.percent.PercentRelativeLayout>
+
+        <!--1-->
+        <android.support.percent.PercentRelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_toLeftOf="@+id/prl_position_two"
+            app:layout_marginRightPercent="5%"
+            app:layout_widthPercent="20%">
+
+            <ImageButton
+                android:id="@+id/ibtn_layout_one"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:background="@mipmap/one_screen"
+                android:src="@mipmap/screen_active"
+                app:layout_heightPercent="70%" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/ibtn_layout_one"
+                android:layout_centerHorizontal="true"
+                android:text="@string/one_screen"
+                android:textColor="#53C9F9"
+                android:textSize="@dimen/menu1080_tv_35_dp"
+                app:layout_marginTopPercent="5%" />
+        </android.support.percent.PercentRelativeLayout>
+
+        <!--3-->
+        <android.support.percent.PercentRelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@+id/prl_position_two"
+            app:layout_marginLeftPercent="5%"
+            app:layout_widthPercent="20%">
+
+            <ImageButton
+                android:id="@+id/ibtn_layout_three"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:background="@mipmap/three_screen"
+                app:layout_heightPercent="70%" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/ibtn_layout_three"
+                android:layout_centerHorizontal="true"
+                android:text="@string/three_screen"
+                android:textColor="#53C9F9"
+                android:textSize="@dimen/menu1080_tv_35_dp"
+                app:layout_marginTopPercent="5%" />
+        </android.support.percent.PercentRelativeLayout>
+
+
+    </android.support.percent.PercentRelativeLayout>
+
+    <CheckBox
+        android:id="@+id/cb_off_selectHead"
+        style="@style/off_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/perRel_offline_2"
+        android:checked="true"
+        android:nextFocusDown="@+id/ibtn_off_plan1"
+        android:text="@string/logo_and_time"
+        android:textSize="@dimen/menu1080_tv_35_dp"
+        app:layout_marginLeftPercent="15%"
+        app:layout_marginTopPercent="6%" />
+
+    <CheckBox
+        android:id="@+id/cb_off_date"
+        style="@style/off_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/perRel_offline_2"
+        android:layout_toRightOf="@id/cb_off_selectHead"
+        android:background="@drawable/input10"
+        android:checked="true"
+        android:text=" 2010-01-01"
+        android:textSize="@dimen/menu1080_tv_35_dp"
+        app:layout_marginLeftPercent="6%"
+        app:layout_marginTopPercent="6%" />
+
+    <CheckBox
+        android:id="@+id/cb_off_time"
+        style="@style/off_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/perRel_offline_2"
+        android:layout_toRightOf="@id/cb_off_date"
+        android:background="@drawable/input10"
+        android:checked="true"
+        android:text=" 12:12"
+        android:textSize="@dimen/menu1080_tv_35_dp"
+        app:layout_marginLeftPercent="6%"
+        app:layout_marginTopPercent="6%" />
+
+    <CheckBox
+        android:id="@+id/cb_off_selectFooter"
+        style="@style/off_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/cb_off_selectHead"
+        android:checked="true"
+        android:text="@string/scrolling_subtitles"
+        android:textSize="@dimen/menu1080_tv_35_dp"
+        app:layout_marginLeftPercent="15%"
+        app:layout_marginTopPercent="5%" />
+
+    <ImageButton
+        android:id="@+id/ibtn_off_plan1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@id/cb_off_selectHead"
+        android:layout_toRightOf="@id/cb_off_selectFooter"
+        android:background="@mipmap/one"
+        android:src="@mipmap/subtitle_active"
+        app:layout_heightPercent="7%"
+        app:layout_marginLeftPercent="5%"
+        app:layout_marginTopPercent="4%"
+        app:layout_widthPercent="11%" />
+
+    <ImageButton
+        android:id="@+id/ibtn_off_plan2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@id/cb_off_selectHead"
+        android:layout_toRightOf="@id/ibtn_off_plan1"
+        android:background="@mipmap/two"
+        app:layout_heightPercent="7%"
+        app:layout_marginLeftPercent="1%"
+        app:layout_marginTopPercent="4%"
+        app:layout_widthPercent="11%" />
+
+    <ImageButton
+        android:id="@+id/ibtn_off_plan3"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@id/cb_off_selectHead"
+        android:layout_toRightOf="@id/ibtn_off_plan2"
+        android:background="@mipmap/three"
+        app:layout_heightPercent="7%"
+        app:layout_marginLeftPercent="1%"
+        app:layout_marginTopPercent="4%"
+        app:layout_widthPercent="11%" />
+
+    <ImageButton
+        android:id="@+id/ibtn_off_plan4"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@id/cb_off_selectHead"
+        android:layout_toRightOf="@id/ibtn_off_plan3"
+        android:background="@mipmap/four"
+        app:layout_heightPercent="7%"
+        app:layout_marginLeftPercent="1%"
+        app:layout_marginTopPercent="4%"
+        app:layout_widthPercent="11%" />
+
+    <TextView
+        android:id="@+id/tv_menu_offline_times"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/cb_off_selectFooter"
+        android:text="@string/picture_scroll_time"
+        android:textSize="@dimen/menu1080_tv_35_dp"
+        app:layout_marginLeftPercent="15%"
+        app:layout_marginTopPercent="5%" />
+
+    <TextView
+        android:id="@+id/tv_offline_rolling_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/cb_off_selectFooter"
+        android:layout_toRightOf="@id/tv_menu_offline_times"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="5"
+        android:textSize="@dimen/menu1080_tv_35_dp"
+        app:layout_marginLeftPercent="1%"
+        app:layout_marginTopPercent="5%" />
+
+    <ImageView
+        android:id="@+id/iv_offline_times"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@id/cb_off_selectFooter"
+        android:layout_toRightOf="@id/tv_offline_rolling_time"
+        android:src="@mipmap/time"
+        app:layout_heightPercent="5%"
+        app:layout_marginLeftPercent="2%"
+        app:layout_marginTopPercent="4.5%"
+        app:layout_widthPercent="3%" />
+
+    <TextView
+        android:id="@+id/tv_menu_offline_animation_head"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/cb_off_selectFooter"
+        android:layout_toRightOf="@+id/iv_offline_times"
+        android:text="@string/picture_switch"
+        android:textSize="@dimen/menu1080_tv_35_dp"
+        app:layout_marginLeftPercent="6%"
+        app:layout_marginTopPercent="5%" />
+
+
+    <TextView
+        android:id="@+id/tv_menu_offline_animation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/cb_off_selectFooter"
+        android:layout_toRightOf="@id/tv_menu_offline_animation_head"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="@string/effect_no"
+        android:textSize="@dimen/menu1080_tv_35_dp"
+        app:layout_marginLeftPercent="1%"
+        app:layout_marginTopPercent="5%" />
+
+    <ImageView
+        android:id="@+id/iv_offline_animation"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@id/cb_off_selectFooter"
+        android:layout_toRightOf="@id/tv_menu_offline_animation"
+        android:src="@mipmap/switchover"
+        app:layout_heightPercent="5%"
+        app:layout_marginLeftPercent="2%"
+        app:layout_marginTopPercent="4.5%"
+        app:layout_widthPercent="3%" />
+
+    <ImageView
+        android:id="@+id/iv_offline_music"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@id/tv_menu_offline_times"
+        android:src="@mipmap/hints"
+        app:layout_heightPercent="5%"
+        app:layout_marginLeftPercent="15%"
+        app:layout_marginTopPercent="5%"
+        app:layout_widthPercent="3%" />
+
+    <TextView
+        android:id="@+id/tv_menu_offline_music"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_menu_offline_times"
+        android:layout_toRightOf="@id/iv_offline_music"
+        android:textSize="@dimen/menu1080_tv_35_dp"
+        app:layout_marginLeftPercent="1%"
+        app:layout_marginRightPercent="15%"
+        app:layout_marginTopPercent="5%" />
+
+    <Button
+        android:id="@+id/btn_off_ok"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@id/iv_offline_music"
+        android:layout_centerHorizontal="true"
+        android:background="#53C9F9"
+        android:text="@string/complete"
+        android:textColor="#fff"
+        android:textSize="@dimen/menu1080_tv_40_dp"
+        app:layout_heightPercent="6%"
+        app:layout_marginLeftPercent="15%"
+        app:layout_marginTopPercent="5%"
+        app:layout_widthPercent="10%" />
+
+</android.support.percent.PercentRelativeLayout>

@@ -1,0 +1,69 @@
+<resources>
+
+    <!--贾东澎 韩中-->
+    <dimen name="menu1080_tv_15_dp">9.5dp</dimen>
+    <dimen name="menu1080_tv_18_dp">8dp</dimen>
+    <dimen name="menu1080_tv_20_dp">12dp</dimen>
+    <dimen name="menu1080_tv_25_dp">13.5dp</dimen>
+    <dimen name="menu1080_tv_27_dp">13.9dp</dimen>
+    <dimen name="menu1080_tv_30_dp">15dp</dimen>
+    <dimen name="menu1080_tv_35_dp">22.5dp</dimen>
+    <dimen name="menu1080_tv_36_dp">23.2dp</dimen>
+    <dimen name="menu1080_tv_40_dp">26dp</dimen>
+    <dimen name="menu1080_tv_50_dp">33dp</dimen>
+    <dimen name="sys_left_btn_95_dp">57.5dp</dimen>
+    <dimen name="inner_sys_padding">12dp</dimen>
+    <dimen name="icon_50_dp">33dp</dimen>
+    <dimen name="icon_40_dp">26dp</dimen>
+    <dimen name="mar_50_dp">33dp</dimen>
+    <dimen name="mar_20_dp">12dp</dimen>
+    <dimen name="mar_30_dp">19dp</dimen>
+    <dimen name="mar_15_dp">8.5dp</dimen>
+    <dimen name="mar_10_dp">5dp</dimen>
+    <dimen name="mar_5_dp">1.5dp</dimen>
+    <dimen name="btn1080_w_120_dp">82dp</dimen>
+    <dimen name="btn1080_w_140_dp">96dp</dimen>
+    <dimen name="btn1080_w_40_dp">26dp</dimen>
+    <dimen name="btn1080_h_45_dp">29.5dp</dimen>
+    <dimen name="erwei_code_400_dp">276dp</dimen>
+
+
+    <!--A89主板 建益达-->
+    <!--<dimen name="menu1080_tv_15_dp">10.5dp</dimen>-->
+    <!--<dimen name="menu1080_tv_18_dp">12.6dp</dimen>-->
+    <!--<dimen name="menu1080_tv_20_dp">14dp</dimen>-->
+    <!--<dimen name="menu1080_tv_25_dp">17.5dp</dimen>-->
+    <!--<dimen name="menu1080_tv_27_dp">18.9dp</dimen>-->
+    <!--<dimen name="menu1080_tv_30_dp">21dp</dimen>-->
+    <!--<dimen name="menu1080_tv_35_dp">24.5dp</dimen>-->
+    <!--<dimen name="menu1080_tv_36_dp">25.2dp</dimen>-->
+    <!--<dimen name="menu1080_tv_40_dp">28dp</dimen>-->
+    <!--<dimen name="menu1080_tv_50_dp">35dp</dimen>-->
+    <!--<dimen name="sys_left_btn_95_dp">66.5dp</dimen>-->
+    <!--<dimen name="inner_sys_padding">14dp</dimen>-->
+    <!--<dimen name="icon_50_dp">35dp</dimen>-->
+    <!--<dimen name="icon_40_dp">28dp</dimen>-->
+    <!--<dimen name="mar_50_dp">35dp</dimen>-->
+    <!--<dimen name="mar_20_dp">14dp</dimen>-->
+    <!--<dimen name="mar_30_dp">21dp</dimen>-->
+    <!--<dimen name="mar_15_dp">10.5dp</dimen>-->
+    <!--<dimen name="mar_10_dp">7dp</dimen>-->
+    <!--<dimen name="mar_5_dp">3.5dp</dimen>-->
+    <!--<dimen name="btn1080_w_120_dp">84dp</dimen>-->
+    <!--<dimen name="btn1080_w_140_dp">98dp</dimen>-->
+    <!--<dimen name="btn1080_w_40_dp">28dp</dimen>-->
+    <!--<dimen name="btn1080_h_45_dp">31.5dp</dimen>-->
+    <!--<dimen name="erwei_code_400_dp">280dp</dimen>-->
+
+    <!--触摸查询尺寸-->
+    <dimen name="mar_165_dp">115dp</dimen>
+    <dimen name="mar_135_dp">94.5dp</dimen>
+    <dimen name="mar_95_dp">66.5dp</dimen>
+    <dimen name="mar_84_dp">58dp</dimen>
+    <dimen name="mar_80_dp">56dp</dimen>
+    <dimen name="mar_60_dp">42dp</dimen>
+    <dimen name="mar_43_dp">30dp</dimen>
+    <dimen name="mar_40_dp">28dp</dimen>
+    <dimen name="tv_30_dp">21dp</dimen>
+
+</resources>

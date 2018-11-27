@@ -4,5 +4,7 @@
     <style name="AppTheme" parent="android:Theme.Black.NoTitleBar.Fullscreen">
         <!-- Customize your theme here. -->
     </style>
-
+    <style name="off_checkbox" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/check_box</item>
+    </style>
 </resources>

@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.AbsoluteLayout;
 
+import com.yunbiao.yunbiaolocal.layouthandle.LayoutProcessor;
 import com.yunbiao.yunbiaolocal.viewfactory.ViewFactory;
 import com.yunbiao.yunbiaolocal.viewfactory.bean.Container;
 import com.yunbiao.yunbiaolocal.viewfactory.bean.LayoutInfo;
@@ -26,22 +27,9 @@ public class Main2Activity extends Activity {
 
         absoluteLayout = new AbsoluteLayout(this);
         setContentView(absoluteLayout);
-        LayoutInfo layoutInfo1 = getLayout("row1_col1", "0%", "0%", "我是第一。。。");
-        LayoutInfo layoutInfo3 = getLayout("row2_col1", "0%", "50%", "我是第三。。。");
-        LayoutInfo layoutInfo2 = getLayout("row1_col2", "50%", "0%", "我是第二。。。");
-        LayoutInfo layoutInfo4 = getLayout("row2_col2", "50%", "50%", "我是第四。。。");
 
-        LayoutInfo[] layoutInfos = {layoutInfo1,layoutInfo2,layoutInfo3,layoutInfo4};
-        ArrayList<LayoutInfo> liList = new ArrayList<>();
-        liList.add(layoutInfo1);
-        liList.add(layoutInfo2);
-        liList.add(layoutInfo3);
-        liList.add(layoutInfo4);
-
-        absoluteLayout.addView(ViewFactory.createScrollText(Main2Activity.this,layoutInfo1,Main2Activity.this.getWindowManager()));
-        absoluteLayout.addView(ViewFactory.createScrollText(Main2Activity.this,layoutInfo2,Main2Activity.this.getWindowManager()));
-        absoluteLayout.addView(ViewFactory.createScrollText(Main2Activity.this,layoutInfo3,Main2Activity.this.getWindowManager()));
-        absoluteLayout.addView(ViewFactory.createScrollText(Main2Activity.this,layoutInfo4,Main2Activity.this.getWindowManager()));
+        LayoutProcessor layoutProcessor = new LayoutProcessor();
+        layoutProcessor.handleLayout();
     }
 
     private LayoutInfo getLayout(String id, String left, String top, String content){
@@ -77,14 +65,8 @@ public class Main2Activity extends Activity {
         if (keyCode == KeyEvent.KEYCODE_MENU) {//检测到菜单键点击事件
             startActivity(new Intent(this,MenuActivity.class));
             return false;
-        } else if (keyCode == KeyEvent.KEYCODE_BACK) {
-//            if (TYTool.pwdIsEmpty()) {
-//                BaseActivity.finishAll();
-//            } else {
-//                MenuDialog.showNormalEntryDialog(MainActivity.this, null, null, null, "2");
-//            }
         }
 
-        return super.onKeyDown(keyCode,event);
+        return false;
     }
 }
