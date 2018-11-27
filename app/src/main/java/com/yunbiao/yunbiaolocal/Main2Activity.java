@@ -1,18 +1,11 @@
 package com.yunbiao.yunbiaolocal;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.support.constraint.ConstraintLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
-import android.widget.TextView;
 
 import com.yunbiao.yunbiaolocal.viewfactory.ViewFactory;
 import com.yunbiao.yunbiaolocal.viewfactory.bean.Container;
@@ -20,10 +13,6 @@ import com.yunbiao.yunbiaolocal.viewfactory.bean.LayoutInfo;
 import com.yunbiao.yunbiaolocal.viewfactory.bean.TextDetail;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class Main2Activity extends Activity {
 
