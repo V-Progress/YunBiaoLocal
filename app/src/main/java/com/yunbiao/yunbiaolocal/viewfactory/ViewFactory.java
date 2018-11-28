@@ -18,6 +18,7 @@ import com.yunbiao.yunbiaolocal.viewfactory.bean.LayoutInfo;
 import com.yunbiao.yunbiaolocal.viewfactory.bean.LayoutPosition;
 import com.yunbiao.yunbiaolocal.viewfactory.bean.TextDetail;
 import com.yunbiao.yunbiaolocal.viewfactory.tool.LayoutJsonTool;
+import com.yunbiao.yunbiaolocal.viewfactory.views.image.IMGCreator;
 import com.yunbiao.yunbiaolocal.viewfactory.views.text.MyScrollTextView;
 import com.yunbiao.yunbiaolocal.viewfactory.views.text.TextCreator;
 
@@ -34,6 +35,7 @@ public class ViewFactory {
     public static final int VIEW_VIDEO = 2;
     public static final int VIEW_WEB = 3;
     public static final int VIEW_WEB_LIVE = 4;
+    public static final int VIEW_IMG = 5;
 
     /***
      * 创建View
@@ -46,6 +48,8 @@ public class ViewFactory {
                 return TextCreator.createTextView(context,layoutInfo,wm);
             case VIEW_TEXT_SCROLL:
                 return TextCreator.createScrollText(context,layoutInfo,wm);
+            case VIEW_IMG:
+                return IMGCreator.createImgOrBackgroundView(context,layoutInfo,wm);
             default:
                 break;
         }

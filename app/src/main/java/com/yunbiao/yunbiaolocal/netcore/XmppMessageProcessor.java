@@ -1,5 +1,9 @@
 package com.yunbiao.yunbiaolocal.netcore;
 
+import android.util.Log;
+
+import com.yunbiao.yunbiaolocal.xmpp.LogUtil;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -42,6 +46,8 @@ public class XmppMessageProcessor {
      */
     public static void dispatchMsg(String message) {
         try {
+            Log.e("123","接收到消息==="+message);
+
             JSONObject jsonObject = new JSONObject(message);
             Integer type = jsonObject.getInt("type");
             switch (type.intValue()) {

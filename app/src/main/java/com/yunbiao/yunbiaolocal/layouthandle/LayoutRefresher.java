@@ -21,6 +21,10 @@ public class LayoutRefresher {
         return instance;
     }
 
+    public Activity getMainActivity(){
+        return mActivity;
+    }
+
     public void registerAct(Activity activity){
         mActivity = activity;
     }
@@ -33,6 +37,10 @@ public class LayoutRefresher {
         }
     }
 
+    public void unRegister(){
+        mActivity = null;
+        instance = null;
+    }
 
 
 }

@@ -19,7 +19,7 @@ import java.util.HashMap;
  * Created by Administrator on 2018/11/27.
  */
 
-public class LayoutProcessor {
+public class MsgDispatcher {
 
     private final int LAYOUT_MUSIC = -3;//音乐
     private final int LAYOUT_TEXT = 2;//音乐
@@ -37,11 +37,12 @@ public class LayoutProcessor {
     private final int LAYOUT_TOUCH_QUERY = 15;//触摸查询
     private final int LAYOUT_BAIDU_ADS = 17;//百度广告联盟
     private final int LAYOUT_SELF_ADS = 18;//自运营广告
-    private BufferedReader br;
-    private HashMap<Object, Object> map;
-    private boolean land;
 
-    public void handleLayout(){
+    private static HashMap<Object, Object> map;
+    private static boolean land;
+
+    public static void handleLayout(String message){
+        BufferedReader br = null;
         // 初始化数据
         map = new HashMap<>();
         map.put("layout", "1");
@@ -49,7 +50,6 @@ public class LayoutProcessor {
         try {
             InputStream is = APP.getContext().getAssets().open("layout/layout" + map.get("layout") + (!map.get("layout").equals("1") && land ? "_land" : "") + ".txt");
 
-            BufferedReader br;
             StringBuilder sb = new StringBuilder();
             br = new BufferedReader(new InputStreamReader(is));
             String s;

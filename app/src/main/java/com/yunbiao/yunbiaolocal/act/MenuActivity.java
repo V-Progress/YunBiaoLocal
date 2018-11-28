@@ -246,20 +246,25 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
                 jumpAct(OffLineActivity.class);
                 break;
             case R.id.btn_menu_offline2:
+                LayoutInfo info3 = getLayout("123", "0%", "50%", "#00ff00");
+                View view3 = ViewFactory.createView(ViewFactory.VIEW_IMG, this, info3, getWindowManager());
+                LayoutRefresher.getInstance().updateLayout(view3);
                 break;
             case R.id.btn_menu_service:
-                LayoutInfo info1 = getLayout("123", "0%", "0%", "hahahahahhaha");
-                View view1 = ViewFactory.createView(ViewFactory.VIEW_TEXT, this, info1, getWindowManager());
-                LayoutRefresher.getInstance().updateLayout(view1);
+                LayoutInfo info2 = getLayout("123", "0%", "0%", "hahahahahhaha");
+                View view2 = ViewFactory.createView(ViewFactory.VIEW_TEXT, this, info2, getWindowManager());
+                LayoutRefresher.getInstance().updateLayout(view2);
                 break;
             case R.id.btn_menu_setting:
-                LayoutInfo info = getLayout("123", "50%", "0%", "hahahahahhaha");
-                View view2 = ViewFactory.createView(ViewFactory.VIEW_TEXT,this, info, getWindowManager());
-                LayoutRefresher.getInstance().updateLayout(view2);
+                LayoutInfo info1 = getLayout("123", "50%", "0%", "hahahahahhaha");
+                View view1 = ViewFactory.createView(ViewFactory.VIEW_TEXT,this, info1, getWindowManager());
+                LayoutRefresher.getInstance().updateLayout(view1);
                 finish();
 
                 break;
             case R.id.btn_weiChat_page:
+//                startService(new Intent(this,NotificationService))
+
                 break;
             case R.id.menu_info_bind_btn:
                 showBindDialog(this);

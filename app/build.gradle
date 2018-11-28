@@ -13,9 +13,25 @@ android {
         versionName "1.0"
     }
     buildTypes {
+        debug {
+            minifyEnabled false
+            /*1.PRO 2.UAT 3.TST 4.DEV*/
+            buildConfigField "int","SERVER_TYPE","3";
+            buildConfigField "String", "URL_PRO", "\"www.yunbiaowulian.com\"";
+            buildConfigField "String", "PORT_PRO", "\"5222\"";
+
+            buildConfigField "String", "URL_TST", "\"192.168.1.101\"";
+            buildConfigField "String", "PORT_TST", "\"5222\"";
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField "int","SERVER_TYPE","3";
+            buildConfigField "String", "URL_PRO", "\"www.yunbiaowulian.com\"";
+            buildConfigField "String", "PORT_PRO", "\"5222\"";
+
+            buildConfigField "String", "URL_TST", "\"192.168.1.101\"";
+            buildConfigField "String", "PORT_TST", "\"5222\"";
         }
     }
 }
