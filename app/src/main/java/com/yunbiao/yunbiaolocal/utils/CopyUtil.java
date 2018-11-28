@@ -1,10 +1,9 @@
 package com.yunbiao.yunbiaolocal.utils;
 
 import android.os.SystemClock;
-import android.text.TextUtils;
 import android.util.Log;
 
-import com.yunbiao.yunbiaolocal.MainActivity;
+import com.yunbiao.yunbiaolocal.act.MainActivity;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

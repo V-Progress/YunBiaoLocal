@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+
+        <TextView
+            android:id="@+id/tv_pwd_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/mar_10_dp"
+            android:layout_marginTop="@dimen/mar_10_dp"
+            android:textSize="@dimen/menu1080_tv_25_dp" />
+
+        <LinearLayout
+            android:id="@+id/ll_pwd_position"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_pwd_title"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="@dimen/mar_50_dp"
+            android:layout_marginRight="@dimen/mar_50_dp"
+            android:layout_marginTop="@dimen/mar_20_dp"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/et_first_entry_pwd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/input_pwd"
+                android:inputType="numberPassword"
+                android:maxLength="6">
+
+                <requestFocus />
+            </EditText>
+
+            <EditText
+                android:id="@+id/et_first_entry_pwd_confirm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/input_pwd_again"
+                android:inputType="numberPassword"
+                android:maxLength="6" />
+
+            <TextView
+                android:id="@+id/tv_first_entry_pwd_hints"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/input_name_bind"
+                android:textColor="@color/menu_bottom_num"
+                android:textSize="@dimen/menu1080_tv_20_dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ll_pwd_position"
+            android:layout_marginTop="@dimen/mar_20_dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_first_pwd_cancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/dialog_btn"
+                android:padding="@dimen/mar_10_dp"
+                android:text="@string/cancel"
+                android:textSize="@dimen/menu1080_tv_20_dp" />
+
+
+            <Button
+                android:id="@+id/btn_first_pwd_sure"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/dialog_btn"
+                android:padding="@dimen/mar_10_dp"
+                android:text="@string/sure"
+                android:textSize="@dimen/menu1080_tv_20_dp" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+
+</RelativeLayout>

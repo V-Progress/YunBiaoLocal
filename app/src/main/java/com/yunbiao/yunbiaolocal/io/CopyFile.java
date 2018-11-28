@@ -1,9 +1,8 @@
 package com.yunbiao.yunbiaolocal.io;
 
 import android.os.SystemClock;
-import android.util.Log;
 
-import com.yunbiao.yunbiaolocal.MainActivity;
+import com.yunbiao.yunbiaolocal.act.MainActivity;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -11,10 +10,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class CopyFile {
     /**

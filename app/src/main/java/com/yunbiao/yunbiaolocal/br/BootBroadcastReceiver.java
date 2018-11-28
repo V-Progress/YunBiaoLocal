@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.yunbiao.yunbiaolocal.MainActivity;
+import com.yunbiao.yunbiaolocal.act.MainActivity;
 
 public class BootBroadcastReceiver extends BroadcastReceiver {
     @Override

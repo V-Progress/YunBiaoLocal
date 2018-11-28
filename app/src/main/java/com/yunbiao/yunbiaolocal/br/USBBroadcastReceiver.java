@@ -6,24 +6,20 @@ import android.content.Intent;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Log;
-import android.widget.ImageSwitcher;
 import android.widget.Toast;
 
-import com.yunbiao.yunbiaolocal.MainActivity;
+import com.yunbiao.yunbiaolocal.act.MainActivity;
 import com.yunbiao.yunbiaolocal.io.CopyFile;
 
 import java.io.File;
-import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import static android.content.ContentValues.TAG;
-import static android.os.Environment.getExternalStorageDirectory;
 
 public class USBBroadcastReceiver extends BroadcastReceiver implements Runnable {
     private String dataString;

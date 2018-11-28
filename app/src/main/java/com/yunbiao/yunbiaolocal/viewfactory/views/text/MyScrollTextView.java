@@ -1,4 +1,4 @@
-package com.yunbiao.yunbiaolocal.viewfactory.views;
+package com.yunbiao.yunbiaolocal.viewfactory.views.text;
 
 import android.content.Context;
 import android.graphics.Canvas;

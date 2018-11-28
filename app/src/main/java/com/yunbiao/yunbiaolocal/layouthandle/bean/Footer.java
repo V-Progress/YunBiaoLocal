@@ -4,7 +4,7 @@ package com.yunbiao.yunbiaolocal.layouthandle.bean;
  * Created by Administrator on 2018/11/27.
  */
 
-class Footer{
+public class Footer{
     String background;
     String enabled;
     String fontColor;

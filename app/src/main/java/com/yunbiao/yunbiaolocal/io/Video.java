@@ -5,7 +5,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.xboot.stdcall.PowerOffTool;
-import com.yunbiao.yunbiaolocal.MainActivity;
+import com.yunbiao.yunbiaolocal.act.MainActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import static android.content.ContentValues.TAG;
 
 public class Video {
     public static List<String> playList;

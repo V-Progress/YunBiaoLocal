@@ -1,10 +1,7 @@
-package com.yunbiao.yunbiaolocal;
+package com.yunbiao.yunbiaolocal.act;
 
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.AlertDialog;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -28,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.br.USBBroadcastReceiver;
 import com.yunbiao.yunbiaolocal.io.Video;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
@@ -38,7 +36,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 import okhttp3.Call;

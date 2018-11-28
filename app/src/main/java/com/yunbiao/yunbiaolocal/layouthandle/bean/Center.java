@@ -7,7 +7,7 @@ import com.yunbiao.yunbiaolocal.viewfactory.bean.ImageDetail;
  * Created by Administrator on 2018/11/27.
  */
 
-class Center{
+public class Center{
     Container container;
     String id;
     ImageDetail imageDetail;

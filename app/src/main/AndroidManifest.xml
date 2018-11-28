@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.yunbiao.yunbiaolocal">
 
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -15,7 +17,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".Main2Activity"
+            android:name=".act.Main2Activity"
             android:label="@string/app_name"
             android:launchMode="singleTask">
             <intent-filter>
@@ -32,10 +34,10 @@
         </receiver>
 
         <activity
-            android:name=".MenuActivity"
+            android:name=".act.MenuActivity"
             android:launchMode="singleTask" />
 
-        <activity android:name=".OffLineActivity"
+        <activity android:name=".act.OffLineActivity"
             android:launchMode="singleTask" />
     </application>
 

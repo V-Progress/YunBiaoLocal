@@ -1,4 +1,4 @@
-package com.yunbiao.yunbiaolocal.viewfactory.views;
+package com.yunbiao.yunbiaolocal.viewfactory.views.video;
 
 import android.content.Context;
 import android.util.AttributeSet;

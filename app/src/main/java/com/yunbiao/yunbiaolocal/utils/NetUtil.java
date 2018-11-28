@@ -8,6 +8,7 @@ import com.zhy.http.okhttp.callback.StringCallback;
 import com.zhy.http.okhttp.request.RequestCall;
 
 import java.io.File;
+import java.util.Map;
 
 import okhttp3.Call;
 
@@ -32,6 +33,17 @@ public class NetUtil {
         if(build != null){
             build.cancel();
         }
+    }
+
+    public void post(String url, Map<String,String> params, StringCallback stringCallback){
+        build = OkHttpUtils
+                .post()
+                .params(params)
+                .build()
+                .connTimeOut(30000)
+                .readTimeOut(30000)
+                .writeTimeOut(30000);
+        build.execute(stringCallback);
     }
 
     public void requestNet(String params,StringCallback stringCallback){

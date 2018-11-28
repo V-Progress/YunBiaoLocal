@@ -4,10 +4,10 @@ package com.yunbiao.yunbiaolocal.layouthandle.bean;
  * Created by Administrator on 2018/11/27.
  */
 
-class Move{
+public class Move{
     BGM bgmusic;
     String type;
-    class BGM{
+    public class BGM{
         String music;
 
         public String getMusic() {

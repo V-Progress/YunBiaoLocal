@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@mipmap/fwsz_bj"
-    tools:context=".OffLineActivity">
+    tools:context=".act.OffLineActivity">
 
     <android.support.percent.PercentRelativeLayout
         android:id="@+id/perRel_offline_1"
@@ -36,6 +36,7 @@
 
 
         <ImageView
+            android:id="@+id/iv_goback"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_alignParentEnd="true"
