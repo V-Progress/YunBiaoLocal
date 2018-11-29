@@ -3,7 +3,7 @@
 package org.xbill.DNS;
 
 /**
- * Constants and functions relating to DNS opcodes
+ * NetConstants and functions relating to DNS opcodes
  *
  * @author Brian Wellington
  */

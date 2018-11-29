@@ -1,10 +1,12 @@
-package com.yunbiao.yunbiaolocal.layouthandle;
+package com.yunbiao.yunbiaolocal;
 
 import android.os.Handler;
 import android.os.Message;
 
 
+import com.yunbiao.yunbiaolocal.cache.ResConstants;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
+import com.yunbiao.yunbiaolocal.utils.ThreadUitls;
 import com.yunbiao.yunbiaolocal.xmpp.XmppManager;
 import com.zhy.http.okhttp.callback.StringCallback;
 
@@ -70,7 +72,7 @@ public class CheckXmppOnline {
                 Map<String, String> map = new HashMap<>();
                 map.put("deviceNo", HeartBeatClient.getDeviceNo());
 
-                NetUtil.getInstance().post(ResourceUpdate.DEVICE_ONLINE_STATUS, map, new StringCallback() {
+                NetUtil.getInstance().post(ResConstants.DEVICE_ONLINE_STATUS, map, new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
 
@@ -92,7 +94,7 @@ public class CheckXmppOnline {
                     }
                 });
 
-                /*MyXutils.getInstance().post(ResourceUpdate.DEVICE_ONLINE_STATUS, map, new MyXutils.XCallBack() {
+                /*MyXutils.getInstance().post(ResConstants.DEVICE_ONLINE_STATUS, map, new MyXutils.XCallBack() {
                     @Override
                     public void onSuccess(String result) {
                         try {

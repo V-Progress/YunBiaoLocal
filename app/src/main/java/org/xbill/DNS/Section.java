@@ -3,7 +3,7 @@
 package org.xbill.DNS;
 
 /**
- * Constants and functions relating to DNS message sections
+ * NetConstants and functions relating to DNS message sections
  *
  * @author Brian Wellington
  */

@@ -24,7 +24,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.yunbiao.yunbiaolocal.Const;
-import com.yunbiao.yunbiaolocal.layouthandle.cache.LayoutCache;
+import com.yunbiao.yunbiaolocal.cache.CacheUtil;
 
 import java.util.Properties;
 
@@ -71,7 +71,7 @@ public final class ServiceManager {
 
         apiKey = Const.API_KEY;
 
-        String machineIpAdress = LayoutCache.getMechineIp();
+        String machineIpAdress = CacheUtil.getMechineIp();
         if(!TextUtils.isEmpty(machineIpAdress)){
             String ipAdress = machineIpAdress.substring(0, machineIpAdress.indexOf(","));
             if (!TextUtils.isEmpty(ipAdress)) {

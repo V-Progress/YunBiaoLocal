@@ -2,7 +2,6 @@ package com.yunbiao.yunbiaolocal;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Application;
 import android.content.Context;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -15,10 +14,17 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.yunbiao.yunbiaolocal.act.MainActivity;
+import com.yunbiao.yunbiaolocal.cache.CacheUtil;
+import com.yunbiao.yunbiaolocal.cache.ResConstants;
+import com.yunbiao.yunbiaolocal.utils.CommonUtils;
+import com.yunbiao.yunbiaolocal.utils.NetUtil;
+import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import okhttp3.Call;
 
 @TargetApi(Build.VERSION_CODES.GINGERBREAD)
 public class HeartBeatClient {
@@ -58,7 +64,7 @@ public class HeartBeatClient {
      * @return
      */
     public static String getDeviceNo() {
-//        sbDeviceId = LayoutCache.getDeviceNo(); // TODO: 2018/11/27
+        sbDeviceId = CacheUtil.getDeviceNo();
 //        if (TextUtils.isEmpty(sbDeviceId) || sbDeviceId.equals("-1")) {
 //            sbDeviceId = createDeviceNo();
 //            return sbDeviceId;
@@ -83,42 +89,70 @@ public class HeartBeatClient {
         final String tmPhone = getAndroidId();
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put("deviceNo", tmPhone);
-//        MyXutils.getInstance().post(ResourceUpdate.SER_NUMBER, paramMap, new MyXutils.XCallBack() {
-//            @Override
-//            public void onSuccess(String result) {
-//                String deviceNo = "-1";
-//
-//                if (result.startsWith("\"")) {
-//                    result = result.substring(1, result.length() - 1);
-//                }
-//                if (result.equals("1")) {//服务器中有，继续使用该数据
-//                    deviceNo = tmPhone;
-//                } else if (result.equals("0")) {//服务器中没有，就使用getMacAddress()获取唯一标识
-////                    deviceNo = getMacAddress();
-//                    deviceNo = getMacAddress(5);//重复五次防止出厂从未打开wifi获取不到wifimac
-//                }
-//
-//                if (!deviceNo.equals("-1")) {
-//                    LayoutCache.putDeviceNo(deviceNo);
-//                }
-//
-//                Log.e(TAG, "createDeviceNo: " + deviceNo);
-//            }
-//
-//            @Override
-//            public void onError(Throwable ex) {
-//
-//            }
-//
-//            @Override
-//            public void onFinish() {
-//
-//            }
-//        });
+
+        NetUtil.getInstance().post(ResConstants.SER_NUMBER, paramMap, new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+
+            }
+
+            @Override
+            public void onResponse(String response, int id) {
+                String deviceNo = "-1";
+
+                if (response.startsWith("\"")) {
+                    response = response.substring(1, response.length() - 1);
+                }
+                if (response.equals("1")) {//服务器中有，继续使用该数据
+                    deviceNo = tmPhone;
+                } else if (response.equals("0")) {//服务器中没有，就使用getMacAddress()获取唯一标识
+//                    deviceNo = getMacAddress();
+                    deviceNo = getMacAddress(5);//重复五次防止出厂从未打开wifi获取不到wifimac
+                }
+
+                if (!deviceNo.equals("-1")) {
+                    CacheUtil.putDeviceNo(deviceNo);
+                }
+
+                Log.e(TAG, "createDeviceNo: " + deviceNo);
+            }
+        });
+        /*MyXutils.getInstance().post(ResConstants.SER_NUMBER, paramMap, new MyXutils.XCallBack() {
+            @Override
+            public void onSuccess(String result) {
+                String deviceNo = "-1";
+
+                if (result.startsWith("\"")) {
+                    result = result.substring(1, result.length() - 1);
+                }
+                if (result.equals("1")) {//服务器中有，继续使用该数据
+                    deviceNo = tmPhone;
+                } else if (result.equals("0")) {//服务器中没有，就使用getMacAddress()获取唯一标识
+//                    deviceNo = getMacAddress();
+                    deviceNo = getMacAddress(5);//重复五次防止出厂从未打开wifi获取不到wifimac
+                }
+
+                if (!deviceNo.equals("-1")) {
+                    CacheUtil.putDeviceNo(deviceNo);
+                }
+
+                Log.e(TAG, "createDeviceNo: " + deviceNo);
+            }
+
+            @Override
+            public void onError(Throwable ex) {
+
+            }
+
+            @Override
+            public void onFinish() {
+
+            }
+        });*/
     }
 
     public static String getAndroidId() {
-        Application context = APP.getContext();
+        Context context = APP.getContext();
         final TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         final String tmDevice, tmPhone, androidId;// tmSerial,
         tmDevice = "" + tm.getDeviceId();

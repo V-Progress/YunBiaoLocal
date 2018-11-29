@@ -1,41 +1,14 @@
-package com.yunbiao.yunbiaolocal.layouthandle;
+package com.yunbiao.yunbiaolocal.cache;
 
 import android.os.Environment;
-import android.text.TextUtils;
-import android.util.Log;
 
-import com.yunbiao.yunbiaolocal.APP;
-import com.yunbiao.yunbiaolocal.Constants;
-import com.yunbiao.yunbiaolocal.act.MainActivity;
-import com.yunbiao.yunbiaolocal.layouthandle.cache.ACache;
-import com.yunbiao.yunbiaolocal.layouthandle.cache.LayoutCache;
-import com.yunbiao.yunbiaolocal.utils.DateUtil;
-import com.yunbiao.yunbiaolocal.viewfactory.bean.LayoutInfo;
-import com.yunbiao.yunbiaolocal.viewfactory.tool.LayoutJsonTool;
+import com.yunbiao.yunbiaolocal.NetConstants;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
+public class ResConstants {
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+    private static final String TAG = "ResConstants";
 
-import static com.yunbiao.yunbiaolocal.layouthandle.cache.LayoutCache.putAdsInfoTemp;
-import static com.yunbiao.yunbiaolocal.layouthandle.cache.LayoutCache.putLayoutCache;
-
-public class ResourceUpdate {
-
-    private static final String TAG = "ResourceUpdate";
-
-    private static String WEB_BASE_URL = Constants.RESOURCE_URL;
+    private static String WEB_BASE_URL = NetConstants.RESOURCE_URL;
 
     /**
      * 资源获取
@@ -164,7 +137,7 @@ public class ResourceUpdate {
 //    }
 //
 //    public static void initWebConnect() {
-//        WEB_BASE_URL = Constants.RESOURCE_URL;
+//        WEB_BASE_URL = NetConstants.RESOURCE_URL;
 //        RESOURCE_URL = WEB_BASE_URL + "device/service/getresource.html";
 //        LAYOUT_MENU_URL = WEB_BASE_URL + "device/service/getLayoutMenu.html";
 //        WEATHER_URL = WEB_BASE_URL + "weather/city.html";
@@ -249,7 +222,7 @@ public class ResourceUpdate {
 ////        SoundControl.setMusicSound(volumeD);
 ////    }
 //
-//    public static void uploadAppVersion() {
+    public static void uploadAppVersion() {
 //        TYTool.showTitleTip("版本:" + MainActivity.versionName);
 //        HashMap<String, String> paramMap = new HashMap<String, String>();
 //        paramMap.put("deviceNo", HeartBeatClient.getDeviceNo());
@@ -271,7 +244,7 @@ public class ResourceUpdate {
 //
 //            }
 //        });
-//    }
+    }
 //
 //    /**
 //     * 上传磁盘数据
@@ -304,7 +277,7 @@ public class ResourceUpdate {
 //    public static void deleteOtherFile() {
 //        String sdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
 //        String savePath = sdPath + PROPERTY_CACHE_PATH;
-//        ACache acache = ACache.get(new File(savePath));
+//        FileCache acache = FileCache.get(new File(savePath));
 //        String layoutJson = acache.getAsString("layoutJson");
 //        //获取布局中的文件
 //        List allResources = getResouceList(layoutJson);
@@ -360,7 +333,7 @@ public class ResourceUpdate {
 //        paramMap.put("deviceNo", deviceId);
 //        paramMap.put("startTime", startTime);
 //        Log.e(TAG, "getDeviceAdsResource: " + ADS_RESOURCE_URL);
-//        MyXutils.getInstance().post(ResourceUpdate.ADS_RESOURCE_URL, paramMap, new MyXutils.XCallBack() {
+//        MyXutils.getInstance().post(ResConstants.ADS_RESOURCE_URL, paramMap, new MyXutils.XCallBack() {
 //            @Override
 //            public void onSuccess(String result) {
 //                Log.e(TAG, "onSuccess: ->" + result);
@@ -370,7 +343,7 @@ public class ResourceUpdate {
 //                }
 //                String layoutCache="";
 //                if (!result.equals("null") && !result.equals("faile") && !result.equals("[]")) {
-//                    layoutCache = LayoutCache.getLayoutCacheAsString();
+//                    layoutCache = CacheUtil.getLayoutCacheAsString();
 //                    if (date == null) {
 //                        //判断日志是否启动，防止机器状态更新不及时
 //                        if (!AdsManager.isStart){
@@ -425,13 +398,13 @@ public class ResourceUpdate {
 //     *
 //     * @param deviceId
 //     * @return String savePath = sdPath + PROPERTY_CACHE_PATH;
-//     * ACache acache = ACache.get(new File(savePath));
+//     * FileCache acache = FileCache.get(new File(savePath));
 //     * acache.put("layoutJson", deviceJson);
 //     */
 //    public void getDeviceResource(String deviceId) {
 //        HashMap<String, String> paramMap = new HashMap<>();
 //        paramMap.put("deviceId", deviceId);
-//        MyXutils.getInstance().post(ResourceUpdate.RESOURCE_URL, paramMap, new MyXutils.XCallBack() {
+//        MyXutils.getInstance().post(ResConstants.RESOURCE_URL, paramMap, new MyXutils.XCallBack() {
 //            @Override
 //            public void onSuccess(String result) {
 //                // 没有返回，或者请求错误
@@ -477,7 +450,7 @@ public class ResourceUpdate {
 //
 //                //如果有需要下载的文件
 //                if (counter.isEquals()) {
-//                    JSONArray screenArray = LayoutCache.getLayoutCacheAsArray();
+//                    JSONArray screenArray = CacheUtil.getLayoutCacheAsArray();
 //                    if (screenArray != null && screenArray.length() > 0) {
 //                        TimerReceiver.screen();
 //                    }
@@ -489,7 +462,7 @@ public class ResourceUpdate {
 //                            public void onComPlete() {
 //                                if (!TextUtils.isEmpty(deviceJson)) {
 //                                    Log.d("布局信息3", "downloadLocalLayoutResource:下载完成监听-------");
-//                                    JSONArray screenArray = LayoutCache.getLayoutCacheAsArray();
+//                                    JSONArray screenArray = CacheUtil.getLayoutCacheAsArray();
 //                                    if (screenArray != null && screenArray.length() > 0) {
 //                                        TimerReceiver.screen();
 //                                    }
@@ -499,7 +472,7 @@ public class ResourceUpdate {
 //                    }
 //
 //                    //所有资源文件保存路径
-//                    String imagePath = ResourceUpdate.RESOURSE_PATH + IMAGE_CACHE_PATH;
+//                    String imagePath = ResConstants.RESOURSE_PATH + IMAGE_CACHE_PATH;
 //                    //当前无布局现实的时候屏幕会卡在这里
 //                    //文件下载
 //                    getResource(deviceJson, imagePath, counter);
@@ -513,7 +486,7 @@ public class ResourceUpdate {
 //    public static DownListener downListener;
 //
 //    public static void setDownListener(DownListener downListener) {
-//        ResourceUpdate.downListener = downListener;
+//        ResConstants.downListener = downListener;
 //    }
 //
 //    /**
@@ -643,7 +616,7 @@ public class ResourceUpdate {
 //    }
 //
 //    public static void deleteDownFile() {
-//        String layoutStr = LayoutCache.getLayoutCacheAsString();
+//        String layoutStr = CacheUtil.getLayoutCacheAsString();
 //        List<String> allDownloadList = getResouceList(layoutStr);
 //
 //        for (int i = 0; i < allDownloadList.size(); i++) {
@@ -654,7 +627,7 @@ public class ResourceUpdate {
 //    }
 //
 //    public static void downloadLevelFile() {
-//        String layoutStr = LayoutCache.getLayoutCacheAsString();
+//        String layoutStr = CacheUtil.getLayoutCacheAsString();
 //        List<String> allDownloadList = getResouceList(layoutStr);
 //
 //        List<String> downLoads = new ArrayList<String>();
@@ -681,7 +654,7 @@ public class ResourceUpdate {
 //    }
 //
 //    public static String downloadStatus() {
-//        String layoutStr = LayoutCache.getLayoutCacheAsString();
+//        String layoutStr = CacheUtil.getLayoutCacheAsString();
 //        List<String> allDownloadList = getResouceList(layoutStr);
 //        List<String> downLoads = new ArrayList<>();
 //        List<String> noDownloads = new ArrayList<>();

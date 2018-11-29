@@ -1,16 +1,14 @@
-package com.yunbiao.yunbiaolocal.layouthandle.cache;
+package com.yunbiao.yunbiaolocal.cache;
 
 import android.os.Environment;
 import android.text.TextUtils;
-
-import com.yunbiao.yunbiaolocal.layouthandle.ResourceUpdate;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
 
-public class LayoutCache {
+public class CacheUtil {
     private static final String LAYOUT_CACHE_CONSTANT = "layoutJson";
     private static final String LAYOUT_POSITION = "layoutPosition";
     private static final String DEVICE_SERNUM_CONSTANT = "serNum";
@@ -39,8 +37,8 @@ public class LayoutCache {
     private static final String ADSINFO_TEMP="adsinfo_temp";//广告信息缓存
 
     private static final String SD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
-    private static final String CACHE_SAVE_PATH = SD_PATH + ResourceUpdate.PROPERTY_CACHE_PATH;
-    private static ACache acache = ACache.get(new File(CACHE_SAVE_PATH));
+    private static final String CACHE_SAVE_PATH = SD_PATH + ResConstants.PROPERTY_CACHE_PATH;
+    private static FileCache acache = FileCache.get(new File(CACHE_SAVE_PATH));
 
     public static void putAdsInfoTemp(String adsInfo){
         acache.put(ADSINFO_TEMP,adsInfo);

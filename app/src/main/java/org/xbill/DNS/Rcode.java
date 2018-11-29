@@ -3,7 +3,7 @@
 package org.xbill.DNS;
 
 /**
- * Constants and functions relating to DNS rcodes (error values)
+ * NetConstants and functions relating to DNS rcodes (error values)
  *
  * @author Brian Wellington
  */

@@ -1,4 +1,4 @@
-package com.yunbiao.yunbiaolocal;
+package com.yunbiao.yunbiaolocal.utils;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -18,6 +18,9 @@ import android.text.format.Formatter;
 import android.util.DisplayMetrics;
 import android.view.Surface;
 import android.view.WindowManager;
+
+import com.yunbiao.yunbiaolocal.APP;
+import com.yunbiao.yunbiaolocal.R;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -320,7 +323,7 @@ public class CommonUtils {
      */
 //    public static String getXmppConnected() {
 //        String connectStatus;
-//        if (Constants.xmppManager != null && Constants.xmppManager.isConnected()) {
+//        if (NetConstants.xmppManager != null && NetConstants.xmppManager.isConnected()) {
 //            connectStatus = "在线";
 //        } else {
 //            connectStatus = "离线";
@@ -420,7 +423,7 @@ public class CommonUtils {
 //            }
 //            String broadInfo = result.toString();
 //            LogUtils.e(TAG, "主板信息: " + broadInfo);
-//            LayoutCache.putBroadInfo(broadInfo);
+//            CacheUtil.putBroadInfo(broadInfo);
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        } finally {
@@ -440,7 +443,7 @@ public class CommonUtils {
      * @return 0其他（国威）  1中恒  2深圳鸿世达科技  3亿晟科技  4小百合  5建益达
      */
 //    public static Integer getBroadType() {
-//        String broad_info = LayoutCache.getBroadInfo();
+//        String broad_info = CacheUtil.getBroadInfo();
 //        if (broad_info.contains("zhsd")) {
 //            return 1;
 //        } else if (broad_info.contains("yunbiao") || broad_info.contains("lichao")|| broad_info.contains("shizhenxi")) {//yunbiao   shizhenxi

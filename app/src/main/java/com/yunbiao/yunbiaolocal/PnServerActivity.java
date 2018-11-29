@@ -30,7 +30,6 @@ public class PnServerActivity {
 	public static void startXMPP(Activity mainActivity) {
 
 		if (serverManager == null) {
-//			MainActivity mainActivity = HeartBeatClient.getInstance().getMainActivity();
 			serverManager = new ServiceManager(mainActivity);
 			serverManager.startService();
 		}

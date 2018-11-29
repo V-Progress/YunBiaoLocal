@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.yunbiao.yunbiaolocal.layouthandle.MsgDispatcher;
 import com.yunbiao.yunbiaolocal.netcore.XmppMessageProcessor;
 
 /**

@@ -3,7 +3,7 @@
 package org.xbill.DNS;
 
 /**
- * Constants and functions relating to DNS classes.  This is called DClass
+ * NetConstants and functions relating to DNS classes.  This is called DClass
  * to avoid confusion with Class.
  *
  * @author Brian Wellington

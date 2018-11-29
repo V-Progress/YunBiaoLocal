@@ -1,4 +1,4 @@
-package com.yunbiao.yunbiaolocal.layouthandle.cache;
+package com.yunbiao.yunbiaolocal.cache;
 
 import android.content.Context;
 import android.util.Log;
@@ -31,30 +31,30 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * @author michael yang（www.yangfuhai.com）
  */
-public class ACache {
+public class FileCache {
     private static final int MAX_SIZE = 1000 * 1000 * 30;
     private static final int MAX_COUNT = 1000 * 100;
-    private static Map<String, ACache> instanceMap = new HashMap<>();
+    private static Map<String, FileCache> instanceMap = new HashMap<>();
     private ACacheManager mCache;
 
-    public static ACache get(Context ctx) {
-        File f = new File(ctx.getCacheDir(), "ACache");
+    public static FileCache get(Context ctx) {
+        File f = new File(ctx.getCacheDir(), "FileCache");
         return get(f, MAX_SIZE, MAX_COUNT);
     }
 
-    public static ACache get(File cacheDir) {
+    public static FileCache get(File cacheDir) {
         return get(cacheDir, MAX_SIZE, MAX_COUNT);
     }
 
-    public static ACache get(Context ctx, int max_zise, int max_count) {
-        File f = new File(ctx.getCacheDir(), "ACache");
+    public static FileCache get(Context ctx, int max_zise, int max_count) {
+        File f = new File(ctx.getCacheDir(), "FileCache");
         return get(f, max_zise, max_count);
     }
 
-    public static ACache get(File cacheDir, int max_zise, int max_count) {
-        ACache manager = instanceMap.get(cacheDir.getAbsoluteFile() + getPid());
+    public static FileCache get(File cacheDir, int max_zise, int max_count) {
+        FileCache manager = instanceMap.get(cacheDir.getAbsoluteFile() + getPid());
         if (manager == null) {
-            manager = new ACache(cacheDir, max_zise, max_count);
+            manager = new FileCache(cacheDir, max_zise, max_count);
             instanceMap.put(cacheDir.getAbsolutePath() + getPid(), manager);
         }
         return manager;
@@ -64,7 +64,7 @@ public class ACache {
         return "_" + android.os.Process.myPid();
     }
 
-    private ACache(File cacheDir, int max_size, int max_count) {
+    private FileCache(File cacheDir, int max_size, int max_count) {
         if (!cacheDir.exists()) {
             cacheDir.mkdirs();
         }

@@ -3,7 +3,7 @@
 package org.xbill.DNS;
 
 /**
- * Constants and functions relating to EDNS flags.
+ * NetConstants and functions relating to EDNS flags.
  *
  * @author Brian Wellington
  */

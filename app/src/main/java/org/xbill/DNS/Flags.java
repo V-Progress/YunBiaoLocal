@@ -3,7 +3,7 @@
 package org.xbill.DNS;
 
 /**
- * Constants and functions relating to flags in the DNS header.
+ * NetConstants and functions relating to flags in the DNS header.
  *
  * @author Brian Wellington
  */

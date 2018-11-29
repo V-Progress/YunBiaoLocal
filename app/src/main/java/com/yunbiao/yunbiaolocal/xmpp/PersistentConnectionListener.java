@@ -17,7 +17,7 @@ package com.yunbiao.yunbiaolocal.xmpp;
 
 import android.util.Log;
 
-import com.yunbiao.yunbiaolocal.layouthandle.SwitchLayout;
+import com.yunbiao.yunbiaolocal.SwitchLayout;
 
 import org.jivesoftware.smack.ConnectionListener;
 

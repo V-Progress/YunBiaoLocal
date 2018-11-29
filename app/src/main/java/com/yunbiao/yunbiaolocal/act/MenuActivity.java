@@ -22,13 +22,8 @@ import android.widget.Toast;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.R;
-import com.yunbiao.yunbiaolocal.layouthandle.LayoutRefresher;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.yunbiao.yunbiaolocal.utils.TimerUtil;
-import com.yunbiao.yunbiaolocal.viewfactory.ViewFactory;
-import com.yunbiao.yunbiaolocal.viewfactory.bean.Container;
-import com.yunbiao.yunbiaolocal.viewfactory.bean.LayoutInfo;
-import com.yunbiao.yunbiaolocal.viewfactory.bean.TextDetail;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.util.HashMap;
@@ -236,7 +231,7 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_menu_start:
-                if (false/*LayoutCache.getLayoutCacheAsArray() == null*/) {
+                if (false/*CacheUtil.getLayoutCacheAsArray() == null*/) {
 //                    startActivity(new Intent(this, SwitchLayout.class));
                 } else {
                     finish();
@@ -246,19 +241,30 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
                 jumpAct(OffLineActivity.class);
                 break;
             case R.id.btn_menu_offline2:
-                LayoutInfo info3 = getLayout("123", "0%", "50%", "#00ff00");
-                View view3 = ViewFactory.createView(ViewFactory.VIEW_IMG, this, info3, getWindowManager());
-                LayoutRefresher.getInstance().updateLayout(view3);
                 break;
             case R.id.btn_menu_service:
-                LayoutInfo info2 = getLayout("123", "0%", "0%", "hahahahahhaha");
-                View view2 = ViewFactory.createView(ViewFactory.VIEW_TEXT, this, info2, getWindowManager());
-                LayoutRefresher.getInstance().updateLayout(view2);
                 break;
             case R.id.btn_menu_setting:
-                LayoutInfo info1 = getLayout("123", "50%", "0%", "hahahahahhaha");
-                View view1 = ViewFactory.createView(ViewFactory.VIEW_TEXT,this, info1, getWindowManager());
-                LayoutRefresher.getInstance().updateLayout(view1);
+//                LayoutInfo info1 = getLayout("123", "0%", "0%", "hahahahahhaha");
+//                View view1 = ViewFactory.createView(ViewFactory.VIEW_TEXT,this, info1, getWindowManager());
+//                LayoutRefresher.getInstance().updateLayout(view1);
+//
+//                LayoutInfo info2 = getLayout("123", "50%", "0%", "hahahahahhaha");
+//                View view2 = ViewFactory.createView(ViewFactory.VIEW_TEXT,this, info2, getWindowManager());
+//                LayoutRefresher.getInstance().updateLayout(view2);
+//
+//                LayoutInfo info3 = getLayout("123", "0%", "50%", "hahahahahhaha");
+//                View view3 = ViewFactory.createView(ViewFactory.VIEW_TEXT,this, info3, getWindowManager());
+//                LayoutRefresher.getInstance().updateLayout(view3);
+//
+//                LayoutInfo info4 = getLayout("123", "50%", "50%", "hahahahahhaha");
+//                View view4 = ViewFactory.createView(ViewFactory.VIEW_TEXT,this, info4, getWindowManager());
+//                LayoutRefresher.getInstance().updateLayout(view4);
+//
+//                LayoutInfo info5 = getAdsLayout("123", "0%", "30%", "hahahahahhaha");
+//                View view5 = ViewFactory.createView(ViewFactory.VIEW_TEXT,this, info5, getWindowManager());
+//                LayoutRefresher.getInstance().updateLayout(view5);
+
                 finish();
 
                 break;
@@ -372,32 +378,60 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
     }
 
 
-    private LayoutInfo getLayout(String id, String left, String top, String content){
-
-        Container container = new Container();
-        container.setHeight("50%");
-        container.setWidth("50%");
-        container.setLeft(left);
-        container.setTop(top);
-
-        TextDetail textDetail = new TextDetail();
-        textDetail.setBackground("#ffffff");
-        textDetail.setDataType(0);
-        textDetail.setFontColor("#FF0000");
-        textDetail.setFontFamily("1");
-        textDetail.setFontSize(52);
-        textDetail.setIsPlay(true);
-        textDetail.setPlayTime(0.1f);
-        textDetail.setPlayType("0");
-        textDetail.setTextAlign("");
-
-        LayoutInfo layoutInfo = new LayoutInfo();
-        layoutInfo.setType(2);
-        layoutInfo.setTextDetail(textDetail);
-        layoutInfo.setContainer(container);
-        layoutInfo.setId(id);
-        layoutInfo.setContent(new String[]{content});
-        return layoutInfo;
-    }
+//    private LayoutInfo getLayout(String id, String left, String top, String content){
+//
+//        Container container = new Container();
+//        container.setHeight("50%");
+//        container.setWidth("50%");
+//        container.setLeft(left);
+//        container.setTop(top);
+//
+//        TextDetail textDetail = new TextDetail();
+//        textDetail.setBackground("#ffffff");
+//        textDetail.setDataType(0);
+//        textDetail.setFontColor("#FF0000");
+//        textDetail.setFontFamily("1");
+//        textDetail.setFontSize(52);
+//        textDetail.setIsPlay(true);
+//        textDetail.setPlayTime(0.1f);
+//        textDetail.setPlayType("0");
+//        textDetail.setTextAlign("");
+//
+//        LayoutInfo layoutInfo = new LayoutInfo();
+//        layoutInfo.setType(2);
+//        layoutInfo.setTextDetail(textDetail);
+//        layoutInfo.setContainer(container);
+//        layoutInfo.setId(id);
+//        layoutInfo.setContent(new String[]{content});
+//        return layoutInfo;
+//    }
+//
+//    private LayoutInfo getAdsLayout(String id, String left, String top, String content){
+//
+//        Container container = new Container();
+//        container.setHeight("20%");
+//        container.setWidth("100%");
+//        container.setLeft(left);
+//        container.setTop(top);
+//
+//        TextDetail textDetail = new TextDetail();
+//        textDetail.setBackground("#00ff00");
+//        textDetail.setDataType(0);
+//        textDetail.setFontColor("#FF0000");
+//        textDetail.setFontFamily("1");
+//        textDetail.setFontSize(52);
+//        textDetail.setIsPlay(true);
+//        textDetail.setPlayTime(0.1f);
+//        textDetail.setPlayType("0");
+//        textDetail.setTextAlign("");
+//
+//        LayoutInfo layoutInfo = new LayoutInfo();
+//        layoutInfo.setType(2);
+//        layoutInfo.setTextDetail(textDetail);
+//        layoutInfo.setContainer(container);
+//        layoutInfo.setId(id);
+//        layoutInfo.setContent(new String[]{content});
+//        return layoutInfo;
+//    }
 
 }

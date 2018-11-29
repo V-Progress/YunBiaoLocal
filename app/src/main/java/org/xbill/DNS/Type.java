@@ -5,7 +5,7 @@ package org.xbill.DNS;
 import java.util.HashMap;
 
 /**
- * Constants and functions relating to DNS Types
+ * NetConstants and functions relating to DNS Types
  *
  * @author Brian Wellington
  */

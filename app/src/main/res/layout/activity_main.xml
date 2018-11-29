@@ -31,6 +31,7 @@
         android:visibility="invisible"/>
 
     <TextView
+        android:visibility="invisible"
         android:id="@+id/console"
         android:layout_width="match_parent"
         android:layout_height="110dp"
@@ -41,6 +42,7 @@
         android:paddingLeft="200dp"/>
 
     <ProgressBar
+        android:visibility="invisible"
         style="?android:attr/progressBarStyleHorizontal"
         android:id="@+id/progress"
         android:layout_width="match_parent"
@@ -48,6 +50,7 @@
         android:layout_above="@+id/console"/>
 
     <LinearLayout
+        android:visibility="invisible"
         android:orientation="horizontal"
         android:gravity="center"
         android:background="#ee000000"

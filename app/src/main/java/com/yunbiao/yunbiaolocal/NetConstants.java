@@ -1,6 +1,6 @@
 package com.yunbiao.yunbiaolocal;
 
-public class Constants {
+public class NetConstants {
 
     public final static Integer YBWEB = 1, TESTWEB = 2, LOCALTEST = 3, LOCAL_SERVER = 4;
 
@@ -57,13 +57,13 @@ public class Constants {
         CURRENT_SERVER_TYPE = LOCAL_SERVER;
         RESOURCE_URL = "http://" + ip.trim() + ":" + port.trim() + "/yb/";
         WEI_PRINT = "http://" + ip.trim() + ":" + port.trim() + "/yb/print.do";
-//        ResourceUpdate.initWebConnect();
+//        ResConstants.initWebConnect();
     }
 
     public static void initYbConstant() {
         RESOURCE_URL = "http://www.yunbiaowulian.com/";
         WEI_PRINT = "http://www.yunbiaowulian.com/pn/print.do";
-//        ResourceUpdate.initWebConnect();
+//        ResConstants.initWebConnect();
     }
 
 }

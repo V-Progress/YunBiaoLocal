@@ -10,7 +10,7 @@ import java.security.spec.*;
 import java.util.*;
 
 /**
- * Constants and methods relating to DNSSEC.
+ * NetConstants and methods relating to DNSSEC.
  *
  * DNSSEC provides authentication for DNS information. 
  * @see RRSIGRecord

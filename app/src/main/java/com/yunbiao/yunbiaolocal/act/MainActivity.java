@@ -2,10 +2,12 @@ package com.yunbiao.yunbiaolocal.act;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,7 +27,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.yunbiao.yunbiaolocal.PnServerActivity;
 import com.yunbiao.yunbiaolocal.R;
+import com.yunbiao.yunbiaolocal.utils.ThreadUitls;
 import com.yunbiao.yunbiaolocal.br.USBBroadcastReceiver;
 import com.yunbiao.yunbiaolocal.io.Video;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
@@ -60,6 +64,8 @@ public class MainActivity extends Activity {
     private AlertDialog mAlertDialog;
     private String yyyyMMdd = new SimpleDateFormat("yyyyMMdd").format(new Date());
     private static int lineNumber = 0;
+
+    public AudioManager audioManager = null;//音频
 
     public static Handler handler = new Handler() {
         @Override
@@ -111,12 +117,14 @@ public class MainActivity extends Activity {
 
         initView();
 
+        ThreadUitls.runInThread(new Runnable() {
+            @Override
+            public void run() {
+                PnServerActivity.startXMPP(MainActivity.this);
+            }
+        });
 
-
-
-
-//        NetUtil.getInstance().downLoadFile(onDownLoadListener);
-
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);// 安卓音频初始化
         //USB广播监听
         usbBroadcastReceiver = new USBBroadcastReceiver();
         IntentFilter intentFilter = new IntentFilter();
@@ -275,15 +283,14 @@ public class MainActivity extends Activity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         //按下菜单键显示播放列表
-//        if (keyCode == KeyEvent.KEYCODE_MENU) {
-//            videoView.pause();
-//            if (mAlertDialog == null)
-//                creatPlayList();
-//            mAlertDialog.show();
-//            videoView.setVisibility(View.INVISIBLE);
-//        }
+        if (keyCode == KeyEvent.KEYCODE_MENU) {
+            videoView.pause();
+            if (mAlertDialog == null)
+                creatPlayList();
+            mAlertDialog.show();
+            videoView.setVisibility(View.INVISIBLE);
+        }
 
-        startActivity(new Intent(this,Main2Activity.class));
         return super.onKeyDown(keyCode, event);
     }
 

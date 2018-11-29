@@ -16,13 +16,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.yunbiao.yunbiaolocal.R;
-import com.yunbiao.yunbiaolocal.layouthandle.bean.Center;
-import com.yunbiao.yunbiaolocal.layouthandle.bean.Footer;
-import com.yunbiao.yunbiaolocal.layouthandle.bean.Header;
-import com.yunbiao.yunbiaolocal.layouthandle.bean.LayoutModel;
-import com.yunbiao.yunbiaolocal.layouthandle.bean.Move;
-import com.yunbiao.yunbiaolocal.viewfactory.bean.Container;
-import com.yunbiao.yunbiaolocal.viewfactory.bean.ImageDetail;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -188,7 +181,7 @@ public class OffLineActivity extends Activity {
                         break;
                     case R.id.btn_first_pwd_sure:
                         completedDialog.dismiss();
-                        setComplete();
+//                        setComplete();
                         finish();
                         break;
                 }
@@ -256,63 +249,63 @@ public class OffLineActivity extends Activity {
         }
     }
 
-    private void setComplete() {
-        LayoutModel layoutModel = new LayoutModel();
-
-        layoutModel.setRunType("1");
-        layoutModel.setStart("00:00");
-        layoutModel.setResClearModel("0");
-        layoutModel.setEnd("00:00");
-
-        List<Center> centerList = new ArrayList<>();
-        Center center = new Center();
-        Container container = new Container();
-        container.setHeight("100%");
-        container.setWidth("100%");
-        container.setLeft("0%");
-        container.setTop("0%");
-        center.setContainer(container);
-        center.setId("row1_col1");
-        center.setType("8");
-        ImageDetail imageDetail = new ImageDetail();
-        imageDetail.setImagePlayType("0");
-        imageDetail.setIsAutoPlay("true");
-        imageDetail.setPlayTime("5");
-        center.setImageDetail(imageDetail);
-        centerList.add(center);
-        layoutModel.setCenter(centerList);
-
-        Footer footer = new Footer();
-        footer.setEnabled("false");
-        footer.setBackground("#ffffff");
-        footer.setFontColor("#000000");
-        footer.setFooterText("");
-        footer.setPlayTime("1");
-        footer.setIsPlay("true");
-        footer.setFontSize("12");
-        footer.setFontFamily("2");
-        layoutModel.setFooter(footer);
-
-        Header header = new Header();
-        header.setEnabled("false");
-        header.setLogoimg("");
-        header.setFontColor("#ffffff");
-        header.setTimeShow("1");
-        header.setAddress("110108:北京市");
-        header.setBackground("#000000");
-        header.setTimeFormat("yyyy年MM月dd日");
-        header.setFontFamily("2");
-        header.setWeatherShow("0");
-        header.setFontSize("12");
-        layoutModel.setHeader(header);
-
-        List<Move> moves = new ArrayList<>();
-        Move move = new Move();
-        Move.BGM bgm = new Move().new BGM();
-        bgm.setMusic("播放本地背景音乐");
-        move.setType("move_3");
-        move.setBgmusic(bgm);
-        moves.add(move);
-        layoutModel.setMove(moves);
-    }
+//    private void setComplete() {
+//        LayoutModel layoutModel = new LayoutModel();
+//
+//        layoutModel.setRunType("1");
+//        layoutModel.setStart("00:00");
+//        layoutModel.setResClearModel("0");
+//        layoutModel.setEnd("00:00");
+//
+//        List<Center> centerList = new ArrayList<>();
+//        Center center = new Center();
+//        Container container = new Container();
+//        container.setHeight("100%");
+//        container.setWidth("100%");
+//        container.setLeft("0%");
+//        container.setTop("0%");
+//        center.setContainer(container);
+//        center.setId("row1_col1");
+//        center.setType("8");
+//        ImageDetail imageDetail = new ImageDetail();
+//        imageDetail.setImagePlayType("0");
+//        imageDetail.setIsAutoPlay("true");
+//        imageDetail.setPlayTime("5");
+//        center.setImageDetail(imageDetail);
+//        centerList.add(center);
+//        layoutModel.setCenter(centerList);
+//
+//        Footer footer = new Footer();
+//        footer.setEnabled("false");
+//        footer.setBackground("#ffffff");
+//        footer.setFontColor("#000000");
+//        footer.setFooterText("");
+//        footer.setPlayTime("1");
+//        footer.setIsPlay("true");
+//        footer.setFontSize("12");
+//        footer.setFontFamily("2");
+//        layoutModel.setFooter(footer);
+//
+//        Header header = new Header();
+//        header.setEnabled("false");
+//        header.setLogoimg("");
+//        header.setFontColor("#ffffff");
+//        header.setTimeShow("1");
+//        header.setAddress("110108:北京市");
+//        header.setBackground("#000000");
+//        header.setTimeFormat("yyyy年MM月dd日");
+//        header.setFontFamily("2");
+//        header.setWeatherShow("0");
+//        header.setFontSize("12");
+//        layoutModel.setHeader(header);
+//
+//        List<Move> moves = new ArrayList<>();
+//        Move move = new Move();
+//        Move.BGM bgm = new Move().new BGM();
+//        bgm.setMusic("播放本地背景音乐");
+//        move.setType("move_3");
+//        move.setBgmusic(bgm);
+//        moves.add(move);
+//        layoutModel.setMove(moves);
+//    }
 }

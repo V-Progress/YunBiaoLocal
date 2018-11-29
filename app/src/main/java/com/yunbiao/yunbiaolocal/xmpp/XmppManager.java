@@ -21,8 +21,8 @@ import android.content.SharedPreferences.Editor;
 import android.os.Handler;
 import android.util.Log;
 
-import com.yunbiao.yunbiaolocal.layouthandle.CheckXmppOnline;
-import com.yunbiao.yunbiaolocal.layouthandle.HeartBeatClient;
+import com.yunbiao.yunbiaolocal.HeartBeatClient;
+import com.yunbiao.yunbiaolocal.CheckXmppOnline;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;
