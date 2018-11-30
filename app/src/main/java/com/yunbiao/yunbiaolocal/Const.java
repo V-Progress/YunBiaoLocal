@@ -15,4 +15,21 @@ public class Const {
 
 
 
+    private interface URL{
+        String SERVER_URL = "";
+        String SERVER_PORT = "";
+    }
+
+
+    public interface CONTROL_EVENT{
+        int OPEN_CONSOLE = 1;
+        int UPDATE_CONSOLE = 2;
+        int INIT_PROGRESS = 3;
+        int UPDATE_PROGRESS = 4;
+        int INIT_PLAYER = 0;
+        int CLOSE_CONSOLE = 0;
+        int VIDEO_PLAY = 11;
+        int VIDEO_STOP = 10;
+    }
+
 }

@@ -3,164 +3,64 @@ package com.yunbiao.yunbiaolocal.br;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Environment;
-import android.os.SystemClock;
-import android.util.Log;
 import android.widget.Toast;
 
-import com.yunbiao.yunbiaolocal.act.MainActivity;
-import com.yunbiao.yunbiaolocal.io.CopyFile;
+import com.yunbiao.yunbiaolocal.Const;
+import com.yunbiao.yunbiaolocal.EventMessage;
+import com.yunbiao.yunbiaolocal.copy.CopyUtil;
+import com.yunbiao.yunbiaolocal.copy.inter.copyFileListener;
 
-import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import static android.content.ContentValues.TAG;
-
-public class USBBroadcastReceiver extends BroadcastReceiver implements Runnable {
+public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileListener {
     private String dataString;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         dataString = intent.getDataString().substring(7);
-//        Toast.makeText(context, "dataString---------->"+dataString+ dataString, Toast.LENGTH_LONG).show();
-        Log.e(TAG, "dataString---------->"+dataString );
-        if (!dataString.matches("/mnt/usbhost\\d")&&!dataString.matches("/storage/usbhost\\d")) {
+        if (!dataString.matches("/mnt/usbhost\\d") && !dataString.matches("/storage/usbhost\\d")) {
             Toast.makeText(context, "请插入SD卡或者U盘" + dataString, Toast.LENGTH_SHORT).show();
-            MainActivity.sendMessage("0", null);
+//            EventMessage.sendMsg(Const.CONTROL_EVENT.INIT_PLAYER, null);
             return;
         }
-        new Thread(this).start();
+        CopyUtil.getInstance().USB2Local(dataString, this);
     }
 
     @Override
-    public void run() {
-        String filePath=Environment.getExternalStorageDirectory().toString();
-
-        Log.e(TAG, "filePath-----------> "+filePath );
-        MainActivity.sendMessage("1", null);//显示控制台
-        addConsoleText("插入U盘" + dataString);
-        File file = new File(dataString + "/yunbiao");
-        if (!file.canRead()) {
-            addConsoleText("U盘中没有yunbiao目录");
-            closeConsole();
-            Log.e(TAG, "U盘中没有yunbiao目录 ");
-            return;
-        }
-
-
-        File toFile = new File(filePath);
-//        File toFile = new File("/mnt/extsd");
-//        if (!toFile.canRead()) {
-//            addConsoleText("没有SD卡");
-//            closeConsole();
-//            Log.e(TAG, "没有SD卡");
-//            return;
-//        }
-        Log.e(getClass().getSimpleName(),"正在拷贝文件");
-        CopyFile copyFile = new CopyFile();
-        int amount = copyFile.fileCount(file);//文件数量
-        Log.e(TAG, "文件数量------------>"+amount );
-        addConsoleText("文件数量" + amount);
-        MainActivity.sendMessage("3", String.valueOf(amount));
-        copyFile.copyFiles(file, toFile);//复制文件
-
-        addConsoleText("复制完成");
-        //删除文件
-        Map<String, File> fileMap = new HashMap<>();
-        File[] files = new File(toFile, "yunbiao").listFiles();
-        for (File f : files) {
-            if (f.isFile()) {
-                addConsoleText("删除文件" + f.getPath());
-                f.delete();
-                continue;
-            }
-            if (!f.getName().matches("\\d{8}-\\d{8}")) {
-                addConsoleText("删除目录" + f.getPath());
-                copyFile.deleteFile(f);
-                continue;
-            }
-
-            String dataString=f.getName().substring(0,f.getName().indexOf("-"));
-            fileMap.put(dataString, f);
-
-
-        }
-
-        SimpleDateFormat formatter2  = new SimpleDateFormat("yyyyMMdd");
-
-//        //删除老目录
-        String[] fileKey = fileMap.keySet().toArray(new String[0]);
-        for (String dataString:fileKey){
-            Log.e(TAG, "dataString--------------------->"+dataString);
-            if ( !isSameWeek(dataString,formatter2)){
-                File f = fileMap.get(dataString);
-                addConsoleText("删除目录" + f.getPath());
-                copyFile.deleteFile(f);
-                continue;
-            }
-
-        }
-        closeConsole();
-
-//        Long[] fileKey = fileMap.keySet().toArray(new Long[0]);
-//        Arrays.sort(fileKey);
-//        Long current = Long.valueOf(new SimpleDateFormat("yyyyMMddyyyyMMdd").format(new Date()));
-//        for (Long l : fileKey) {
-//            if (current == 0) {
-//                File f = fileMap.get(l);
-//                addConsoleText("删除目录" + f.getPath());
-//                copyFile.deleteFile(f);
-//                continue;
-//            }
-//            if (l < current)
-//                current = 0L;
-//        }
-
+    public void onCopyStart(String usbFilePath) {
+        EventMessage.sendMsg(Const.CONTROL_EVENT.OPEN_CONSOLE, null);
+        EventMessage.sendMsg(Const.CONTROL_EVENT.UPDATE_CONSOLE, usbFilePath);
     }
 
-    private void addConsoleText(String text) {
-        SystemClock.sleep(1000);
-        MainActivity.sendMessage("2", text);
+    @Override
+    public void onFileCount(int count) {
+        EventMessage.sendMsg(Const.CONTROL_EVENT.UPDATE_CONSOLE, "文件数量" + count);
+        EventMessage.sendMsg(Const.CONTROL_EVENT.INIT_PROGRESS, String.valueOf(count));
     }
 
-    private void closeConsole() {
-        addConsoleText("加载视频");
-        SystemClock.sleep(20000);
-        MainActivity.sendMessage("0", null);
+    @Override
+    public void onNoFile() {
+        EventMessage.sendMsg(Const.CONTROL_EVENT.UPDATE_CONSOLE, "U盘中没有云标目录");
+        EventMessage.sendMsg(Const.CONTROL_EVENT.CLOSE_CONSOLE, null);
     }
 
-    private boolean isSameWeek(String dataString,SimpleDateFormat formatter){
+    @Override
+    public void onCopying(int i) {
+        EventMessage.sendMsg(Const.CONTROL_EVENT.UPDATE_PROGRESS, String.valueOf(i));
+    }
 
-        try {
-            Date  date = formatter.parse(dataString);
-            // 0.先把Date类型的对象转换Calendar类型的对象
-            Calendar todayCal = Calendar.getInstance();
-            Calendar dateCal = Calendar.getInstance();
+    @Override
+    public void onCopyComplete() {
+        EventMessage.sendMsg(Const.CONTROL_EVENT.UPDATE_CONSOLE, "复制完成");
+    }
 
-            todayCal.setTime(new Date());
-            dateCal.setTime(date);
+    @Override
+    public void onFinish() {
+        EventMessage.sendMsg(Const.CONTROL_EVENT.UPDATE_CONSOLE, "加载视频");
+        EventMessage.sendMsg(Const.CONTROL_EVENT.INIT_PLAYER, null);
+    }
 
-            int todayWeek=todayCal.get(Calendar.WEEK_OF_YEAR);
-            int dateWeek=dateCal.get(Calendar.WEEK_OF_YEAR);
-
-//            Log.e(TAG, "todayWeek------------> "+todayWeek );
-            Log.e(TAG, "dateWeek------------> "+dateWeek );
-            // 1.比较当前日期在年份中的周数是否相同
-            if (todayWeek==dateWeek|(todayWeek==dateWeek+1)|(todayWeek==dateWeek-1)) {
-                return true;
-            }else {
-                return false;
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        return false;
+    @Override
+    public void onDeleteFile(String path) {
+        EventMessage.sendMsg(Const.CONTROL_EVENT.UPDATE_CONSOLE, "删除：" + path);
     }
 
 }

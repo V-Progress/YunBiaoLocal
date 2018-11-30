@@ -27,14 +27,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.yunbiao.yunbiaolocal.PnServerActivity;
+import com.yunbiao.yunbiaolocal.Const;
+import com.yunbiao.yunbiaolocal.EventMessage;
 import com.yunbiao.yunbiaolocal.R;
-import com.yunbiao.yunbiaolocal.utils.ThreadUitls;
 import com.yunbiao.yunbiaolocal.br.USBBroadcastReceiver;
 import com.yunbiao.yunbiaolocal.io.Video;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.yunbiao.yunbiaolocal.utils.ZipUtil;
-import com.zhy.http.okhttp.callback.StringCallback;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,87 +45,123 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import okhttp3.Call;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MainActivity extends Activity {
-
     private static final String TAG = "MainActivity";
+    @BindView(R.id.video)
+    VideoView video;
+    @BindView(R.id.permission)
+    TextView permission;
+    @BindView(R.id.state)
+    TextView state;
+    @BindView(R.id.console)
+    TextView console;
+    @BindView(R.id.progress)
+    ProgressBar progress;
+    @BindView(R.id.pb_download)
+    ProgressBar pbDownload;
+    @BindView(R.id.tv_download_state)
+    TextView tvDownloadState;
+    @BindView(R.id.ll_progress_area)
+    LinearLayout llProgressArea;
 
-    private TextView permission;
-    private static TextView state;
-    private static TextView console;
-    private static ProgressBar progress;
-    private static VideoView videoView;
     private LinearLayout mLinearLayout;
     private ListView mPlaylist;
     private TextView mTimer;
     private VideoView mPreview;
 
     private USBBroadcastReceiver usbBroadcastReceiver;//USB监听广播
-    private static String[] video;//播放列表
+    private static String[] playList;//播放列表
     private static int videoIndex;
     private AlertDialog mAlertDialog;
     private String yyyyMMdd = new SimpleDateFormat("yyyyMMdd").format(new Date());
     private static int lineNumber = 0;
-
     public AudioManager audioManager = null;//音频
 
-    public static Handler handler = new Handler() {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(EventMessage event) {
+        switch (event.getControlType()) {
+            case Const.CONTROL_EVENT.OPEN_CONSOLE:
+                openConsole();
+                break;
+            case Const.CONTROL_EVENT.UPDATE_CONSOLE:
+                updateConsole(event.getConsoleMsg());
+                break;
+            case Const.CONTROL_EVENT.INIT_PROGRESS:
+                progress.setMax(Integer.parseInt(event.getConsoleMsg()));
+                break;
+            case Const.CONTROL_EVENT.UPDATE_PROGRESS:
+                Log.e("123", "当前进度：" + event.getConsoleMsg());
+                progress.setProgress(Integer.parseInt(event.getConsoleMsg()));
+                break;
+            case Const.CONTROL_EVENT.INIT_PLAYER:
+                initPlayer();
+                closeConsole();
+                lineNumber = 0;
+                break;
+            case Const.CONTROL_EVENT.VIDEO_PLAY:
+                play(event.getConsoleMsg());
+                break;
+            case Const.CONTROL_EVENT.VIDEO_STOP:
+                Log.d("log", "停止播放");
+                video.stopPlayback();
+                break;
+        }
+    }
+
+
+    Handler closeConsoleHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            String value = msg.getData().getString(String.valueOf(msg.what));
-            switch (msg.what) {
-                case (1)://打开控制台
-                    console.setVisibility(View.VISIBLE);
-                    break;
-                case (2):
-                    String text = console.getText().toString();
-                    if (lineNumber < 5)
-                        lineNumber++;
-                    else
-                        text = text.substring(text.indexOf("\n") + 1);
-                    if (lineNumber > 1)
-                        text += "\n";
-                    console.setText(text + value);
-                    break;
-                case (3)://设置进度以及最大显示
-                    progress.setMax(Integer.parseInt(value));
-                    progress.setVisibility(View.VISIBLE);
-                    break;
-                case (4)://进度增加
-                    progress.setProgress(progress.getProgress() + 1);
-                    break;
-                case (0)://初始化播放器
-                    initPlayer();
-                    progress.setVisibility(View.INVISIBLE);
-                    progress.setProgress(0);
-                    console.setVisibility(View.INVISIBLE);
-                    console.setText(null);
-                    lineNumber = 0;
-                    break;
-                case (11)://开始播放
-                    play(value);
-                    break;
-                case (10)://停止播放
-                    Log.d("log", "停止播放");
-                    videoView.stopPlayback();
-            }
+            console.setVisibility(View.INVISIBLE);
+            progress.setVisibility(View.INVISIBLE);
+            progress.setProgress(0);
+            progress.setMax(0);
+            console.setText("");
         }
     };
+
+    private void openConsole() {
+        console.setVisibility(View.VISIBLE);
+        progress.setVisibility(View.VISIBLE);
+    }
+
+    private void closeConsole() {
+        closeConsoleHandler.sendEmptyMessageDelayed(0, 2000);
+    }
+
+    private void updateConsole(String msg) {
+        String text = console.getText().toString();
+        if (lineNumber < 5) {
+            lineNumber++;
+        } else {
+            text = text.substring(text.indexOf("\n") + 1);
+        }
+
+        if (lineNumber > 1) {
+            text += "\n";
+        }
+        console.setText(text + msg);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+        EventBus.getDefault().register(this);
 
         initView();
+        download();
 
-        ThreadUitls.runInThread(new Runnable() {
-            @Override
-            public void run() {
-                PnServerActivity.startXMPP(MainActivity.this);
-            }
-        });
+        long l = System.currentTimeMillis();
+        Date date = new Date(l);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String format = simpleDateFormat.format(date);
+        Log.e("123", "今天日期" + format);
 
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);// 安卓音频初始化
         //USB广播监听
@@ -145,73 +184,19 @@ public class MainActivity extends Activity {
         initPlayer();
     }
 
-    private boolean haveNewRes(){
-        boolean isHave = false;
-        //检测网络
-        NetUtil.getInstance().requestNet("", new StringCallback() {
-            @Override
-            public void onError(Call call, Exception e, int id) {
+    private void initView() {
 
-            }
-
-            @Override
-            public void onResponse(String response, int id) {
-                //解析响应
-
-            }
-        });
-        return isHave;
-    }
-
-    NetUtil.OnDownLoadListener onDownLoadListener = new NetUtil.OnDownLoadListener() {
-        @Override
-        public void onStart(String fileName) {
-            Log.e("123","下载开始");
-        }
-
-        @Override
-        public void onDownloading(String progress) {
-            Log.e("123",progress);
-        }
-
-        @Override
-        public void onComplete(File response) {
-            try {
-                ZipUtil.UnZipFolder("","");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void onFinish() {
-            Log.e("123","下载结束");
-        }
-
-        @Override
-        public void onError(Exception e) {
-            Log.e("123","下载错误");
-        }
-    };
-
-    private void initView(){
-        permission = findViewById(R.id.permission);
-        state = findViewById(R.id.state);
-        console = findViewById(R.id.console);
-        progress = findViewById(R.id.progress);
-        videoView = findViewById(R.id.video);
         mLinearLayout = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.alert_dialog, null);
         mPlaylist = mLinearLayout.findViewById(R.id.playlist);
         mTimer = mLinearLayout.findViewById(R.id.timer);
         mPreview = mLinearLayout.findViewById(R.id.preview);
-        findViewById(R.id.pb_download_progress);
-
     }
 
     @Override
     protected void onDestroy() {
         unregisterReceiver(usbBroadcastReceiver);
         NetUtil.getInstance().stop();
+        EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
 
@@ -251,12 +236,12 @@ public class MainActivity extends Activity {
                 return convertView;
             }
         };
-        if (mPlaylist==null){
-            Log.e(TAG, "mPlaylist为null " );
+        if (mPlaylist == null) {
+            Log.e(TAG, "mPlaylist为null ");
             return;
         }
-        if (arrayAdapter==null){
-            Log.e(TAG, "arrayAdapter为null " );
+        if (arrayAdapter == null) {
+            Log.e(TAG, "arrayAdapter为null ");
             return;
         }
         mPlaylist.setAdapter(arrayAdapter);
@@ -272,52 +257,52 @@ public class MainActivity extends Activity {
             public void onClick(DialogInterface dialog, int which) {
                 if (mPreview.isPlaying())
                     mPreview.stopPlayback();
-                videoView.setVisibility(View.VISIBLE);
-                videoView.start();
+                video.setVisibility(View.VISIBLE);
+                video.start();
             }
         });
         mAlertDialog = builder.create();
-        mAlertDialog.getWindow().setLayout(-1,-1);
+        mAlertDialog.getWindow().setLayout(-1, -1);
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         //按下菜单键显示播放列表
         if (keyCode == KeyEvent.KEYCODE_MENU) {
-            videoView.pause();
+            video.pause();
             if (mAlertDialog == null)
                 creatPlayList();
             mAlertDialog.show();
-            videoView.setVisibility(View.INVISIBLE);
+            video.setVisibility(View.INVISIBLE);
         }
 
         return super.onKeyDown(keyCode, event);
     }
 
-    private static void initPlayer() {
+    private void initPlayer() {
         Video video = new Video();
         video.setPlayList();
         if (video.timerList == null || video.timerList.isEmpty())
             state.setVisibility(View.VISIBLE);
     }
 
-    private static void play(String videoString) {
+    private void play(String videoString) {
         Log.d("log", "开始播放");
         state.setVisibility(View.INVISIBLE);
-        videoView.stopPlayback();//停止播放
-        video = videoString.split(",");
+        video.stopPlayback();//停止播放
+        playList = videoString.split(",");
         videoIndex = 0;
-        videoView.setVideoPath(video[0]);
-        videoView.start();
-        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+        video.setVideoPath(playList[0]);
+        video.start();
+        video.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
                 videoIndex++;
-                if (videoIndex == video.length)
+                if (videoIndex == playList.length)
                     videoIndex = 0;
                 try {
                     mp.reset();
-                    mp.setDataSource(video[videoIndex]);
+                    mp.setDataSource(playList[videoIndex]);
                     mp.prepare();
                     mp.start();
                 } catch (IOException e) {
@@ -327,23 +312,123 @@ public class MainActivity extends Activity {
         });
     }
 
+    private void download(){
+            NetUtil.OnDownLoadListener onDownLoadListener = new NetUtil.OnDownLoadListener() {
+                @Override
+                public void onStart(String fileName) {
+                    Log.e("123", "下载开始");
+                    llProgressArea.setVisibility(View.VISIBLE);
+                    tvDownloadState.setText("开始下载");
+                }
 
+                @Override
+                public void onDownloading(String progress) {
+                    tvDownloadState.setText("正在下载"+progress);
+                    Log.e("123", progress);
+                }
 
-    private void initProgress(boolean tag){
-        if (tag){//为true时代表网络下载，需要自动滚动效果
+                @Override
+                public void onComplete(File response) {
+                    tvDownloadState.setText("下载完成");
+//                    try {
+//                        ZipUtil.UnZipFolder("", "");
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+                }
 
-        }else{//为false时为U盘拷贝，需要节点效果
+                @Override
+                public void onFinish() {
+                    Log.e("123", "下载结束");
+                    llProgressArea.setVisibility(View.INVISIBLE);
+                }
 
-        }
+                @Override
+                public void onError(Exception e) {
+                    Log.e("123", "下载错误");
+                    download();
+                }
+            };
+            NetUtil.getInstance().downLoadFile(onDownLoadListener);
     }
 
 
-    public static void sendMessage(String key, String value) {
-        Bundle bundle = new Bundle();
-        bundle.putString(key, value);
-        Message message = new Message();
-        message.what = Integer.parseInt(key);
-        message.setData(bundle);
-        handler.sendMessage(message);
-    }
+    //
+//    private boolean haveNewRes() {
+//        boolean isHave = false;
+//        //检测网络
+//        NetUtil.getInstance().requestNet("", new StringCallback() {
+//            @Override
+//            public void onError(Call call, Exception e, int id) {
+//
+//            }
+//
+//            @Override
+//            public void onResponse(String response, int id) {
+//                //解析响应
+//
+//            }
+//        });
+//        return isHave;
+//    }
+//
+//    NetUtil.OnDownLoadListener onDownLoadListener = new NetUtil.OnDownLoadListener() {
+//        @Override
+//        public void onStart(String fileName) {
+//            Log.e("123", "下载开始");
+//        }
+//
+//        @Override
+//        public void onDownloading(String progress) {
+//            Log.e("123", progress);
+//        }
+//
+//        @Override
+//        public void onComplete(File response) {
+//            try {
+//                ZipUtil.UnZipFolder("", "");
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        @Override
+//        public void onFinish() {
+//            Log.e("123", "下载结束");
+//        }
+//
+//        @Override
+//        public void onError(Exception e) {
+//            Log.e("123", "下载错误");
+//        }
+//    };
+
+//        TimerExecutor.getInstance().addInQueue("2018-11-30 10:05:00", new TimerExecutor.OnTimeOutListener() {
+//            @Override
+//            public void timeOut() {
+//                Log.e("123", "开始执行了1111111111111");
+//            }
+//        });
+//
+//        TimerExecutor.getInstance().addInQueue("2018-11-30 10:10:00", new TimerExecutor.OnTimeOutListener() {
+//            @Override
+//            public void timeOut() {
+//                Log.e("123", "开始执行了22222222222222");
+//            }
+//        });
+//
+//        TimerExecutor.getInstance().addInQueue("2018-11-30 10:10:15", new TimerExecutor.OnTimeOutListener() {
+//            @Override
+//            public void timeOut() {
+//                Log.e("123", "开始执行了3333333333333333");
+//            }
+//        });
+//
+//        TimerExecutor.getInstance().addInQueue("2018-11-30 10:10:30", new TimerExecutor.OnTimeOutListener() {
+//            @Override
+//            public void timeOut() {
+//                Log.e("123", "开始执行了44444444444444444");
+//            }
+//        });
+
 }
