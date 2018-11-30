@@ -28,12 +28,11 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.yunbiao.yunbiaolocal.Const;
-import com.yunbiao.yunbiaolocal.EventMessage;
+import com.yunbiao.yunbiaolocal.br.EventMessage;
 import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.br.USBBroadcastReceiver;
 import com.yunbiao.yunbiaolocal.io.Video;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
-import com.yunbiao.yunbiaolocal.utils.ZipUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -110,7 +109,6 @@ public class MainActivity extends Activity {
                 break;
         }
     }
-
 
     Handler closeConsoleHandler = new Handler() {
         @Override
@@ -349,7 +347,11 @@ public class MainActivity extends Activity {
                     download();
                 }
             };
+        try {
             NetUtil.getInstance().downLoadFile(onDownLoadListener);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

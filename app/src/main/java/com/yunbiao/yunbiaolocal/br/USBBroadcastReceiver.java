@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import com.yunbiao.yunbiaolocal.Const;
-import com.yunbiao.yunbiaolocal.EventMessage;
 import com.yunbiao.yunbiaolocal.copy.CopyUtil;
 import com.yunbiao.yunbiaolocal.copy.inter.copyFileListener;
 

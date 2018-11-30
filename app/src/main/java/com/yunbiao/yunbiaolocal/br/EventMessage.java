@@ -1,4 +1,4 @@
-package com.yunbiao.yunbiaolocal;
+package com.yunbiao.yunbiaolocal.br;
 
 import org.greenrobot.eventbus.EventBus;
 

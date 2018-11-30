@@ -13,6 +13,7 @@ public class Const {
     public static final String BASE_URL = PREFIX + URL;
     public static final String PORT = BuildConfig.PORT_TST;
 
+    public static final int NET_TIME_OUT = 5;
 
 
     private interface URL{

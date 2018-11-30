@@ -6,8 +6,7 @@ import android.util.Log;
 
 import com.xboot.stdcall.PowerOffTool;
 import com.yunbiao.yunbiaolocal.Const;
-import com.yunbiao.yunbiaolocal.EventMessage;
-import com.yunbiao.yunbiaolocal.act.MainActivity;
+import com.yunbiao.yunbiaolocal.br.EventMessage;
 
 import org.json.JSONArray;
 import org.json.JSONException;
