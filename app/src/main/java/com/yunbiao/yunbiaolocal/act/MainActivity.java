@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
@@ -32,6 +33,8 @@ import com.yunbiao.yunbiaolocal.br.EventMessage;
 import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.br.USBBroadcastReceiver;
 import com.yunbiao.yunbiaolocal.io.Video;
+import com.yunbiao.yunbiaolocal.netcore.ProgressDownloader;
+import com.yunbiao.yunbiaolocal.netcore.ProgressResponseBody;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -153,7 +156,8 @@ public class MainActivity extends Activity {
         EventBus.getDefault().register(this);
 
         initView();
-        download();
+//        download();
+        dl();
 
         long l = System.currentTimeMillis();
         Date date = new Date(l);
@@ -181,6 +185,70 @@ public class MainActivity extends Activity {
         //设置播放器
         initPlayer();
     }
+
+    public static final String PACKAGE_URL = "http://gdown.baidu.com/data/wisegame/df65a597122796a4/weixin_821.apk";
+    private void dl(){
+
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "sample.apk");
+        ProgressDownloader downloader = new ProgressDownloader(PACKAGE_URL, file, new ProgressResponseBody.ProgressListener() {
+            public Object totalBytes;
+            public long contentLength;
+            private long breakPoints;
+
+            @Override
+            public void onPreExecute(long contentLength) {
+                // 文件总长只需记录一次，要注意断点续传后的contentLength只是剩余部分的长度
+                if (this.contentLength == 0L) {
+                    this.contentLength = contentLength;
+//                    progressBar.setMax((int) (contentLength / 1024));
+                    progress.setMax((int) (contentLength/1024));
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            llProgressArea.setVisibility(View.VISIBLE);
+                            tvDownloadState.setText("开始下载");
+
+                        }
+                    });
+
+
+                }
+            }
+            @Override
+            public void update(long totalBytes, boolean done) {
+                // 注意加上断点的长度
+                this.totalBytes = totalBytes + breakPoints;
+//                progressBar.setProgress((int) (totalBytes + breakPoints) / 1024);
+                progress.setProgress((int) (totalBytes+breakPoints /1024));
+                if (done) {
+                    // 切换到主线程
+
+
+
+//                    Observable
+//                            .empty()
+//                            .observeOn(AndroidSchedulers.mainThread())
+//                            .doOnCompleted(new Action0() {
+//                                @Override
+//                                public void call() {
+//                                    Toast.makeText(MainActivity.this, "下载完成", Toast.LENGTH_SHORT).show();
+//                                }
+//                            })
+//                            .subscribe();
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "下载完成", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                }
+            }
+        });
+        downloader.download(0L);
+    }
+
 
     private void initView() {
 
