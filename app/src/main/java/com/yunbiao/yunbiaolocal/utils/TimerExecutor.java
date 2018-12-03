@@ -1,4 +1,4 @@
-package com.yunbiao.yunbiaolocal;
+package com.yunbiao.yunbiaolocal.utils;
 import android.util.Log;
 
 import java.text.ParsePosition;
@@ -10,6 +10,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
+ * 定时任务类
  * Created by Administrator on 2018/11/29.
  */
 

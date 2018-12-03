@@ -114,17 +114,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    Handler closeConsoleHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            console.setVisibility(View.INVISIBLE);
-            progress.setVisibility(View.INVISIBLE);
-            progress.setProgress(0);
-            progress.setMax(0);
-            console.setText("");
-        }
-    };
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,68 +149,44 @@ public class MainActivity extends Activity {
         }
         //设置播放器
         initPlayer();
-
-
-        findViewById(R.id.btn_test).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!isDownloading){
-                    startDownload(downloadUrl);
-                }else{
-                    downloadTask.pauseDownload();
-                }
-            }
-        });
     }
 
-    public static String downloadUrl = "https://qd.myapp.com/myapp/qqteam/pcqq/QQ9.0.8.exe";
-    /**
-     * 开始下载
-     * @param url
+    private void initView() {
+        mLinearLayout = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.alert_dialog, null);
+        mPlaylist = mLinearLayout.findViewById(R.id.playlist);
+        mTimer = mLinearLayout.findViewById(R.id.timer);
+        mPreview = mLinearLayout.findViewById(R.id.preview);
+    }
+
+
+    /***
+     * 打开控制台
      */
-    public void  startDownload(String url) {
-        if (downloadTask == null) {
-            downloadUrl = url;
-            downloadTask = new DownloadTask(new DownloadListener() {
-                @Override
-                public void onProgress(int progress) {
-                    Log.e("123","正在下载..."+progress);
-                }
-
-                @Override
-                public void onSuccess() {
-                    Log.e("123","下载完成...onSuccess");
-                }
-
-                @Override
-                public void onFailed() {
-                    Log.e("123","下载失败...onFailed");
-                }
-
-                @Override
-                public void onPaused() {
-                    Log.e("123","下载暂停...onPaused");
-                }
-
-                @Override
-                public void onCanceled() {
-                    Log.e("123","下载取消...onCanceled");
-                }
-            });
-            //启动下载任务
-            downloadTask.execute(downloadUrl);
-        }
-    }
-
     private void openConsole() {
         console.setVisibility(View.VISIBLE);
         progress.setVisibility(View.VISIBLE);
     }
 
+    /***
+     * 关闭控制台
+     */
     private void closeConsole() {
-        closeConsoleHandler.sendEmptyMessageDelayed(0, 2000);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                console.setVisibility(View.INVISIBLE);
+                progress.setVisibility(View.INVISIBLE);
+                progress.setProgress(0);
+                progress.setMax(0);
+                console.setText("");
+            }
+        },2000);
+
     }
 
+    /***
+     * 更新控制台显示
+     */
     private void updateConsole(String msg) {
         String text = console.getText().toString();
         if (lineNumber < 5) {
@@ -234,22 +199,6 @@ public class MainActivity extends Activity {
             text += "\n";
         }
         console.setText(text + msg);
-    }
-
-    private void initView() {
-
-        mLinearLayout = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.alert_dialog, null);
-        mPlaylist = mLinearLayout.findViewById(R.id.playlist);
-        mTimer = mLinearLayout.findViewById(R.id.timer);
-        mPreview = mLinearLayout.findViewById(R.id.preview);
-    }
-
-    @Override
-    protected void onDestroy() {
-        unregisterReceiver(usbBroadcastReceiver);
-        NetUtil.getInstance().stop();
-        EventBus.getDefault().unregister(this);
-        super.onDestroy();
     }
 
     private AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
@@ -317,20 +266,9 @@ public class MainActivity extends Activity {
         mAlertDialog.getWindow().setLayout(-1, -1);
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        //按下菜单键显示播放列表
-        if (keyCode == KeyEvent.KEYCODE_MENU) {
-            video.pause();
-            if (mAlertDialog == null)
-                creatPlayList();
-            mAlertDialog.show();
-            video.setVisibility(View.INVISIBLE);
-        }
-
-        return super.onKeyDown(keyCode, event);
-    }
-
+    /***
+     * 初始化播放器
+     */
     private void initPlayer() {
         Video video = new Video();
         video.setPlayList();
@@ -338,6 +276,10 @@ public class MainActivity extends Activity {
             state.setVisibility(View.VISIBLE);
     }
 
+    /***
+     * 开始播放
+     * @param videoString
+     */
     private void play(String videoString) {
         Log.d("log", "开始播放");
         state.setVisibility(View.INVISIBLE);
@@ -364,127 +306,26 @@ public class MainActivity extends Activity {
         });
     }
 
-    private void download(){
-            NetUtil.OnDownLoadListener onDownLoadListener = new NetUtil.OnDownLoadListener() {
-                @Override
-                public void onStart(String fileName) {
-                    Log.e("123", "下载开始");
-                    llProgressArea.setVisibility(View.VISIBLE);
-                    tvDownloadState.setText("开始下载");
-                }
-
-                @Override
-                public void onDownloading(String progress) {
-                    tvDownloadState.setText("正在下载"+progress);
-                    Log.e("123", progress);
-                }
-
-                @Override
-                public void onComplete(File response) {
-                    tvDownloadState.setText("下载完成");
-//                    try {
-//                        ZipUtil.UnZipFolder("", "");
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-                }
-
-                @Override
-                public void onFinish() {
-                    Log.e("123", "下载结束");
-                    llProgressArea.setVisibility(View.INVISIBLE);
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    Log.e("123", "下载错误");
-                    download();
-                }
-            };
-        try {
-            NetUtil.getInstance().downLoadFile(onDownLoadListener);
-        } catch (Exception e) {
-            e.printStackTrace();
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        //按下菜单键显示播放列表
+        if (keyCode == KeyEvent.KEYCODE_MENU) {
+            video.pause();
+            if (mAlertDialog == null)
+                creatPlayList();
+            mAlertDialog.show();
+            video.setVisibility(View.INVISIBLE);
         }
+
+        return super.onKeyDown(keyCode, event);
     }
 
-
-    //
-//    private boolean haveNewRes() {
-//        boolean isHave = false;
-//        //检测网络
-//        NetUtil.getInstance().requestNet("", new StringCallback() {
-//            @Override
-//            public void onError(Call call, Exception e, int id) {
-//
-//            }
-//
-//            @Override
-//            public void onResponse(String response, int id) {
-//                //解析响应
-//
-//            }
-//        });
-//        return isHave;
-//    }
-//
-//    NetUtil.OnDownLoadListener onDownLoadListener = new NetUtil.OnDownLoadListener() {
-//        @Override
-//        public void onStart(String fileName) {
-//            Log.e("123", "下载开始");
-//        }
-//
-//        @Override
-//        public void onDownloading(String progress) {
-//            Log.e("123", progress);
-//        }
-//
-//        @Override
-//        public void onComplete(File response) {
-//            try {
-//                ZipUtil.UnZipFolder("", "");
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        @Override
-//        public void onFinish() {
-//            Log.e("123", "下载结束");
-//        }
-//
-//        @Override
-//        public void onError(Exception e) {
-//            Log.e("123", "下载错误");
-//        }
-//    };
-
-//        TimerExecutor.getInstance().addInQueue("2018-11-30 10:05:00", new TimerExecutor.OnTimeOutListener() {
-//            @Override
-//            public void timeOut() {
-//                Log.e("123", "开始执行了1111111111111");
-//            }
-//        });
-//
-//        TimerExecutor.getInstance().addInQueue("2018-11-30 10:10:00", new TimerExecutor.OnTimeOutListener() {
-//            @Override
-//            public void timeOut() {
-//                Log.e("123", "开始执行了22222222222222");
-//            }
-//        });
-//
-//        TimerExecutor.getInstance().addInQueue("2018-11-30 10:10:15", new TimerExecutor.OnTimeOutListener() {
-//            @Override
-//            public void timeOut() {
-//                Log.e("123", "开始执行了3333333333333333");
-//            }
-//        });
-//
-//        TimerExecutor.getInstance().addInQueue("2018-11-30 10:10:30", new TimerExecutor.OnTimeOutListener() {
-//            @Override
-//            public void timeOut() {
-//                Log.e("123", "开始执行了44444444444444444");
-//            }
-//        });
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(usbBroadcastReceiver);
+        NetUtil.getInstance().stop();
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
+    }
 
 }

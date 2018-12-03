@@ -1,22 +1,18 @@
 package com.yunbiao.yunbiaolocal.utils;
 
 import android.os.Environment;
-import android.text.TextUtils;
 
-import com.yunbiao.yunbiaolocal.APP;
-import com.yunbiao.yunbiaolocal.netcore.DownloadInfo;
+import com.yunbiao.yunbiaolocal.netcore.DownloadListener;
+import com.yunbiao.yunbiaolocal.netcore.DownloadTask;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.FileCallBack;
 import com.zhy.http.okhttp.callback.StringCallback;
 import com.zhy.http.okhttp.request.RequestCall;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
 import okhttp3.Call;
-import okhttp3.Request;
-import okhttp3.Response;
 
 /**
  * Created by Administrator on 2018/11/22.
@@ -27,6 +23,7 @@ public class NetUtil {
     private static NetUtil mInstance;
     private RequestCall build;
     private final String rootDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+    private DownloadTask downloadTask;
 
     public synchronized static NetUtil getInstance() {
         if (mInstance == null) {
@@ -48,6 +45,13 @@ public class NetUtil {
                 .tag(this)
                 .build()
                 .execute(stringCallback);
+    }
+
+    public void breakPointDownLoad(String url,DownloadListener listener){
+        if(downloadTask == null){
+            downloadTask = new DownloadTask(listener);
+        }
+        downloadTask.execute(url);
     }
 
     public void downLoadFile(final OnDownLoadListener onDownLoadListener) throws Exception {
