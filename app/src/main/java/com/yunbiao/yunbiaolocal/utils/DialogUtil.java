@@ -11,6 +11,8 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
@@ -120,11 +122,48 @@ public class DialogUtil {
         }
     }
 
+    public static final int INSERT_VIDEO = 0;
+    public static final int INSERT_TEXT = 1;
+    public static final int INSERT_LIVE = 2;
     /***
      * 展示插播dialog
      */
-    public void showInsertDialog(){
+    public void showInsertDialog(int insertType,String content){
+        View rootView = LayoutInflater.from(mActivity).inflate(R.layout.layout_insert_content, null);
+        VideoView vtmInsert = rootView.findViewById(R.id.vtm_insert);
+        TextView tvInsert = rootView.findViewById(R.id.tv_insert);
 
+        switch (insertType) {
+            case INSERT_VIDEO:
+                tvInsert.setVisibility(View.GONE);
+                if(!content.endsWith(".m3u8")){
+                    Toast.makeText(mActivity, "直播源地址有误！", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                vtmInsert.setVideoPath(content);
+                vtmInsert.start();
+                break;
+            case INSERT_TEXT:
+                vtmInsert.setVisibility(View.GONE);
+                tvInsert.setText(content);
+                break;
+            case INSERT_LIVE:
+                tvInsert.setVisibility(View.GONE);
+                if(!content.endsWith(".m3u8")){
+                    Toast.makeText(mActivity, "直播源地址有误！", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                vtmInsert.setVideoPath(content);
+                vtmInsert.start();
+                break;
+        }
 
+        mDialogBuilder.setView(rootView);
+        AlertDialog alertDialog = mDialogBuilder.create();
+        Window window = alertDialog.getWindow();
+        window.setLayout(-1,-1);
+        if(!mActivity.isFinishing()){
+            alertDialog.show();
+        }
     }
 }

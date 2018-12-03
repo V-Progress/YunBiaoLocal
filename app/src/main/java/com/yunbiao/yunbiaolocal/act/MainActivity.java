@@ -126,10 +126,10 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
         //初始化播放器
         initVTMPlayer();
 
-//        Button btnVtm = findViewById(R.id.btn_vtm);
-//        btnVtm.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
+        Button btnVtm = findViewById(R.id.btn_vtm);
+        btnVtm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 //                if (isLocalRes) {
 //                    vtmStop();
 //                    vtmVideo.setVideoPath("http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear2/prog_index.m3u8");
@@ -140,8 +140,10 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
 //                    vtmVideo.start();
 //                }
 //                isLocalRes = !isLocalRes;
-//            }
-//        });
+
+                DialogUtil.getInstance(MainActivity.this).showInsertDialog(DialogUtil.INSERT_LIVE,"http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear2/prog_index.m3u8");
+            }
+        });
     }
 
     /*===========播放器相关=====================================================================
