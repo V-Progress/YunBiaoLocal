@@ -7,6 +7,7 @@ import com.zhy.http.okhttp.OkHttpUtils;
 
 import java.util.concurrent.TimeUnit;
 
+import io.vov.vitamio.Vitamio;
 import okhttp3.OkHttpClient;
 
 /**
@@ -23,7 +24,7 @@ public class APP extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
-
+        Vitamio.initialize(this);
         okHttpClient = new OkHttpClient()
                 .newBuilder()
                 .connectTimeout(Const.NET_TIME_OUT, TimeUnit.MINUTES)

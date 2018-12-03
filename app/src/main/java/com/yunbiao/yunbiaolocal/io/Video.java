@@ -7,6 +7,7 @@ import android.util.Log;
 import com.xboot.stdcall.PowerOffTool;
 import com.yunbiao.yunbiaolocal.Const;
 import com.yunbiao.yunbiaolocal.br.EventMessage;
+import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,8 +35,7 @@ public class Video {
     public List<Timer> timerList;
 
     public void setPlayList() {
-        ExecutorService executorService = Executors.newCachedThreadPool();
-        executorService.execute(new Runnable() {
+        ThreadUtil.getInstance().runInFixedThread(new Runnable() {
             @Override
             public void run() {
 

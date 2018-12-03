@@ -1,15 +1,23 @@
-<RelativeLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".act.MainActivity">
 
-    <VideoView
-        android:id="@+id/video"
+    <io.vov.vitamio.widget.VideoView
+        android:id="@+id/vtm_video"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerInParent="true"/>
+
+    <ProgressBar
+        android:visibility="invisible"
+        android:layout_gravity="center"
+        android:id="@+id/pb_video"
+        android:layout_centerInParent="true"
+        android:layout_width="60dp"
+        android:layout_height="60dp" />
 
     <TextView
         android:id="@+id/permission"
@@ -22,40 +30,46 @@
         android:visibility="invisible"/>
 
     <TextView
+        android:layout_gravity="center"
         android:id="@+id/state"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:text="没有视频"
-        android:textSize="18sp"
-        android:visibility="invisible"/>
-
-    <TextView
-        android:visibility="invisible"
-        android:id="@+id/console"
-        android:layout_width="match_parent"
-        android:layout_height="110dp"
-        android:layout_alignParentBottom="true"
-        android:background="#ee000000"
-        android:gravity="bottom"
-        android:paddingBottom="10dp"
-        android:paddingLeft="200dp"/>
-
-    <ProgressBar
-        android:visibility="invisible"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:id="@+id/progress"
-        android:layout_width="match_parent"
-        android:layout_height="6dp"
-        android:layout_above="@+id/console"/>
+        android:textSize="18sp"/>
 
     <LinearLayout
-        android:visibility="invisible"
+        android:visibility="gone"
+        android:id="@+id/ll_console"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:id="@+id/progress"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_above="@+id/console"/>
+        <TextView
+            android:id="@+id/console"
+            android:layout_width="match_parent"
+            android:layout_height="110dp"
+            android:layout_alignParentBottom="true"
+            android:background="#ee000000"
+            android:gravity="bottom"
+            android:paddingBottom="10dp"
+            android:paddingLeft="200dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_gravity="bottom"
+        android:visibility="gone"
         android:background="#ee000000"
         android:id="@+id/ll_progress_area"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="10dp"
+        android:padding="8dp"
         android:layout_alignParentBottom="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
@@ -70,4 +84,5 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
-</RelativeLayout>
+
+</FrameLayout>

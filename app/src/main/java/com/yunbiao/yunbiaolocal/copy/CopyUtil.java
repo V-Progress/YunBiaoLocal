@@ -4,6 +4,7 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.yunbiao.yunbiaolocal.copy.inter.copyFileListener;
+import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -32,7 +33,7 @@ public class CopyUtil {
     private final String YUNBIAO_DIR = "/yunbiao";
     private int fileCount;
     private int fileNum = 0;
-    private CountDownLatch latch;
+//    private CountDownLatch latch;
 
     public synchronized static CopyUtil getInstance() {
         if (copyUtil == null) {
@@ -45,18 +46,21 @@ public class CopyUtil {
     }
 
     public void USB2Local(final String usbFilePath, final copyFileListener listener) {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.execute(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
                 if (listener == null) {
                     throw new NullPointerException("listener can not be null!");
                 }
                 baseCopyListener = listener;
-                latch = new CountDownLatch(1);
-
                 String usbPath = usbFilePath + YUNBIAO_DIR;
                 baseCopyListener.onCopyStart(usbPath);
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
                 //检查目录
                 File usbFile = new File(usbPath);
@@ -81,15 +85,9 @@ public class CopyUtil {
                 //开始拷贝
                 copyFiles(usbFile, localFile);//复制文件
 
-                try {
-                    latch.await();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
                 baseCopyListener.onFinish();
             }
-        });
+        }).start();
     }
 
     /**
@@ -135,7 +133,6 @@ public class CopyUtil {
                 if (fileNum >= fileCount) {
                     fileNum = 0;
                     baseCopyListener.onCopyComplete();
-                    latch.countDown();
                 }
             }
         }
@@ -145,6 +142,9 @@ public class CopyUtil {
         //删除文件
         Map<String, File> fileMap = new HashMap<>();
         File[] files = new File(localFile, "yunbiao").listFiles();
+        if(files == null || files.length <= 0){
+            return;
+        }
         for (File f : files) {
             if (f.isFile()) {
                 baseCopyListener.onDeleteFile(f.getPath());
