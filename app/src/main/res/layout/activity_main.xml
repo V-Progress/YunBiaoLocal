@@ -71,4 +71,9 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
+    <Button
+        android:id="@+id/btn_test"
+        android:text="121313112121313131"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </RelativeLayout>

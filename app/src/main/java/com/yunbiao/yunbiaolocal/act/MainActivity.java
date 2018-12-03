@@ -10,7 +10,6 @@ import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
@@ -33,8 +32,8 @@ import com.yunbiao.yunbiaolocal.br.EventMessage;
 import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.br.USBBroadcastReceiver;
 import com.yunbiao.yunbiaolocal.io.Video;
-import com.yunbiao.yunbiaolocal.netcore.ProgressDownloader;
-import com.yunbiao.yunbiaolocal.netcore.ProgressResponseBody;
+import com.yunbiao.yunbiaolocal.netcore.DownloadListener;
+import com.yunbiao.yunbiaolocal.netcore.DownloadTask;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -81,6 +80,8 @@ public class MainActivity extends Activity {
     private String yyyyMMdd = new SimpleDateFormat("yyyyMMdd").format(new Date());
     private static int lineNumber = 0;
     public AudioManager audioManager = null;//音频
+    private DownloadTask downloadTask;
+    boolean isDownloading = false;
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(EventMessage event) {
@@ -124,29 +125,6 @@ public class MainActivity extends Activity {
         }
     };
 
-    private void openConsole() {
-        console.setVisibility(View.VISIBLE);
-        progress.setVisibility(View.VISIBLE);
-    }
-
-    private void closeConsole() {
-        closeConsoleHandler.sendEmptyMessageDelayed(0, 2000);
-    }
-
-    private void updateConsole(String msg) {
-        String text = console.getText().toString();
-        if (lineNumber < 5) {
-            lineNumber++;
-        } else {
-            text = text.substring(text.indexOf("\n") + 1);
-        }
-
-        if (lineNumber > 1) {
-            text += "\n";
-        }
-        console.setText(text + msg);
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,8 +134,6 @@ public class MainActivity extends Activity {
         EventBus.getDefault().register(this);
 
         initView();
-//        download();
-        dl();
 
         long l = System.currentTimeMillis();
         Date date = new Date(l);
@@ -184,71 +160,81 @@ public class MainActivity extends Activity {
         }
         //设置播放器
         initPlayer();
-    }
 
-    public static final String PACKAGE_URL = "http://gdown.baidu.com/data/wisegame/df65a597122796a4/weixin_821.apk";
-    private void dl(){
 
-        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "sample.apk");
-        ProgressDownloader downloader = new ProgressDownloader(PACKAGE_URL, file, new ProgressResponseBody.ProgressListener() {
-            public Object totalBytes;
-            public long contentLength;
-            private long breakPoints;
-
+        findViewById(R.id.btn_test).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onPreExecute(long contentLength) {
-                // 文件总长只需记录一次，要注意断点续传后的contentLength只是剩余部分的长度
-                if (this.contentLength == 0L) {
-                    this.contentLength = contentLength;
-//                    progressBar.setMax((int) (contentLength / 1024));
-                    progress.setMax((int) (contentLength/1024));
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            llProgressArea.setVisibility(View.VISIBLE);
-                            tvDownloadState.setText("开始下载");
-
-                        }
-                    });
-
-
-                }
-            }
-            @Override
-            public void update(long totalBytes, boolean done) {
-                // 注意加上断点的长度
-                this.totalBytes = totalBytes + breakPoints;
-//                progressBar.setProgress((int) (totalBytes + breakPoints) / 1024);
-                progress.setProgress((int) (totalBytes+breakPoints /1024));
-                if (done) {
-                    // 切换到主线程
-
-
-
-//                    Observable
-//                            .empty()
-//                            .observeOn(AndroidSchedulers.mainThread())
-//                            .doOnCompleted(new Action0() {
-//                                @Override
-//                                public void call() {
-//                                    Toast.makeText(MainActivity.this, "下载完成", Toast.LENGTH_SHORT).show();
-//                                }
-//                            })
-//                            .subscribe();
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MainActivity.this, "下载完成", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
+            public void onClick(View v) {
+                if(!isDownloading){
+                    startDownload(downloadUrl);
+                }else{
+                    downloadTask.pauseDownload();
                 }
             }
         });
-        downloader.download(0L);
     }
 
+    public static String downloadUrl = "https://qd.myapp.com/myapp/qqteam/pcqq/QQ9.0.8.exe";
+    /**
+     * 开始下载
+     * @param url
+     */
+    public void  startDownload(String url) {
+        if (downloadTask == null) {
+            downloadUrl = url;
+            downloadTask = new DownloadTask(new DownloadListener() {
+                @Override
+                public void onProgress(int progress) {
+                    Log.e("123","正在下载..."+progress);
+                }
+
+                @Override
+                public void onSuccess() {
+                    Log.e("123","下载完成...onSuccess");
+                }
+
+                @Override
+                public void onFailed() {
+                    Log.e("123","下载失败...onFailed");
+                }
+
+                @Override
+                public void onPaused() {
+                    Log.e("123","下载暂停...onPaused");
+                }
+
+                @Override
+                public void onCanceled() {
+                    Log.e("123","下载取消...onCanceled");
+                }
+            });
+            //启动下载任务
+            downloadTask.execute(downloadUrl);
+        }
+    }
+
+    private void openConsole() {
+        console.setVisibility(View.VISIBLE);
+        progress.setVisibility(View.VISIBLE);
+    }
+
+    private void closeConsole() {
+        closeConsoleHandler.sendEmptyMessageDelayed(0, 2000);
+    }
+
+    private void updateConsole(String msg) {
+        String text = console.getText().toString();
+        if (lineNumber < 5) {
+            lineNumber++;
+        } else {
+            text = text.substring(text.indexOf("\n") + 1);
+        }
+
+        if (lineNumber > 1) {
+            text += "\n";
+        }
+        console.setText(text + msg);
+    }
 
     private void initView() {
 
