@@ -15,6 +15,8 @@
  */
 package com.yunbiao.yunbiaolocal.utils;
 
+import com.yunbiao.yunbiaolocal.xmpp.XmppManager;
+
 /**
  * Static constants for this package.
  * @author Sehwan Noh (devnoh@gmail.com)
@@ -84,5 +86,5 @@ public class Constants {
     public static final String WEIXIN = "com.yunbiaowulian.weixin";
 
     //网络未连接此项为空，网络连接情况下
-//    public static XmppManager xmppManager = null;
+    public static XmppManager xmppManager = null;
 }

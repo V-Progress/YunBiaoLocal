@@ -80,7 +80,7 @@
             android:launchMode="singleTask" />
 
         <service
-            android:name="com.yunbiao.xmpp.NotificationService"
+            android:name="com.yunbiao.yunbiaolocal.xmpp.NotificationService"
             android:enabled="true"
             android:label="NotificationService">
             <intent-filter>

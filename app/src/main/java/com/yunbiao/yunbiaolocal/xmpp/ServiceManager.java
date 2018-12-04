@@ -25,6 +25,8 @@ import android.util.Log;
 
 import com.yunbiao.yunbiaolocal.Const;
 import com.yunbiao.yunbiaolocal.cache.CacheUtil;
+import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
+import com.yunbiao.yunbiaolocal.utils.LogUtil;
 
 import java.util.Properties;
 
@@ -35,13 +37,11 @@ import java.util.Properties;
  */
 public final class ServiceManager {
 
-    private static final String LOGTAG = LogUtil.makeLogTag(ServiceManager.class);
+    private static final String LOGTAG = com.yunbiao.yunbiaolocal.xmpp.LogUtil.makeLogTag(ServiceManager.class);
 
     private Context context;
 
     private SharedPreferences sharedPrefs;
-
-//    private Properties props;
 
     private String version = "0.5.0";
 
@@ -65,10 +65,6 @@ public final class ServiceManager {
             callbackActivityClassName = callbackActivity.getClass().getName();
         }
 
-
-//        props = loadProperties();
-//        apiKey = props.getProperty("apiKey", "");
-
         apiKey = Const.API_KEY;
 
         String machineIpAdress = CacheUtil.getMechineIp();
@@ -78,13 +74,10 @@ public final class ServiceManager {
                 xmppHost = ipAdress;
             }
         }else{
-//              xmppHost = props.getProperty("xmppHost", "192.168.1.78");
-            xmppHost = Const.URL;
+            xmppHost = Const.DOMAIN;
         }
 
-
-//        xmppPort = props.getProperty("xmppPort", "5222");
-        xmppPort = Const.PORT;
+        xmppPort = Const.SERVER_PORT;
         Log.i(LOGTAG, "apiKey=" + apiKey);
         Log.i(LOGTAG, "xmppHost=" + xmppHost);
         Log.i(LOGTAG, "xmppPort=" + xmppPort);
@@ -104,15 +97,23 @@ public final class ServiceManager {
     }
 
     public void startService() {
-        Thread serviceThread = new Thread(new Runnable() {
+        ThreadUtil.getInstance().runInFixedThread(new Runnable() {
             @Override
             public void run() {
                 Intent intent =new Intent(context,NotificationService.class);
                 context.startService(intent);
+                LogUtil.E(LOGTAG, " serviceThread.start()");
             }
         });
-        Log.i("xmpp info", " serviceThread.start()");
-        serviceThread.start();
+//        Thread serviceThread = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                Intent intent =new Intent(context,NotificationService.class);
+//                context.startService(intent);
+//            }
+//        });
+//        Log.i("xmpp info", " serviceThread.start()");
+//        serviceThread.start();
     }
 
     public void stopService() {

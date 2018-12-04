@@ -35,6 +35,27 @@ android {
             buildConfigField "String", "PORT_TST", "\"5222\"";
         }
     }
+
+    productFlavors {
+        // 生产版本
+        pro {
+            // 服务地址
+            buildConfigField "String", "DOMAIN", "com.yunbiao.yunbiaolocal.Const.URL.PRO"
+            // 服务端口
+            buildConfigField "Integer", "PORT", "com.yunbiao.yunbiaolocal.Const.PORT.PRO"
+            // 是否打印日志到文件
+            buildConfigField "boolean", "IS_LOG_TO_FILE", "false"
+        }
+        // 开发版本
+        dev {
+            // 服务地址
+            buildConfigField "String", "DOMAIN", "com.yunbiao.yunbiaolocal.Const.URL.PRO"
+            // 服务端口
+            buildConfigField "String", "PORT", "com.yunbiao.yunbiaolocal.Const.PORT.DEV"
+            // 是否打印日志到文件
+            buildConfigField "boolean", "IS_LOG_TO_FILE", "false"
+        }
+    }
 }
 
 dependencies {
@@ -42,11 +63,13 @@ dependencies {
     //约束布局
     //百分比布局
     compile files('libs/gson-2.8.5.jar')
+    //noinspection GradleCompatible
     compile 'com.android.support:appcompat-v7:26.0.0-alpha1'
     compile 'com.squareup.okhttp3:okhttp:3.10.0'
     compile 'com.zhy:okhttputils:2.6.2'
     compile 'com.alibaba:fastjson:1.1.56.android'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    //noinspection GradleCompatible
     compile 'com.android.support:percent:23.2.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     compile 'com.jakewharton:butterknife:8.8.1'

@@ -2,13 +2,13 @@ package com.yunbiao.yunbiaolocal.cache;
 
 import android.os.Environment;
 
-import com.yunbiao.yunbiaolocal.netcore.NetConstants;
+import com.yunbiao.yunbiaolocal.Const;
 
 public class ResConstants {
 
     private static final String TAG = "ResConstants";
 
-    private static String WEB_BASE_URL = NetConstants.RESOURCE_URL;
+    private static String WEB_BASE_URL = Const.BASE_URL;
 
     /**
      * 资源获取

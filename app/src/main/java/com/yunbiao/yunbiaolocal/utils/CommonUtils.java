@@ -23,6 +23,7 @@ import android.view.WindowManager;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.cache.CacheUtil;
+import com.yunbiao.yunbiaolocal.xmpp.*;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -323,15 +324,15 @@ public class CommonUtils {
      *
      * @return
      */
-//    public static String getXmppConnected() {
-//        String connectStatus;
-//        if (NetConstants.xmppManager != null && NetConstants.xmppManager.isConnected()) {
-//            connectStatus = "在线";
-//        } else {
-//            connectStatus = "离线";
-//        }
-//        return connectStatus;
-//    }
+    public static String getXmppConnected() {
+        String connectStatus;
+        if (Constants.xmppManager != null && Constants.xmppManager.isConnected()) {
+            connectStatus = "在线";
+        } else {
+            connectStatus = "离线";
+        }
+        return connectStatus;
+    }
 
     /**
      * 获取连接的wifi名称

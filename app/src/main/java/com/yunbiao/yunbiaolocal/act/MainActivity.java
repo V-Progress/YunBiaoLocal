@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -19,8 +18,8 @@ import android.widget.TextView;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.br.USBBroadcastReceiver;
-import com.yunbiao.yunbiaolocal.devicectrl.SoundControl;
 import com.yunbiao.yunbiaolocal.io.VideoDataResolver;
+import com.yunbiao.yunbiaolocal.netcore.PnServerController;
 import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 
@@ -33,6 +32,7 @@ import butterknife.ButterKnife;
 import io.vov.vitamio.MediaPlayer;
 import io.vov.vitamio.widget.MediaController;
 
+import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
 import com.yunbiao.yunbiaolocal.view.MainVideoView;
 
 public class MainActivity extends Activity implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener, MediaPlayer.OnCompletionListener {
@@ -69,14 +69,17 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        APP.setMainActivity(this);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        APP.setMainActivity(this);
 
         //初始化控件
         initView();
         //初始化播放器
         initVTMPlayer();
+
+        //连接XMPP
+        PnServerController.startXMPP(this);
     }
 
     /*===========播放器相关=====================================================================
@@ -292,7 +295,7 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
     protected void onDestroy() {
         unregisterReceiver(usbBroadcastReceiver);
         NetUtil.getInstance().stop();
-//        EventBus.getDefault().unregister(this);
+        PnServerController.stopXMPP();
         super.onDestroy();
 
     }
