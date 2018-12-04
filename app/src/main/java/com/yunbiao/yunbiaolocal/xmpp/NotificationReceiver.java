@@ -46,12 +46,6 @@ public final class NotificationReceiver extends BroadcastReceiver {
             String notificationFrom = intent.getStringExtra(Constants.NOTIFICATION_FROM);
             String packetId = intent.getStringExtra(Constants.PACKET_ID);
 
-            Log.d(LOGTAG, "notificationId=" + notificationId);
-            Log.d(LOGTAG, "notificationApiKey=" + notificationApiKey);
-            Log.d(LOGTAG, "notificationTitle=" + notificationTitle);
-            Log.d(LOGTAG, "notificationMessage=" + notificationMessage);
-            Log.d(LOGTAG, "notificationUri=" + notificationUri);
-
             Notifier notifier = new Notifier(context);
             notifier.notify(notificationId, notificationApiKey, notificationTitle, notificationMessage, notificationUri, notificationFrom, packetId);
         }

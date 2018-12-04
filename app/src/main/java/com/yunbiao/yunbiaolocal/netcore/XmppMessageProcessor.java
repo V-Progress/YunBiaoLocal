@@ -1,11 +1,18 @@
 package com.yunbiao.yunbiaolocal.netcore;
 
 import android.util.Log;
+import android.widget.Toast;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.yunbiao.yunbiaolocal.APP;
+import com.yunbiao.yunbiaolocal.cache.CacheUtil;
 import com.yunbiao.yunbiaolocal.cache.ResConstants;
 import com.yunbiao.yunbiaolocal.devicectrl.SoundControl;
+import com.yunbiao.yunbiaolocal.netcore.model.LoginModel;
+import com.yunbiao.yunbiaolocal.utils.LogUtil;
+import com.yunbiao.yunbiaolocal.view.TipToast;
 
 /**
  * 核心类：Xmpp消息处理
@@ -45,118 +52,160 @@ public class XmppMessageProcessor {
      * 消息分发
      */
     public static void dispatchMsg(String message) {
-        Log.e("123", "接收到消息===" + message);
+        JSONObject jsonObject = JSON.parseObject(message);
+        String content = jsonObject.getString("content");
+        String type = jsonObject.getString("type");
 
-        MsgModel msgModel = new Gson().fromJson(message, MsgModel.class);
-        MsgModel.Content content = msgModel.getContent();
-        switch (msgModel.getType()) {
+        switch (Integer.valueOf(type)) {
             case ONLINE_TYPE:
+                LoginModel loginModel = new Gson().fromJson(content, LoginModel.class);
+                LogUtil.E(loginModel.toString());
+                CacheUtil.putExpireDate(loginModel.getExpireDate());
+                CacheUtil.putBindStatus(loginModel.getBindStatus());
+                CacheUtil.putRunStatus(loginModel.getRunStatus());
+                CacheUtil.putSerNumber(loginModel.getSerNum());
+                CacheUtil.putPwd(loginModel.getPwd());
+                CacheUtil.putDecName(loginModel.getDeviceName());
+                CacheUtil.putDeviceQrCode(loginModel.getDeviceQrCode());
+                CacheUtil.putIsMirror(loginModel.getIsMirror());
                 break;
-            case CONTENT_TYPE:// 内容更新
-                break;
-            case VOICE_TYPE:// 声音控制
-//                SoundControl.setMusicSound(content.getVoice());
-                break;
-            case CUTSCREN_TYPE://截屏
-//                ThreadUitls.runInThread(new Runnable() {// 截图控制
-//                    @Override
-//                    public void run() {
-//                        ScreenShot.getInstanse().shootScreen();
-//                    }
-//                });
-                break;
-            case RUNSET_TYPE://获取开关机时间
-
-
-                break;
-            case SHOW_SERNUM://设备号
-                Integer showType = content.getShowType();
-                Log.e(APP.getContext().getClass().getSimpleName(),"showType = "+showType);
-                if (showType != null && showType == 0) {//状态栏  视美泰主板
-//                    Integer showValue = (Integer) TYTool.getJsonObj(contentJson, "showValue", null);
-//                    if (showValue == 0) {//显示
-//                        APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), true);
-//                    } else if (showValue == 1) {//隐藏
-//                        APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), false);
-//                    }
-                } else { // 显示设备编号
-//                    TYTool.showTitleTip(CacheUtil.getSerNumber());
-                }
+            case SHOW_SERNUM:
+//                Integer showType = content.getShowType();
+//                Log.e(APP.getContext().getClass().getSimpleName(),"showType = "+showType);
+//                if (showType != null && showType == 0) {//状态栏  视美泰主板
+//                    APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), true);
+//
+////                    Integer showValue = (Integer) TYTool.getJsonObj(contentJson, "showValue", null);
+////                    if (showValue == 0) {//显示
+////                        APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), true);
+////                    } else if (showValue == 1) {//隐藏
+////                        APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), false);
+////                    }
+//                } else { // 显示设备编号
+//                    TipToast.showLongToast(APP.getMainActivity(),"设备编号："+CacheUtil.getSerNumber());
+//                }
+                TipToast.showLongToast(APP.getMainActivity(),"设备编号："+CacheUtil.getSerNumber());
 
                 break;
-            case SHOW_VERSION:// 版本信息
-                ResConstants.uploadAppVersion();
-                break;
-            case SHOW_DISK_IFNO://磁盘容量
-                Integer flag = content.getFlag();
-                Log.e("123","磁盘容量："+flag);
-                if (flag != null) {
-                    if (flag == 0) { //显示
-//                        ResConstants.uploadDiskInfo();
-                    } else if (flag == 1) {// 清理磁盘
-//                        ResConstants.deleteOtherFile();
-//                        ResConstants.uploadDiskInfo();
-                    }
-                }
-                break;
-            case POWER_RELOAD:// 机器重启
-                Integer restart = content.getRestart();
-                Log.e("123","机器重启："+restart);
-                if (restart != null) {
-                    if (restart == 0) {
-//                        ProgressDialog progressDialog = TYTool.coreInfoShow3sDialog();
-//                        progressDialog.setTitle("关机");
-//                        progressDialog.setMessage("3秒后将关闭设备");
-//                        progressDialog.show();
-//                        TYTool.powerShutDown.start();
-                    } else if (restart == 1) {
-//                        ProgressDialog progressDialog = TYTool.coreInfoShow3sDialog();
-//                        progressDialog.setTitle("重启");
-//                        progressDialog.setMessage("3秒后将重启设备");
-//                        progressDialog.show();
-//                        TYTool.restart.start();
-                    }
-                }
-
-                break;
-            case PUSH_TO_UPDATE://软件升级
-                break;
-            case HARDWARE_UPDATE://通知硬件设备更新
-                break;
-            case HARDWARESCREENROTATE_UPDATE://屏幕旋转
-                break;
-            case SET_CLEAR_LAYOUT:
-                break;
-            case PUSH_MESSAGE:
-
-
-                break;
-            case REFERSH_RENEWAL_STATUS://欠费停机设备支付
-                break;
-            case PUSH_IMAGE://手机快发
-                break;
-
-            /*case CHANNEL_TYPE://输入信号源选择
-                break;
-            case FACE_DETECT:
-                break;
-            case EARTH_CINEMA:
-                break;
-            case IMAGE_PUSH:
-                break;
-            case VIDEO_PUSH:
-                break;
-            case UNICOM_SCREEN:
-                break;
-
-            case ADSINFO_PUSH://自运营广告推送
-                break;
-            case SHARESTATUS_UPDATE://是否是广告机状态更改
-                break;*/
-            default:
-                break;
-
         }
+
+
+
+//        MsgModel msgModel = new Gson().fromJson(message, MsgModel.class);
+//        String content = msgModel.getContent();
+//        switch (msgModel.getType()) {
+//            case ONLINE_TYPE:
+//                LoginModel loginModel = new Gson().fromJson(content, LoginModel.class);
+//                LogUtil.E(loginModel.toString());
+//
+//
+//                break;
+//            case CONTENT_TYPE:// 内容更新
+//                break;
+//            case VOICE_TYPE:// 声音控制
+////                SoundControl.setMusicSound(content.getVoice());
+//                break;
+//            case CUTSCREN_TYPE://截屏
+////                ThreadUitls.runInThread(new Runnable() {// 截图控制
+////                    @Override
+////                    public void run() {
+////                        ScreenShot.getInstanse().shootScreen();
+////                    }
+////                });
+//                break;
+//            case RUNSET_TYPE://获取开关机时间
+//
+//
+//                break;
+//            case SHOW_SERNUM://设备号
+////                Integer showType = content.getShowType();
+////                Log.e(APP.getContext().getClass().getSimpleName(),"showType = "+showType);
+////                if (showType != null && showType == 0) {//状态栏  视美泰主板
+////                    APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), true);
+////
+//////                    Integer showValue = (Integer) TYTool.getJsonObj(contentJson, "showValue", null);
+//////                    if (showValue == 0) {//显示
+//////                        APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), true);
+//////                    } else if (showValue == 1) {//隐藏
+//////                        APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), false);
+//////                    }
+////                } else { // 显示设备编号
+////                    TipToast.showLongToast(APP.getMainActivity(),"设备编号："+CacheUtil.getSerNumber());
+////                }
+//
+//                break;
+//            case SHOW_VERSION:// 版本信息
+//                ResConstants.uploadAppVersion();
+//                break;
+//            case SHOW_DISK_IFNO://磁盘容量
+////                Integer flag = content.getFlag();
+////                Log.e("123","磁盘容量："+flag);
+////                if (flag != null) {
+////                    if (flag == 0) { //显示
+//////                        ResConstants.uploadDiskInfo();
+////                    } else if (flag == 1) {// 清理磁盘
+//////                        ResConstants.deleteOtherFile();
+//////                        ResConstants.uploadDiskInfo();
+////                    }
+////                }
+//                break;
+//            case POWER_RELOAD:// 机器重启
+////                Integer restart = content.getRestart();
+////                Log.e("123","机器重启："+restart);
+////                if (restart != null) {
+////                    if (restart == 0) {
+//////                        ProgressDialog progressDialog = TYTool.coreInfoShow3sDialog();
+//////                        progressDialog.setTitle("关机");
+//////                        progressDialog.setMessage("3秒后将关闭设备");
+//////                        progressDialog.show();
+//////                        TYTool.powerShutDown.start();
+////                    } else if (restart == 1) {
+//////                        ProgressDialog progressDialog = TYTool.coreInfoShow3sDialog();
+//////                        progressDialog.setTitle("重启");
+//////                        progressDialog.setMessage("3秒后将重启设备");
+//////                        progressDialog.show();
+//////                        TYTool.restart.start();
+////                    }
+////                }
+//
+//                break;
+//            case PUSH_TO_UPDATE://软件升级
+//                break;
+//            case HARDWARE_UPDATE://通知硬件设备更新
+//                break;
+//            case HARDWARESCREENROTATE_UPDATE://屏幕旋转
+//                break;
+//            case SET_CLEAR_LAYOUT:
+//                break;
+//            case PUSH_MESSAGE:
+//
+//
+//                break;
+//            case REFERSH_RENEWAL_STATUS://欠费停机设备支付
+//                break;
+//            case PUSH_IMAGE://手机快发
+//                break;
+//
+//            /*case CHANNEL_TYPE://输入信号源选择
+//                break;
+//            case FACE_DETECT:
+//                break;
+//            case EARTH_CINEMA:
+//                break;
+//            case IMAGE_PUSH:
+//                break;
+//            case VIDEO_PUSH:
+//                break;
+//            case UNICOM_SCREEN:
+//                break;
+//
+//            case ADSINFO_PUSH://自运营广告推送
+//                break;
+//            case SHARESTATUS_UPDATE://是否是广告机状态更改
+//                break;*/
+//            default:
+//                break;
+//        }
 
     }
 }

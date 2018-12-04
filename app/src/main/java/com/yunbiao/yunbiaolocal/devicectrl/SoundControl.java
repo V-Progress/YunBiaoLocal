@@ -11,23 +11,23 @@ public class SoundControl {
 
     public static Integer CURRENT_SOUND = 0;
 
-    public static void setMusicSound(int volume) {
+    public static void setMusicSound(Double volume) {
         AudioManager audioManager = APP.getAudioManager();
         int max = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_PLAY_SOUND);
+//        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_PLAY_SOUND);
 
-//        Integer volumD = ((Double) (volume * max)).intValue();
-//        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volumD, AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_PLAY_SOUND);
+        Integer volumD = ((Double) (volume * max)).intValue();
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volumD, AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_PLAY_SOUND);
     }
 
     public static void downMusicSound(){
-        int streamVolume = APP.getAudioManager().getStreamVolume(AudioManager.STREAM_MUSIC);
-        setMusicSound(--streamVolume);
+//        int streamVolume = APP.getAudioManager().getStreamVolume(AudioManager.STREAM_MUSIC);
+//        setMusicSound(--streamVolume);
     }
 
     public static void upMusicSound(){
-        int streamVolume = APP.getAudioManager().getStreamVolume(AudioManager.STREAM_MUSIC);
-        setMusicSound(++streamVolume);
+//        int streamVolume = APP.getAudioManager().getStreamVolume(AudioManager.STREAM_MUSIC);
+//        setMusicSound(++streamVolume);
     }
 
     public static void stopCurrentVolume() {
