@@ -16,11 +16,13 @@ import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.text.format.Formatter;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Surface;
 import android.view.WindowManager;
 
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.R;
+import com.yunbiao.yunbiaolocal.cache.CacheUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -408,56 +410,56 @@ public class CommonUtils {
     /**
      * 获取主板的信息存到sp里 供以后判断主板厂家使用
      */
-//    public static void saveBroadInfo() {
-//        Process process = null;
-//        BufferedReader br = null;
-//        try {
-//            process = Runtime.getRuntime().exec("cat /proc/version");
-//            InputStream outs = process.getInputStream();
-//            InputStreamReader isrout = new InputStreamReader(outs);
-//            br = new BufferedReader(isrout, 8 * 1024);
-//            StringBuffer result = new StringBuffer("");
-//            String line;
-//            while ((line = br.readLine()) != null) {
-//                result.append(line);
-//            }
-//            String broadInfo = result.toString();
-//            LogUtils.e(TAG, "主板信息: " + broadInfo);
-//            CacheUtil.putBroadInfo(broadInfo);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            if (br != null) {
-//                try {
-//                    br.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//    }
+    public static void saveBroadInfo() {
+        Process process = null;
+        BufferedReader br = null;
+        try {
+            process = Runtime.getRuntime().exec("cat /proc/version");
+            InputStream outs = process.getInputStream();
+            InputStreamReader isrout = new InputStreamReader(outs);
+            br = new BufferedReader(isrout, 8 * 1024);
+            StringBuffer result = new StringBuffer("");
+            String line;
+            while ((line = br.readLine()) != null) {
+                result.append(line);
+            }
+            String broadInfo = result.toString();
+            Log.e(TAG, "主板信息: " + broadInfo);
+            CacheUtil.putBroadInfo(broadInfo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     /**
      * 判断是不是板子的来源厂家
      *
      * @return 0其他（国威）  1中恒  2深圳鸿世达科技  3亿晟科技  4小百合  5建益达
      */
-//    public static Integer getBroadType() {
-//        String broad_info = CacheUtil.getBroadInfo();
-//        if (broad_info.contains("zhsd")) {
-//            return 1;
-//        } else if (broad_info.contains("yunbiao") || broad_info.contains("lichao")|| broad_info.contains("shizhenxi")) {//yunbiao   shizhenxi
-//            return 4;
-//        } else if (broad_info.contains("ubunt")) {
-//            return 2;
-//        } else if (broad_info.contains("edge")) {//edge   xqt
-//            return 3;
-//        } else if (broad_info.contains("zhoutao")) {
-//            return 5;
-//        } else {
-//            return 0;
-//        }
-//    }
+    public static Integer getBroadType() {
+        String broad_info = CacheUtil.getBroadInfo();
+        if (broad_info.contains("zhsd")) {
+            return 1;
+        } else if (broad_info.contains("yunbiao") || broad_info.contains("lichao")|| broad_info.contains("shizhenxi")) {//yunbiao   shizhenxi
+            return 4;
+        } else if (broad_info.contains("ubunt")) {
+            return 2;
+        } else if (broad_info.contains("edge")) {//edge   xqt
+            return 3;
+        } else if (broad_info.contains("zhoutao")) {
+            return 5;
+        } else {
+            return 0;
+        }
+    }
 
     /**
      * 获取线的MAC地址

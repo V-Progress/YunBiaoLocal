@@ -2,7 +2,7 @@ package com.yunbiao.yunbiaolocal.cache;
 
 import android.os.Environment;
 
-import com.yunbiao.yunbiaolocal.NetConstants;
+import com.yunbiao.yunbiaolocal.netcore.NetConstants;
 
 public class ResConstants {
 

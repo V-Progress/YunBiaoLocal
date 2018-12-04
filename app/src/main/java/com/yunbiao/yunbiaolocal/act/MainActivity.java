@@ -1,7 +1,6 @@
 package com.yunbiao.yunbiaolocal.act;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -18,17 +17,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.yunbiao.yunbiaolocal.APP;
-import com.yunbiao.yunbiaolocal.Const;
 import com.yunbiao.yunbiaolocal.R;
-import com.yunbiao.yunbiaolocal.br.EventMessage;
 import com.yunbiao.yunbiaolocal.br.USBBroadcastReceiver;
-import com.yunbiao.yunbiaolocal.io.Video;
+import com.yunbiao.yunbiaolocal.devicectrl.SoundControl;
+import com.yunbiao.yunbiaolocal.io.VideoDataResolver;
 import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,12 +32,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.vov.vitamio.MediaPlayer;
 import io.vov.vitamio.widget.MediaController;
-import io.vov.vitamio.widget.VideoView;
+
+import com.yunbiao.yunbiaolocal.view.MainVideoView;
 
 public class MainActivity extends Activity implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener, MediaPlayer.OnCompletionListener {
     private static final String TAG = "MainActivity";
     @BindView(R.id.vtm_video)
-    VideoView vtmVideo;
+    MainVideoView vtmVideo;
     @BindView(R.id.permission)
     TextView permission;
     @BindView(R.id.state)
@@ -71,107 +66,39 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
     private float playSpeed = 1.0f;
     private MediaPlayer mP;
 
-    @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-    public void onMessageEvent(EventMessage event) {
-        switch (event.getControlType()) {
-            //控制台
-            case Const.CONTROL_EVENT.OPEN_CONSOLE:
-                Log.e("123", "收到消息");
-                openConsole();
-                updateConsole(event.getConsoleMsg());
-                break;
-            case Const.CONTROL_EVENT.UPDATE_CONSOLE:
-                updateConsole(event.getConsoleMsg());
-                break;
-            case Const.CONTROL_EVENT.CLOSE_CONSOLE:
-                closeConsole();
-                break;
-            //进度条
-            case Const.CONTROL_EVENT.INIT_PROGRESS:
-                progress.setMax(Integer.parseInt(event.getConsoleMsg()));
-                break;
-            case Const.CONTROL_EVENT.UPDATE_PROGRESS:
-                Log.e("123", "当前进度：" + event.getConsoleMsg());
-                progress.setProgress(Integer.parseInt(event.getConsoleMsg()));
-                break;
-            //播放器
-            case Const.CONTROL_EVENT.INIT_PLAYER:
-                initPlayData();
-                closeConsole();
-                lineNumber = 0;
-                break;
-            case Const.CONTROL_EVENT.VIDEO_PLAY:
-                vtmPlay(event.getConsoleMsg());
-                break;
-            case Const.CONTROL_EVENT.VIDEO_STOP:
-                Log.d("log", "停止播放");
-                vtmStop();
-                break;
-        }
-    }
-
-
-    boolean isLocalRes = true;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        EventBus.getDefault().register(this);
         APP.setMainActivity(this);
 
         //初始化控件
         initView();
         //初始化播放器
         initVTMPlayer();
-
-        Button btnVtm = findViewById(R.id.btn_vtm);
-        btnVtm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                if (isLocalRes) {
-//                    vtmStop();
-//                    vtmVideo.setVideoPath("http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear2/prog_index.m3u8");
-//                    vtmVideo.start();
-//                } else {
-//                    vtmStop();
-//                    vtmVideo.setVideoPath(playList[0]);
-//                    vtmVideo.start();
-//                }
-//                isLocalRes = !isLocalRes;
-
-                DialogUtil.getInstance(MainActivity.this).showInsertDialog(DialogUtil.INSERT_LIVE,"http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear2/prog_index.m3u8");
-            }
-        });
     }
 
     /*===========播放器相关=====================================================================
      * 初始化播放器
      */
     public void initVTMPlayer() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Video video = new Video();
-                video.setPlayList();
+        initPlayData();
 
-                MediaController mediaController = new MediaController(MainActivity.this);
-                mediaController.setInstantSeeking(false);
-                vtmVideo.setMediaController(mediaController);
-                vtmVideo.setVideoQuality(MediaPlayer.VIDEOQUALITY_HIGH);
-                vtmVideo.setOnPreparedListener(MainActivity.this);//准备完毕监听
-                vtmVideo.setOnErrorListener(MainActivity.this);//播放错误监听
-                vtmVideo.setOnInfoListener(MainActivity.this);//播放信息监听
-            }
-        });
+        MediaController mediaController = new MediaController(MainActivity.this);
+        mediaController.setInstantSeeking(false);
+        vtmVideo.setMediaController(mediaController);
+        vtmVideo.setVideoQuality(MediaPlayer.VIDEOQUALITY_HIGH);//播放画质
+        vtmVideo.setOnPreparedListener(this);//准备完毕监听
+        vtmVideo.setOnErrorListener(this);//播放错误监听
+        vtmVideo.setOnInfoListener(this);//播放信息监听
     }
 
     /*
      * 初始化播放数据
      */
     public void initPlayData() {
-        Video video = new Video();
+        VideoDataResolver video = new VideoDataResolver();
         video.setPlayList();
         if (video.timerList == null || video.timerList.isEmpty()) {
             state.setVisibility(View.VISIBLE);
@@ -221,7 +148,6 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
             videoIndex = 0;
         }
         try {
-            Log.e("123", "11111111111111");
             mp.setPlaybackSpeed(playSpeed);
             vtmVideo.stopPlayback();
             vtmVideo.setVideoPath(playList[videoIndex]);
@@ -261,8 +187,6 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
      */
     private void initView() {
 
-        // 安卓音频初始化
-        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         //USB广播监听
         usbBroadcastReceiver = new USBBroadcastReceiver();
         IntentFilter intentFilter = new IntentFilter();
@@ -284,75 +208,47 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
      * 打开控制台
      */
     public void openConsole() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                llConsole.setVisibility(View.VISIBLE);
-            }
-        });
+        llConsole.setVisibility(View.VISIBLE);
     }
 
     /*
      * 关闭控制台
      */
     public void closeConsole() {
-        runOnUiThread(new Runnable() {
+        new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        llConsole.setVisibility(View.GONE);
-                        progress.setProgress(0);
-                        progress.setMax(0);
-                        console.setText("");
-                    }
-                }, 3000);
+                llConsole.setVisibility(View.GONE);
+                progress.setProgress(0);
+                progress.setMax(0);
+                console.setText("");
             }
-        });
+        }, 3000);
     }
 
     /*
      * 更新控制台显示
      */
     public void updateConsole(final String msg) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                String text = console.getText().toString();
-                if (lineNumber < 5) {
-                    lineNumber++;
-                } else {
-                    text = text.substring(text.indexOf("\n") + 1);
-                }
+        String text = console.getText().toString();
+        if (lineNumber < 5) {
+            lineNumber++;
+        } else {
+            text = text.substring(text.indexOf("\n") + 1);
+        }
 
-                if (lineNumber > 1) {
-                    text += "\n";
-                }
-                console.setText(text + msg);
-            }
-        });
-
+        if (lineNumber > 1) {
+            text += "\n";
+        }
+        console.setText(text + msg);
     }
 
     public void initProgress(final int max){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progress.setMax(max);
-            }
-        });
-
+        progress.setMax(max);
     }
 
-    public void updateProgress(final String pg){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progress.setProgress(Integer.parseInt(pg));
-            }
-        });
-
+    public void updateProgress(final int pg){
+        progress.setProgress(pg);
     }
 
     @Override
@@ -363,15 +259,18 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
             vtmVideo.setVisibility(View.GONE);
 
             DialogUtil.getInstance(this).showPlayListDialog(
-                    Video.playList == null
+                    VideoDataResolver.playList == null
                             ? new ArrayList<String>()
-                            : Video.playList, new DialogInterface.OnClickListener() {
+                            : VideoDataResolver.playList, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             vtmVideo.setVisibility(View.VISIBLE);
                             vtmVideo.start();
                         }
                     });
+        }else if(keyCode == KeyEvent.KEYCODE_BACK){
+            DialogUtil.getInstance(this).showTestController();
+            return true;
         }
 
         return super.onKeyDown(keyCode, event);
@@ -393,8 +292,9 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
     protected void onDestroy() {
         unregisterReceiver(usbBroadcastReceiver);
         NetUtil.getInstance().stop();
-        EventBus.getDefault().unregister(this);
+//        EventBus.getDefault().unregister(this);
         super.onDestroy();
+
     }
 
 }

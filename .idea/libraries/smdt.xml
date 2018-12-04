@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="smdt">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/app/libs/smdt.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

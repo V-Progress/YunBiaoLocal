@@ -21,16 +21,9 @@ public class Const {
         String SERVER_PORT = "";
     }
 
-
-    public interface CONTROL_EVENT{
-        int OPEN_CONSOLE = 1;
-        int UPDATE_CONSOLE = 2;
-        int INIT_PROGRESS = 3;
-        int UPDATE_PROGRESS = 4;
-        int INIT_PLAYER = 0;
-        int CLOSE_CONSOLE = 5;
-        int VIDEO_PLAY = 11;
-        int VIDEO_STOP = 10;
+    public interface SYSTEM_CONFIG{
+        int DATA_RESOLVE_THREAD_NUMBER = 4;
+        String LOG_TAG = "YUNBIAO";
     }
 
 }

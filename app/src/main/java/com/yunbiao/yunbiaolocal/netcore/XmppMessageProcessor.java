@@ -55,7 +55,7 @@ public class XmppMessageProcessor {
             case CONTENT_TYPE:// 内容更新
                 break;
             case VOICE_TYPE:// 声音控制
-                SoundControl.setMusicSound(content.getVoice());
+//                SoundControl.setMusicSound(content.getVoice());
                 break;
             case CUTSCREN_TYPE://截屏
 //                ThreadUitls.runInThread(new Runnable() {// 截图控制

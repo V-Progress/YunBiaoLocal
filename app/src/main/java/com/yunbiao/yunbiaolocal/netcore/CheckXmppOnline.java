@@ -1,4 +1,4 @@
-package com.yunbiao.yunbiaolocal;
+package com.yunbiao.yunbiaolocal.netcore;
 
 import android.os.Handler;
 import android.os.Message;
@@ -6,7 +6,7 @@ import android.os.Message;
 
 import com.yunbiao.yunbiaolocal.cache.ResConstants;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
-import com.yunbiao.yunbiaolocal.utils.ThreadUitls;
+import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
 import com.yunbiao.yunbiaolocal.xmpp.XmppManager;
 import com.zhy.http.okhttp.callback.StringCallback;
 
@@ -43,7 +43,7 @@ public class CheckXmppOnline {
     }
 
     public void start() {
-        ThreadUitls.runInThread(uploadThreadRun);
+        ThreadUtil.getInstance().runInUIThread(uploadThreadRun);
     }
 
     /**

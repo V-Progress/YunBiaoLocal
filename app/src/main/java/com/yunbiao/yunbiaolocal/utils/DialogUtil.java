@@ -11,17 +11,19 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.yunbiao.yunbiaolocal.devicectrl.PowerControl;
+import com.yunbiao.yunbiaolocal.devicectrl.ScreenShot;
+import com.yunbiao.yunbiaolocal.devicectrl.SoundControl;
+import com.yunbiao.yunbiaolocal.io.VideoDataResolver;
+import com.yunbiao.yunbiaolocal.view.InsertPlayDialog;
 import com.yunbiao.yunbiaolocal.R;
-import com.yunbiao.yunbiaolocal.act.MainActivity;
-import com.yunbiao.yunbiaolocal.io.Video;
 
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -36,14 +38,18 @@ import java.util.List;
 
 public class DialogUtil {
 
+    public static final int INSERT_VIDEO = 0;
+    public static final int INSERT_TEXT = 1;
+    public static final int INSERT_LIVE = 2;
+
     private static DialogUtil instance;
     private AlertDialog.Builder mDialogBuilder;
     private static Activity mActivity;
     private String yyyyMMdd = new SimpleDateFormat("yyyyMMdd").format(new Date());
 
-    public static synchronized DialogUtil getInstance(Activity activity){
+    public static synchronized DialogUtil getInstance(Activity activity) {
         mActivity = activity;
-        if(instance == null){
+        if (instance == null) {
             instance = new DialogUtil();
         }
         return instance;
@@ -51,20 +57,20 @@ public class DialogUtil {
 
     public DialogUtil() {
         mDialogBuilder = new AlertDialog.Builder(mActivity);
-        mDialogBuilder.setCancelable(false);
+        mDialogBuilder.setCancelable(false);// TODO: 2018/12/4 暂时关闭
     }
 
     /***
      * 展示播放列表dialog
      * @param onClickListener
      */
-    public void showPlayListDialog(List<String> playList ,final DialogInterface.OnClickListener onClickListener){
+    public void showPlayListDialog(List<String> playList, final DialogInterface.OnClickListener onClickListener) {
         LinearLayout mLinearLayout = (LinearLayout) LayoutInflater.from(mActivity).inflate(R.layout.alert_dialog, null);
         ListView mPlaylist = mLinearLayout.findViewById(R.id.playlist);
         TextView tvTime = mLinearLayout.findViewById(R.id.tv_time);
         final VideoView mPreview = mLinearLayout.findViewById(R.id.preview);
 
-        mPlaylist.setAdapter(new ArrayAdapter<String>(mActivity, android.R.layout.simple_list_item_1, playList){
+        mPlaylist.setAdapter(new ArrayAdapter<String>(mActivity, android.R.layout.simple_list_item_1, playList) {
             @Override
             public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
                 convertView = LayoutInflater.from(getContext()).inflate(android.R.layout.simple_list_item_1, null);
@@ -84,13 +90,13 @@ public class DialogUtil {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 TextView textView = (TextView) view;
                 String text = textView.getText().toString();
-                if (!text.matches("^.+\\.\\S+$")){
+                if (!text.matches("^.+\\.\\S+$")) {
                     return;
                 }
-                if (mPreview.isPlaying()){
+                if (mPreview.isPlaying()) {
                     mPreview.stopPlayback();
                 }
-                String path = Video.previewMap.get(yyyyMMdd + text.substring(3));
+                String path = VideoDataResolver.previewMap.get(yyyyMMdd + text.substring(3));
                 if (TextUtils.isEmpty(path)) {
                     Toast.makeText(mActivity, "没有视频", Toast.LENGTH_SHORT).show();
                     return;
@@ -100,70 +106,74 @@ public class DialogUtil {
             }
         });
 
-        tvTime.setText(Video.timer);
+        tvTime.setText(VideoDataResolver.timer);
 
         mDialogBuilder.setView(mLinearLayout);
         mDialogBuilder.setTitle("播放列表");
         mDialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if (mPreview.isPlaying()){
+                if (mPreview.isPlaying()) {
                     mPreview.stopPlayback();
                 }
-                onClickListener.onClick(dialog,which);
+                onClickListener.onClick(dialog, which);
             }
         });
 
         AlertDialog alertDialog = mDialogBuilder.create();
         alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.MATCH_PARENT);
 
-        if(!mActivity.isFinishing()){
+        if (!mActivity.isFinishing()) {
             alertDialog.show();
         }
     }
 
-    public static final int INSERT_VIDEO = 0;
-    public static final int INSERT_TEXT = 1;
-    public static final int INSERT_LIVE = 2;
-    /***
-     * 展示插播dialog
+    /**
+     * 插播广告Dialog
+     *
+     * @param type
+     * @param content
      */
-    public void showInsertDialog(int insertType,String content){
-        View rootView = LayoutInflater.from(mActivity).inflate(R.layout.layout_insert_content, null);
-        VideoView vtmInsert = rootView.findViewById(R.id.vtm_insert);
-        TextView tvInsert = rootView.findViewById(R.id.tv_insert);
+    public void showInsertDialog(int type, String content) {
+        InsertPlayDialog insertPlayDialog = InsertPlayDialog.build(mActivity, type);
+        insertPlayDialog.show(content);
+    }
 
-        switch (insertType) {
-            case INSERT_VIDEO:
-                tvInsert.setVisibility(View.GONE);
-                if(!content.endsWith(".m3u8")){
-                    Toast.makeText(mActivity, "直播源地址有误！", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                vtmInsert.setVideoPath(content);
-                vtmInsert.start();
-                break;
-            case INSERT_TEXT:
-                vtmInsert.setVisibility(View.GONE);
-                tvInsert.setText(content);
-                break;
-            case INSERT_LIVE:
-                tvInsert.setVisibility(View.GONE);
-                if(!content.endsWith(".m3u8")){
-                    Toast.makeText(mActivity, "直播源地址有误！", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                vtmInsert.setVideoPath(content);
-                vtmInsert.start();
-                break;
-        }
+    public void showTestController(){
+        View inflate = LayoutInflater.from(mActivity).inflate(R.layout.layout_controller, null);
+        Button btnUp = inflate.findViewById(R.id.btn_vol_up);
+        Button btnDown = inflate.findViewById(R.id.btn_vol_down);
+        Button btnSS = inflate.findViewById(R.id.btn_vol_screenshot);
+        Button btnC = inflate.findViewById(R.id.btn_vol_close);
 
-        mDialogBuilder.setView(rootView);
+        View.OnClickListener onClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.btn_vol_up:
+                        SoundControl.upMusicSound();
+                        break;
+                    case R.id.btn_vol_down:
+                        SoundControl.downMusicSound();
+                        break;
+                    case R.id.btn_vol_screenshot:
+                        ScreenShot.getInstanse().shootScreen();
+                        break;
+                    case R.id.btn_vol_close:
+                        PowerControl.getInstance().setPowerRunTime();
+                        break;
+                }
+            }
+        };
+        btnUp.setOnClickListener(onClickListener);
+        btnDown.setOnClickListener(onClickListener);
+        btnSS.setOnClickListener(onClickListener);
+        btnC.setOnClickListener(onClickListener);
+
+        mDialogBuilder.setView(inflate);
         AlertDialog alertDialog = mDialogBuilder.create();
-        Window window = alertDialog.getWindow();
-        window.setLayout(-1,-1);
-        if(!mActivity.isFinishing()){
-            alertDialog.show();
-        }
+        alertDialog.setCancelable(true);
+        alertDialog.show();
+        alertDialog.getWindow().setLayout(-1,-1);
     }
 }

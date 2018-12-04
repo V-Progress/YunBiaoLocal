@@ -1,4 +1,5 @@
 package com.yunbiao.yunbiaolocal.utils;
+
 import android.util.Log;
 
 import java.text.ParsePosition;
@@ -19,12 +20,11 @@ public class TimerExecutor {
     private Timer timer;
     private List<String> timeList;
 
-
     private List<TimerTask> runningTasks = new ArrayList<>();
 
-    public synchronized static TimerExecutor getInstance(){
-        if(instance == null){
-            instance= new TimerExecutor();
+    public synchronized static TimerExecutor getInstance() {
+        if (instance == null) {
+            instance = new TimerExecutor();
         }
         return instance;
     }
@@ -34,40 +34,44 @@ public class TimerExecutor {
         timeList = new ArrayList<>();
     }
 
-    public interface OnTimeOutListener{
-        void timeOut();
+    public interface OnTimeOutListener {
+        void execute();
     }
 
-    public void addInQueue(String startTime, final OnTimeOutListener onTimeOutListener){
-        Date date = new Date(System.currentTimeMillis());
-        if(strToDateLong(startTime).getTime() < date.getTime()){
-            Log.e("123","开始时间小于当前时间，不予执行。");
+    public void addInTimerQueue(Date execTime, final OnTimeOutListener onTimeOutListener) {
+        Date currDate = new Date(System.currentTimeMillis());
+        if (execTime.getTime() < currDate.getTime()) {
+            Log.e("123", "开始时间小于当前时间，不予执行。");
             return;
         }
 
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                if(onTimeOutListener == null){
-                    onTimeOutListener.timeOut();
-                }
+                ThreadUtil.getInstance().runInUIThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (onTimeOutListener != null) {
+                            onTimeOutListener.execute();
+                        }
+                    }
+                });
             }
         };
         runningTasks.add(timerTask);
-        timer.schedule(timerTask,strToDateLong(startTime));
+        timer.schedule(timerTask, execTime);
     }
 
-    public void closeQueue(){
-        if(runningTasks!=null && runningTasks.size()>0){
+    public void closeQueue() {
+        if (runningTasks != null && runningTasks.size() > 0) {
             for (TimerTask runningTask : runningTasks) {
                 runningTask.cancel();
             }
         }
-        if(timer != null){
+        if (timer != null) {
             timer.cancel();
         }
     }
-
 
     public static Date strToDateLong(String strDate) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

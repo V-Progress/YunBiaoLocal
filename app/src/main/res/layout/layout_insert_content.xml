@@ -2,13 +2,20 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:orientation="vertical">
 
     <VideoView
-        android:id="@+id/vtm_insert"
+        android:id="@+id/vv_insert"
         android:layout_centerInParent="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+    <ProgressBar
+        android:visibility="gone"
+        android:id="@+id/pb_insert_loading"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <TextView
         android:gravity="center"

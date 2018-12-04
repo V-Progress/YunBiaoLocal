@@ -2,12 +2,14 @@ package com.xboot.stdcall;
 
 import android.util.Log;
 
+import com.yunbiao.yunbiaolocal.utils.LogUtil;
+
 import java.util.Calendar;
 
 public class OnOffTool {
 
     public static void setEnabled(byte on_h, byte on_m, byte off_h, byte off_m) {
-        Log.e("开关机时间:", "offH:" + off_h + " off_m:" + off_m + " on_h:" + on_h + " on_m:" + on_m);
+        LogUtil.E("开关机时间:offH:" + off_h + " off_m:" + off_m + " on_h:" + on_h + " on_m:" + on_m);
         setPowerOnOff(on_h, on_m, off_h, off_m, (byte) 3);
     }
 

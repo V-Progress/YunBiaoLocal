@@ -4,6 +4,8 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
+import com.yunbiao.yunbiaolocal.utils.LogUtil;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -146,7 +148,7 @@ public class DownloadTask extends AsyncTask<String,Integer,Integer> {
     protected void onProgressUpdate(Integer...values){
         int progress=values[0];
         if(progress>lastProgress){
-            Log.e("DownloadTask","下载速率："+values[1]);
+            LogUtil.E("DownloadTask下载速率："+values[1]);
             listener.onProgress(progress);
             lastProgress=progress;
         }

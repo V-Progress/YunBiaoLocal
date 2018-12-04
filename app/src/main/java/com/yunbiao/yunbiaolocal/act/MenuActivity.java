@@ -14,13 +14,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.yunbiao.yunbiaolocal.APP;
-import com.yunbiao.yunbiaolocal.HeartBeatClient;
+import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.yunbiao.yunbiaolocal.utils.TimerUtil;
@@ -191,7 +190,6 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
         menuInfoBindBtn.setText("未绑定");
         menuInfoBindBtn.setTextColor(Color.parseColor("#ADADAD"));
         menuInfoBindBtn.setBackgroundResource(R.drawable.no_service_btn);
-
     }
 
     @Override

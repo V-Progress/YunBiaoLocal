@@ -1,4 +1,4 @@
-package com.yunbiao.yunbiaolocal;
+package com.yunbiao.yunbiaolocal.netcore;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -13,6 +13,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.act.MainActivity;
 import com.yunbiao.yunbiaolocal.cache.CacheUtil;
 import com.yunbiao.yunbiaolocal.cache.ResConstants;

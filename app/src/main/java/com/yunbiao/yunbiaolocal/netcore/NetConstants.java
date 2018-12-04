@@ -1,4 +1,4 @@
-package com.yunbiao.yunbiaolocal;
+package com.yunbiao.yunbiaolocal.netcore;
 
 public class NetConstants {
 

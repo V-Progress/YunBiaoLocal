@@ -2,6 +2,8 @@ package com.yunbiao.yunbiaolocal.utils;
 
 import android.os.Handler;
 
+import com.yunbiao.yunbiaolocal.Const;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -13,6 +15,7 @@ public class ThreadUtil {
     private static ThreadUtil threadUtil;
     private ExecutorService mSingleThread;
     private ExecutorService thread4Pool;
+    private Handler mHandler = new Handler();
 
     public static synchronized ThreadUtil getInstance(){
         if(threadUtil == null){
@@ -23,7 +26,7 @@ public class ThreadUtil {
 
     public ThreadUtil() {
         mSingleThread = Executors.newSingleThreadExecutor();
-        thread4Pool = Executors.newFixedThreadPool(4);
+        thread4Pool = Executors.newFixedThreadPool(Const.SYSTEM_CONFIG.DATA_RESOLVE_THREAD_NUMBER);
     }
 
     public void runInSingleThread(Runnable runnable){
@@ -35,6 +38,7 @@ public class ThreadUtil {
     }
 
     public void runInUIThread(Runnable runnable){
-        new Handler().post(runnable);
+        mHandler.post(runnable);
     }
+
 }
