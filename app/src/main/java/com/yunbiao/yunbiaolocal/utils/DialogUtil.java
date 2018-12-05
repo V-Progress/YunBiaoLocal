@@ -151,10 +151,8 @@ public class DialogUtil {
             public void onClick(View v) {
                 switch (v.getId()) {
                     case R.id.btn_vol_up:
-                        SoundControl.upMusicSound();
                         break;
                     case R.id.btn_vol_down:
-                        SoundControl.downMusicSound();
                         break;
                     case R.id.btn_vol_screenshot:
                         ScreenShot.getInstanse().shootScreen();

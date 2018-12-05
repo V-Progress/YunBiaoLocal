@@ -166,6 +166,8 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
                                         insertPlayDialog.dismiss();
                                     }
                                 });
+                            } else {
+                                LogUtil.E("播放时间已过！");
                             }
 
                             break;
@@ -268,7 +270,8 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         String[] dates = playDate.split("-");
         String[] times = playTime.split("-");
         //获取当年月日
-        String currDateStr = yyyyMMdd.format(new Date(System.currentTimeMillis()));
+        Date currDateTime = new Date(System.currentTimeMillis());
+        String currDateStr = yyyyMMdd.format(currDateTime);
         //转换成date格式
         Date currDate = yyyyMMdd.parse(currDateStr);
         Date beginDate = yyyyMMdd.parse(dates[0]);
@@ -289,6 +292,9 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
 
         LogUtil.E("开始毫秒：" + beginTime.getTime());
         LogUtil.E("结束毫秒：" + endTime.getTime());
+        if(endTime.getTime() < yyyyMMddHH_mm.parse(yyyyMMddHH_mm.format(currDateTime)).getTime()){
+            return null;
+        }
 
         return new Date[]{beginTime, endTime};
     }

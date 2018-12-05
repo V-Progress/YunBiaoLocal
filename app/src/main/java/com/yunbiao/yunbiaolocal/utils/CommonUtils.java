@@ -220,7 +220,7 @@ public class CommonUtils {
     /**
      * 获取当前版本号
      */
-    static String getAppVersion(Context context) {
+    public static String getAppVersion(Context context) {
         String version = "";
         try {
             // 获取packagemanager的实例
@@ -261,7 +261,7 @@ public class CommonUtils {
 
 
     //CPU个数
-    static int getNumCores() {
+    public static int getNumCores() {
         class CpuFilter implements FileFilter {
             @Override
             public boolean accept(File pathname) {
@@ -283,7 +283,7 @@ public class CommonUtils {
      *
      * @return
      */
-    static String getMaxCpuFreq() {
+    public static String getMaxCpuFreq() {
         String result = "";
         ProcessBuilder cmd;
         Double cpuGhz = Double.valueOf(0);
@@ -306,7 +306,7 @@ public class CommonUtils {
     }
 
     // 获取CPU名字
-    static String getCpuName() {
+    public static String getCpuName() {
         try {
             FileReader fr = new FileReader("/proc/cpuinfo");
             BufferedReader br = new BufferedReader(fr);
@@ -369,13 +369,13 @@ public class CommonUtils {
         return 0;
     }
 
-    static String getMemoryTotalSize() {
+    public static String getMemoryTotalSize() {
         File innerCardFile = Environment.getExternalStorageDirectory();
         long totalSize = innerCardFile.getTotalSpace();
         return String.valueOf(totalSize / 1024 / 1024);
     }
 
-    static String getMemoryUsedSize() {
+    public static String getMemoryUsedSize() {
         File innerCardFile = Environment.getExternalStorageDirectory();
         long totalSize = innerCardFile.getTotalSpace();
         long freeSize = innerCardFile.getFreeSpace();

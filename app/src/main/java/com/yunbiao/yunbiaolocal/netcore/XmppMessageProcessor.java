@@ -1,14 +1,13 @@
 package com.yunbiao.yunbiaolocal.netcore;
 
-import android.text.TextUtils;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.cache.CacheUtil;
-import com.yunbiao.yunbiaolocal.view.model.InsertVideoModel;
-import com.yunbiao.yunbiaolocal.view.model.LoginModel;
+import com.yunbiao.yunbiaolocal.devicectrl.SoundControl;
+import com.yunbiao.yunbiaolocal.netcore.bean.LoginModel;
+import com.yunbiao.yunbiaolocal.netcore.bean.VoiceModel;
 import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.LogUtil;
 import com.yunbiao.yunbiaolocal.view.TipToast;
@@ -57,6 +56,7 @@ public class XmppMessageProcessor {
 
         switch (Integer.valueOf(type)) {
             case ONLINE_TYPE:
+                MachineDetial.getInstance().upLoadHardWareMessage();
                 LoginModel loginModel = new Gson().fromJson(content, LoginModel.class);
                 LogUtil.E(loginModel.toString());
                 CacheUtil.putExpireDate(loginModel.getExpireDate());
@@ -97,6 +97,8 @@ public class XmppMessageProcessor {
                 TipToast.showLongToast(APP.getMainActivity(),"设备编号："+CacheUtil.getSerNumber());
                 break;
             case VOICE_TYPE://声音修改
+                VoiceModel voiceModel = new Gson().fromJson(content, VoiceModel.class);
+                SoundControl.setMusicSound(voiceModel.getVoice());
 
                 break;
             case PUSH_MESSAGE://插播字幕
