@@ -1,16 +1,15 @@
 package com.yunbiao.yunbiaolocal.netcore;
 
-import android.util.Log;
-import android.widget.Toast;
+import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.cache.CacheUtil;
-import com.yunbiao.yunbiaolocal.cache.ResConstants;
-import com.yunbiao.yunbiaolocal.devicectrl.SoundControl;
-import com.yunbiao.yunbiaolocal.netcore.model.LoginModel;
+import com.yunbiao.yunbiaolocal.view.model.InsertVideoModel;
+import com.yunbiao.yunbiaolocal.view.model.LoginModel;
+import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.LogUtil;
 import com.yunbiao.yunbiaolocal.view.TipToast;
 
@@ -68,6 +67,17 @@ public class XmppMessageProcessor {
                 CacheUtil.putDecName(loginModel.getDeviceName());
                 CacheUtil.putDeviceQrCode(loginModel.getDeviceQrCode());
                 CacheUtil.putIsMirror(loginModel.getIsMirror());
+
+                //是否有密码
+//                String password = loginModel.getPassword();
+//                LogUtil.E(TAG, "*****" + password);
+//                if (TextUtils.isEmpty(password) || password.equals(" ") || password.equals("null")) {
+//                    SpUtils.saveString(APP.getContext(), SpUtils.MENU_PWD, "");
+//                } else {
+//                    SpUtils.saveString(APP.getContext(), SpUtils.MENU_PWD, password);
+//                }
+
+
                 break;
             case SHOW_SERNUM:
 //                Integer showType = content.getShowType();
@@ -85,6 +95,16 @@ public class XmppMessageProcessor {
 //                    TipToast.showLongToast(APP.getMainActivity(),"设备编号："+CacheUtil.getSerNumber());
 //                }
                 TipToast.showLongToast(APP.getMainActivity(),"设备编号："+CacheUtil.getSerNumber());
+                break;
+            case VOICE_TYPE://声音修改
+
+                break;
+            case PUSH_MESSAGE://插播字幕
+                LogUtil.E("显示字幕");
+                DialogUtil.getInstance(APP.getMainActivity()).showInsertDialog(DialogUtil.INSERT_TEXT,content);
+                break;
+            case VIDEO_PUSH://插播视频
+                DialogUtil.getInstance(APP.getMainActivity()).showInsertDialog(DialogUtil.INSERT_VIDEO,content);
 
                 break;
         }

@@ -39,12 +39,6 @@ public class TimerExecutor {
     }
 
     public void addInTimerQueue(Date execTime, final OnTimeOutListener onTimeOutListener) {
-        Date currDate = new Date(System.currentTimeMillis());
-        if (execTime.getTime() < currDate.getTime()) {
-            Log.e("123", "开始时间小于当前时间，不予执行。");
-            return;
-        }
-
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {

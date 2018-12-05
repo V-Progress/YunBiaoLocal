@@ -19,7 +19,6 @@ import okhttp3.Call;
  */
 
 public class NetUtil {
-    private static final String URL = "http://cdn7.mydown.com/5c012160/85f38acfd007042510435ad5d4615748/newsoft/QQ9.0.8.exe";
     private static NetUtil mInstance;
     private RequestCall build;
     private final String rootDir = Environment.getExternalStorageDirectory().getAbsolutePath();
@@ -54,17 +53,30 @@ public class NetUtil {
         downloadTask.execute(url);
     }
 
-    public void downLoadFile(final OnDownLoadListener onDownLoadListener) throws Exception {
-        String fileName = URL.substring(URL.lastIndexOf("/") + 1);
+    public void downLoadFile(final String url , final OnDownLoadListener onDownLoadListener){
+        String fileName = url.substring(url.lastIndexOf("/") + 1);
         onDownLoadListener.onStart(fileName);
         OkHttpUtils.getInstance().cancelTag(this);
 
-        if(!URL.startsWith("http") && !URL.startsWith("https")){
-            throw new Exception("Unsupported download protocols");
+        if(!url.startsWith("http://") && !url.startsWith("https")){
+            onDownLoadListener.onError(new Exception("Unsupported download protocols"));
+            onDownLoadListener.onFinish();
+            return;
         }
+
         try{
+            File file = new File(rootDir);
+            String[] list = file.list();
+            for (String fn : list) {
+                if(fn.contains(fileName)){
+                    onDownLoadListener.onComplete(new File(rootDir + "/"+fn));
+                    onDownLoadListener.onFinish();
+                    return;
+                }
+            }
+
             OkHttpUtils.get()
-                    .url(URL)
+                    .url(url)
                     .tag(this)
                     .build()
                     .execute(new FileCallBack(rootDir, fileName) {
@@ -72,6 +84,11 @@ public class NetUtil {
 
                         @Override
                         public void onError(Call call, Exception e, int id) {
+                            try {
+                                downLoadFile(url,onDownLoadListener);
+                            } catch (Exception e1) {
+                                e1.printStackTrace();
+                            }
                             onDownLoadListener.onError(e);
                             onDownLoadListener.onFinish();
                         }

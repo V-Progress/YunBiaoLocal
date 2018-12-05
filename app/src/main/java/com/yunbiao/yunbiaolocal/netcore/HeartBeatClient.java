@@ -14,10 +14,10 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.yunbiao.yunbiaolocal.APP;
-import com.yunbiao.yunbiaolocal.act.MainActivity;
 import com.yunbiao.yunbiaolocal.cache.CacheUtil;
 import com.yunbiao.yunbiaolocal.cache.ResConstants;
 import com.yunbiao.yunbiaolocal.utils.CommonUtils;
+import com.yunbiao.yunbiaolocal.utils.LogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.zhy.http.okhttp.callback.StringCallback;
 
@@ -33,29 +33,18 @@ public class HeartBeatClient {
     /**
      * 心跳频率 默认10s
      */
-    private static HeartBeatClient hbc = null;
+    private static HeartBeatClient instance = null;
 
     private static String sbDeviceId = null;
 
     public static synchronized HeartBeatClient getInstance() {
-        if (hbc == null) {
-            hbc = new HeartBeatClient();
+        if (instance == null) {
+            instance = new HeartBeatClient();
         }
-        return hbc;
-    }
-
-    private MainActivity mainActivity;
-
-    public MainActivity getMainActivity() {
-        return mainActivity;
-    }
-
-    public void setMainActivity(MainActivity mainActivity) {
-        this.mainActivity = mainActivity;
+        return instance;
     }
 
     private HeartBeatClient() {
-//        init();
         initDeviceNo();
     }
 
@@ -115,41 +104,9 @@ public class HeartBeatClient {
                     CacheUtil.putDeviceNo(deviceNo);
                 }
 
-                Log.e(TAG, "createDeviceNo: " + deviceNo);
+                LogUtil.E(TAG, "createDeviceNo: " + deviceNo);
             }
         });
-        /*MyXutils.getInstance().post(ResConstants.SER_NUMBER, paramMap, new MyXutils.XCallBack() {
-            @Override
-            public void onSuccess(String result) {
-                String deviceNo = "-1";
-
-                if (result.startsWith("\"")) {
-                    result = result.substring(1, result.length() - 1);
-                }
-                if (result.equals("1")) {//服务器中有，继续使用该数据
-                    deviceNo = tmPhone;
-                } else if (result.equals("0")) {//服务器中没有，就使用getMacAddress()获取唯一标识
-//                    deviceNo = getMacAddress();
-                    deviceNo = getMacAddress(5);//重复五次防止出厂从未打开wifi获取不到wifimac
-                }
-
-                if (!deviceNo.equals("-1")) {
-                    CacheUtil.putDeviceNo(deviceNo);
-                }
-
-                Log.e(TAG, "createDeviceNo: " + deviceNo);
-            }
-
-            @Override
-            public void onError(Throwable ex) {
-
-            }
-
-            @Override
-            public void onFinish() {
-
-            }
-        });*/
     }
 
     public static String getAndroidId() {

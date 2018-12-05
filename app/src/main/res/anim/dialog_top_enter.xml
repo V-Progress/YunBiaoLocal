@@ -3,7 +3,7 @@
     android:interpolator="@android:anim/decelerate_interpolator">
     <!--减速度加速器-->
     <translate
-        android:duration="250"
+        android:duration="600"
         android:fromYDelta="-100%"
         android:toYDelta="0"/>
 </set>

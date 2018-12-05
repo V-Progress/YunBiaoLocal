@@ -2,24 +2,35 @@ package com.yunbiao.yunbiaolocal.view;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AbsoluteLayout;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import com.google.gson.Gson;
 import com.yunbiao.yunbiaolocal.R;
+import com.yunbiao.yunbiaolocal.cache.CacheUtil;
 import com.yunbiao.yunbiaolocal.utils.DialogUtil;
+import com.yunbiao.yunbiaolocal.utils.LogUtil;
+import com.yunbiao.yunbiaolocal.utils.NetUtil;
+import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
 import com.yunbiao.yunbiaolocal.utils.TimerExecutor;
+import com.yunbiao.yunbiaolocal.view.model.InsertTextModel;
+import com.yunbiao.yunbiaolocal.view.model.InsertVideoModel;
 
-import java.text.DateFormat;
-import java.text.ParseException;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -27,27 +38,39 @@ import java.util.Date;
  * Created by Administrator on 2018/12/4.
  */
 
-public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListener {
+public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListener, MediaPlayer.OnPreparedListener {
 
     private static InsertPlayDialog insertPlayDialog;
     private VideoView videoView;
     private ProgressBar pbInsertLoading;
     private TextView tvInsert;
-    private String mContent;
 
-    private DateFormat yyyyMMddHH_mm = new SimpleDateFormat("yyyyMMddHH:mm");
-    private int showType = DialogUtil.INSERT_TEXT;//播放类型默认文字
+    private SimpleDateFormat yyyyMMddHH_mm = new SimpleDateFormat("yyyyMMddHH:mm");
+    private SimpleDateFormat yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
+    private static int showType = DialogUtil.INSERT_TEXT;//播放类型默认文字
+
+    private String videoUrl;
+    private RelativeLayout rlContainer;
 
     public static synchronized InsertPlayDialog build(Context context, int insertType) {
+        showType = insertType;
         if (insertPlayDialog == null) {
-            insertPlayDialog = new InsertPlayDialog(context, insertType);
+            insertPlayDialog = new InsertPlayDialog(context);
         }
         return insertPlayDialog;
     }
 
-    private InsertPlayDialog(@NonNull Context context, int insertType) {
+    private InsertPlayDialog(@NonNull Context context) {
         super(context, R.style.FullScreenDialog);
-        showType = insertType;
+    }
+
+    public void init() {
+        showType = CacheUtil.getInsertType();
+        String adsinfoTemp = CacheUtil.getInsertAds();
+        LogUtil.E(showType+","+adsinfoTemp);
+        if (!TextUtils.isEmpty(adsinfoTemp)) {
+            show(adsinfoTemp);
+        }
     }
 
     @Override
@@ -62,6 +85,7 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         View rootView = inflater.inflate(R.layout.layout_insert_content, null);
         setContentView(rootView);
 
+        rlContainer = rootView.findViewById(R.id.rl_container);
         videoView = rootView.findViewById(R.id.vv_insert);
         pbInsertLoading = rootView.findViewById(R.id.pb_insert_loading);
         tvInsert = rootView.findViewById(R.id.tv_insert);
@@ -69,6 +93,7 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         videoView.setZOrderOnTop(true);//解决背景色问题
 //        videoView.setZOrderMediaOverlay(true);//解决遮挡问题
         videoView.setOnInfoListener(this);
+        videoView.setOnPreparedListener(this);
 
         Window dialogWindow = getWindow();
         WindowManager.LayoutParams lp = dialogWindow.getAttributes();
@@ -106,52 +131,166 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         return true;
     }
 
-    public void show(String content) {
-        this.mContent = content;
-        // TODO: 2018/12/4 解析内容并设置播放
-        try {
-            String begin = "2018120414:35";
-            String end = "2018120414:37";
-            Date beginTime = yyyyMMddHH_mm.parse(begin);
-            Date endTime = yyyyMMddHH_mm.parse(end);
+    @Override
+    public void onPrepared(MediaPlayer mp) {
+        mp.setLooping(true);//循环播放
+    }
 
-            TimerExecutor.getInstance().addInTimerQueue(beginTime, new TimerExecutor.OnTimeOutListener() {
+    public void show(final String content) {
+        ThreadUtil.getInstance().runInFixedThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    switch (showType) {
+                        case DialogUtil.INSERT_TEXT:
+                            final InsertTextModel insertTextModel = new Gson().fromJson(content, InsertTextModel.class);
+                            String playDate1 = insertTextModel.getContent().getPlayDate();
+                            String playCurTime1 = insertTextModel.getContent().getPlayCurTime();
+                            final Date[] dates1 = resolveTime(playDate1, playCurTime1);
+
+                            if (dates1 != null && dates1.length > 0) {
+                                CacheUtil.putInsertType(showType);
+                                CacheUtil.putInsertAds(content);
+                                TimerExecutor.getInstance().addInTimerQueue(dates1[0], new TimerExecutor.OnTimeOutListener() {
+                                    @Override
+                                    public void execute() {
+                                        LogUtil.E("显示InsertDialog");
+                                        InsertPlayDialog.super.show();
+                                        showTextContent(insertTextModel);
+                                    }
+                                });
+                                TimerExecutor.getInstance().addInTimerQueue(dates1[1], new TimerExecutor.OnTimeOutListener() {
+                                    @Override
+                                    public void execute() {
+                                        LogUtil.E("隐藏InsertDialog");
+                                        insertPlayDialog.dismiss();
+                                    }
+                                });
+                            }
+
+                            break;
+
+                        case DialogUtil.INSERT_LIVE:
+                        case DialogUtil.INSERT_VIDEO:
+                            InsertVideoModel insertVideoModel = new Gson().fromJson(content, InsertVideoModel.class);
+                            String playDate = insertVideoModel.getPlayDate();
+                            String playCurTime = insertVideoModel.getPlayCurTime();
+                            final Date[] dates = resolveTime(playDate, playCurTime);
+                            if (dates != null && dates.length > 0) {
+                                CacheUtil.putInsertType(showType);
+                                CacheUtil.putInsertAds(content);
+                                final String fileUrl = insertVideoModel.getFileurl();
+                                setVideo(dates[0], dates[1], fileUrl);
+                            } else {
+                                LogUtil.E("播放时间已过！");
+                            }
+                            break;
+                    }
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void setVideo(final Date startDate, final Date endDate, String fileurl) {
+        if (fileurl.endsWith(".avi")) {
+            NetUtil.getInstance().downLoadFile(fileurl, new NetUtil.OnDownLoadListener() {
                 @Override
-                public void execute() {
-                    InsertPlayDialog.super.show();
-                    setContent();
+                public void onStart(String fileName) {
+
+                }
+
+                @Override
+                public void onDownloading(String progress) {
+                    LogUtil.E("正在下载-" + progress);
+                }
+
+                @Override
+                public void onComplete(final File response) {
+                    videoUrl = response.getAbsolutePath();
+                    TimerExecutor.getInstance().addInTimerQueue(startDate, new TimerExecutor.OnTimeOutListener() {
+                        @Override
+                        public void execute() {
+                            LogUtil.E("显示InsertDialog");
+                            InsertPlayDialog.super.show();
+                            playVideo(response.getAbsolutePath());
+                        }
+                    });
+                    TimerExecutor.getInstance().addInTimerQueue(endDate, new TimerExecutor.OnTimeOutListener() {
+                        @Override
+                        public void execute() {
+                            LogUtil.E("隐藏InsertDialog");
+                            insertPlayDialog.dismiss();
+                        }
+                    });
+                }
+
+                @Override
+                public void onFinish() {
+
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    LogUtil.E("下载失败：" + e.getMessage());
                 }
             });
-
-            TimerExecutor.getInstance().addInTimerQueue(endTime, new TimerExecutor.OnTimeOutListener() {
-                @Override
-                public void execute() {
-                    insertPlayDialog.dismiss();
-                }
-            });
-        } catch (ParseException e) {
-            e.printStackTrace();
+        } else if ((fileurl.startsWith("http://") && fileurl.endsWith(".m3u8"))) {
+            playVideo(fileurl);
+        } else {
+            showErrText("视频源地址无效！");
         }
     }
 
-    /*
-        设置播放内容
-        必须在show之后调用
-     */
-    private void setContent() {
-        switch (showType) {
-            case DialogUtil.INSERT_TEXT:
-                showTextContent(mContent);
-                break;
-            case DialogUtil.INSERT_LIVE:
-            case DialogUtil.INSERT_VIDEO:
-                if (mContent.startsWith("http://") && mContent.endsWith(".m3u8")) {
-                    playVideo(mContent);
-                } else {
-                    showErrText("视频源地址无效！");
-                }
-                break;
+    private String correctTime(String time) {
+        String[] beginTimes = time.split(":");
+        for (int i = 0; i < beginTimes.length; i++) {
+            String temp = beginTimes[i];
+            if (temp.length() <= 1) {
+                temp = "0" + temp;
+            }
+            beginTimes[i] = temp;
         }
+        return beginTimes[0] + ":" + beginTimes[1];
+    }
+
+    private Date[] resolveTime(String playDate, String playTime) throws Exception {
+        if (!playDate.contains("-")) {
+            throw new Exception("playDate formal error!");
+        }
+        if (!playTime.contains("-")) {
+            throw new Exception("playTime formal error!");
+        }
+        //切割开始结束时间
+        String[] dates = playDate.split("-");
+        String[] times = playTime.split("-");
+        //获取当年月日
+        String currDateStr = yyyyMMdd.format(new Date(System.currentTimeMillis()));
+        //转换成date格式
+        Date currDate = yyyyMMdd.parse(currDateStr);
+        Date beginDate = yyyyMMdd.parse(dates[0]);
+        Date endDate = yyyyMMdd.parse(dates[1]);
+        //对比
+        if (currDate.getTime() < beginDate.getTime() || currDate.getTime() > endDate.getTime()) {
+            return null;
+        }
+
+        //修正时间字符串
+        String sTime = currDateStr + correctTime(times[0]);
+        String eTime = currDateStr + correctTime(times[1]);
+        LogUtil.E("开始时间-----" + sTime);
+        LogUtil.E("结束时间-----" + eTime);
+        //转换成date格式
+        final Date beginTime = yyyyMMddHH_mm.parse(sTime);
+        final Date endTime = yyyyMMddHH_mm.parse(eTime);
+
+        LogUtil.E("开始毫秒：" + beginTime.getTime());
+        LogUtil.E("结束毫秒：" + endTime.getTime());
+
+        return new Date[]{beginTime, endTime};
     }
 
     /*
@@ -192,11 +331,16 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
     /*
         文字广告
      */
-    private void showTextContent(String content) {
+    private void showTextContent(InsertTextModel insertTextModel) {
         videoView.setVisibility(View.GONE);
         pbInsertLoading.setVisibility(View.GONE);
+
+        InsertTextModel.Content content = insertTextModel.getContent();
+        tvInsert.setBackgroundColor(Color.parseColor(content.getBackground()));
+        tvInsert.setTextSize(Integer.valueOf(content.getFontSize()));
+        tvInsert.setTextColor(Color.parseColor(content.getFontColor()));
+        tvInsert.setText(insertTextModel.getText());
         tvInsert.setVisibility(View.VISIBLE);
-        tvInsert.setText(content);
     }
 
 }

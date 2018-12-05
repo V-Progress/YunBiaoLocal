@@ -6,6 +6,9 @@ import android.content.Context;
 import android.media.AudioManager;
 
 import com.yunbiao.yunbiaolocal.act.MainActivity;
+import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
+import com.yunbiao.yunbiaolocal.utils.DialogUtil;
+import com.yunbiao.yunbiaolocal.view.InsertPlayDialog;
 import com.zhy.http.okhttp.OkHttpUtils;
 
 import java.util.concurrent.TimeUnit;
@@ -29,10 +32,13 @@ public class APP extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
-        Vitamio.initialize(this);
-        // 安卓音频初始化
-        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         smdt = SmdtManager.create(this);
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);// 安卓音频初始化
+
+        //初始化VITAMIO
+        Vitamio.initialize(this);
+
+        //初始化OKHTTPUTILS
         okHttpClient = new OkHttpClient()
                 .newBuilder()
                 .connectTimeout(Const.NET_TIME_OUT, TimeUnit.MINUTES)
@@ -41,6 +47,9 @@ public class APP extends Application {
                 .build();
 
         OkHttpUtils.initClient(okHttpClient);
+
+        //初始化设备号
+        HeartBeatClient.initDeviceNo();
     }
 
     public static OkHttpClient getOkHttpClient() {

@@ -253,6 +253,27 @@ public class CacheUtil {
     public static String getIsMirror() {
         return acache.getAsString(ISMIRROR);
     }
+
+    public static void putInsertAds(String insertContent){
+        acache.put(ADSINFO_TEMP,insertContent);
+    }
+
+    public static String getInsertAds(){
+        return acache.getAsString(ADSINFO_TEMP);
+    }
+
+    public static final String INSERT_TYPE = "insert_type";
+    public static Integer getInsertType(){
+        String insertType = acache.getAsString(INSERT_TYPE);
+        if(TextUtils.isEmpty(insertType)){
+            return 0;
+        }
+        return Integer.valueOf(insertType);
+    }
+
+    public static void putInsertType(int insertType){
+        acache.put(INSERT_TYPE,String.valueOf(insertType));
+    }
 }
 
 

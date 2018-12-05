@@ -19,6 +19,7 @@ import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.br.USBBroadcastReceiver;
 import com.yunbiao.yunbiaolocal.io.VideoDataResolver;
+import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.netcore.PnServerController;
 import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
@@ -33,6 +34,7 @@ import io.vov.vitamio.MediaPlayer;
 import io.vov.vitamio.widget.MediaController;
 
 import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
+import com.yunbiao.yunbiaolocal.view.InsertPlayDialog;
 import com.yunbiao.yunbiaolocal.view.MainVideoView;
 
 public class MainActivity extends Activity implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener, MediaPlayer.OnCompletionListener {
@@ -69,8 +71,8 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        APP.setMainActivity(this);
         setContentView(R.layout.activity_main);
+        APP.setMainActivity(this);
         ButterKnife.bind(this);
 
         //初始化控件
@@ -80,6 +82,9 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
 
         //连接XMPP
         PnServerController.startXMPP(this);
+
+        //初始化广告插播，如果有未播完的广告则自动播放
+        InsertPlayDialog.build(this, DialogUtil.INSERT_VIDEO).init();
     }
 
     /*===========播放器相关=====================================================================
@@ -113,6 +118,7 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
      */
     public void vtmPlay(String videoString) {
         Log.d("log", "开始播放");
+        vtmVideo.setVisibility(View.VISIBLE);
         state.setVisibility(View.INVISIBLE);
         vtmVideo.stopPlayback();
         playList = videoString.split(",");
@@ -120,6 +126,7 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
         vtmVideo.setVideoPath(playList[0]);
         vtmVideo.setOnCompletionListener(this);
         vtmVideo.start();
+
     }
 
     /*
@@ -130,6 +137,8 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
             return;
         }
         vtmVideo.stopPlayback();
+        vtmVideo.setVisibility(View.GONE);
+        state.setVisibility(View.VISIBLE);
     }
 
     /*

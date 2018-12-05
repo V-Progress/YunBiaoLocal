@@ -1,4 +1,4 @@
-package com.yunbiao.yunbiaolocal.netcore.model;
+package com.yunbiao.yunbiaolocal.view.model;
 
 /**
  * Created by Administrator on 2018/12/4.

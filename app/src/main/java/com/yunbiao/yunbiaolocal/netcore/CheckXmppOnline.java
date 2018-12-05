@@ -93,33 +93,6 @@ public class CheckXmppOnline {
                         }
                     }
                 });
-
-                /*MyXutils.getInstance().post(ResConstants.DEVICE_ONLINE_STATUS, map, new MyXutils.XCallBack() {
-                    @Override
-                    public void onSuccess(String result) {
-                        try {
-                            if (!result.equals("faile")) {
-                                JSONObject mesJson = new JSONObject(result);
-                                int deviceStatus = mesJson.getInt("status");
-                                if (deviceStatus != 1) {
-                                    xmppManager.startReconnectionThread();
-                                }
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable ex) {
-
-                    }
-
-                    @Override
-                    public void onFinish() {
-
-                    }
-                });*/
             }
             super.handleMessage(msg);
         }
