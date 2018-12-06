@@ -20,7 +20,7 @@ import android.widget.TextView;
 
 import com.yunbiao.yunbiaolocal.devicectrl.power.PowerControl;
 import com.yunbiao.yunbiaolocal.devicectrl.ScreenShot;
-import com.yunbiao.yunbiaolocal.io.VideoDataResolver;
+import com.yunbiao.yunbiaolocal.resolve.VideoDataResolver;
 import com.yunbiao.yunbiaolocal.view.InsertPlayDialog;
 import com.yunbiao.yunbiaolocal.R;
 

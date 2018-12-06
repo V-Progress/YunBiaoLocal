@@ -20,7 +20,7 @@ import android.widget.Toast;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.br.USBBroadcastReceiver;
-import com.yunbiao.yunbiaolocal.io.VideoDataResolver;
+import com.yunbiao.yunbiaolocal.resolve.VideoDataResolver;
 import com.yunbiao.yunbiaolocal.netcore.PnServerController;
 import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;

@@ -1,4 +1,4 @@
-package com.yunbiao.yunbiaolocal.io;
+package com.yunbiao.yunbiaolocal.resolve;
 
 import android.util.Log;
 import android.util.Xml;

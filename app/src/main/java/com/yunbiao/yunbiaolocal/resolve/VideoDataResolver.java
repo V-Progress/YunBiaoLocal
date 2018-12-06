@@ -1,4 +1,4 @@
-package com.yunbiao.yunbiaolocal.io;
+package com.yunbiao.yunbiaolocal.resolve;
 
 import android.os.Environment;
 import android.text.TextUtils;
