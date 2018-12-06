@@ -3,7 +3,7 @@ package com.yunbiao.yunbiaolocal.utils;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.yunbiao.yunbiaolocal.Const;
+import com.yunbiao.yunbiaolocal.common.Const;
 
 /**
  * Created by Administrator on 2018/12/4.

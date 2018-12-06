@@ -6,9 +6,8 @@ import android.content.Context;
 import android.media.AudioManager;
 
 import com.yunbiao.yunbiaolocal.act.MainActivity;
+import com.yunbiao.yunbiaolocal.common.Const;
 import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
-import com.yunbiao.yunbiaolocal.utils.DialogUtil;
-import com.yunbiao.yunbiaolocal.view.InsertPlayDialog;
 import com.zhy.http.okhttp.OkHttpUtils;
 
 import java.util.concurrent.TimeUnit;

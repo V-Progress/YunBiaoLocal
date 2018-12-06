@@ -1,7 +1,7 @@
 package com.yunbiao.yunbiaolocal.netcore;
 
 import com.yunbiao.yunbiaolocal.APP;
-import com.yunbiao.yunbiaolocal.Const;
+import com.yunbiao.yunbiaolocal.common.Const;
 import com.yunbiao.yunbiaolocal.utils.CommonUtils;
 import com.yunbiao.yunbiaolocal.utils.LogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;

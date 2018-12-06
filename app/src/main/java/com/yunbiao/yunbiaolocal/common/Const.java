@@ -1,4 +1,6 @@
-package com.yunbiao.yunbiaolocal;
+package com.yunbiao.yunbiaolocal.common;
+
+import com.yunbiao.yunbiaolocal.BuildConfig;
 
 import java.util.HashMap;
 import java.util.Map;

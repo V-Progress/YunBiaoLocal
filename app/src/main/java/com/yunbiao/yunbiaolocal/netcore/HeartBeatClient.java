@@ -15,7 +15,7 @@ import android.util.Log;
 
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.cache.CacheUtil;
-import com.yunbiao.yunbiaolocal.cache.ResConstants;
+import com.yunbiao.yunbiaolocal.common.ResConstants;
 import com.yunbiao.yunbiaolocal.utils.CommonUtils;
 import com.yunbiao.yunbiaolocal.utils.LogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;

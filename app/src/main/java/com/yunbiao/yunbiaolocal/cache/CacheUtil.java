@@ -3,6 +3,8 @@ package com.yunbiao.yunbiaolocal.cache;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import com.yunbiao.yunbiaolocal.common.ResConstants;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 

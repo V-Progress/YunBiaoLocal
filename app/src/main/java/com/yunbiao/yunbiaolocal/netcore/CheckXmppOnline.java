@@ -4,7 +4,7 @@ import android.os.Handler;
 import android.os.Message;
 
 
-import com.yunbiao.yunbiaolocal.cache.ResConstants;
+import com.yunbiao.yunbiaolocal.common.ResConstants;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
 import com.yunbiao.yunbiaolocal.xmpp.XmppManager;

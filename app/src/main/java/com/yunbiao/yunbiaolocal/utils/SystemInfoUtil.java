@@ -7,32 +7,24 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.StatFs;
-import android.widget.Toast;
 
 import com.yunbiao.yunbiaolocal.APP;
-import com.yunbiao.yunbiaolocal.Const;
+import com.yunbiao.yunbiaolocal.common.Const;
 import com.yunbiao.yunbiaolocal.R;
-import com.yunbiao.yunbiaolocal.act.MainActivity;
-import com.yunbiao.yunbiaolocal.cache.CacheUtil;
-import com.yunbiao.yunbiaolocal.cache.FileCache;
-import com.yunbiao.yunbiaolocal.cache.ResConstants;
+import com.yunbiao.yunbiaolocal.common.ResConstants;
 import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.view.TipToast;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.io.File;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import okhttp3.Call;
 
-import static com.yunbiao.yunbiaolocal.cache.ResConstants.RESOURSE_PATH;
+import static com.yunbiao.yunbiaolocal.common.ResConstants.RESOURSE_PATH;
 
 /**
  * Created by Administrator on 2018/12/6.

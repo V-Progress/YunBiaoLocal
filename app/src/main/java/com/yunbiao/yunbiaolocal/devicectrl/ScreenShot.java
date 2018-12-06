@@ -13,7 +13,7 @@ import android.view.View;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.devicectrl.actions.JYDActions;
 import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
-import com.yunbiao.yunbiaolocal.cache.ResConstants;
+import com.yunbiao.yunbiaolocal.common.ResConstants;
 import com.yunbiao.yunbiaolocal.utils.CommonUtils;
 
 import java.io.DataOutputStream;

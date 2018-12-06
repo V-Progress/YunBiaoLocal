@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.xboot.stdcall.OnOffTool;
 import com.yunbiao.yunbiaolocal.cache.FileCache;
-import com.yunbiao.yunbiaolocal.cache.ResConstants;
+import com.yunbiao.yunbiaolocal.common.ResConstants;
 import com.yunbiao.yunbiaolocal.utils.CommonUtils;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.zhy.http.okhttp.callback.StringCallback;

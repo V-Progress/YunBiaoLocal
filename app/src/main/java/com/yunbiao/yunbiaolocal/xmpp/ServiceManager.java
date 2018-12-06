@@ -23,7 +23,7 @@ import android.content.SharedPreferences.Editor;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.yunbiao.yunbiaolocal.Const;
+import com.yunbiao.yunbiaolocal.common.Const;
 import com.yunbiao.yunbiaolocal.cache.CacheUtil;
 import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
 import com.yunbiao.yunbiaolocal.utils.LogUtil;

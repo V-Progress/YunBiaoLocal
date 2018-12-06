@@ -1,8 +1,8 @@
-package com.yunbiao.yunbiaolocal.cache;
+package com.yunbiao.yunbiaolocal.common;
 
 import android.os.Environment;
 
-import com.yunbiao.yunbiaolocal.Const;
+import com.yunbiao.yunbiaolocal.common.Const;
 
 public class ResConstants {
 
