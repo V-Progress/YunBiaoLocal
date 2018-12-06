@@ -63,7 +63,8 @@ public class Const {
     }
 
     public interface VERSION_TYPE{
-        String TYPE = typeMap.get(MESSAGE_DISTRIBUTE);
+        int TYPE = MESSAGE_DISTRIBUTE;
+        String TYPE_STR = typeMap.get(TYPE);
     }
 
 }

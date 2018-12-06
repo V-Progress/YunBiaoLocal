@@ -1,5 +1,6 @@
 package com.yunbiao.yunbiaolocal.view;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
@@ -21,6 +22,7 @@ import android.widget.VideoView;
 
 import com.google.gson.Gson;
 import com.yunbiao.yunbiaolocal.R;
+import com.yunbiao.yunbiaolocal.act.MainActivity;
 import com.yunbiao.yunbiaolocal.cache.CacheUtil;
 import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.LogUtil;
@@ -47,13 +49,8 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
 
     private SimpleDateFormat yyyyMMddHH_mm = new SimpleDateFormat("yyyyMMddHH:mm");
     private SimpleDateFormat yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
-    private static int showType = DialogUtil.INSERT_TEXT;//播放类型默认文字
 
-    private String videoUrl;
-    private RelativeLayout rlContainer;
-
-    public static synchronized InsertPlayDialog build(Context context, int insertType) {
-        showType = insertType;
+    public static synchronized InsertPlayDialog build(Context context) {
         if (insertPlayDialog == null) {
             insertPlayDialog = new InsertPlayDialog(context);
         }
@@ -65,11 +62,11 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
     }
 
     public void init() {
-        showType = CacheUtil.getInsertType();
+        int showType = CacheUtil.getInsertType();
         String adsinfoTemp = CacheUtil.getInsertAds();
         LogUtil.E(showType+","+adsinfoTemp);
         if (!TextUtils.isEmpty(adsinfoTemp)) {
-            show(adsinfoTemp);
+            show(adsinfoTemp,showType);
         }
     }
 
@@ -85,7 +82,6 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         View rootView = inflater.inflate(R.layout.layout_insert_content, null);
         setContentView(rootView);
 
-        rlContainer = rootView.findViewById(R.id.rl_container);
         videoView = rootView.findViewById(R.id.vv_insert);
         pbInsertLoading = rootView.findViewById(R.id.pb_insert_loading);
         tvInsert = rootView.findViewById(R.id.tv_insert);
@@ -136,7 +132,8 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         mp.setLooping(true);//循环播放
     }
 
-    public void show(final String content) {
+    public void show(final String content, int insertType) {
+        final int showType = insertType;
         ThreadUtil.getInstance().runInFixedThread(new Runnable() {
             @Override
             public void run() {
@@ -144,6 +141,16 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
                     switch (showType) {
                         case DialogUtil.INSERT_TEXT:
                             final InsertTextModel insertTextModel = new Gson().fromJson(content, InsertTextModel.class);
+
+                            //判断是否清除字幕
+                            if(TextUtils.equals("2",insertTextModel.getPlayType())){
+                                if(insertPlayDialog.isShowing()){
+                                    CacheUtil.putInsertAds("");//清除广告缓存
+                                    insertPlayDialog.dismiss();
+                                }
+                                return;
+                            }
+
                             String playDate1 = insertTextModel.getContent().getPlayDate();
                             String playCurTime1 = insertTextModel.getContent().getPlayCurTime();
                             final Date[] dates1 = resolveTime(playDate1, playCurTime1);
@@ -189,7 +196,6 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
                             break;
                     }
 
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -198,25 +204,23 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
     }
 
     private void setVideo(final Date startDate, final Date endDate, String fileurl) {
-        if (fileurl.endsWith(".avi")) {
+        if (fileurl.endsWith(".avi")||fileurl.endsWith(".mp4")) {
             NetUtil.getInstance().downLoadFile(fileurl, new NetUtil.OnDownLoadListener() {
                 @Override
                 public void onStart(String fileName) {
-
+                    LogUtil.E("开始下载视频");
                 }
 
                 @Override
-                public void onDownloading(String progress) {
-                    LogUtil.E("正在下载-" + progress);
+                public void onDownloading(int progress) {
+                    LogUtil.E("正在下载-" + progress+"%");
                 }
 
                 @Override
                 public void onComplete(final File response) {
-                    videoUrl = response.getAbsolutePath();
                     TimerExecutor.getInstance().addInTimerQueue(startDate, new TimerExecutor.OnTimeOutListener() {
                         @Override
                         public void execute() {
-                            LogUtil.E("显示InsertDialog");
                             InsertPlayDialog.super.show();
                             playVideo(response.getAbsolutePath());
                         }
@@ -224,7 +228,6 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
                     TimerExecutor.getInstance().addInTimerQueue(endDate, new TimerExecutor.OnTimeOutListener() {
                         @Override
                         public void execute() {
-                            LogUtil.E("隐藏InsertDialog");
                             insertPlayDialog.dismiss();
                         }
                     });

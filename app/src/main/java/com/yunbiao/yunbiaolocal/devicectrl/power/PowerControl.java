@@ -1,4 +1,4 @@
-package com.yunbiao.yunbiaolocal.devicectrl;
+package com.yunbiao.yunbiaolocal.devicectrl.power;
 
 import android.text.TextUtils;
 import android.util.Log;

@@ -1,4 +1,4 @@
-package com.yunbiao.yunbiaolocal.devicectrl;
+package com.yunbiao.yunbiaolocal.devicectrl.actions;
 
 /**
  * Created by jsx on 2017/1/17 0017.

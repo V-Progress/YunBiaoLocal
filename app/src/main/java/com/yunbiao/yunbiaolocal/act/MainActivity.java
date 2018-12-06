@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -14,16 +15,20 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.br.USBBroadcastReceiver;
 import com.yunbiao.yunbiaolocal.io.VideoDataResolver;
-import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.netcore.PnServerController;
 import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
+import com.yunbiao.yunbiaolocal.utils.SystemInfoUtil;
+import com.yunbiao.yunbiaolocal.view.InsertPlayDialog;
+import com.yunbiao.yunbiaolocal.view.MainVideoView;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,10 +37,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.vov.vitamio.MediaPlayer;
 import io.vov.vitamio.widget.MediaController;
-
-import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
-import com.yunbiao.yunbiaolocal.view.InsertPlayDialog;
-import com.yunbiao.yunbiaolocal.view.MainVideoView;
 
 public class MainActivity extends Activity implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener, MediaPlayer.OnCompletionListener {
     private static final String TAG = "MainActivity";
@@ -59,6 +60,10 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
     LinearLayout llProgressArea;
     @BindView(R.id.ll_console)
     LinearLayout llConsole;
+    @BindView(R.id.pb_update)
+    ProgressBar pbUpdate;
+    @BindView(R.id.ll_update_area)
+    LinearLayout llUpdateArea;
 
     private USBBroadcastReceiver usbBroadcastReceiver;//USB监听广播
     private static String[] playList;//播放列表
@@ -77,6 +82,7 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
 
         //初始化控件
         initView();
+
         //初始化播放器
         initVTMPlayer();
 
@@ -84,7 +90,7 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
         PnServerController.startXMPP(this);
 
         //初始化广告插播，如果有未播完的广告则自动播放
-        InsertPlayDialog.build(this, DialogUtil.INSERT_VIDEO).init();
+        InsertPlayDialog.build(this).init();
     }
 
     /*===========播放器相关=====================================================================
@@ -255,11 +261,11 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
         console.setText(text + msg);
     }
 
-    public void initProgress(final int max){
+    public void initProgress(final int max) {
         progress.setMax(max);
     }
 
-    public void updateProgress(final int pg){
+    public void updateProgress(final int pg) {
         progress.setProgress(pg);
     }
 
@@ -280,7 +286,7 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
                             vtmVideo.start();
                         }
                     });
-        }else if(keyCode == KeyEvent.KEYCODE_BACK){
+        } else if (keyCode == KeyEvent.KEYCODE_BACK) {
             DialogUtil.getInstance(this).showTestController();
             return true;
         }
@@ -292,6 +298,7 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
     protected void onResume() {
         super.onResume();
         vtmVideo.resume();
+        vtmVideo.start();
     }
 
     @Override
@@ -308,5 +315,56 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
         super.onDestroy();
 
     }
+
+    //下载更新的监听，外部静态调用
+    public NetUtil.OnDownLoadListener downloadUpdateListener = new NetUtil.OnDownLoadListener() {
+        @Override
+        public void onStart(String fileName) {
+            llUpdateArea.setVisibility(View.VISIBLE);
+            pbUpdate.setMax(100);
+        }
+
+        @Override
+        public void onDownloading(int progress) {
+            pbUpdate.setProgress(progress);
+        }
+
+        @Override
+        public void onComplete(File response) {
+            SystemInfoUtil.installApk(MainActivity.this,response);
+        }
+
+        @Override
+        public void onFinish() {
+            llUpdateArea.setVisibility(View.GONE);
+        }
+
+        @Override
+        public void onError(Exception e) {
+            String message = e.getMessage();
+            if (TextUtils.isEmpty(message)) {
+                return;
+            }
+
+            switch (message) {
+                case "1":
+                    Toast.makeText(APP.getContext(), "当前版本为最新版本", Toast.LENGTH_SHORT).show();
+                    if(llUpdateArea.isShown()){
+                        llUpdateArea.setVisibility(View.GONE);
+                    }
+                    break;
+                case "fail":
+                    Toast.makeText(APP.getContext(), "网络连接失败，请检查网络", Toast.LENGTH_SHORT).show();
+                    if(llUpdateArea.isShown()){
+                        llUpdateArea.setVisibility(View.GONE);
+                    }
+                    break;
+                default:
+                    Toast.makeText(APP.getContext(), message, Toast.LENGTH_SHORT).show();
+                    break;
+            }
+
+        }
+    };
 
 }

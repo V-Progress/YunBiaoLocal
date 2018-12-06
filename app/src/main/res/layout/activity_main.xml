@@ -84,4 +84,31 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
+
+    <LinearLayout
+        android:visibility="gone"
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/ll_update_area"
+        android:background="#ee000000"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content">
+
+        <ProgressBar
+            android:layout_weight="1"
+            android:id="@+id/pb_update"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp" />
+        <TextView
+            android:layout_marginTop="10dp"
+            android:text="正在下载更新"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 </FrameLayout>

@@ -1,4 +1,4 @@
-package com.yunbiao.yunbiaolocal.copy.inter;
+package com.yunbiao.yunbiaolocal.copy;
 
 /**
  * Created by Administrator on 2018/11/30.

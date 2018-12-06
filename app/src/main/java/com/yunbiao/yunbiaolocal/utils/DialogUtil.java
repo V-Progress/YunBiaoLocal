@@ -18,9 +18,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.yunbiao.yunbiaolocal.devicectrl.PowerControl;
+import com.yunbiao.yunbiaolocal.devicectrl.power.PowerControl;
 import com.yunbiao.yunbiaolocal.devicectrl.ScreenShot;
-import com.yunbiao.yunbiaolocal.devicectrl.SoundControl;
 import com.yunbiao.yunbiaolocal.io.VideoDataResolver;
 import com.yunbiao.yunbiaolocal.view.InsertPlayDialog;
 import com.yunbiao.yunbiaolocal.R;
@@ -135,8 +134,8 @@ public class DialogUtil {
      * @param content
      */
     public void showInsertDialog(int type, String content) {
-        InsertPlayDialog insertPlayDialog = InsertPlayDialog.build(mActivity, type);
-        insertPlayDialog.show(content);
+        InsertPlayDialog insertPlayDialog = InsertPlayDialog.build(mActivity);
+        insertPlayDialog.show(content, type);
     }
 
     public void showTestController(){

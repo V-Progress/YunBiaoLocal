@@ -1,4 +1,4 @@
-package com.yunbiao.yunbiaolocal.devicectrl;
+package com.yunbiao.yunbiaolocal.devicectrl.actions;
 
 import android.os.Build;
 

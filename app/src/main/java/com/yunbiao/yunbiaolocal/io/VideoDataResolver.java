@@ -4,10 +4,9 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.xboot.stdcall.PowerOffTool;
+import com.yunbiao.yunbiaolocal.devicectrl.power.PowerOffTool;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
-import com.yunbiao.yunbiaolocal.utils.TimerExecutor;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class VideoDataResolver {
     public static List<String> playList;

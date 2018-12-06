@@ -3,9 +3,6 @@ package com.yunbiao.yunbiaolocal.copy;
 import android.os.Environment;
 import android.util.Log;
 
-import com.yunbiao.yunbiaolocal.copy.inter.copyFileListener;
-import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -18,9 +15,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created by Administrator on 2018/11/30.

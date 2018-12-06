@@ -6,10 +6,9 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import com.yunbiao.yunbiaolocal.APP;
-import com.yunbiao.yunbiaolocal.Const;
 import com.yunbiao.yunbiaolocal.act.MainActivity;
 import com.yunbiao.yunbiaolocal.copy.CopyUtil;
-import com.yunbiao.yunbiaolocal.copy.inter.copyFileListener;
+import com.yunbiao.yunbiaolocal.copy.copyFileListener;
 import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
 
 public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileListener {

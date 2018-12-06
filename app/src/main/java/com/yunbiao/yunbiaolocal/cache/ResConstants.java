@@ -110,9 +110,9 @@ public class ResConstants {
      * be09-eca9-756a-0d8000000000
      */
     private static String VOLUME_URL = WEB_BASE_URL + "device/service/getVolume.html";
-    private static String UPLOAD_APP_VERSION_URL = WEB_BASE_URL + "device/service/uploadAppVersionNew.html";
+    public static String UPLOAD_APP_VERSION_URL = WEB_BASE_URL + "device/service/uploadAppVersionNew.html";
 
-    private static String UPLOAD_DISK_URL = WEB_BASE_URL + "device/service/uploadDisk.html";
+    public static String UPLOAD_DISK_URL = WEB_BASE_URL + "device/service/uploadDisk.html";
 
     private static String CACHE_BASE_PATH = "/mnt/sdcard/hsd/";
     public static String IMAGE_CACHE_PATH = CACHE_BASE_PATH + "resource/";// 资源存储目录

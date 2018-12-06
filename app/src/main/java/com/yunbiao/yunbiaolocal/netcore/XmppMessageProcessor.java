@@ -3,13 +3,18 @@ package com.yunbiao.yunbiaolocal.netcore;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
+import com.yunbiao.yunbiaolocal.devicectrl.power.PowerOffTool;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.cache.CacheUtil;
 import com.yunbiao.yunbiaolocal.devicectrl.SoundControl;
+import com.yunbiao.yunbiaolocal.netcore.bean.DiskInfoBean;
 import com.yunbiao.yunbiaolocal.netcore.bean.LoginModel;
+import com.yunbiao.yunbiaolocal.netcore.bean.SerNumBean;
 import com.yunbiao.yunbiaolocal.netcore.bean.VoiceModel;
 import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.LogUtil;
+import com.yunbiao.yunbiaolocal.utils.SystemInfoUtil;
+import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
 import com.yunbiao.yunbiaolocal.view.TipToast;
 
 /**
@@ -55,7 +60,7 @@ public class XmppMessageProcessor {
         String type = jsonObject.getString("type");
 
         switch (Integer.valueOf(type)) {
-            case ONLINE_TYPE:
+            case ONLINE_TYPE://登录
                 MachineDetial.getInstance().upLoadHardWareMessage();
                 LoginModel loginModel = new Gson().fromJson(content, LoginModel.class);
                 LogUtil.E(loginModel.toString());
@@ -69,8 +74,8 @@ public class XmppMessageProcessor {
                 CacheUtil.putIsMirror(loginModel.getIsMirror());
 
                 //是否有密码
-//                String password = loginModel.getPassword();
-//                LogUtil.E(TAG, "*****" + password);
+                String password = loginModel.getPassword();
+                LogUtil.E(TAG, "*****" + password);
 //                if (TextUtils.isEmpty(password) || password.equals(" ") || password.equals("null")) {
 //                    SpUtils.saveString(APP.getContext(), SpUtils.MENU_PWD, "");
 //                } else {
@@ -79,27 +84,55 @@ public class XmppMessageProcessor {
 
 
                 break;
-            case SHOW_SERNUM:
-//                Integer showType = content.getShowType();
-//                Log.e(APP.getContext().getClass().getSimpleName(),"showType = "+showType);
-//                if (showType != null && showType == 0) {//状态栏  视美泰主板
-//                    APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), true);
-//
-////                    Integer showValue = (Integer) TYTool.getJsonObj(contentJson, "showValue", null);
-////                    if (showValue == 0) {//显示
-////                        APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), true);
-////                    } else if (showValue == 1) {//隐藏
-////                        APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), false);
-////                    }
-//                } else { // 显示设备编号
-//                    TipToast.showLongToast(APP.getMainActivity(),"设备编号："+CacheUtil.getSerNumber());
-//                }
-                TipToast.showLongToast(APP.getMainActivity(),"设备编号："+CacheUtil.getSerNumber());
+            case RUNSET_TYPE://设备自动开关机
+                ThreadUtil.getInstance().runInFixedThread(new Runnable() {
+                    @Override
+                    public void run() {// 开关机时间设置
+                        PowerOffTool.getInstance().getPowerOffTime(HeartBeatClient.getDeviceNo());
+                    }
+                });
+                break;
+            case SHOW_SERNUM:// 显示设备编号
+            SerNumBean serNumBean = new Gson().fromJson(content, SerNumBean.class);
+            Integer showType = serNumBean.getShowType();
+                LogUtil.E(APP.getContext().getClass().getSimpleName(),"showType = "+showType);
+                if (showType != null && showType == 0) {//状态栏  视美泰主板
+                    APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), true);
+
+                    Integer showValue = serNumBean.getShowValue();
+                    if (showValue == 0) {//显示
+                        APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), true);
+                    } else if (showValue == 1) {//隐藏
+                        APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), false);
+                    }
+                } else {
+                    TipToast.showLongToast(APP.getMainActivity(),"设备编号："+CacheUtil.getSerNumber());
+                }
+                break;
+            case SHOW_VERSION://显示版本号
+                SystemInfoUtil.uploadAppVersion();
+                break;
+            case SHOW_DISK_IFNO://显示存储信息
+                DiskInfoBean diskInfoBean = new Gson().fromJson(content, DiskInfoBean.class);
+                Integer flag = diskInfoBean.getFlag();
+                if (flag != null) {
+                    if (flag == 0) { //显示
+                        SystemInfoUtil.uploadDiskInfo();
+                    } else if (flag == 1) {// 清理磁盘
+                        SystemInfoUtil.deleteOtherFile();
+                        SystemInfoUtil.uploadDiskInfo();
+                    }
+                }
+                break;
+            case POWER_RELOAD://关机重启
+
+                break;
+            case PUSH_TO_UPDATE:
+                SystemInfoUtil.checkUpdateInfo();
                 break;
             case VOICE_TYPE://声音修改
                 VoiceModel voiceModel = new Gson().fromJson(content, VoiceModel.class);
                 SoundControl.setMusicSound(voiceModel.getVoice());
-
                 break;
             case PUSH_MESSAGE://插播字幕
                 LogUtil.E("显示字幕");
@@ -107,7 +140,6 @@ public class XmppMessageProcessor {
                 break;
             case VIDEO_PUSH://插播视频
                 DialogUtil.getInstance(APP.getMainActivity()).showInsertDialog(DialogUtil.INSERT_VIDEO,content);
-
                 break;
         }
 

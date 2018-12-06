@@ -1,6 +1,7 @@
 package com.yunbiao.yunbiaolocal.utils;
 
 import android.os.Environment;
+import android.text.TextUtils;
 
 import com.yunbiao.yunbiaolocal.netcore.DownloadListener;
 import com.yunbiao.yunbiaolocal.netcore.DownloadTask;
@@ -53,7 +54,13 @@ public class NetUtil {
         downloadTask.execute(url);
     }
 
+    private String lastCacheUrl;
     public void downLoadFile(final String url , final OnDownLoadListener onDownLoadListener){
+        if(TextUtils.equals(url,lastCacheUrl)){
+            LogUtil.E("此文件正在下载。");
+            return;
+        }
+        lastCacheUrl = url;
         String fileName = url.substring(url.lastIndexOf("/") + 1);
         onDownLoadListener.onStart(fileName);
         OkHttpUtils.getInstance().cancelTag(this);
@@ -69,6 +76,7 @@ public class NetUtil {
             String[] list = file.list();
             for (String fn : list) {
                 if(fn.contains(fileName)){
+                    LogUtil.E("内存中已有该文件");
                     onDownLoadListener.onComplete(new File(rootDir + "/"+fn));
                     onDownLoadListener.onFinish();
                     return;
@@ -96,16 +104,20 @@ public class NetUtil {
                         @Override
                         public void onResponse(File response, int id) {
                             onDownLoadListener.onComplete(response);
-                            onDownLoadListener.onFinish();
                         }
 
                         @Override
                         public void inProgress(float progress, long total, int id) {
                             int i = (int) (100 * progress);
                             if (mainProg != i) {
-                                onDownLoadListener.onDownloading(i + "%");
+                                onDownLoadListener.onDownloading(i);
                             }
                             mainProg = i;
+                        }
+
+                        @Override
+                        public void onAfter(int id) {
+                            onDownLoadListener.onFinish();
                         }
                     });
         }catch (NullPointerException | IllegalArgumentException e){
@@ -117,7 +129,7 @@ public class NetUtil {
     public interface OnDownLoadListener {
         void onStart(String fileName);
 
-        void onDownloading(String progress);
+        void onDownloading(int progress);
 
         void onComplete(File response);
 
