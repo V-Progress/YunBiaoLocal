@@ -4,7 +4,7 @@ import android.os.Handler;
 import android.os.Message;
 
 
-import com.yunbiao.yunbiaolocal.common.ResConstants;
+import com.yunbiao.yunbiaolocal.common.ResourceConst;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
 import com.yunbiao.yunbiaolocal.xmpp.XmppManager;
@@ -72,7 +72,7 @@ public class CheckXmppOnline {
                 Map<String, String> map = new HashMap<>();
                 map.put("deviceNo", HeartBeatClient.getDeviceNo());
 
-                NetUtil.getInstance().post(ResConstants.DEVICE_ONLINE_STATUS, map, new StringCallback() {
+                NetUtil.getInstance().post(ResourceConst.REMOTE_RES.DEVICE_ONLINE_STATUS, map, new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
 

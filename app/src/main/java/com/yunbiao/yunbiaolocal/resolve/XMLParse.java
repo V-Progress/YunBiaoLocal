@@ -3,6 +3,8 @@ package com.yunbiao.yunbiaolocal.resolve;
 import android.util.Log;
 import android.util.Xml;
 
+import com.yunbiao.yunbiaolocal.utils.LogUtil;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,6 +14,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class XMLParse {
     /**
@@ -80,5 +84,77 @@ public class XMLParse {
                 }
         }
         return configuration;
+    }
+
+
+    public VideoDataModel parseJsonModel(File file) {
+        VideoDataModel videoDataModel = new VideoDataModel();
+        FileInputStream fileInputStream = null;
+        try {
+            fileInputStream = new FileInputStream(new File(file, "config.xml"));
+            XmlPullParser xmlPullParser = Xml.newPullParser();
+            xmlPullParser.setInput(fileInputStream, "utf-8");
+            for (int eventType = xmlPullParser.getEventType(); eventType != XmlPullParser.END_DOCUMENT; eventType = xmlPullParser.next()) {
+                if (eventType != XmlPullParser.START_TAG)
+                    continue;
+                switch (xmlPullParser.getName()) {
+                    case ("start"):
+                        videoDataModel.setStart(xmlPullParser.nextText());
+                        break;
+                    case ("end"):
+                        videoDataModel.setEnd(xmlPullParser.nextText());
+                        break;
+                    case ("isdelete"):
+                        videoDataModel.setIsdelete(xmlPullParser.nextText());
+                        break;
+                    case ("playlist"):
+                        List<VideoDataModel.Play> playList = new ArrayList<>();
+                        videoDataModel.setPlaylist(playList);
+                        break;
+                    case ("play"):
+                        videoDataModel.getPlaylist().add(new VideoDataModel.Play());
+                        break;
+                    case ("playday"):
+                        List<VideoDataModel.Play> playList1 = videoDataModel.getPlaylist();
+                        playList1.get(playList1.size() - 1).setPlayday(xmlPullParser.nextText());
+                        break;
+                    case ("rules"):
+                        List<VideoDataModel.Play> playList2 = videoDataModel.getPlaylist();
+                        playList2.get(playList2.size() - 1).setRules(new ArrayList<VideoDataModel.Play.Rule>());
+                        break;
+                    case ("rule"):
+                        xmlPullParser.nextTag();
+                        VideoDataModel.Play.Rule rule = new VideoDataModel.Play.Rule();
+
+                        if ("date".equals(xmlPullParser.getName())) {
+                            rule.setDate(xmlPullParser.nextText());
+                        } else if ("res".equals(xmlPullParser.getName())) {
+                            rule.setRes(xmlPullParser.nextText());
+                        }
+
+                        xmlPullParser.nextTag();
+                        if ("date".equals(xmlPullParser.getName())) {
+                            rule.setDate(xmlPullParser.nextText());
+                        } else if ("res".equals(xmlPullParser.getName())) {
+                            rule.setRes(xmlPullParser.nextText());
+                        }
+
+                        List<VideoDataModel.Play> playList3 = videoDataModel.getPlaylist();
+                        List<VideoDataModel.Play.Rule> rules = playList3.get(playList3.size() - 1).getRules();
+                        rules.add(rule);
+                }
+            }
+            Log.d("XMLConfiguration", videoDataModel.toString());
+        } catch (XmlPullParserException | IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fileInputStream != null)
+                try {
+                    fileInputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+        }
+        return videoDataModel;
     }
 }

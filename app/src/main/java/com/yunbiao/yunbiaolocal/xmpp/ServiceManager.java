@@ -23,8 +23,8 @@ import android.content.SharedPreferences.Editor;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.yunbiao.yunbiaolocal.cache.CacheManager;
 import com.yunbiao.yunbiaolocal.common.Const;
-import com.yunbiao.yunbiaolocal.cache.CacheUtil;
 import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
 import com.yunbiao.yunbiaolocal.utils.LogUtil;
 
@@ -67,7 +67,7 @@ public final class ServiceManager {
 
         apiKey = Const.API_KEY;
 
-        String machineIpAdress = CacheUtil.getMechineIp();
+        String machineIpAdress = CacheManager.getMechineIp();
         if(!TextUtils.isEmpty(machineIpAdress)){
             String ipAdress = machineIpAdress.substring(0, machineIpAdress.indexOf(","));
             if (!TextUtils.isEmpty(ipAdress)) {

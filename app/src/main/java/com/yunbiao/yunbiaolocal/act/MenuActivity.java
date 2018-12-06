@@ -229,7 +229,7 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_menu_start:
-                if (false/*CacheUtil.getLayoutCacheAsArray() == null*/) {
+                if (false/*CacheManager.getLayoutCacheAsArray() == null*/) {
 //                    startActivity(new Intent(this, SwitchLayout.class));
                 } else {
                     finish();

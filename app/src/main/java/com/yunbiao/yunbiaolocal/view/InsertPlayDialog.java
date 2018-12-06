@@ -1,6 +1,5 @@
 package com.yunbiao.yunbiaolocal.view;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
@@ -13,17 +12,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.AbsoluteLayout;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.google.gson.Gson;
 import com.yunbiao.yunbiaolocal.R;
-import com.yunbiao.yunbiaolocal.act.MainActivity;
-import com.yunbiao.yunbiaolocal.cache.CacheUtil;
+import com.yunbiao.yunbiaolocal.cache.CacheManager;
 import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.LogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
@@ -62,8 +57,8 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
     }
 
     public void init() {
-        int showType = CacheUtil.getInsertType();
-        String adsinfoTemp = CacheUtil.getInsertAds();
+        int showType = CacheManager.getInsertType();
+        String adsinfoTemp = CacheManager.getInsertAds();
         LogUtil.E(showType+","+adsinfoTemp);
         if (!TextUtils.isEmpty(adsinfoTemp)) {
             show(adsinfoTemp,showType);
@@ -145,7 +140,7 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
                             //判断是否清除字幕
                             if(TextUtils.equals("2",insertTextModel.getPlayType())){
                                 if(insertPlayDialog.isShowing()){
-                                    CacheUtil.putInsertAds("");//清除广告缓存
+                                    CacheManager.putInsertAds("");//清除广告缓存
                                     insertPlayDialog.dismiss();
                                 }
                                 return;
@@ -156,8 +151,8 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
                             final Date[] dates1 = resolveTime(playDate1, playCurTime1);
 
                             if (dates1 != null && dates1.length > 0) {
-                                CacheUtil.putInsertType(showType);
-                                CacheUtil.putInsertAds(content);
+                                CacheManager.putInsertType(showType);
+                                CacheManager.putInsertAds(content);
                                 TimerExecutor.getInstance().addInTimerQueue(dates1[0], new TimerExecutor.OnTimeOutListener() {
                                     @Override
                                     public void execute() {
@@ -186,8 +181,8 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
                             String playCurTime = insertVideoModel.getPlayCurTime();
                             final Date[] dates = resolveTime(playDate, playCurTime);
                             if (dates != null && dates.length > 0) {
-                                CacheUtil.putInsertType(showType);
-                                CacheUtil.putInsertAds(content);
+                                CacheManager.putInsertType(showType);
+                                CacheManager.putInsertAds(content);
                                 final String fileUrl = insertVideoModel.getFileurl();
                                 setVideo(dates[0], dates[1], fileUrl);
                             } else {

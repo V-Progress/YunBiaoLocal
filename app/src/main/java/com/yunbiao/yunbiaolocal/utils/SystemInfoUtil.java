@@ -11,7 +11,7 @@ import android.os.StatFs;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.common.Const;
 import com.yunbiao.yunbiaolocal.R;
-import com.yunbiao.yunbiaolocal.common.ResConstants;
+import com.yunbiao.yunbiaolocal.common.ResourceConst;
 import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.view.TipToast;
 import com.zhy.http.okhttp.callback.StringCallback;
@@ -23,8 +23,6 @@ import java.util.Map;
 import java.util.Set;
 
 import okhttp3.Call;
-
-import static com.yunbiao.yunbiaolocal.common.ResConstants.RESOURSE_PATH;
 
 /**
  * Created by Administrator on 2018/12/6.
@@ -60,7 +58,7 @@ public class SystemInfoUtil {
         paramMap.put("deviceNo", HeartBeatClient.getDeviceNo());
         paramMap.put("version", versionName);
         paramMap.put("type", Const.VERSION_TYPE.TYPE + "");
-        NetUtil.getInstance().post(ResConstants.UPLOAD_APP_VERSION_URL, paramMap, new StringCallback() {
+        NetUtil.getInstance().post(ResourceConst.REMOTE_RES.UPLOAD_APP_VERSION_URL, paramMap, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
 
@@ -83,7 +81,7 @@ public class SystemInfoUtil {
         HashMap<String, String> paramMap = new HashMap<String, String>();
         paramMap.put("deviceNo", HeartBeatClient.getDeviceNo());
         paramMap.put("diskInfo", diskInfo);
-        NetUtil.getInstance().post(ResConstants.UPLOAD_DISK_URL, paramMap, new StringCallback() {
+        NetUtil.getInstance().post(ResourceConst.REMOTE_RES.UPLOAD_DISK_URL, paramMap, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
 
@@ -208,7 +206,7 @@ public class SystemInfoUtil {
     public static void deleteOtherFile() {
 
         // 获取本地磁盘已经存在的资源
-        String imagePath = RESOURSE_PATH + ResConstants.IMAGE_CACHE_PATH;
+        String imagePath = ResourceConst.LOCAL_RES.IMAGE_CACHE_PATH;
         File resource = new File(imagePath);
         Map<String, File> fileMap = new HashMap<>();
         if (resource.exists()) {
@@ -236,7 +234,7 @@ public class SystemInfoUtil {
         HashMap<String, String> paramMap = new HashMap<String, String>();
         paramMap.put("clientVersion", getVersionName());
         paramMap.put("type", Const.VERSION_TYPE.TYPE + "");
-        NetUtil.getInstance().post(ResConstants.VERSION_URL, paramMap, new StringCallback() {
+        NetUtil.getInstance().post(ResourceConst.REMOTE_RES.VERSION_URL, paramMap, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
                 downloadUpdateListener.onError(e);

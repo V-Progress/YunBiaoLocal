@@ -14,8 +14,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.yunbiao.yunbiaolocal.APP;
-import com.yunbiao.yunbiaolocal.cache.CacheUtil;
-import com.yunbiao.yunbiaolocal.common.ResConstants;
+import com.yunbiao.yunbiaolocal.cache.CacheManager;
+import com.yunbiao.yunbiaolocal.common.ResourceConst;
 import com.yunbiao.yunbiaolocal.utils.CommonUtils;
 import com.yunbiao.yunbiaolocal.utils.LogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
@@ -54,7 +54,7 @@ public class HeartBeatClient {
      * @return
      */
     public static String getDeviceNo() {
-        sbDeviceId = CacheUtil.getDeviceNo();
+        sbDeviceId = CacheManager.getDeviceNo();
 //        if (TextUtils.isEmpty(sbDeviceId) || sbDeviceId.equals("-1")) {
 //            sbDeviceId = createDeviceNo();
 //            return sbDeviceId;
@@ -80,7 +80,7 @@ public class HeartBeatClient {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put("deviceNo", tmPhone);
 
-        NetUtil.getInstance().post(ResConstants.SER_NUMBER, paramMap, new StringCallback() {
+        NetUtil.getInstance().post(ResourceConst.REMOTE_RES.SER_NUMBER, paramMap, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
 
@@ -101,7 +101,7 @@ public class HeartBeatClient {
                 }
 
                 if (!deviceNo.equals("-1")) {
-                    CacheUtil.putDeviceNo(deviceNo);
+                    CacheManager.putDeviceNo(deviceNo);
                 }
 
                 LogUtil.E(TAG, "createDeviceNo: " + deviceNo);

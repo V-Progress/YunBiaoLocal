@@ -1,7 +1,6 @@
-package com.xboot.stdcall;
+package com.yunbiao.yunbiaolocal.devicectrl.power;
 
-import android.util.Log;
-
+import com.xboot.stdcall.posix;
 import com.yunbiao.yunbiaolocal.utils.LogUtil;
 
 import java.util.Calendar;

@@ -3,9 +3,8 @@ package com.yunbiao.yunbiaolocal.devicectrl.power;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.xboot.stdcall.OnOffTool;
 import com.yunbiao.yunbiaolocal.cache.FileCache;
-import com.yunbiao.yunbiaolocal.common.ResConstants;
+import com.yunbiao.yunbiaolocal.common.ResourceConst;
 import com.yunbiao.yunbiaolocal.utils.CommonUtils;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.zhy.http.okhttp.callback.StringCallback;
@@ -39,7 +38,7 @@ public class PowerOffTool {
     public void getPowerOffTime(String uid){
         HashMap<String, String> paramMap = new HashMap();
         paramMap.put("uid", uid);
-        NetUtil.getInstance().post(ResConstants.POWER_OFF_URL, paramMap, new StringCallback() {
+        NetUtil.getInstance().post(ResourceConst.REMOTE_RES.POWER_OFF_URL, paramMap, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
 
@@ -96,7 +95,7 @@ public class PowerOffTool {
     }
 
     private void putPowerParam(String key, String value) {
-        FileCache acache = FileCache.get(new File(ResConstants.RESOURSE_PATH + ResConstants.PROPERTY_CACHE_PATH));
+        FileCache acache = FileCache.get(new File(ResourceConst.LOCAL_RES.PROPERTY_CACHE_PATH));
         acache.put(key, value);
     }
 
@@ -156,7 +155,7 @@ public class PowerOffTool {
      * @return 1, 2, 3, 4, 5, 6, 7;08:00
      */
     public String getPowerParam(String key) {
-        FileCache acache = FileCache.get(new File(ResConstants.RESOURSE_PATH + ResConstants.PROPERTY_CACHE_PATH));
+        FileCache acache = FileCache.get(new File(ResourceConst.LOCAL_RES.PROPERTY_CACHE_PATH));
         return acache.getAsString(key);
     }
 

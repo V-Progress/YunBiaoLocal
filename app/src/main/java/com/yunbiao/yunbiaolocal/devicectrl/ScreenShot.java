@@ -11,9 +11,9 @@ import android.util.Log;
 import android.view.View;
 
 import com.yunbiao.yunbiaolocal.APP;
+import com.yunbiao.yunbiaolocal.common.ResourceConst;
 import com.yunbiao.yunbiaolocal.devicectrl.actions.JYDActions;
 import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
-import com.yunbiao.yunbiaolocal.common.ResConstants;
 import com.yunbiao.yunbiaolocal.utils.CommonUtils;
 
 import java.io.DataOutputStream;
@@ -45,7 +45,7 @@ public class ScreenShot {
     private void sendCutFinish(String sid, String filePath) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("sid", sid);
-//        NetTool.communication02(ResConstants.SCREEN_UPLOAD_URL, params, filePath, "screenimage");
+//        NetTool.communication02(ResourceConst.SCREEN_UPLOAD_URL, params, filePath, "screenimage");
     }
 
     private void cutA20Screen() {
@@ -53,7 +53,7 @@ public class ScreenShot {
             // 图片截取
             Process process = Runtime.getRuntime().exec("su");
             DataOutputStream dos = new DataOutputStream(process.getOutputStream());
-            String path = ResConstants.SCREEN_CACHE_PATH;
+            String path = ResourceConst.LOCAL_RES.SCREEN_CACHE_PATH;
             File file = new File(path);
             if (!file.exists()) {
                 file.mkdirs();
@@ -126,7 +126,7 @@ public class ScreenShot {
     private void cutYsScreen() {
         try {
             Bitmap bitmap = snapShotWithStatusBar();
-            String path = ResConstants.SCREEN_CACHE_PATH;
+            String path = ResourceConst.LOCAL_RES.SCREEN_CACHE_PATH;
             File file = new File(path);
             if (!file.exists()) {
                 file.mkdirs();

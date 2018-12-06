@@ -1,10 +1,7 @@
 package com.yunbiao.yunbiaolocal.utils;
 
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -22,8 +19,7 @@ import android.view.WindowManager;
 
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.R;
-import com.yunbiao.yunbiaolocal.cache.CacheUtil;
-import com.yunbiao.yunbiaolocal.xmpp.*;
+import com.yunbiao.yunbiaolocal.cache.CacheManager;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -426,7 +422,7 @@ public class CommonUtils {
             }
             String broadInfo = result.toString();
             Log.e(TAG, "主板信息: " + broadInfo);
-            CacheUtil.putBroadInfo(broadInfo);
+            CacheManager.putBroadInfo(broadInfo);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -446,7 +442,7 @@ public class CommonUtils {
      * @return 0其他（国威）  1中恒  2深圳鸿世达科技  3亿晟科技  4小百合  5建益达
      */
     public static Integer getBroadType() {
-        String broad_info = CacheUtil.getBroadInfo();
+        String broad_info = CacheManager.getBroadInfo();
         if (broad_info.contains("zhsd")) {
             return 1;
         } else if (broad_info.contains("yunbiao") || broad_info.contains("lichao")|| broad_info.contains("shizhenxi")) {//yunbiao   shizhenxi

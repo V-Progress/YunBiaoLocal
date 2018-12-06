@@ -3,9 +3,9 @@ package com.yunbiao.yunbiaolocal.netcore;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
+import com.yunbiao.yunbiaolocal.cache.CacheManager;
 import com.yunbiao.yunbiaolocal.devicectrl.power.PowerOffTool;
 import com.yunbiao.yunbiaolocal.APP;
-import com.yunbiao.yunbiaolocal.cache.CacheUtil;
 import com.yunbiao.yunbiaolocal.devicectrl.SoundControl;
 import com.yunbiao.yunbiaolocal.netcore.bean.DiskInfoBean;
 import com.yunbiao.yunbiaolocal.netcore.bean.LoginModel;
@@ -64,14 +64,14 @@ public class XmppMessageProcessor {
                 MachineDetial.getInstance().upLoadHardWareMessage();
                 LoginModel loginModel = new Gson().fromJson(content, LoginModel.class);
                 LogUtil.E(loginModel.toString());
-                CacheUtil.putExpireDate(loginModel.getExpireDate());
-                CacheUtil.putBindStatus(loginModel.getBindStatus());
-                CacheUtil.putRunStatus(loginModel.getRunStatus());
-                CacheUtil.putSerNumber(loginModel.getSerNum());
-                CacheUtil.putPwd(loginModel.getPwd());
-                CacheUtil.putDecName(loginModel.getDeviceName());
-                CacheUtil.putDeviceQrCode(loginModel.getDeviceQrCode());
-                CacheUtil.putIsMirror(loginModel.getIsMirror());
+                CacheManager.putExpireDate(loginModel.getExpireDate());
+                CacheManager.putBindStatus(loginModel.getBindStatus());
+                CacheManager.putRunStatus(loginModel.getRunStatus());
+                CacheManager.putSerNumber(loginModel.getSerNum());
+                CacheManager.putPwd(loginModel.getPwd());
+                CacheManager.putDecName(loginModel.getDeviceName());
+                CacheManager.putDeviceQrCode(loginModel.getDeviceQrCode());
+                CacheManager.putIsMirror(loginModel.getIsMirror());
 
                 //是否有密码
                 String password = loginModel.getPassword();
@@ -106,7 +106,7 @@ public class XmppMessageProcessor {
                         APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), false);
                     }
                 } else {
-                    TipToast.showLongToast(APP.getMainActivity(),"设备编号："+CacheUtil.getSerNumber());
+                    TipToast.showLongToast(APP.getMainActivity(),"设备编号："+ CacheManager.getSerNumber());
                 }
                 break;
             case SHOW_VERSION://显示版本号
@@ -184,22 +184,22 @@ public class XmppMessageProcessor {
 //////                        APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), false);
 //////                    }
 ////                } else { // 显示设备编号
-////                    TipToast.showLongToast(APP.getMainActivity(),"设备编号："+CacheUtil.getSerNumber());
+////                    TipToast.showLongToast(APP.getMainActivity(),"设备编号："+CacheManager.getSerNumber());
 ////                }
 //
 //                break;
 //            case SHOW_VERSION:// 版本信息
-//                ResConstants.uploadAppVersion();
+//                ResourceConst.uploadAppVersion();
 //                break;
 //            case SHOW_DISK_IFNO://磁盘容量
 ////                Integer flag = content.getFlag();
 ////                Log.e("123","磁盘容量："+flag);
 ////                if (flag != null) {
 ////                    if (flag == 0) { //显示
-//////                        ResConstants.uploadDiskInfo();
+//////                        ResourceConst.uploadDiskInfo();
 ////                    } else if (flag == 1) {// 清理磁盘
-//////                        ResConstants.deleteOtherFile();
-//////                        ResConstants.uploadDiskInfo();
+//////                        ResourceConst.deleteOtherFile();
+//////                        ResourceConst.uploadDiskInfo();
 ////                    }
 ////                }
 //                break;
