@@ -109,6 +109,7 @@
             app:layout_marginLeftPercent="1%" />
 
         <Button
+            android:visibility="invisible"
             android:id="@+id/menu_info_ellipse_btn"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -503,7 +504,7 @@
                 android:layout_height="wrap_content"
                 android:layout_above="@id/perRe_position_03"
                 android:layout_alignLeft="@id/perRe_position_03"
-                android:text="@string/menu_server_setting"
+                android:text="微信快发"
                 android:textColor="#fff"
                 android:textSize="@dimen/menu1080_tv_40_dp"
                 app:layout_marginBottomPercent="2%" />
