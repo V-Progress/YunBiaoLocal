@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.yunbiao.yunbiaolocal.cache.CacheManager;
+import com.yunbiao.yunbiaolocal.devicectrl.ScreenShot;
 import com.yunbiao.yunbiaolocal.devicectrl.power.PowerOffTool;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.devicectrl.SoundControl;
@@ -109,6 +110,15 @@ public class XmppMessageProcessor {
                     TipToast.showLongToast(APP.getMainActivity(),"设备编号："+ CacheManager.getSerNumber());
                 }
                 break;
+            case CUTSCREN_TYPE:
+                ThreadUtil.getInstance().runInFixedThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ScreenShot.getInstanse().shootScreen();
+                    }
+                });
+
+                break;
             case SHOW_VERSION://显示版本号
                 SystemInfoUtil.uploadAppVersion();
                 break;
@@ -127,7 +137,7 @@ public class XmppMessageProcessor {
             case POWER_RELOAD://关机重启
 
                 break;
-            case PUSH_TO_UPDATE:
+            case PUSH_TO_UPDATE://检查更新
                 SystemInfoUtil.checkUpdateInfo();
                 break;
             case VOICE_TYPE://声音修改

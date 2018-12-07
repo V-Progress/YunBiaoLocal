@@ -421,7 +421,7 @@ public class CommonUtils {
                 result.append(line);
             }
             String broadInfo = result.toString();
-            Log.e(TAG, "主板信息: " + broadInfo);
+            LogUtil.E(TAG, "主板信息: " + broadInfo);
             CacheManager.putBroadInfo(broadInfo);
         } catch (IOException e) {
             e.printStackTrace();

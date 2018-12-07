@@ -61,6 +61,7 @@ public class MyScrollTextView extends SurfaceView implements SurfaceHolder.Callb
         //设置可获得焦点
         setFocusable(true);
         setFocusableInTouchMode(true);
+        setZOrderOnTop(true);
         //设置常亮
         this.mDirection = 3;
         this.mScrollSpeed = 3;

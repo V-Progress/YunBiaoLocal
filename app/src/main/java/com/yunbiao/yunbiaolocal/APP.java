@@ -8,6 +8,7 @@ import android.media.AudioManager;
 import com.yunbiao.yunbiaolocal.act.MainActivity;
 import com.yunbiao.yunbiaolocal.common.Const;
 import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
+import com.yunbiao.yunbiaolocal.utils.CommonUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 
 import java.util.concurrent.TimeUnit;
@@ -49,6 +50,7 @@ public class APP extends Application {
 
         //初始化设备号
         HeartBeatClient.initDeviceNo();
+        CommonUtils.saveBroadInfo();
     }
 
     public static OkHttpClient getOkHttpClient() {

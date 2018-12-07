@@ -26,7 +26,7 @@ public class ThreadUtil {
 
     public ThreadUtil() {
         mSingleThread = Executors.newSingleThreadExecutor();
-        thread4Pool = Executors.newFixedThreadPool(Const.SYSTEM_CONFIG.DATA_RESOLVE_THREAD_NUMBER);
+        thread4Pool = Executors.newFixedThreadPool(Const.SYSTEM_CONFIG.DATA_HANDLE_THREAD_NUMBER);
     }
 
     public void runInSingleThread(Runnable runnable){

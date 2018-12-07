@@ -3,9 +3,12 @@ package com.yunbiao.yunbiaolocal.devicectrl.power;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.yunbiao.yunbiaolocal.cache.FileCache;
 import com.yunbiao.yunbiaolocal.common.ResourceConst;
 import com.yunbiao.yunbiaolocal.utils.CommonUtils;
+import com.yunbiao.yunbiaolocal.utils.LogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.zhy.http.okhttp.callback.StringCallback;
 
@@ -16,8 +19,10 @@ import org.json.JSONTokener;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import okhttp3.Call;
 
@@ -49,34 +54,66 @@ public class PowerOffTool {
                 if (response.startsWith("\"")) {
                     response = response.substring(1, response.length() - 1);
                 }
-                putParam(response);
+                LogUtil.E(response);
+                response = response.replaceAll("\\\\", "");
+                List<PowerModel> powerModelList = new Gson().fromJson(response, new TypeToken<ArrayList<PowerModel>>() {
+                }.getType());
+
+                TestPowerUtil.resolvePowerData(powerModelList
+                );
+
+                Integer broadType = CommonUtils.getBroadType();
+                LogUtil.E("主板类型======="+broadType);
+//                putParam(response);
             }
         });
     }
 
     private void putParam(String powerOffJson) {
         powerOffJson = powerOffJson.replaceAll("\\\\", "");
-        if (powerOffJson.startsWith("\"")) {
-            powerOffJson = powerOffJson.substring(1, powerOffJson.length() - 1);
-        }
-        JSONTokener jsonParser = new JSONTokener(powerOffJson);
+        List<PowerModel> powerModelList = new Gson().fromJson(powerOffJson, new TypeToken<ArrayList<PowerModel>>() {
+        }.getType());
+
+
+//        if (powerOffJson.startsWith("\"")) {
+//            powerOffJson = powerOffJson.substring(1, powerOffJson.length() - 1);
+//        }
+//        JSONTokener jsonParser = new JSONTokener(powerOffJson);
         try {
             // 开机字符串
             String powerOn = "";
             // 关机字符串
             String powerOff = "";
 
-            JSONArray person = (JSONArray) jsonParser.nextValue();
-            for (int i = 0; i < person.length(); i++) {
-                JSONObject jsonObject = (JSONObject) person.get(i);
-                Integer status = jsonObject.getInt("status");
-                Integer runType = jsonObject.getInt("runType");
-                String runDate = jsonObject.getString("runDate");
-                if (runDate.indexOf(":") != -1) {
+//            JSONArray person = (JSONArray) jsonParser.nextValue();
+//            for (int i = 0; i < person.length(); i++) {
+//                JSONObject jsonObject = (JSONObject) person.get(i);
+//                Integer status = jsonObject.getInt("status");
+//                Integer runType = jsonObject.getInt("runType");
+//                String runDate = jsonObject.getString("runDate");
+//
+//                if (runDate.indexOf(":") != -1) {
+//                    runDate = runDate.substring(runDate.indexOf(":") + 1, runDate.length());//1,2,3,4,5,6,7,
+//                }
+//
+//                String runTime = jsonObject.getString("runTime");
+//                if (runType == 0 && status == 0) {
+//                    powerOn = runDate + ";" + runTime;
+//                } else if (runType == 1 && status == 0) {
+//                    powerOff = runDate + ";" + runTime;
+//                }
+//            }
+
+            for (PowerModel powerModel : powerModelList) {
+                Integer status = powerModel.getStatus();
+                Integer runType = powerModel.getRunType();
+                String runDate = powerModel.getRunDate();
+
+                if(runDate.indexOf(":") != -1){
                     runDate = runDate.substring(runDate.indexOf(":") + 1, runDate.length());//1,2,3,4,5,6,7,
                 }
 
-                String runTime = jsonObject.getString("runTime");
+                String runTime = powerModel.getRunTime();
                 if (runType == 0 && status == 0) {
                     powerOn = runDate + ";" + runTime;
                 } else if (runType == 1 && status == 0) {

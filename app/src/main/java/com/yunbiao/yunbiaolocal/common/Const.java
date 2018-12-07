@@ -30,14 +30,6 @@ public class Const {
 
     public static Map<Integer,String> typeMap = new HashMap<>();
 
-    /**
-     * 微信打印
-     */
-    public static String WEI_PRINT_URL = "http://www.yunbiaowulian.com/pn/print.do";
-
-    public static String UP_LOAD_ERR_FILE = BASE_URL + "queue/upLoadText.html";
-
-
     public interface URL {
         String NET = "www.yunbiaowulian.com";
         String PRO = "182.92.148.106";
@@ -50,9 +42,25 @@ public class Const {
     }
 
     public interface SYSTEM_CONFIG {
-        int DATA_RESOLVE_THREAD_NUMBER = 4;
-        String LOG_TAG = "YUNBIAO";
+        /***
+         * 数据处理的线程数量
+         */
+        int DATA_HANDLE_THREAD_NUMBER = 4;
+
+        /***
+         * 日志通用TAG
+         */
+        String LOG_TAG = "YUNBIAO_";
+
+        /***
+         * 是否输出日志
+         */
         boolean IS_LOG = true;
+
+        /***
+         * 菜单界面停留时长
+         */
+        int MENU_STAY_DURATION = 60;
     }
 
     {

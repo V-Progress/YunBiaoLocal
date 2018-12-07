@@ -39,7 +39,6 @@ import io.vov.vitamio.MediaPlayer;
 import io.vov.vitamio.widget.MediaController;
 
 public class MainActivity extends Activity implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener, MediaPlayer.OnCompletionListener {
-    private static final String TAG = "MainActivity";
     @BindView(R.id.vtm_video)
     MainVideoView vtmVideo;
     @BindView(R.id.permission)
@@ -69,9 +68,7 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
     private static String[] playList;//播放列表
     private static int videoIndex;//当前视频在列表中处于的位置
     private static int lineNumber = 0;
-    public AudioManager audioManager = null;//音频
     private float playSpeed = 1.0f;
-    private MediaPlayer mP;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +90,7 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
         InsertPlayDialog.build(this).init();
     }
 
-    /*===========播放器相关=====================================================================
+    /*===========播放器控制相关=====================================================================
      * 初始化播放器
      */
     public void initVTMPlayer() {
@@ -148,11 +145,57 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
     }
 
     /*
+     * 打开控制台
+     */
+    public void openConsole() {
+        llConsole.setVisibility(View.VISIBLE);
+    }
+
+    /*
+     * 关闭控制台
+     */
+    public void closeConsole() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                llConsole.setVisibility(View.GONE);
+                progress.setProgress(0);
+                progress.setMax(0);
+                console.setText("");
+            }
+        }, 3000);
+    }
+
+    /*
+     * 更新控制台显示
+     */
+    public void updateConsole(final String msg) {
+        String text = console.getText().toString();
+        if (lineNumber < 5) {
+            lineNumber++;
+        } else {
+            text = text.substring(text.indexOf("\n") + 1);
+        }
+
+        if (lineNumber > 1) {
+            text += "\n";
+        }
+        console.setText(text + msg);
+    }
+
+    public void initProgress(final int max) {
+        progress.setMax(max);
+    }
+
+    public void updateProgress(final int pg) {
+        progress.setProgress(pg);
+    }
+
+    /*===========播放器状态监听=====================================================================
      * vitamio准备好的回调
      */
     @Override
     public void onPrepared(MediaPlayer mp) {
-        mP = mp;
         mp.setPlaybackSpeed(1.0f);
     }
 
@@ -222,73 +265,24 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
         }
     }
 
-    /*
-     * 打开控制台
-     */
-    public void openConsole() {
-        llConsole.setVisibility(View.VISIBLE);
-    }
-
-    /*
-     * 关闭控制台
-     */
-    public void closeConsole() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                llConsole.setVisibility(View.GONE);
-                progress.setProgress(0);
-                progress.setMax(0);
-                console.setText("");
-            }
-        }, 3000);
-    }
-
-    /*
-     * 更新控制台显示
-     */
-    public void updateConsole(final String msg) {
-        String text = console.getText().toString();
-        if (lineNumber < 5) {
-            lineNumber++;
-        } else {
-            text = text.substring(text.indexOf("\n") + 1);
-        }
-
-        if (lineNumber > 1) {
-            text += "\n";
-        }
-        console.setText(text + msg);
-    }
-
-    public void initProgress(final int max) {
-        progress.setMax(max);
-    }
-
-    public void updateProgress(final int pg) {
-        progress.setProgress(pg);
-    }
-
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         //按下菜单键显示播放列表
         if (keyCode == KeyEvent.KEYCODE_MENU) {
+            startActivity(new Intent(this,MenuActivity.class));
             vtmVideo.pause();
             vtmVideo.setVisibility(View.GONE);
 
-            DialogUtil.getInstance(this).showPlayListDialog(
-                    VideoDataResolver.playList == null
-                            ? new ArrayList<String>()
-                            : VideoDataResolver.playList, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            vtmVideo.setVisibility(View.VISIBLE);
-                            vtmVideo.start();
-                        }
-                    });
-        } else if (keyCode == KeyEvent.KEYCODE_BACK) {
-            DialogUtil.getInstance(this).showTestController();
-            return true;
+//            DialogUtil.getInstance(this).showPlayListDialog(
+//                    VideoDataResolver.playList == null
+//                            ? new ArrayList<String>()
+//                            : VideoDataResolver.playList, new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            vtmVideo.setVisibility(View.VISIBLE);
+//                            vtmVideo.start();
+//                        }
+//                    });
         }
 
         return super.onKeyDown(keyCode, event);
@@ -297,9 +291,14 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
     @Override
     protected void onResume() {
         super.onResume();
-        vtmVideo.resume();
-        vtmVideo.start();
-    }
+        if(!vtmVideo.isShown()){
+            vtmVideo.setVisibility(View.VISIBLE);
+        }
+        if(!vtmVideo.isPlaying()){
+            vtmVideo.resume();
+            vtmVideo.start();
+        }
+     }
 
     @Override
     protected void onPause() {

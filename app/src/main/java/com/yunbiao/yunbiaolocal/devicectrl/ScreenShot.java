@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -16,17 +15,25 @@ import com.yunbiao.yunbiaolocal.devicectrl.actions.JYDActions;
 import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.utils.CommonUtils;
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 
 public class ScreenShot {
 
     private static ScreenShot screenShot = null;
+    private final String CUT_SCREEN_NAME = "/screenshot.png";
 
     private ScreenShot() {
     }
@@ -45,7 +52,7 @@ public class ScreenShot {
     private void sendCutFinish(String sid, String filePath) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("sid", sid);
-//        NetTool.communication02(ResourceConst.SCREEN_UPLOAD_URL, params, filePath, "screenimage");
+        communication02(ResourceConst.REMOTE_RES.SCREEN_UPLOAD_URL, params, filePath, "screenimage");
     }
 
     private void cutA20Screen() {
@@ -112,7 +119,6 @@ public class ScreenShot {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-//        ZHBroadControl.getZhBroadControl().screenCut(zhpath, sid);
         while (!new File(zhFilePath).exists()) {
             try {
                 Thread.sleep(1000);
@@ -164,7 +170,7 @@ public class ScreenShot {
     //建益达截屏
     private void cutJYDScreen() {
         String sid = HeartBeatClient.getDeviceNo();
-        String cutPicPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/screenshot.png";
+        String cutPicPath = ResourceConst.LOCAL_RES.EXTERNAL_DIR + CUT_SCREEN_NAME;
         File file1 = new File(cutPicPath);
         if (file1.exists()) {
             file1.delete();
@@ -176,7 +182,6 @@ public class ScreenShot {
             e.printStackTrace();
         }
 
-//        TYTool.sendBroadcast(JYDActions.SCREEN_CAP);
         Intent intent=new Intent(JYDActions.SCREEN_CAP);
         APP.getMainActivity().sendBroadcast(intent);
 
@@ -229,4 +234,80 @@ public class ScreenShot {
                 break;
         }
     }
+
+    /**
+     * @param urlString 对应的URL 页面  只发送普通数据 ,调用此方法
+     * @param params    需要发送的相关数据 包括调用的方法
+     * @param imageuri  图片或文件手机上的地址 如:sdcard/photo/123.jpg
+     * @param img       图片名称
+     */
+    private void communication02(String urlString, Map<String, Object> params, String imageuri, String img) {
+        String result = "";
+
+        String end = "\r\n";
+        // 是我定义的上传URL
+        String MULTIPART_FORM_DATA = "multipart/form-data";
+        String BOUNDARY = "---------7d4a6d158c9"; // 数据分隔线
+        String imguri = "";
+        if (!imageuri.equals("")) {
+            imguri = imageuri.substring(imageuri.lastIndexOf("/") + 1);// 获得图片或文件名称
+        }
+        if (!urlString.equals("")) {
+            try {
+                URL url = new URL(urlString);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setDoInput(true);// 允许输入
+                conn.setDoOutput(true);// 允许输出
+                conn.setUseCaches(false);// 不使用Cache
+                conn.setConnectTimeout(6000);// 6秒钟连接超时
+                conn.setReadTimeout(60000);// 6秒钟读数据超时
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Connection", "Keep-Alive");
+                conn.setRequestProperty("Charset", "UTF-8");
+                conn.setRequestProperty("Content-Type", MULTIPART_FORM_DATA + "; boundary=" + BOUNDARY);
+
+                StringBuilder sb = new StringBuilder();
+
+                // 上传的表单参数部分，格式请参考文章
+                for (Map.Entry<String, Object> entry : params.entrySet()) {// 构建表单字段内容
+                    sb.append("--");
+                    sb.append(BOUNDARY);
+                    sb.append("\r\n");
+                    sb.append("Content-Disposition: form-data; name=\"" + entry.getKey() + "\"\r\n\r\n");
+                    sb.append(entry.getValue());
+                    sb.append("\r\n");
+                }
+
+                sb.append("--");
+                sb.append(BOUNDARY);
+                sb.append("\r\n");
+
+                DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
+                dos.write(sb.toString().getBytes());
+
+                if (!imageuri.equals("") && !imageuri.equals(null)) {
+                    dos.writeBytes("Content-Disposition: form-data; name=\"" + img + "\"; filename=\"" + imguri + "\"" + "\r\n" + "Content-Type: image/jpeg\r\n\r\n");
+                    FileInputStream fis = new FileInputStream(imageuri);
+                    byte[] buffer = new byte[1024]; // 8k
+                    int count = 0;
+                    while ((count = fis.read(buffer)) != -1) {
+                        dos.write(buffer, 0, count);
+                    }
+                    dos.writeBytes(end);
+                    fis.close();
+                }
+                dos.writeBytes("--" + BOUNDARY + "--\r\n");
+                dos.flush();
+
+                InputStream is = conn.getInputStream();
+                InputStreamReader isr = new InputStreamReader(is, "utf-8");
+                BufferedReader br = new BufferedReader(isr);
+                result = br.readLine();
+            } catch (Exception e) {
+                e.printStackTrace();
+                result = "{\"ret\":\"898\"}";
+            }
+        }
+    }
+
 }

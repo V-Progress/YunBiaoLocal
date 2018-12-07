@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.RelativeLayout;
 import android.widget.VideoView;
 
 import com.google.gson.Gson;
@@ -40,10 +40,11 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
     private static InsertPlayDialog insertPlayDialog;
     private VideoView videoView;
     private ProgressBar pbInsertLoading;
-    private TextView tvInsert;
 
     private SimpleDateFormat yyyyMMddHH_mm = new SimpleDateFormat("yyyyMMddHH:mm");
     private SimpleDateFormat yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
+    private View rootView;
+    private MyScrollTextView msTvInsert;
 
     public static synchronized InsertPlayDialog build(Context context) {
         if (insertPlayDialog == null) {
@@ -74,12 +75,12 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
 
     private void initView() {
         LayoutInflater inflater = LayoutInflater.from(getContext());
-        View rootView = inflater.inflate(R.layout.layout_insert_content, null);
+        rootView = inflater.inflate(R.layout.dialog_insert_content, null);
         setContentView(rootView);
 
         videoView = rootView.findViewById(R.id.vv_insert);
         pbInsertLoading = rootView.findViewById(R.id.pb_insert_loading);
-        tvInsert = rootView.findViewById(R.id.tv_insert);
+        msTvInsert = rootView.findViewById(R.id.mstv_insert);
 
         videoView.setZOrderOnTop(true);//解决背景色问题
 //        videoView.setZOrderMediaOverlay(true);//解决遮挡问题
@@ -199,7 +200,7 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
     }
 
     private void setVideo(final Date startDate, final Date endDate, String fileurl) {
-        if (fileurl.endsWith(".avi")||fileurl.endsWith(".mp4")) {
+        if (fileurl.endsWith(".avi")||fileurl.endsWith(".mp4")||fileurl.endsWith(".3gp")) {
             NetUtil.getInstance().downLoadFile(fileurl, new NetUtil.OnDownLoadListener() {
                 @Override
                 public void onStart(String fileName) {
@@ -301,7 +302,7 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         开始播放
      */
     private void playVideo(String content) {
-        tvInsert.setVisibility(View.GONE);
+        msTvInsert.setVisibility(View.GONE);
         pbInsertLoading.setVisibility(View.GONE);
         videoView.setVisibility(View.VISIBLE);
         videoView.setVideoPath(content);
@@ -329,7 +330,7 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
     private void showErrText(String err) {
         videoView.setVisibility(View.GONE);
         pbInsertLoading.setVisibility(View.GONE);
-        tvInsert.setText(err);
+
     }
 
     /*
@@ -338,13 +339,17 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
     private void showTextContent(InsertTextModel insertTextModel) {
         videoView.setVisibility(View.GONE);
         pbInsertLoading.setVisibility(View.GONE);
+        msTvInsert.setVisibility(View.VISIBLE);
+        msTvInsert.setText("");
+        LogUtil.E(insertTextModel.getText());
 
         InsertTextModel.Content content = insertTextModel.getContent();
-        tvInsert.setBackgroundColor(Color.parseColor(content.getBackground()));
-        tvInsert.setTextSize(Integer.valueOf(content.getFontSize()));
-        tvInsert.setTextColor(Color.parseColor(content.getFontColor()));
-        tvInsert.setText(insertTextModel.getText());
-        tvInsert.setVisibility(View.VISIBLE);
+        msTvInsert.setTextSize(Integer.valueOf(content.getFontSize()));//字号
+        msTvInsert.setTextColor(Color.parseColor(content.getFontColor()));//字体颜色
+        msTvInsert.setScrollSpeed(Integer.valueOf(content.getPlaySpeed()));
+        msTvInsert.setDirection(Integer.valueOf(content.getPlayType()));
+        msTvInsert.setBackColor(Color.parseColor(content.getBackground()));//背景色
+        msTvInsert.setText(insertTextModel.getText());//内容
     }
 
 }

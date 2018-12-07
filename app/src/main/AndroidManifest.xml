@@ -73,8 +73,7 @@
         </receiver>
 
         <activity
-            android:name=".act.MenuActivity"
-            android:launchMode="singleTask" />
+            android:name=".act.MenuActivity"/>
 
         <activity android:name=".act.OffLineActivity"
             android:launchMode="singleTask" />

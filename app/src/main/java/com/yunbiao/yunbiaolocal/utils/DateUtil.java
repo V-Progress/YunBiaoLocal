@@ -13,14 +13,14 @@ import java.util.Date;
  */
 
 public class DateUtil {
-    public static final String Y_M_D = "yyyy-MM-dd";
-    public static final String Y_M_D_H_M_S = "yyyy-MM-dd HH:mm:ss";
-    public static final String Y_M_D_H_M = "yyyy-MM-dd HH:mm:00";
+    private static final String Y_M_D = "yyyy-MM-dd";
+    private static final String Y_M_D_H_M_S = "yyyy-MM-dd HH:mm:ss";
+    private static final String Y_M_D_H_M = "yyyy-MM-dd HH:mm:00";
 
-    public static DateFormat yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
-    public static DateFormat yyyy_MM_dd = new SimpleDateFormat("yyyy-MM-dd");
-    public static DateFormat yyyyMMddHH_mm = new SimpleDateFormat("yyyyMMddHH:mm");
-    public static DateFormat yyyy_MM_dd_HH_mm = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    private static DateFormat yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
+    private static DateFormat yyyy_MM_dd = new SimpleDateFormat("yyyy-MM-dd");
+    private static DateFormat yyyyMMddHH_mm = new SimpleDateFormat("yyyyMMddHH:mm");
+    private static DateFormat yyyy_MM_dd_HH_mm = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
     public static String yyyyMMdd_Format(Date d) {
         return yyyyMMdd.format(d);

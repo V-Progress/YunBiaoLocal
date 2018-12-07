@@ -27,6 +27,16 @@ public class ResourceConst {
     }
 
     public interface REMOTE_RES {
+        /**
+         * 微信打印
+         */
+        String WEI_PRINT_URL = "http://www.yunbiaowulian.com/pn/print.do";
+
+        /***
+         * 错误文件上传
+         */
+        String UP_LOAD_ERR_FILE = Const.BASE_URL + "queue/upLoadText.html";
+
         /***
          * 设备信息上传
          */

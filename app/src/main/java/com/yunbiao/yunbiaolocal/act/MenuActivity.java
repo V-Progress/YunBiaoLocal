@@ -3,6 +3,7 @@ package com.yunbiao.yunbiaolocal.act;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.AudioManager;
@@ -19,12 +20,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.yunbiao.yunbiaolocal.APP;
+import com.yunbiao.yunbiaolocal.cache.CacheManager;
+import com.yunbiao.yunbiaolocal.common.Const;
+import com.yunbiao.yunbiaolocal.common.ResourceConst;
 import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.R;
+import com.yunbiao.yunbiaolocal.resolve.VideoDataResolver;
+import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.yunbiao.yunbiaolocal.utils.TimerUtil;
 import com.zhy.http.okhttp.callback.StringCallback;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,12 +42,6 @@ import okhttp3.Call;
 
 public class MenuActivity extends Activity implements View.OnFocusChangeListener {
 
-    @BindView(R.id.menu_info_logo)
-    ImageView menuInfoLogo;
-    @BindView(R.id.tv_menu_info_yb)
-    TextView tvMenuInfoYb;
-    @BindView(R.id.tv_slogan)
-    TextView tvSlogan;
     @BindView(R.id.btn_weiChat_page)
     Button btnWeiChatPage;
     @BindView(R.id.menu_info_bind_btn)
@@ -81,7 +82,7 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
     PercentRelativeLayout perRePosition01;
     @BindView(R.id.tv_menu_start)
     TextView tvMenuStart;
-    @BindView(R.id.btn_menu_offline)
+    @BindView(R.id.btn_menu_playlist)
     Button btnMenuOffline;
     @BindView(R.id.iv_menu_icon_offline)
     ImageView ivMenuIconOffline;
@@ -163,7 +164,6 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
         soundPool = new SoundPool(10, AudioManager.STREAM_RING, 5);//第一个参数为同时播放数据流的最大个数，第二数据流类型，第三为声音质量
         music = soundPool.load(this, R.raw.di, 1);
         timerUtil = TimerUtil.getInstance(this).listen(onTimerListener);
-
         initView();
     }
 
@@ -176,20 +176,41 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
 
         tvMenuStartHints.setText(R.string.play);
         tvMenuStartHints2.setText(R.string.auto_play);
-        tvMenuOfflineHints.setText(R.string.local_program);
+        tvMenuOfflineHints.setText("本地资源");
         tvMenuOfflineHints2.setText(R.string.use_usb_play);
+        tvMenuOfflineHints2.setText("查看本地已保存的节目");
         tvMenuServiceHints.setText(R.string.yun_or_local);
         tvMenuServiceHints2.setText(R.string.delete_current_layout);
         tvMenuSettingHints.setText(R.string.system_base_setting);
         tvMenuSettingHints2.setText(R.string.pwd_on_off);
         tvMenuOffline2Hints.setText(R.string.import_layout);
         tvMenuOffline2Hints2.setText(R.string.use_yun_import_layout);
-        tvMenuOfflineHints3.setText(R.string.set_layout);
+        tvMenuOfflineHints3.setText("节目列表");
         tvMenuInfoPrompt.setText(R.string.hint_click_play);
 
         menuInfoBindBtn.setText("未绑定");
         menuInfoBindBtn.setTextColor(Color.parseColor("#ADADAD"));
         menuInfoBindBtn.setBackgroundResource(R.drawable.no_service_btn);
+
+        tvMenuInfoDate.setFormat24Hour("yyyy-MM-dd");
+        tvMenuInfoTime.setFormat12Hour("HH:mm");
+
+        tvShowOnscreenTime.setText(String.valueOf(Const.SYSTEM_CONFIG.MENU_STAY_DURATION));
+
+        tvMenuInfoEquipmentMum.setText(CacheManager.getSerNumber());
+        tvMenuInfoAccessCode.setText(CacheManager.getPwd());
+
+        //设备是否绑定
+        String bindStatus = CacheManager.getBindStatus();
+        if (!bindStatus.equals("1")) {//已绑定
+            menuInfoBindBtn.setText(R.string.unbind);
+            menuInfoBindBtn.setTextColor(Color.parseColor("#ADADAD"));
+            menuInfoBindBtn.setBackgroundResource(R.drawable.no_service_btn);
+        } else {
+            menuInfoBindBtn.setText(R.string.menu_bind_user);
+            menuInfoBindBtn.setTextColor(Color.parseColor("#95e546"));
+            menuInfoBindBtn.setBackgroundResource(R.drawable.is_service_btn);
+        }
     }
 
     @Override
@@ -225,49 +246,31 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
         }
     };
 
-    @OnClick({R.id.menu_info_bind_btn, R.id.btn_weiChat_page, R.id.btn_menu_start, R.id.btn_menu_offline, R.id.btn_menu_offline2, R.id.btn_menu_service, R.id.btn_menu_setting})
+    @OnClick({R.id.menu_info_bind_btn, R.id.btn_weiChat_page, R.id.btn_menu_start, R.id.btn_menu_playlist, R.id.btn_menu_offline2, R.id.btn_menu_service, R.id.btn_menu_setting})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_menu_start:
-                if (false/*CacheManager.getLayoutCacheAsArray() == null*/) {
-//                    startActivity(new Intent(this, SwitchLayout.class));
-                } else {
-                    finish();
-                }
+                finish();
                 break;
-            case R.id.btn_menu_offline:
-                jumpAct(OffLineActivity.class);
+            case R.id.btn_menu_playlist:
+                onPause();
+                DialogUtil.getInstance(this).showPlayListDialog(this, VideoDataResolver.playList == null
+                        ? new ArrayList<String>()
+                        : VideoDataResolver.playList, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onResume();
+                    }
+                });
                 break;
             case R.id.btn_menu_offline2:
                 break;
             case R.id.btn_menu_service:
                 break;
             case R.id.btn_menu_setting:
-//                LayoutInfo info1 = getLayout("123", "0%", "0%", "hahahahahhaha");
-//                View view1 = ViewFactory.createView(ViewFactory.VIEW_TEXT,this, info1, getWindowManager());
-//                LayoutRefresher.getInstance().updateLayout(view1);
-//
-//                LayoutInfo info2 = getLayout("123", "50%", "0%", "hahahahahhaha");
-//                View view2 = ViewFactory.createView(ViewFactory.VIEW_TEXT,this, info2, getWindowManager());
-//                LayoutRefresher.getInstance().updateLayout(view2);
-//
-//                LayoutInfo info3 = getLayout("123", "0%", "50%", "hahahahahhaha");
-//                View view3 = ViewFactory.createView(ViewFactory.VIEW_TEXT,this, info3, getWindowManager());
-//                LayoutRefresher.getInstance().updateLayout(view3);
-//
-//                LayoutInfo info4 = getLayout("123", "50%", "50%", "hahahahahhaha");
-//                View view4 = ViewFactory.createView(ViewFactory.VIEW_TEXT,this, info4, getWindowManager());
-//                LayoutRefresher.getInstance().updateLayout(view4);
-//
-//                LayoutInfo info5 = getAdsLayout("123", "0%", "30%", "hahahahahhaha");
-//                View view5 = ViewFactory.createView(ViewFactory.VIEW_TEXT,this, info5, getWindowManager());
-//                LayoutRefresher.getInstance().updateLayout(view5);
-
-                finish();
 
                 break;
             case R.id.btn_weiChat_page:
-//                startService(new Intent(this,NotificationService))
 
                 break;
             case R.id.menu_info_bind_btn:
@@ -283,24 +286,21 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
         }
     }
 
-    public void jumpAct(Class clz) {
-        startActivity(new Intent(this, clz));
-    }
-
     /**
      * 显示绑定设备dialog
+     *
      * @param context
      */
     private void showBindDialog(Context context) {
         timerUtil.pause();
         bindDecDialog = new AlertDialog.Builder(context).create();
         View view = View.inflate(context, R.layout.menu_bind_dialog, null);
-        TextView bindTitleTextView = (TextView) view.findViewById(R.id.tv_bind_title);
-        final EditText bindNameEditText = (EditText) view.findViewById(R.id.et_bind_name);
-        final EditText bindNumEditText = (EditText) view.findViewById(R.id.et_bind_num);
-        Button bindCancelBtn = (Button) view.findViewById(R.id.btn_bind_cancel);
-        Button bindSureBtn = (Button) view.findViewById(R.id.btn_bind_sure);
-        final TextView bindHintsTextView = (TextView) view.findViewById(R.id.tv_bind_hints);
+        TextView bindTitleTextView = view.findViewById(R.id.tv_bind_title);
+        final EditText bindNameEditText = view.findViewById(R.id.et_bind_name);
+        final EditText bindNumEditText = view.findViewById(R.id.et_bind_num);
+        Button bindCancelBtn = view.findViewById(R.id.btn_bind_cancel);
+        final Button bindSureBtn = view.findViewById(R.id.btn_bind_sure);
+        final TextView bindHintsTextView = view.findViewById(R.id.tv_bind_hints);
 
         bindTitleTextView.setText(R.string.bind_dev);
 
@@ -318,7 +318,7 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
                             map.put("userName", userName);
                             map.put("userRand", userRand);
 
-                            NetUtil.getInstance().post("", map, new StringCallback() {
+                            NetUtil.getInstance().post(ResourceConst.REMOTE_RES.DEC_NUM, map, new StringCallback() {
                                 @Override
                                 public void onError(Call call, Exception e, int id) {
 
@@ -334,15 +334,16 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
                                         String result1 = split[split.length - 2];
                                         switch (result1) {
                                             case "1":
-//                                            if (btn != null) {
-//                                                btn.setText(R.string.menu_bind_user);
-//                                                btn.setTextColor(Color.parseColor("#95e546"));
-//                                                btn.setBackgroundResource(R.drawable.is_service_btn);
-//                                            }
-//                                            if (btn2 != null) {
-//                                                btn2.setText(R.string.bind_user);
-//                                                btn2.setBackgroundResource(R.drawable.wei_chat_btn);
-//                                            }
+
+                                                if (menuInfoBindBtn != null) {
+                                                    menuInfoBindBtn.setText(R.string.menu_bind_user);
+                                                    menuInfoBindBtn.setTextColor(Color.parseColor("#95e546"));
+                                                    menuInfoBindBtn.setBackgroundResource(R.drawable.is_service_btn);
+                                                }
+//                                                if (btn2 != null) {
+//                                                    btn2.setText(R.string.bind_user);
+//                                                    btn2.setBackgroundResource(R.drawable.wei_chat_btn);
+//                                                }
                                                 Toast.makeText(APP.getContext(), R.string.bind_dev_ok, Toast.LENGTH_SHORT).show();
                                                 bindDecDialog.dismiss();
                                                 break;
@@ -356,8 +357,6 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
                                     }
                                 }
                             });
-
-
                         }
                         break;
                     case R.id.btn_bind_cancel:

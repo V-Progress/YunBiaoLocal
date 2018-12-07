@@ -7,7 +7,7 @@ import android.util.Log;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.devicectrl.actions.JYDActions;
 
-class JYDBroadControl {
+class  JYDBroadControl {
     private static final String TAG = "JYDBroadControl";
 
     /**

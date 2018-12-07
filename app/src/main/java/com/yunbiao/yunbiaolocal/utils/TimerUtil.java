@@ -3,6 +3,8 @@ package com.yunbiao.yunbiaolocal.utils;
 import android.app.Activity;
 import android.util.Log;
 
+import com.yunbiao.yunbiaolocal.common.Const;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -13,7 +15,7 @@ import java.util.TimerTask;
 public class TimerUtil {
     private static TimerUtil instance;
     private Timer mTimer;
-    private int recLen = 60;
+    private int recLen = Const.SYSTEM_CONFIG.MENU_STAY_DURATION;
     private OnScreenTask onScreenTask;
     private static Activity mActivity;
     private OnTimerListener onTimerListener;

@@ -5,12 +5,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -18,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.devicectrl.power.PowerControl;
 import com.yunbiao.yunbiaolocal.devicectrl.ScreenShot;
 import com.yunbiao.yunbiaolocal.resolve.VideoDataResolver;
@@ -63,11 +66,20 @@ public class DialogUtil {
      * 展示播放列表dialog
      * @param onClickListener
      */
-    public void showPlayListDialog(List<String> playList, final DialogInterface.OnClickListener onClickListener) {
-        LinearLayout mLinearLayout = (LinearLayout) LayoutInflater.from(mActivity).inflate(R.layout.alert_dialog, null);
+    public void showPlayListDialog(final Activity mActivity, List<String> playList, final View.OnClickListener onClickListener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+        if (mActivity.isFinishing()) {
+            return;
+        }
+        View mLinearLayout = LayoutInflater.from(mActivity).inflate(R.layout.alert_dialog, null);
         ListView mPlaylist = mLinearLayout.findViewById(R.id.playlist);
         TextView tvTime = mLinearLayout.findViewById(R.id.tv_time);
+        Button btnClose = mLinearLayout.findViewById(R.id.btn_close_playlist);
         final VideoView mPreview = mLinearLayout.findViewById(R.id.preview);
+
+        mPreview.setZOrderOnTop(true);//置顶显示，否则会被dialog遮挡，亮度变低
+        tvTime.setText(VideoDataResolver.timer);
+        mPlaylist.setDivider(mActivity.getResources().getDrawable(R.drawable.divider_playlist));
 
         mPlaylist.setAdapter(new ArrayAdapter<String>(mActivity, android.R.layout.simple_list_item_1, playList) {
             @Override
@@ -77,13 +89,17 @@ public class DialogUtil {
                 String text = getItem(position);
                 textView.setText(text);
                 if (text.contains(".")) {
+                    textView.setTextColor(mActivity.getResources().getColor(R.color.white));
                     textView.setSingleLine();
                     textView.setEllipsize(TextUtils.TruncateAt.END);
-                } else
-                    textView.setBackgroundColor(Color.parseColor("#333333"));
+
+                } else{
+                    textView.setBackgroundColor(mActivity.getResources().getColor(R.color.trans_gray));
+                }
                 return convertView;
             }
         });
+
         mPlaylist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -105,26 +121,21 @@ public class DialogUtil {
             }
         });
 
-        tvTime.setText(VideoDataResolver.timer);
-
-        mDialogBuilder.setView(mLinearLayout);
-        mDialogBuilder.setTitle("播放列表");
-        mDialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+        builder.setView(mLinearLayout);
+        final AlertDialog alertDialog = builder.create();
+        btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onClick(View v) {
+                alertDialog.dismiss();
                 if (mPreview.isPlaying()) {
                     mPreview.stopPlayback();
                 }
-                onClickListener.onClick(dialog, which);
+                onClickListener.onClick(v);
             }
         });
+        alertDialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
 
-        AlertDialog alertDialog = mDialogBuilder.create();
-        alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.MATCH_PARENT);
-
-        if (!mActivity.isFinishing()) {
-            alertDialog.show();
-        }
+        alertDialog.show();
     }
 
     /**
@@ -136,41 +147,5 @@ public class DialogUtil {
     public void showInsertDialog(int type, String content) {
         InsertPlayDialog insertPlayDialog = InsertPlayDialog.build(mActivity);
         insertPlayDialog.show(content, type);
-    }
-
-    public void showTestController(){
-        View inflate = LayoutInflater.from(mActivity).inflate(R.layout.layout_controller, null);
-        Button btnUp = inflate.findViewById(R.id.btn_vol_up);
-        Button btnDown = inflate.findViewById(R.id.btn_vol_down);
-        Button btnSS = inflate.findViewById(R.id.btn_vol_screenshot);
-        Button btnC = inflate.findViewById(R.id.btn_vol_close);
-
-        View.OnClickListener onClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switch (v.getId()) {
-                    case R.id.btn_vol_up:
-                        break;
-                    case R.id.btn_vol_down:
-                        break;
-                    case R.id.btn_vol_screenshot:
-                        ScreenShot.getInstanse().shootScreen();
-                        break;
-                    case R.id.btn_vol_close:
-                        PowerControl.getInstance().setPowerRunTime();
-                        break;
-                }
-            }
-        };
-        btnUp.setOnClickListener(onClickListener);
-        btnDown.setOnClickListener(onClickListener);
-        btnSS.setOnClickListener(onClickListener);
-        btnC.setOnClickListener(onClickListener);
-
-        mDialogBuilder.setView(inflate);
-        AlertDialog alertDialog = mDialogBuilder.create();
-        alertDialog.setCancelable(true);
-        alertDialog.show();
-        alertDialog.getWindow().setLayout(-1,-1);
     }
 }
