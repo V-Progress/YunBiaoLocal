@@ -1,17 +1,24 @@
 package com.yunbiao.yunbiaolocal.netcore;
 
+import android.content.Intent;
+import android.text.TextUtils;
+import android.widget.Toast;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.yunbiao.yunbiaolocal.cache.CacheManager;
 import com.yunbiao.yunbiaolocal.devicectrl.ScreenShot;
+import com.yunbiao.yunbiaolocal.devicectrl.actions.XBHActions;
 import com.yunbiao.yunbiaolocal.devicectrl.power.PowerOffTool;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.devicectrl.SoundControl;
+import com.yunbiao.yunbiaolocal.netcore.bean.ChannelBean;
 import com.yunbiao.yunbiaolocal.netcore.bean.DiskInfoBean;
 import com.yunbiao.yunbiaolocal.netcore.bean.LoginModel;
 import com.yunbiao.yunbiaolocal.netcore.bean.SerNumBean;
 import com.yunbiao.yunbiaolocal.netcore.bean.VoiceModel;
+import com.yunbiao.yunbiaolocal.utils.CommonUtils;
 import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.LogUtil;
 import com.yunbiao.yunbiaolocal.utils.SystemInfoUtil;
@@ -77,11 +84,9 @@ public class XmppMessageProcessor {
                 //是否有密码
                 String password = loginModel.getPassword();
                 LogUtil.E(TAG, "*****" + password);
-//                if (TextUtils.isEmpty(password) || password.equals(" ") || password.equals("null")) {
-//                    SpUtils.saveString(APP.getContext(), SpUtils.MENU_PWD, "");
-//                } else {
-//                    SpUtils.saveString(APP.getContext(), SpUtils.MENU_PWD, password);
-//                }
+                if (TextUtils.isEmpty(password) || password.equals(" ") || password.equals("null")) {
+                } else {
+                }
 
 
                 break;
@@ -94,9 +99,9 @@ public class XmppMessageProcessor {
                 });
                 break;
             case SHOW_SERNUM:// 显示设备编号
-            SerNumBean serNumBean = new Gson().fromJson(content, SerNumBean.class);
-            Integer showType = serNumBean.getShowType();
-                LogUtil.E(APP.getContext().getClass().getSimpleName(),"showType = "+showType);
+                SerNumBean serNumBean = new Gson().fromJson(content, SerNumBean.class);
+                Integer showType = serNumBean.getShowType();
+                LogUtil.E(APP.getContext().getClass().getSimpleName(), "showType = " + showType);
                 if (showType != null && showType == 0) {//状态栏  视美泰主板
                     APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), true);
 
@@ -107,7 +112,7 @@ public class XmppMessageProcessor {
                         APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), false);
                     }
                 } else {
-                    TipToast.showLongToast(APP.getMainActivity(),"设备编号："+ CacheManager.getSerNumber());
+                    TipToast.showLongToast(APP.getMainActivity(), "设备编号：" + CacheManager.getSerNumber());
                 }
                 break;
             case CUTSCREN_TYPE:
@@ -137,6 +142,28 @@ public class XmppMessageProcessor {
             case POWER_RELOAD://关机重启
 
                 break;
+            case CHANNEL_TYPE://输入信号源选择
+                ChannelBean channelBean = new Gson().fromJson(content, ChannelBean.class);
+                Integer broadType = CommonUtils.getBroadType();
+                if (broadType == 4) {//判断是不是小百合
+                    Intent intent = new Intent();
+                    switch (channelBean.getChannel()) {
+                        case 0:
+                            intent.setAction(XBHActions.CHANGE_TO_AV);
+                            break;
+                        case 1:
+                            intent.setAction(XBHActions.CHANGE_TO_VGA);
+                            break;
+                        case 2:
+                            intent.setAction(XBHActions.CHANGE_TO_HDMI);
+                            break;
+                    }
+                    APP.getContext().sendBroadcast(intent);
+                } else {
+                    TipToast.showLongToast(APP.getContext(),"暂不支持该功能");
+                }
+
+                break;
             case PUSH_TO_UPDATE://检查更新
                 SystemInfoUtil.checkUpdateInfo();
                 break;
@@ -146,13 +173,12 @@ public class XmppMessageProcessor {
                 break;
             case PUSH_MESSAGE://插播字幕
                 LogUtil.E("显示字幕");
-                DialogUtil.getInstance(APP.getMainActivity()).showInsertDialog(DialogUtil.INSERT_TEXT,content);
+                DialogUtil.getInstance(APP.getMainActivity()).showInsertDialog(DialogUtil.INSERT_TEXT, content);
                 break;
             case VIDEO_PUSH://插播视频
-                DialogUtil.getInstance(APP.getMainActivity()).showInsertDialog(DialogUtil.INSERT_VIDEO,content);
+                DialogUtil.getInstance(APP.getMainActivity()).showInsertDialog(DialogUtil.INSERT_VIDEO, content);
                 break;
         }
-
 
 
 //        MsgModel msgModel = new Gson().fromJson(message, MsgModel.class);

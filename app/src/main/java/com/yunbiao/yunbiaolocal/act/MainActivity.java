@@ -1,10 +1,8 @@
 package com.yunbiao.yunbiaolocal.act;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -22,7 +20,6 @@ import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.br.USBBroadcastReceiver;
 import com.yunbiao.yunbiaolocal.resolve.VideoDataResolver;
 import com.yunbiao.yunbiaolocal.netcore.PnServerController;
-import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.yunbiao.yunbiaolocal.utils.SystemInfoUtil;
 import com.yunbiao.yunbiaolocal.view.InsertPlayDialog;
@@ -31,7 +28,6 @@ import com.yunbiao.yunbiaolocal.view.MainVideoView;
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

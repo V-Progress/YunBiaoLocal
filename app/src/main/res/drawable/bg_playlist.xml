@@ -3,6 +3,7 @@
     <!--实现应用背景颜色渐变-->
     <gradient
         android:angle="135"
-        android:endColor="#0b7b6c"
-        android:startColor="#89fcec" />
+        android:endColor="#0856af"
+        android:centerColor="#215c9e"
+        android:startColor="#97c2f4" />
 </shape>
