@@ -40,7 +40,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import okhttp3.Call;
 
-public class MenuActivity extends Activity implements View.OnFocusChangeListener {
+public class MenuActivity extends BaseActivity implements View.OnFocusChangeListener {
 
     @BindView(R.id.btn_weiChat_page)
     Button btnWeiChatPage;
@@ -156,18 +156,18 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
     private AlertDialog bindDecDialog;
     private TimerUtil timerUtil;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_menu);
-        ButterKnife.bind(this);
+    protected int setLayout(){
+        APP.setMenuActivity(this);
+        return R.layout.activity_menu;
+    }
+
+    protected void initData(){
         soundPool = new SoundPool(10, AudioManager.STREAM_RING, 5);//第一个参数为同时播放数据流的最大个数，第二数据流类型，第三为声音质量
         music = soundPool.load(this, R.raw.di, 1);
         timerUtil = TimerUtil.getInstance(this).listen(onTimerListener);
-        initView();
     }
 
-    private void initView() {
+    protected void initView() {
         btnMenuStart.setOnFocusChangeListener(this);
         btnMenuOffline.setOnFocusChangeListener(this);
         btnMenuOffline2.setOnFocusChangeListener(this);
@@ -254,7 +254,7 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
                 break;
             case R.id.btn_menu_playlist:
                 onPause();
-                DialogUtil.getInstance(this).showPlayListDialog(this, VideoDataResolver.playList == null
+                DialogUtil.showPlayListDialog(this, VideoDataResolver.playList == null
                         ? new ArrayList<String>()
                         : VideoDataResolver.playList, new View.OnClickListener() {
                     @Override
@@ -374,8 +374,13 @@ public class MenuActivity extends Activity implements View.OnFocusChangeListener
         bindDecDialog.show();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        APP.setMenuActivity(null);
+    }
 
-//    private LayoutInfo getLayout(String id, String left, String top, String content){
+    //    private LayoutInfo getLayout(String id, String left, String top, String content){
 //
 //        Container container = new Container();
 //        container.setHeight("50%");

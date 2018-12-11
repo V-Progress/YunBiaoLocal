@@ -8,7 +8,7 @@ public class ResourceConst {
 
     public interface LOCAL_RES {
         String EXTERNAL_DIR = Environment.getExternalStorageDirectory().getAbsolutePath();//外存根目录
-        String APP_CACHE_BASE_PATH = "/mnt/sdcard/hsd/";//外存根目录
+        String APP_CACHE_BASE_PATH = "/mnt/sdcard/hsd";//外存根目录
         String APP_MAIN_DIR = EXTERNAL_DIR + "/yunbiao";//APP资源主目录
 
         //截屏存储

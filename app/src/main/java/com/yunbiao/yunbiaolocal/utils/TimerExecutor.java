@@ -38,6 +38,18 @@ public class TimerExecutor {
         void execute();
     }
 
+    public void delayExecute(long delay, final OnTimeOutListener onTimeOutListener){
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                if(onTimeOutListener != null){
+                    onTimeOutListener.execute();
+                }
+            }
+        };
+        timer.schedule(timerTask,delay);
+    }
+
     public void addInTimerQueue(Date execTime, final OnTimeOutListener onTimeOutListener) {
         TimerTask timerTask = new TimerTask() {
             @Override

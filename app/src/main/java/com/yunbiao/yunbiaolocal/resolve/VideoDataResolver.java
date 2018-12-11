@@ -23,21 +23,30 @@ public class VideoDataResolver {
     public static List<String> playList;
     public static Map<String, String> previewMap;
     public static String timer = "开机时间：--:--\n关机时间：--:--";
-    public List<Timer> timerList;
+    private List<Timer> timerList;
 
-    public void setPlayList() {
+    public List<String> getPlayList(){
+        if(playList != null && playList.size()>0){
+            return playList;
+        }
+        return new ArrayList<>();
+    }
+
+    public void resolvePlayList() {
         Log.d("log", "播放设置");
-        ThreadUtil.getInstance().runInFixedThread(new Runnable() {
+        ThreadUtil.getInstance().runInCommonThread(new Runnable() {
             @Override
             public void run() {
                 File yunbiao = new File(ResourceConst.LOCAL_RES.APP_MAIN_DIR);
 
+                //目录是否存在或可读
                 if (!yunbiao.canRead()) {
                     LogUtil.E(yunbiao.getName() + " 目录不存在或拒绝读取");
                     return;
                 }
 
-                File[] files = yunbiao.listFiles(new VideoDirectoryFilter());//筛选yunbiao目录下所有20xx-20xx类的目录
+                //筛选yunbiao目录下所有20xx-20xx类的目录
+                File[] files = yunbiao.listFiles(new VideoDirectoryFilter());
                 if (files == null || files.length == 0) {
                     LogUtil.E(yunbiao.getName() + " 没有资源");
                     return;
@@ -81,11 +90,12 @@ public class VideoDataResolver {
                             String playDay = play.getPlayday().trim();
                             List<VideoDataModel.Play.Rule> rules = play.getRules();
 
+                            //解析播放日期
                             String playDate = DateUtil.yyyy_MM_dd_Format(DateUtil.yyyyMMdd_Parse(playDay));
                             for (VideoDataModel.Play.Rule rule : rules) {
-                                String[] time = rule.getDate().trim().split("-");
+                                String[] times = rule.getDate().trim().split("-");
 
-                                playList.add(playDate + "\t\t\t" + time[0] + "-" + time[1]);
+                                playList.add(playDate + "\t\t\t" + times[0] + "-" + times[1]);
 
                                 String[] res = rule.getRes().trim().replace("，", ",").replaceAll("\\s*,\\s*", ",").split(",");
                                 final StringBuilder videoPath = new StringBuilder();
@@ -116,11 +126,11 @@ public class VideoDataResolver {
                                 }
 
                                 //添加定时任务
-                                LogUtil.E("123", "开始时间" + playDay + time[0]);
-                                LogUtil.E("123", "结束时间" + playDay + time[1]);
-                                Date beginTime = DateUtil.yyyyMMddHH_mm_Parse(playDay + time[0]);
-                                Date endTime = DateUtil.yyyyMMddHH_mm_Parse(playDay + time[1]);
-                                Log.d("log", file.getPath() + "  " + DateUtil.yyyy_MM_dd_HH_mm_Format(beginTime) + " 至 " + DateUtil.yyyy_MM_dd_HH_mm_Format(endTime));
+//                                LogUtil.E("123", "开始时间" + playDay + times[0]);
+//                                LogUtil.E("123", "结束时间" + playDay + times[1]);
+                                Date beginTime = DateUtil.yyyyMMddHH_mm_Parse(playDay + times[0]);
+                                Date endTime = DateUtil.yyyyMMddHH_mm_Parse(playDay + times[1]);
+                                LogUtil.E(file.getPath() + "  " + DateUtil.yyyy_MM_dd_HH_mm_Format(beginTime) + " 至 " + DateUtil.yyyy_MM_dd_HH_mm_Format(endTime));
 
                                 //播放结束时间小于当前时间时，不添加定时任务
                                 if ((endTime.getTime() - 10000 < System.currentTimeMillis())) {

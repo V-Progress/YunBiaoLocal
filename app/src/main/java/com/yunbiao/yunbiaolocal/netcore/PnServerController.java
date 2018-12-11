@@ -17,7 +17,6 @@ package com.yunbiao.yunbiaolocal.netcore;
 
 import android.app.Activity;
 
-import com.yunbiao.yunbiaolocal.act.MainActivity;
 import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
 import com.yunbiao.yunbiaolocal.xmpp.ServiceManager;
 
@@ -30,7 +29,7 @@ public class PnServerController {
 
 	public static void startXMPP(final Activity mainActivity) {
 		if (serverManager == null) {
-			ThreadUtil.getInstance().runInFixedThread(new Runnable() {
+			ThreadUtil.getInstance().runInCommonThread(new Runnable() {
 				@Override
 				public void run() {
 					serverManager = new ServiceManager(mainActivity);

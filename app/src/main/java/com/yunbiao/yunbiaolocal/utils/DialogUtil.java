@@ -1,11 +1,9 @@
 package com.yunbiao.yunbiaolocal.utils;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.graphics.Color;
-import android.media.MediaPlayer;
+import android.app.ProgressDialog;
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -16,13 +14,9 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.yunbiao.yunbiaolocal.APP;
-import com.yunbiao.yunbiaolocal.devicectrl.power.PowerControl;
-import com.yunbiao.yunbiaolocal.devicectrl.ScreenShot;
 import com.yunbiao.yunbiaolocal.resolve.VideoDataResolver;
 import com.yunbiao.yunbiaolocal.view.InsertPlayDialog;
 import com.yunbiao.yunbiaolocal.R;
@@ -44,30 +38,17 @@ public class DialogUtil {
     public static final int INSERT_TEXT = 1;
     public static final int INSERT_LIVE = 2;
 
-    private static DialogUtil instance;
-    private AlertDialog.Builder mDialogBuilder;
-    private static Activity mActivity;
-    private String yyyyMMdd = new SimpleDateFormat("yyyyMMdd").format(new Date());
+    private static String yyyyMMdd = new SimpleDateFormat("yyyyMMdd").format(new Date());
 
-    public static synchronized DialogUtil getInstance(Activity activity) {
-        mActivity = activity;
-        if (instance == null) {
-            instance = new DialogUtil();
-        }
-        return instance;
-    }
-
-    public DialogUtil() {
-        mDialogBuilder = new AlertDialog.Builder(mActivity);
-        mDialogBuilder.setCancelable(false);// TODO: 2018/12/4 暂时关闭
-    }
+    private static InsertPlayDialog insertPlayDialog;
+    private static AlertDialog playlistDialog;
 
     /***
      * 展示播放列表dialog
      * @param onClickListener
      */
-    public void showPlayListDialog(final Activity mActivity, List<String> playList, final View.OnClickListener onClickListener) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+    public static void showPlayListDialog(final Activity mActivity, List<String> playList, final View.OnClickListener onClickListener) {
+        AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(mActivity);
         if (mActivity.isFinishing()) {
             return;
         }
@@ -93,7 +74,7 @@ public class DialogUtil {
                     textView.setSingleLine();
                     textView.setEllipsize(TextUtils.TruncateAt.END);
 
-                } else{
+                } else {
                     textView.setBackgroundColor(mActivity.getResources().getColor(R.color.trans_gray));
                 }
                 return convertView;
@@ -121,21 +102,21 @@ public class DialogUtil {
             }
         });
 
-        builder.setView(mLinearLayout);
-        final AlertDialog alertDialog = builder.create();
+        mDialogBuilder.setView(mLinearLayout);
+        playlistDialog = mDialogBuilder.create();
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                alertDialog.dismiss();
+                playlistDialog.dismiss();
                 if (mPreview.isPlaying()) {
                     mPreview.stopPlayback();
                 }
                 onClickListener.onClick(v);
             }
         });
-        alertDialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+        playlistDialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
 
-        alertDialog.show();
+        playlistDialog.show();
     }
 
     /**
@@ -144,8 +125,34 @@ public class DialogUtil {
      * @param type
      * @param content
      */
-    public void showInsertDialog(int type, String content) {
-        InsertPlayDialog insertPlayDialog = InsertPlayDialog.build(mActivity);
+    public static void showInsertDialog(Activity activity, int type, String content) {
+        insertPlayDialog = InsertPlayDialog.build(activity);
         insertPlayDialog.show(content, type);
     }
+
+    public static void showProgressDialog(Activity activity, String title, String message) {
+        ProgressDialog progressDialog = new ProgressDialog(activity);
+        progressDialog.setTitle(title);
+        progressDialog.setMessage(message);
+        progressDialog.show();
+    }
+
+    public static boolean isShowing(){
+        return (insertPlayDialog!=null && insertPlayDialog.isShowing()) || (playlistDialog!=null && playlistDialog.isShowing());
+    }
+
+    public static Bitmap screenShot(){
+        View decorView = null;
+        if(insertPlayDialog != null && insertPlayDialog.isShowing()){
+//            decorView = insertPlayDialog.getWindow().getDecorView();
+            return insertPlayDialog.screenShot();
+        }else if(playlistDialog != null && playlistDialog.isShowing()){
+            decorView = playlistDialog.getWindow().getDecorView();
+        }
+        decorView.setDrawingCacheEnabled(true);
+        decorView.buildDrawingCache();
+        return Bitmap.createBitmap(decorView.getDrawingCache());
+
+    }
+
 }

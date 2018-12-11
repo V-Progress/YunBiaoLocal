@@ -2,12 +2,13 @@ package com.yunbiao.yunbiaolocal.netcore;
 
 import android.content.Intent;
 import android.text.TextUtils;
-import android.widget.Toast;
+import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.yunbiao.yunbiaolocal.cache.CacheManager;
+import com.yunbiao.yunbiaolocal.common.ResourceConst;
 import com.yunbiao.yunbiaolocal.devicectrl.ScreenShot;
 import com.yunbiao.yunbiaolocal.devicectrl.actions.XBHActions;
 import com.yunbiao.yunbiaolocal.devicectrl.power.PowerOffTool;
@@ -16,14 +17,21 @@ import com.yunbiao.yunbiaolocal.devicectrl.SoundControl;
 import com.yunbiao.yunbiaolocal.netcore.bean.ChannelBean;
 import com.yunbiao.yunbiaolocal.netcore.bean.DiskInfoBean;
 import com.yunbiao.yunbiaolocal.netcore.bean.LoginModel;
+import com.yunbiao.yunbiaolocal.netcore.bean.PowerCtrlBean;
 import com.yunbiao.yunbiaolocal.netcore.bean.SerNumBean;
 import com.yunbiao.yunbiaolocal.netcore.bean.VoiceModel;
 import com.yunbiao.yunbiaolocal.utils.CommonUtils;
 import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.LogUtil;
+import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.yunbiao.yunbiaolocal.utils.SystemInfoUtil;
 import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
 import com.yunbiao.yunbiaolocal.view.TipToast;
+import com.zhy.http.okhttp.callback.StringCallback;
+
+import java.util.HashMap;
+
+import okhttp3.Call;
 
 /**
  * 核心类：Xmpp消息处理
@@ -64,7 +72,7 @@ public class XmppMessageProcessor {
      */
     public static void dispatchMsg(String message) {
         JSONObject jsonObject = JSON.parseObject(message);
-        String content = jsonObject.getString("content");
+        final String content = jsonObject.getString("content");
         String type = jsonObject.getString("type");
 
         switch (Integer.valueOf(type)) {
@@ -90,8 +98,33 @@ public class XmppMessageProcessor {
 
 
                 break;
+            case CONTENT_TYPE:
+                HashMap<String,String> params = new HashMap<>();
+                params.put("deviceId",HeartBeatClient.getDeviceNo());
+                NetUtil.getInstance().post(ResourceConst.REMOTE_RES.RESOURCE_URL, params, new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+
+                    }
+
+                    @Override
+                    public void onResponse(String response, int id) {
+                        // 没有返回，或者请求错误
+                        if (response.startsWith("\"")) {
+                            response = response.substring(1, response.length() - 1);
+                        }
+                        if (!response.equals("null") && !response.equals("faile") && !response.equals("[]")) {
+                            Log.e(TAG, "onSuccess: result=="+response);
+
+                        }
+                    }
+                });
+
+
+
+                break;
             case RUNSET_TYPE://设备自动开关机
-                ThreadUtil.getInstance().runInFixedThread(new Runnable() {
+                ThreadUtil.getInstance().runInCommonThread(new Runnable() {
                     @Override
                     public void run() {// 开关机时间设置
                         PowerOffTool.getInstance().getPowerOffTime(HeartBeatClient.getDeviceNo());
@@ -116,10 +149,10 @@ public class XmppMessageProcessor {
                 }
                 break;
             case CUTSCREN_TYPE:
-                ThreadUtil.getInstance().runInFixedThread(new Runnable() {
+                ThreadUtil.getInstance().runInCommonThread(new Runnable() {
                     @Override
                     public void run() {
-                        ScreenShot.getInstanse().shootScreen();
+                        ScreenShot.getInstanse().ss();
                     }
                 });
 
@@ -140,7 +173,12 @@ public class XmppMessageProcessor {
                 }
                 break;
             case POWER_RELOAD://关机重启
-
+                PowerCtrlBean powerCtrlBean = new Gson().fromJson(content, PowerCtrlBean.class);
+                if (powerCtrlBean.getRestart() == 0) {
+                    PowerOffTool.getInstance().shutdown();
+                }else{
+                    PowerOffTool.getInstance().reboot();
+                }
                 break;
             case CHANNEL_TYPE://输入信号源选择
                 ChannelBean channelBean = new Gson().fromJson(content, ChannelBean.class);
@@ -160,7 +198,7 @@ public class XmppMessageProcessor {
                     }
                     APP.getContext().sendBroadcast(intent);
                 } else {
-                    TipToast.showLongToast(APP.getContext(),"暂不支持该功能");
+                    TipToast.showLongToast(APP.getContext(), "暂不支持该功能");
                 }
 
                 break;
@@ -173,10 +211,10 @@ public class XmppMessageProcessor {
                 break;
             case PUSH_MESSAGE://插播字幕
                 LogUtil.E("显示字幕");
-                DialogUtil.getInstance(APP.getMainActivity()).showInsertDialog(DialogUtil.INSERT_TEXT, content);
+                DialogUtil.showInsertDialog(APP.getMainActivity(),DialogUtil.INSERT_TEXT, content);
                 break;
             case VIDEO_PUSH://插播视频
-                DialogUtil.getInstance(APP.getMainActivity()).showInsertDialog(DialogUtil.INSERT_VIDEO, content);
+                DialogUtil.showInsertDialog(APP.getMainActivity(),DialogUtil.INSERT_VIDEO, content);
                 break;
         }
 

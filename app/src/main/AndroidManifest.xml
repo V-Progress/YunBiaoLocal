@@ -10,7 +10,6 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
 
-
     <permission android:name="android.permission.REBOOT" />
     <permission android:name="android.permission.SHUTDOWN" />
     <permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
@@ -20,7 +19,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_MEDIA_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_MEDIA_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -44,7 +43,6 @@
     <!-- 百度地图显示 -->
     <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS" />
     <uses-permission android:name="android.permission.GET_TASKS" />
-
     <uses-permission android:name="android.permission.SET_TIME" />
     <uses-permission android:name="android.permission.RECORD_VIDEO" />
     <!-- 关闭应用程序的权限 -->
@@ -66,26 +64,30 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".act.MenuActivity" />
+
         <receiver android:name=".br.BootBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-        <activity
-            android:name=".act.MenuActivity"/>
-
-        <activity android:name=".act.OffLineActivity"
-            android:launchMode="singleTask" />
-
         <service
-            android:name="com.yunbiao.yunbiaolocal.xmpp.NotificationService"
+            android:name=".xmpp.NotificationService"
             android:enabled="true"
             android:label="NotificationService">
             <intent-filter>
                 <action android:name="com.yunbiao.xmpp.NotificationService" />
             </intent-filter>
         </service>
+
+        <activity android:name=".act.AbsoluteActivity" />
+
+        <service
+            android:name=".service.DownloadService"
+            android:enabled="true"
+            android:exported="true"/>
     </application>
 
 </manifest>

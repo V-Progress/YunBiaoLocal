@@ -1,6 +1,7 @@
 package com.yunbiao.yunbiaolocal.act;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -18,8 +19,9 @@ import android.widget.Toast;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.br.USBBroadcastReceiver;
-import com.yunbiao.yunbiaolocal.resolve.VideoDataResolver;
 import com.yunbiao.yunbiaolocal.netcore.PnServerController;
+import com.yunbiao.yunbiaolocal.resolve.VideoDataResolver;
+import com.yunbiao.yunbiaolocal.utils.LogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.yunbiao.yunbiaolocal.utils.SystemInfoUtil;
 import com.yunbiao.yunbiaolocal.view.InsertPlayDialog;
@@ -28,15 +30,15 @@ import com.yunbiao.yunbiaolocal.view.MainVideoView;
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import io.vov.vitamio.MediaPlayer;
 import io.vov.vitamio.widget.MediaController;
 
-public class MainActivity extends Activity implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener, MediaPlayer.OnCompletionListener {
+public class MainActivity extends BaseActivity implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener, MediaPlayer.OnCompletionListener {
     @BindView(R.id.vtm_video)
-    MainVideoView vtmVideo;
+    public MainVideoView vtmVideo;
     @BindView(R.id.permission)
     TextView permission;
     @BindView(R.id.state)
@@ -66,15 +68,57 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
     private static int lineNumber = 0;
     private float playSpeed = 1.0f;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        APP.setMainActivity(this);
-        ButterKnife.bind(this);
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        setContentView(R.layout.activity_main);
+//        APP.setMainActivity(this);
+//        ButterKnife.bind(this);
+//
+//        //初始化控件
+//        initView();
+//
+//        //初始化播放数据
+//        initPlayData();
+//
+//        //初始化播放器
+//        initVTMPlayer();
+//
+//        //连接XMPP
+//        PnServerController.startXMPP(this);
+//
+//        //初始化广告插播，如果有未播完的广告则自动播放
+//        InsertPlayDialog.build(this).init();
+//
+//
+//    }
 
-        //初始化控件
-        initView();
+    protected int setLayout(){
+        APP.setMainActivity(this);
+        return R.layout.activity_main;
+    }
+
+    protected void initView() {
+        //USB广播监听
+        usbBroadcastReceiver = new USBBroadcastReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_MEDIA_MOUNTED);
+        intentFilter.addDataScheme("file");
+        registerReceiver(usbBroadcastReceiver, intentFilter);
+        //是否授权
+        try {
+            long expire = new SimpleDateFormat("yyyyMMdd").parse("20250101").getTime();
+            if (expire < System.currentTimeMillis()) {
+                permission.setVisibility(View.VISIBLE);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void initData(){
+        //初始化播放数据
+        initPlayData();
 
         //初始化播放器
         initVTMPlayer();
@@ -90,8 +134,6 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
      * 初始化播放器
      */
     public void initVTMPlayer() {
-        initPlayData();
-
         MediaController mediaController = new MediaController(MainActivity.this);
         mediaController.setInstantSeeking(false);
         vtmVideo.setMediaController(mediaController);
@@ -105,9 +147,9 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
      * 初始化播放数据
      */
     public void initPlayData() {
-        VideoDataResolver video = new VideoDataResolver();
-        video.setPlayList();
-        if (video.timerList == null || video.timerList.isEmpty()) {
+        VideoDataResolver videoDataResolve = new VideoDataResolver();
+        videoDataResolve.resolvePlayList();
+        if (videoDataResolve.getPlayList() == null || videoDataResolve.getPlayList().isEmpty()) {
             state.setVisibility(View.VISIBLE);
         }
     }
@@ -242,43 +284,13 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
     /*===========页面控件相关=====================================================================
      * 初始化播放列表
      */
-    private void initView() {
-
-        //USB广播监听
-        usbBroadcastReceiver = new USBBroadcastReceiver();
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Intent.ACTION_MEDIA_MOUNTED);
-        intentFilter.addDataScheme("file");
-        registerReceiver(usbBroadcastReceiver, intentFilter);
-        //是否授权
-        try {
-            long expire = new SimpleDateFormat("yyyyMMdd").parse("20250101").getTime();
-            if (expire < System.currentTimeMillis()) {
-                permission.setVisibility(View.VISIBLE);
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         //按下菜单键显示播放列表
         if (keyCode == KeyEvent.KEYCODE_MENU) {
-            startActivity(new Intent(this,MenuActivity.class));
+            startActivity(new Intent(this, MenuActivity.class));
             vtmVideo.pause();
             vtmVideo.setVisibility(View.GONE);
-
-//            DialogUtil.getInstance(this).showPlayListDialog(
-//                    VideoDataResolver.playList == null
-//                            ? new ArrayList<String>()
-//                            : VideoDataResolver.playList, new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            vtmVideo.setVisibility(View.VISIBLE);
-//                            vtmVideo.start();
-//                        }
-//                    });
         }
 
         return super.onKeyDown(keyCode, event);
@@ -287,14 +299,14 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
     @Override
     protected void onResume() {
         super.onResume();
-        if(!vtmVideo.isShown()){
+        if (!vtmVideo.isShown()) {
             vtmVideo.setVisibility(View.VISIBLE);
         }
-        if(!vtmVideo.isPlaying()){
+        if (!vtmVideo.isPlaying()) {
             vtmVideo.resume();
             vtmVideo.start();
         }
-     }
+    }
 
     @Override
     protected void onPause() {
@@ -307,6 +319,7 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
         unregisterReceiver(usbBroadcastReceiver);
         NetUtil.getInstance().stop();
         PnServerController.stopXMPP();
+        APP.exit();
         super.onDestroy();
 
     }
@@ -326,7 +339,7 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
 
         @Override
         public void onComplete(File response) {
-            SystemInfoUtil.installApk(MainActivity.this,response);
+            SystemInfoUtil.installApk(MainActivity.this, response);
         }
 
         @Override
@@ -344,13 +357,13 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
             switch (message) {
                 case "1":
                     Toast.makeText(APP.getContext(), "当前版本为最新版本", Toast.LENGTH_SHORT).show();
-                    if(llUpdateArea.isShown()){
+                    if (llUpdateArea.isShown()) {
                         llUpdateArea.setVisibility(View.GONE);
                     }
                     break;
                 case "fail":
                     Toast.makeText(APP.getContext(), "网络连接失败，请检查网络", Toast.LENGTH_SHORT).show();
-                    if(llUpdateArea.isShown()){
+                    if (llUpdateArea.isShown()) {
                         llUpdateArea.setVisibility(View.GONE);
                     }
                     break;
@@ -362,4 +375,33 @@ public class MainActivity extends Activity implements MediaPlayer.OnPreparedList
         }
     };
 
+    public Long getVideoCurrTime() {
+        if(vtmVideo != null && vtmVideo.isPlaying()){
+            return vtmVideo.getCurrentPosition();
+        }
+        return 0L;
+    }
+
+    public String getCurrPlayVideo() {
+        if(playList != null && playList.length>0){
+            return playList[videoIndex];
+        }
+        return "null";
+    }
+
+    /**
+     * 判断某个界面是否在前台
+     *
+     * @return 是否在前台显示
+     */
+    public boolean isForeground() {
+        ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> list = am.getRunningTasks(1);
+        for (ActivityManager.RunningTaskInfo taskInfo : list) {
+            if (taskInfo.topActivity.getShortClassName().contains(this.getClass().getSimpleName())) { // 说明它已经启动了
+                return true;
+            }
+        }
+        return false;
+    }
 }

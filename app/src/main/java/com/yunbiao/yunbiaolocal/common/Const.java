@@ -48,6 +48,11 @@ public class Const {
         int DATA_HANDLE_THREAD_NUMBER = 4;
 
         /***
+         * 网络请求专用线程数量
+         */
+        int REMOTE_THREAD_NUMBER = 2;
+
+        /***
          * 日志通用TAG
          */
         String LOG_TAG = "YUNBIAO_";

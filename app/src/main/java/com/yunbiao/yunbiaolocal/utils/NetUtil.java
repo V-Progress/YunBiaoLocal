@@ -3,14 +3,17 @@ package com.yunbiao.yunbiaolocal.utils;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import com.yunbiao.yunbiaolocal.common.ResourceConst;
 import com.yunbiao.yunbiaolocal.netcore.DownloadListener;
 import com.yunbiao.yunbiaolocal.netcore.DownloadTask;
+import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.FileCallBack;
 import com.zhy.http.okhttp.callback.StringCallback;
 import com.zhy.http.okhttp.request.RequestCall;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 import okhttp3.Call;
@@ -47,16 +50,29 @@ public class NetUtil {
                 .execute(stringCallback);
     }
 
-    public void breakPointDownLoad(String url,DownloadListener listener){
-        if(downloadTask == null){
+    public void postScreenShoot(String imgUrl, StringCallback stringCallback) {
+        HashMap hashMap = new HashMap();
+        hashMap.put("sid", HeartBeatClient.getDeviceNo());
+        OkHttpUtils.post()
+                .url(ResourceConst.REMOTE_RES.SCREEN_UPLOAD_URL)
+                .params(hashMap)
+                .addFile("screenimage",imgUrl,new File(imgUrl))
+                .tag(this)
+                .build()
+                .execute(stringCallback);
+    }
+
+    public void breakPointDownLoad(String url, DownloadListener listener) {
+        if (downloadTask == null) {
             downloadTask = new DownloadTask(listener);
         }
         downloadTask.execute(url);
     }
 
     private String lastCacheUrl;
-    public void downLoadFile(final String url , final OnDownLoadListener onDownLoadListener){
-        if(TextUtils.equals(url,lastCacheUrl)){
+
+    public void downLoadFile(final String url, final OnDownLoadListener onDownLoadListener) {
+        if (TextUtils.equals(url, lastCacheUrl)) {
             LogUtil.E("此文件正在下载。");
             return;
         }
@@ -65,19 +81,19 @@ public class NetUtil {
         onDownLoadListener.onStart(fileName);
         OkHttpUtils.getInstance().cancelTag(this);
 
-        if(!url.startsWith("http://") && !url.startsWith("https")){
+        if (!url.startsWith("http://") && !url.startsWith("https")) {
             onDownLoadListener.onError(new Exception("Unsupported download protocols"));
             onDownLoadListener.onFinish();
             return;
         }
 
-        try{
+        try {
             File file = new File(rootDir);
             String[] list = file.list();
             for (String fn : list) {
-                if(fn.contains(fileName)){
+                if (fn.contains(fileName)) {
                     LogUtil.E("内存中已有该文件");
-                    onDownLoadListener.onComplete(new File(rootDir + "/"+fn));
+                    onDownLoadListener.onComplete(new File(rootDir + "/" + fn));
                     onDownLoadListener.onFinish();
                     return;
                 }
@@ -93,7 +109,7 @@ public class NetUtil {
                         @Override
                         public void onError(Call call, Exception e, int id) {
                             try {
-                                downLoadFile(url,onDownLoadListener);
+                                downLoadFile(url, onDownLoadListener);
                             } catch (Exception e1) {
                                 e1.printStackTrace();
                             }
@@ -120,7 +136,7 @@ public class NetUtil {
                             onDownLoadListener.onFinish();
                         }
                     });
-        }catch (NullPointerException | IllegalArgumentException e){
+        } catch (NullPointerException | IllegalArgumentException e) {
             onDownLoadListener.onError(e);
         }
 

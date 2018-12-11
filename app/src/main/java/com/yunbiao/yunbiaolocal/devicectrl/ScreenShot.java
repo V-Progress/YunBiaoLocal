@@ -1,39 +1,57 @@
 package com.yunbiao.yunbiaolocal.devicectrl;
 
-import android.content.Intent;
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 
 import com.yunbiao.yunbiaolocal.APP;
+import com.yunbiao.yunbiaolocal.act.MainActivity;
+import com.yunbiao.yunbiaolocal.act.MenuActivity;
 import com.yunbiao.yunbiaolocal.common.ResourceConst;
-import com.yunbiao.yunbiaolocal.devicectrl.actions.JYDActions;
 import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.utils.CommonUtils;
+import com.yunbiao.yunbiaolocal.utils.DialogUtil;
+import com.yunbiao.yunbiaolocal.utils.LogUtil;
+import com.yunbiao.yunbiaolocal.utils.NetUtil;
+import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
+import com.zhy.http.okhttp.OkHttpUtils;
+import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.vov.vitamio.MediaMetadataRetriever;
+import io.vov.vitamio.widget.VideoView;
+import okhttp3.Call;
+
 import static android.content.ContentValues.TAG;
 
 public class ScreenShot {
 
-    private static ScreenShot screenShot = null;
-    private final String CUT_SCREEN_NAME = "/screenshot.png";
+    private static ScreenShot screenShot;
+
+    private final String CUT_SCREEN_NAME = "/screenshot.png";//截屏名称
+    private static final String FILE_TAG = "screenimage";//上传时候的TAG
+    private static int IMG_QUALITY = 25;//图片的压缩比例（为原图的xx%）
 
     private ScreenShot() {
     }
@@ -49,9 +67,169 @@ public class ScreenShot {
         return screenShot;
     }
 
+
+    public void ss() {
+        ThreadUtil.getInstance().runInCommonThread(new Runnable() {
+            @Override
+            public void run() {
+                String filePath = ResourceConst.LOCAL_RES.SCREEN_CACHE_PATH + CUT_SCREEN_NAME;
+                File ssfile = new File(filePath);
+                if (ssfile.exists() && ssfile.isFile()) {
+                    boolean delete = ssfile.delete();
+                    LogUtil.E("旧的截屏删除:" + delete);
+                }
+
+                //当前是否有Dialog在显示
+                if(DialogUtil.isShowing()){
+                    Bitmap bitmap = DialogUtil.screenShot();
+                    writeToSd(filePath,bitmap);
+                    return;
+                }
+
+                //如果MainActivity不在前台就截Menu的图
+                if(!APP.getMainActivity().isForeground()){
+                    screenShotNormal(filePath, APP.getMenuActivity());
+                    return;
+                }
+
+                //如果没有视频在播放就普通截图
+                if(!APP.getMainActivity().vtmVideo.isPlaying()){
+                    screenShotNormal(filePath, APP.getMainActivity());
+                    return;
+                }
+
+                //视频截图
+                videoShot(filePath);
+            }
+        });
+    }
+
+    /***
+     * 视频截图，主页播放视频的时候
+     * @param fileUrl
+     */
+    private void videoShot(String fileUrl) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever(APP.getContext());
+        try {
+            long currentPosition = APP.getMainActivity().getVideoCurrTime();
+            String currPlayVideo = APP.getMainActivity().getCurrPlayVideo();
+            if (TextUtils.isEmpty(currPlayVideo)) {
+                LogUtil.E("当前无播放的视频");
+                return;
+            }
+            retriever.setDataSource(currPlayVideo);
+            Bitmap frameAtTime = retriever.getFrameAtTime(currentPosition*1000);
+
+            writeToSd(fileUrl,frameAtTime);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            retriever.release();
+        }
+    }
+
+    /***
+     * 普通截图，用于普通页面
+     * @param fileUrl
+     */
+    private void screenShotNormal(String fileUrl, Activity activity) {
+        if (activity == null || activity.isFinishing()) {
+            LogUtil.E("menuActivity为null");
+            return;
+        }
+
+        View decorView = activity.getWindow().getDecorView();
+        decorView.setDrawingCacheEnabled(true);
+        decorView.buildDrawingCache();
+        Bitmap bitmap = Bitmap.createBitmap(decorView.getDrawingCache());
+
+        writeToSd(fileUrl,bitmap);
+    }
+
+    /***
+     * 截图写入存储卡
+     * @param filePath
+     * @param bitmap
+     * @return
+     */
+    private boolean writeToSd(String filePath , Bitmap bitmap){
+        if (bitmap != null) {
+            try {
+                FileOutputStream fileOutputStream = new FileOutputStream(filePath);
+                bitmap.compress(Bitmap.CompressFormat.PNG, IMG_QUALITY, fileOutputStream);
+                fileOutputStream.flush();
+                fileOutputStream.close();
+                LogUtil.E("截屏成功！目录：" + filePath);
+
+                commitScreen(filePath);
+                return true;
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+    /***
+     * 上传截图
+     * @param filePath
+     */
+    private void commitScreen(String filePath){
+        Map<String, String> params = new HashMap<>();
+        params.put("sid", HeartBeatClient.getDeviceNo());
+        OkHttpUtils.post()
+                .url(ResourceConst.REMOTE_RES.SCREEN_UPLOAD_URL)
+                .addFile(FILE_TAG, filePath, new File(filePath))
+                .params(params)
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                    }
+
+                    @Override
+                    public void onResponse(String response, int id) {
+                        LogUtil.E("上传结果：" + response.toString());
+                    }
+                });
+    }
+
+
     private void sendCutFinish(String sid, String filePath) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("sid", sid);
+        File file = new File(ResourceConst.LOCAL_RES.SCREEN_CACHE_PATH);
+        File imgFile = null;
+        if (file.isDirectory()) {
+            File[] files = file.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File pathname) {
+                    return pathname.getName().endsWith(".png");
+                }
+            });
+            for (int i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    LogUtil.E("不为null，上传," + files[i].getName());
+                    imgFile = files[i];
+                }
+            }
+        }
+        NetUtil.getInstance().postScreenShoot(imgFile.getAbsolutePath(), new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+
+            }
+
+            @Override
+            public void onResponse(String response, int id) {
+
+            }
+        });
+
         communication02(ResourceConst.REMOTE_RES.SCREEN_UPLOAD_URL, params, filePath, "screenimage");
     }
 
@@ -168,40 +346,40 @@ public class ScreenShot {
     }
 
     //建益达截屏
-    private void cutJYDScreen() {
-        String sid = HeartBeatClient.getDeviceNo();
-        String cutPicPath = ResourceConst.LOCAL_RES.EXTERNAL_DIR + CUT_SCREEN_NAME;
-        File file1 = new File(cutPicPath);
-        if (file1.exists()) {
-            file1.delete();
-        }
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        Intent intent=new Intent(JYDActions.SCREEN_CAP);
-        APP.getMainActivity().sendBroadcast(intent);
-
-        while (!new File(cutPicPath).exists()) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        sendCutFinish(sid, cutPicPath);// 图片上传
-
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        new File(cutPicPath).delete();
-    }
+//    private void cutJYDScreen() {
+//        String sid = HeartBeatClient.getDeviceNo();
+//        String cutPicPath = ResourceConst.LOCAL_RES.EXTERNAL_DIR + CUT_SCREEN_NAME;
+//        File file1 = new File(cutPicPath);
+//        if (file1.exists()) {
+//            file1.delete();
+//        }
+//
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//
+//        Intent intent=new Intent(JYDActions.SCREEN_CAP);
+//        APP.getMainActivity().sendBroadcast(intent);
+//
+//        while (!new File(cutPicPath).exists()) {
+//            try {
+//                Thread.sleep(2000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        sendCutFinish(sid, cutPicPath);// 图片上传
+//
+//        try {
+//            Thread.sleep(3000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//
+//        new File(cutPicPath).delete();
+//    }
 //
 //    /**
 //     * 屏幕截图

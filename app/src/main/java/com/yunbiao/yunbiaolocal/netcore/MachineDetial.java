@@ -35,7 +35,7 @@ public class MachineDetial {
     }
 
 //    private LocationBean LocationBean;
-//    private boolean isLocationInited = false;
+    private boolean isLocationInited = false;
 //
 //    public void setLocation(LocationBean LocationBean) {
 //        this.LocationBean = LocationBean;
@@ -43,7 +43,7 @@ public class MachineDetial {
 //        upLoadHardWareMessage();
 //        DeviceLocation.getDeviceLocation().stopLocation();
 //    }
-
+//
 //    public LocationBean getLocation() {
 //        isLocationInited = true;
 //        upLoadHardWareMessage();
@@ -55,7 +55,7 @@ public class MachineDetial {
      * 上传设备信息
      */
     public void upLoadHardWareMessage() {
-        ThreadUtil.getInstance().runInFixedThread(new Runnable() {
+        ThreadUtil.getInstance().runInCommonThread(new Runnable() {
             @Override
             public void run() {
                 Map<String, String> map = new HashMap<String, String>();
@@ -70,7 +70,7 @@ public class MachineDetial {
                         .getMaxCpuFreq() + "khz");
                 map.put("deviceIp", CommonUtils.getIpAddress());//当前设备IP地址
                 map.put("mac", CommonUtils.getLocalMacAddress());//设备的本机MAC地址
-//                if (isLocationInited) {
+                if (isLocationInited) {
 //                    map.put("latitude", LocationBean.getAltitude());
 //                    map.put("longitude", LocationBean.getLongitude());
 //                    map.put("address", LocationBean.getAdress());
@@ -79,7 +79,7 @@ public class MachineDetial {
 //                    //定位后在SharedPreferences存入定位得到的城市名字，后边获取。重启后定位覆盖
 //                    String city = LocationBean.getCity();
 //                    SpUtils.saveString(APP.getContext(), SpUtils.CITY_NAME, city);
-//                }
+                }
                 NetUtil.getInstance().post(upMechineDetialUrl, map, new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {

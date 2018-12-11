@@ -97,7 +97,7 @@ public final class ServiceManager {
     }
 
     public void startService() {
-        ThreadUtil.getInstance().runInFixedThread(new Runnable() {
+        ThreadUtil.getInstance().runInCommonThread(new Runnable() {
             @Override
             public void run() {
                 Intent intent =new Intent(context,NotificationService.class);

@@ -1,16 +1,20 @@
 package com.yunbiao.yunbiaolocal;
 
+import android.app.Activity;
 import android.app.Application;
 import android.app.smdt.SmdtManager;
 import android.content.Context;
 import android.media.AudioManager;
 
 import com.yunbiao.yunbiaolocal.act.MainActivity;
+import com.yunbiao.yunbiaolocal.act.MenuActivity;
 import com.yunbiao.yunbiaolocal.common.Const;
 import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.utils.CommonUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.vov.vitamio.Vitamio;
@@ -24,14 +28,17 @@ public class APP extends Application {
 
     private static APP instance;
     private static MainActivity mActivity;
+    private static MenuActivity mMenuActivity;
     private static OkHttpClient okHttpClient;
     private static AudioManager audioManager;
     private static SmdtManager smdt;
+    private static List<Activity> actList;
 
     @Override
     public void onCreate() {
         super.onCreate();
         instance = this;
+        actList = new ArrayList<>();
         smdt = SmdtManager.create(this);
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);// 安卓音频初始化
 
@@ -45,11 +52,11 @@ public class APP extends Application {
                 .readTimeout(Const.NET_TIME_OUT, TimeUnit.MINUTES)
                 .writeTimeout(Const.NET_TIME_OUT, TimeUnit.MINUTES)
                 .build();
-
         OkHttpUtils.initClient(okHttpClient);
 
         //初始化设备号
         HeartBeatClient.initDeviceNo();
+        //保存设备号
         CommonUtils.saveBroadInfo();
     }
 
@@ -65,8 +72,16 @@ public class APP extends Application {
         mActivity = mainActivity;
     }
 
+    public static void setMenuActivity(MenuActivity menuActivity) {
+        mMenuActivity = menuActivity;
+    }
+
     public static MainActivity getMainActivity() {
         return mActivity;
+    }
+
+    public static MenuActivity getMenuActivity() {
+        return mMenuActivity;
     }
 
     public static AudioManager getAudioManager() {
@@ -75,5 +90,27 @@ public class APP extends Application {
 
     public static SmdtManager getSmdt() {
         return smdt;
+    }
+
+    public static void addActivity(Activity activity) {
+        actList.add(activity);
+    }
+
+    public static void removeActivity(Activity activity){
+        actList.remove(activity);
+    }
+
+    public static void exit() {
+        //停止所有Activity
+        for (Activity a : actList) {
+            if (a != null) {
+                a.finish();
+            }
+        }
+        //清空缓存的activity
+        actList.clear();
+
+        //关闭整个应用
+        System.exit(0);
     }
 }

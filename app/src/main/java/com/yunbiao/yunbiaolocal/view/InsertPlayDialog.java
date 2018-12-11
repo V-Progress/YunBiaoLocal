@@ -1,7 +1,10 @@
 package com.yunbiao.yunbiaolocal.view;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -13,11 +16,11 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.VideoView;
 
 import com.google.gson.Gson;
 import com.yunbiao.yunbiaolocal.R;
+import com.yunbiao.yunbiaolocal.act.MainActivity;
 import com.yunbiao.yunbiaolocal.cache.CacheManager;
 import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.LogUtil;
@@ -46,7 +49,7 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
     private View rootView;
     private MyScrollTextView msTvInsert;
 
-    public static synchronized InsertPlayDialog build(Context context) {
+    public static synchronized InsertPlayDialog build(Activity context) {
         if (insertPlayDialog == null) {
             insertPlayDialog = new InsertPlayDialog(context);
         }
@@ -130,7 +133,7 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
 
     public void show(final String content, int insertType) {
         final int showType = insertType;
-        ThreadUtil.getInstance().runInFixedThread(new Runnable() {
+        ThreadUtil.getInstance().runInCommonThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -352,4 +355,9 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         msTvInsert.setText(insertTextModel.getText());//内容
     }
 
+    public Bitmap screenShot(){
+        rootView.setDrawingCacheEnabled(true);
+        rootView.buildDrawingCache();
+        return Bitmap.createBitmap(rootView.getDrawingCache());
+    }
 }

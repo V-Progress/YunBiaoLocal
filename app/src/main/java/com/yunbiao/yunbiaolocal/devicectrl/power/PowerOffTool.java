@@ -1,15 +1,21 @@
 package com.yunbiao.yunbiaolocal.devicectrl.power;
 
+import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.cache.FileCache;
 import com.yunbiao.yunbiaolocal.common.ResourceConst;
+import com.yunbiao.yunbiaolocal.devicectrl.actions.JYDActions;
+import com.yunbiao.yunbiaolocal.devicectrl.actions.XBHActions;
 import com.yunbiao.yunbiaolocal.utils.CommonUtils;
+import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.LogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
+import com.yunbiao.yunbiaolocal.utils.TimerExecutor;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import org.json.JSONArray;
@@ -17,7 +23,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,14 +42,14 @@ public class PowerOffTool {
     public final static String POWER_ON = "poerOn";
     public final static String POWER_OFF = "poerOff";
 
-    public static synchronized PowerOffTool getInstance(){
-        if(instance == null){
+    public static synchronized PowerOffTool getInstance() {
+        if (instance == null) {
             instance = new PowerOffTool();
         }
         return instance;
     }
 
-    public void getPowerOffTime(String uid){
+    public void getPowerOffTime(String uid) {
         HashMap<String, String> paramMap = new HashMap();
         paramMap.put("uid", uid);
         NetUtil.getInstance().post(ResourceConst.REMOTE_RES.POWER_OFF_URL, paramMap, new StringCallback() {
@@ -63,7 +72,7 @@ public class PowerOffTool {
                 );
 
                 Integer broadType = CommonUtils.getBroadType();
-                LogUtil.E("主板类型======="+broadType);
+                LogUtil.E("主板类型=======" + broadType);
 //                putParam(response);
             }
         });
@@ -109,7 +118,7 @@ public class PowerOffTool {
                 Integer runType = powerModel.getRunType();
                 String runDate = powerModel.getRunDate();
 
-                if(runDate.indexOf(":") != -1){
+                if (runDate.indexOf(":") != -1) {
                     runDate = runDate.substring(runDate.indexOf(":") + 1, runDate.length());//1,2,3,4,5,6,7,
                 }
 
@@ -188,6 +197,7 @@ public class PowerOffTool {
             OnOffTool.setDisabled();
         }
     }
+
     /**
      * @return 1, 2, 3, 4, 5, 6, 7;08:00
      */
@@ -448,4 +458,101 @@ public class PowerOffTool {
         new JYDBroadControl();
     }
 
+
+    public void execSuCmd(String cmd) {
+        Process process = null;
+        DataOutputStream os = null;
+        DataInputStream is = null;
+        try {
+            process = Runtime.getRuntime().exec("su");
+            os = new DataOutputStream(process.getOutputStream());
+            os.writeBytes(cmd + "\n");
+            os.writeBytes("exit\n");
+            os.flush();
+            int aa = process.waitFor();
+            is = new DataInputStream(process.getInputStream());
+            byte[] buffer = new byte[is.available()];
+            is.read(buffer);
+            String out = new String(buffer);
+            Log.i("tag", out + aa);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (os != null) {
+                    os.close();
+                }
+                if (is != null) {
+                    is.close();
+                }
+                process.destroy();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void reboot() {
+        DialogUtil.showProgressDialog(APP.getMainActivity(),"重启", "3秒后设备将重启");
+        TimerExecutor.getInstance().delayExecute(3000, new TimerExecutor.OnTimeOutListener() {
+            @Override
+            public void execute() {
+                Integer broadType = CommonUtils.getBroadType();
+                Intent intent = new Intent();
+                switch (broadType) {
+                    case 0:
+                    case 2:
+                    case 3:
+                        execSuCmd("reboot");
+                        break;
+                    case 1:
+                        intent.setAction("com.zhsd.setting.syscmd");
+                        intent.putExtra("cmd", "reboot");
+                        APP.getContext().sendBroadcast(intent);
+                        break;
+                    case 4:
+                        intent.setAction(XBHActions.ACTION_REBOOT);
+                        APP.getContext().sendBroadcast(intent);
+                        break;
+                    case 5:
+                        intent.setAction(JYDActions.ACTION_REBOOT);
+                        APP.getContext().sendBroadcast(intent);
+                        break;
+                }
+            }
+        });
+
+    }
+
+    /**
+     * 机器关机
+     */
+    public void shutdown() {
+        DialogUtil.showProgressDialog(APP.getMainActivity(),"关机", "3秒后设备将关机");
+        TimerExecutor.getInstance().delayExecute(3000, new TimerExecutor.OnTimeOutListener() {
+            @Override
+            public void execute() {
+                Integer broadType = CommonUtils.getBroadType();
+                Intent intent = new Intent();
+                if (broadType == 4) {
+                    intent.setAction(XBHActions.ACTION_SHUTDOWN);
+                    APP.getContext().sendBroadcast(intent);
+                } else if (broadType == 5) {
+                    intent.setAction(JYDActions.ACTION_SHUTDOWN);
+                    APP.getContext().sendBroadcast(intent);
+                } else {
+                    Process process = null;
+                    try {
+                        process = Runtime.getRuntime().exec("su");
+                        DataOutputStream out = new DataOutputStream(process.getOutputStream());
+                        out.writeBytes("reboot -p\n");
+                        out.writeBytes("exit\n");
+                        out.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
 }
