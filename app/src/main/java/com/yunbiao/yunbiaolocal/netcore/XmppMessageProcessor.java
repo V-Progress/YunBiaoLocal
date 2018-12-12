@@ -2,18 +2,18 @@ package com.yunbiao.yunbiaolocal.netcore;
 
 import android.content.Intent;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.yunbiao.yunbiaolocal.cache.CacheManager;
-import com.yunbiao.yunbiaolocal.common.ResourceConst;
 import com.yunbiao.yunbiaolocal.devicectrl.ScreenShot;
 import com.yunbiao.yunbiaolocal.devicectrl.actions.XBHActions;
 import com.yunbiao.yunbiaolocal.devicectrl.power.PowerOffTool;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.devicectrl.SoundControl;
+import com.yunbiao.yunbiaolocal.layout.LayoutDataHandle;
+import com.yunbiao.yunbiaolocal.layout.LayoutRefresher;
 import com.yunbiao.yunbiaolocal.netcore.bean.ChannelBean;
 import com.yunbiao.yunbiaolocal.netcore.bean.DiskInfoBean;
 import com.yunbiao.yunbiaolocal.netcore.bean.LoginModel;
@@ -23,15 +23,9 @@ import com.yunbiao.yunbiaolocal.netcore.bean.VoiceModel;
 import com.yunbiao.yunbiaolocal.utils.CommonUtils;
 import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.LogUtil;
-import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.yunbiao.yunbiaolocal.utils.SystemInfoUtil;
 import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
 import com.yunbiao.yunbiaolocal.view.TipToast;
-import com.zhy.http.okhttp.callback.StringCallback;
-
-import java.util.HashMap;
-
-import okhttp3.Call;
 
 /**
  * 核心类：Xmpp消息处理
@@ -99,29 +93,8 @@ public class XmppMessageProcessor {
 
                 break;
             case CONTENT_TYPE:
-                HashMap<String,String> params = new HashMap<>();
-                params.put("deviceId",HeartBeatClient.getDeviceNo());
-                NetUtil.getInstance().post(ResourceConst.REMOTE_RES.RESOURCE_URL, params, new StringCallback() {
-                    @Override
-                    public void onError(Call call, Exception e, int id) {
-
-                    }
-
-                    @Override
-                    public void onResponse(String response, int id) {
-                        // 没有返回，或者请求错误
-                        if (response.startsWith("\"")) {
-                            response = response.substring(1, response.length() - 1);
-                        }
-                        if (!response.equals("null") && !response.equals("faile") && !response.equals("[]")) {
-                            Log.e(TAG, "onSuccess: result=="+response);
-
-                        }
-                    }
-                });
-
-
-
+                LayoutRefresher.getInstance().removeAllView();
+                LayoutDataHandle.getInstance().handleLayoutData();
                 break;
             case RUNSET_TYPE://设备自动开关机
                 ThreadUtil.getInstance().runInCommonThread(new Runnable() {
@@ -217,123 +190,5 @@ public class XmppMessageProcessor {
                 DialogUtil.showInsertDialog(APP.getMainActivity(),DialogUtil.INSERT_VIDEO, content);
                 break;
         }
-
-
-//        MsgModel msgModel = new Gson().fromJson(message, MsgModel.class);
-//        String content = msgModel.getContent();
-//        switch (msgModel.getType()) {
-//            case ONLINE_TYPE:
-//                LoginModel loginModel = new Gson().fromJson(content, LoginModel.class);
-//                LogUtil.E(loginModel.toString());
-//
-//
-//                break;
-//            case CONTENT_TYPE:// 内容更新
-//                break;
-//            case VOICE_TYPE:// 声音控制
-////                SoundControl.setMusicSound(content.getVoice());
-//                break;
-//            case CUTSCREN_TYPE://截屏
-////                ThreadUitls.runInThread(new Runnable() {// 截图控制
-////                    @Override
-////                    public void run() {
-////                        ScreenShot.getInstanse().shootScreen();
-////                    }
-////                });
-//                break;
-//            case RUNSET_TYPE://获取开关机时间
-//
-//
-//                break;
-//            case SHOW_SERNUM://设备号
-////                Integer showType = content.getShowType();
-////                Log.e(APP.getContext().getClass().getSimpleName(),"showType = "+showType);
-////                if (showType != null && showType == 0) {//状态栏  视美泰主板
-////                    APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), true);
-////
-//////                    Integer showValue = (Integer) TYTool.getJsonObj(contentJson, "showValue", null);
-//////                    if (showValue == 0) {//显示
-//////                        APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), true);
-//////                    } else if (showValue == 1) {//隐藏
-//////                        APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), false);
-//////                    }
-////                } else { // 显示设备编号
-////                    TipToast.showLongToast(APP.getMainActivity(),"设备编号："+CacheManager.getSerNumber());
-////                }
-//
-//                break;
-//            case SHOW_VERSION:// 版本信息
-//                ResourceConst.uploadAppVersion();
-//                break;
-//            case SHOW_DISK_IFNO://磁盘容量
-////                Integer flag = content.getFlag();
-////                Log.e("123","磁盘容量："+flag);
-////                if (flag != null) {
-////                    if (flag == 0) { //显示
-//////                        ResourceConst.uploadDiskInfo();
-////                    } else if (flag == 1) {// 清理磁盘
-//////                        ResourceConst.deleteOtherFile();
-//////                        ResourceConst.uploadDiskInfo();
-////                    }
-////                }
-//                break;
-//            case POWER_RELOAD:// 机器重启
-////                Integer restart = content.getRestart();
-////                Log.e("123","机器重启："+restart);
-////                if (restart != null) {
-////                    if (restart == 0) {
-//////                        ProgressDialog progressDialog = TYTool.coreInfoShow3sDialog();
-//////                        progressDialog.setTitle("关机");
-//////                        progressDialog.setMessage("3秒后将关闭设备");
-//////                        progressDialog.show();
-//////                        TYTool.powerShutDown.start();
-////                    } else if (restart == 1) {
-//////                        ProgressDialog progressDialog = TYTool.coreInfoShow3sDialog();
-//////                        progressDialog.setTitle("重启");
-//////                        progressDialog.setMessage("3秒后将重启设备");
-//////                        progressDialog.show();
-//////                        TYTool.restart.start();
-////                    }
-////                }
-//
-//                break;
-//            case PUSH_TO_UPDATE://软件升级
-//                break;
-//            case HARDWARE_UPDATE://通知硬件设备更新
-//                break;
-//            case HARDWARESCREENROTATE_UPDATE://屏幕旋转
-//                break;
-//            case SET_CLEAR_LAYOUT:
-//                break;
-//            case PUSH_MESSAGE:
-//
-//
-//                break;
-//            case REFERSH_RENEWAL_STATUS://欠费停机设备支付
-//                break;
-//            case PUSH_IMAGE://手机快发
-//                break;
-//
-//            /*case CHANNEL_TYPE://输入信号源选择
-//                break;
-//            case FACE_DETECT:
-//                break;
-//            case EARTH_CINEMA:
-//                break;
-//            case IMAGE_PUSH:
-//                break;
-//            case VIDEO_PUSH:
-//                break;
-//            case UNICOM_SCREEN:
-//                break;
-//
-//            case ADSINFO_PUSH://自运营广告推送
-//                break;
-//            case SHARESTATUS_UPDATE://是否是广告机状态更改
-//                break;*/
-//            default:
-//                break;
-//        }
-
     }
 }

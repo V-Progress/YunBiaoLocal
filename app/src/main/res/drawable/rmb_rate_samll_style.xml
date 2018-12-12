@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <stroke
+        android:width="@dimen/rmb_rate_small_layout_margin_view"
+        android:color="@color/rmb_rate_out" />
+    <solid android:color="@color/rmb_rate_in" />
+</shape>

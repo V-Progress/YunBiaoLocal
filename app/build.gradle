@@ -56,6 +56,10 @@ android {
             buildConfigField "boolean", "IS_LOG_TO_FILE", "false"
         }
     }
+
+    repositories {
+        flatDir { dirs 'libs' }
+    }
 }
 
 dependencies {
@@ -75,6 +79,8 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support:percent:23.2.1'
     compile 'com.jakewharton:butterknife:8.8.1'
+    compile(name: 'xwalk_core_library-17.46.448.10-arm', ext: 'aar')
+
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 
     compile "io.reactivex.rxjava2:rxjava:2.2.4"

@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <ImageView
+        android:id="@+id/iv_timer_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#fff" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+
+        <TextView
+            android:id="@+id/tv_timer_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="标题"
+            android:textColor="@color/red"
+            android:textSize="50dp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_alignLeft="@id/tv_timer_title"
+            android:layout_alignRight="@id/tv_timer_title"
+            android:layout_below="@id/tv_timer_title"
+            android:background="@color/red" />
+
+        <LinearLayout
+            android:id="@+id/ll_timer_all_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_timer_title"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="40dp">
+
+            <TextView
+                android:id="@+id/tv_timer_position01"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="已运行"
+                android:textSize="@dimen/timer_content_text_size" />
+
+            <TextView
+                android:id="@+id/tv_timer_all_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/timer_margin_left_right_size"
+                android:layout_marginRight="@dimen/timer_margin_left_right_size"
+                android:background="@color/black"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:text="888"
+                android:textColor="@color/red"
+                android:textSize="@dimen/timer_content_text_size" />
+
+            <TextView
+                android:id="@+id/tv_timer_position14"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="天"
+                android:textSize="@dimen/timer_content_text_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_timer_start_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ll_timer_all_day"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp">
+
+            <TextView
+                android:id="@+id/tv_timer_position02"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="自"
+                android:textSize="@dimen/timer_content_text_size" />
+
+            <TextView
+                android:id="@+id/tv_timer_start_year"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/timer_margin_left_right_size"
+                android:layout_marginRight="@dimen/timer_margin_left_right_size"
+                android:background="@color/black"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:text="0000"
+                android:textColor="@color/red"
+                android:textSize="@dimen/timer_content_text_size" />
+
+            <TextView
+                android:id="@+id/tv_timer_position03"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="年"
+                android:textSize="@dimen/timer_content_text_size" />
+
+            <TextView
+                android:id="@+id/tv_timer_start_month"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/timer_margin_left_right_size"
+                android:layout_marginRight="@dimen/timer_margin_left_right_size"
+                android:background="@color/black"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:text="00"
+                android:textColor="@color/red"
+                android:textSize="@dimen/timer_content_text_size" />
+
+            <TextView
+                android:id="@+id/tv_timer_position04"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="月"
+                android:textSize="@dimen/timer_content_text_size" />
+
+            <TextView
+                android:id="@+id/tv_timer_start_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/timer_margin_left_right_size"
+                android:layout_marginRight="@dimen/timer_margin_left_right_size"
+                android:background="@color/black"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:text="00"
+                android:textColor="@color/red"
+                android:textSize="@dimen/timer_content_text_size" />
+
+            <TextView
+                android:id="@+id/tv_timer_position05"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="日"
+                android:textSize="@dimen/timer_content_text_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_timer_end_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ll_timer_start_time"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp">
+
+            <TextView
+                android:id="@+id/tv_timer_position06"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="至"
+                android:textSize="@dimen/timer_content_text_size" />
+
+            <TextView
+                android:id="@+id/tv_timer_end_year"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/timer_margin_left_right_size"
+                android:layout_marginRight="@dimen/timer_margin_left_right_size"
+                android:background="@color/black"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:text="0000"
+                android:textColor="@color/red"
+                android:textSize="@dimen/timer_content_text_size" />
+
+            <TextView
+                android:id="@+id/tv_timer_position07"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="年"
+                android:textSize="@dimen/timer_content_text_size" />
+
+            <TextView
+                android:id="@+id/tv_timer_end_month"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/timer_margin_left_right_size"
+                android:layout_marginRight="@dimen/timer_margin_left_right_size"
+                android:background="@color/black"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:text="00"
+                android:textColor="@color/red"
+                android:textSize="@dimen/timer_content_text_size" />
+
+            <TextView
+                android:id="@+id/tv_timer_position08"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="月"
+                android:textSize="@dimen/timer_content_text_size" />
+
+            <TextView
+                android:id="@+id/tv_timer_end_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/timer_margin_left_right_size"
+                android:layout_marginRight="@dimen/timer_margin_left_right_size"
+                android:background="@color/black"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:text="00"
+                android:textColor="@color/red"
+                android:textSize="@dimen/timer_content_text_size" />
+
+            <TextView
+                android:id="@+id/tv_timer_position09"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="日"
+                android:textSize="@dimen/timer_content_text_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ll_timer_end_time"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="50dp">
+
+            <TextView
+                android:id="@+id/tv_timer_position10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="今日时间"
+                android:textSize="@dimen/timer_content_text_size" />
+
+            <TextView
+                android:id="@+id/tv_timer_today_hour"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/timer_margin_left_right_size"
+                android:layout_marginRight="@dimen/timer_margin_left_right_size"
+                android:background="@color/black"
+                android:text="00"
+                android:textColor="@color/red"
+                android:textSize="@dimen/timer_content_text_size" />
+
+            <TextView
+                android:id="@+id/tv_timer_position11"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="时"
+                android:textSize="@dimen/timer_content_text_size" />
+
+            <TextView
+                android:id="@+id/tv_timer_today_minute"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/timer_margin_left_right_size"
+                android:layout_marginRight="@dimen/timer_margin_left_right_size"
+                android:background="@color/black"
+                android:text="00"
+                android:textColor="@color/red"
+                android:textSize="@dimen/timer_content_text_size" />
+
+            <TextView
+                android:id="@+id/tv_timer_position12"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="分"
+                android:textSize="@dimen/timer_content_text_size" />
+
+
+            <TextView
+                android:id="@+id/tv_timer_position13"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="星期"
+                android:textSize="@dimen/timer_content_text_size" />
+
+            <TextView
+                android:id="@+id/tv_timer_today_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/timer_margin_left_right_size"
+                android:layout_marginRight="@dimen/timer_margin_left_right_size"
+                android:background="@color/black"
+                android:text="0"
+                android:textColor="@color/red"
+                android:textSize="@dimen/timer_content_text_size" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+
+</RelativeLayout>

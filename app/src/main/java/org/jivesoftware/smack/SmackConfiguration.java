@@ -57,7 +57,7 @@ public final class SmackConfiguration {
      * Loads the configuration from the smack-config.xml file.<p>
      * 
      * So far this means that:
-     * 1) a set of classes will be loaded in order to execute their static init block
+     * 1) a set of classes will be loaded in order to execute their static layoutInit block
      * 2) retrieve and set the current Smack release
      */
     static {

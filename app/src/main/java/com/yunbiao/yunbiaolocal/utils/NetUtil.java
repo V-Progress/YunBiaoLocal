@@ -8,6 +8,7 @@ import com.yunbiao.yunbiaolocal.netcore.DownloadListener;
 import com.yunbiao.yunbiaolocal.netcore.DownloadTask;
 import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
 import com.zhy.http.okhttp.OkHttpUtils;
+import com.zhy.http.okhttp.callback.Callback;
 import com.zhy.http.okhttp.callback.FileCallBack;
 import com.zhy.http.okhttp.callback.StringCallback;
 import com.zhy.http.okhttp.request.RequestCall;
@@ -39,6 +40,14 @@ public class NetUtil {
         if (build != null) {
             OkHttpUtils.getInstance().cancelTag(this);
         }
+    }
+
+    public void get(String url, Callback callback){
+        OkHttpUtils.get()
+                .url(url)
+                .tag(this)
+                .build()
+                .execute(callback);
     }
 
     public void post(String url, Map<String, String> params, StringCallback stringCallback) {

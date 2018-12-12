@@ -72,12 +72,12 @@ public class LoginContext {
 
     /*
      * Either a callback handler passed by the user or a wrapper for the user's
-     * specified handler - see init() below.
+     * specified handler - see layoutInit() below.
      */
     private CallbackHandler callbackHandler;
 
     /*
-     * An array which keeps the instantiated and init()-ialized login modules
+     * An array which keeps the instantiated and layoutInit()-ialized login modules
      * and their states
      */
     private Module[] modules;

@@ -88,7 +88,7 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
 //        PnServerController.startXMPP(this);
 //
 //        //初始化广告插播，如果有未播完的广告则自动播放
-//        InsertPlayDialog.build(this).init();
+//        InsertPlayDialog.build(this).layoutInit();
 //
 //
 //    }

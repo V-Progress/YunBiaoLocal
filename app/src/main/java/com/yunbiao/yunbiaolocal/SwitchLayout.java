@@ -34,7 +34,7 @@ public class SwitchLayout /*extends BaseActivity*/ {
 //        @Override
 //        public void handleMessage(Message msg) {
 //            super.handleMessage(msg);
-//            ff_main_fl.addView(WeiChatBase.getInstance().getView(SwitchLayout.this));
+//            ff_main_fl.addView(WeiChatBase.getInstance().getLayoutView(SwitchLayout.this));
 //        }
 //    };
 //

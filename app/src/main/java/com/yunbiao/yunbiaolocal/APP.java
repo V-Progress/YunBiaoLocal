@@ -6,6 +6,7 @@ import android.app.smdt.SmdtManager;
 import android.content.Context;
 import android.media.AudioManager;
 
+import com.yunbiao.yunbiaolocal.act.AbsoluteActivity;
 import com.yunbiao.yunbiaolocal.act.MainActivity;
 import com.yunbiao.yunbiaolocal.act.MenuActivity;
 import com.yunbiao.yunbiaolocal.common.Const;
@@ -33,6 +34,14 @@ public class APP extends Application {
     private static AudioManager audioManager;
     private static SmdtManager smdt;
     private static List<Activity> actList;
+
+    private static AbsoluteActivity absoluteActivity;
+    public static void setAbsAct(AbsoluteActivity absAct){
+        absoluteActivity = absAct;
+    }
+    public static AbsoluteActivity getAbsoluteActivity(){
+        return absoluteActivity;
+    }
 
     @Override
     public void onCreate() {

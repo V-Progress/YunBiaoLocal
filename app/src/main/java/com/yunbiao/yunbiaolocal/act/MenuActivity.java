@@ -23,6 +23,7 @@ import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.cache.CacheManager;
 import com.yunbiao.yunbiaolocal.common.Const;
 import com.yunbiao.yunbiaolocal.common.ResourceConst;
+import com.yunbiao.yunbiaolocal.layout.LayoutRefresher;
 import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.resolve.VideoDataResolver;
@@ -268,7 +269,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
             case R.id.btn_menu_service:
                 break;
             case R.id.btn_menu_setting:
-
+                startActivity(new Intent(this,AbsoluteActivity.class));
                 break;
             case R.id.btn_weiChat_page:
 
@@ -380,7 +381,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         APP.setMenuActivity(null);
     }
 
-    //    private LayoutInfo getLayout(String id, String left, String top, String content){
+    //    private LayoutInfo getLayoutView(String id, String left, String top, String content){
 //
 //        Container container = new Container();
 //        container.setHeight("50%");

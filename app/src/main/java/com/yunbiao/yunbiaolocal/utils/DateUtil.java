@@ -63,6 +63,16 @@ public class DateUtil {
         return dateUtil;
     }
 
+    /**
+     * @param currentDate
+     * @param format
+     * @return
+     */
+    public static String dateToStrByFormat(Date currentDate, String format) {
+        DateFormat df = new SimpleDateFormat(format);
+        return df.format(currentDate);
+    }
+
     public Date getNewDateByFormat(String fromat) {
         Date date = new Date();
         if (Y_M_D_H_M_S.equals(fromat)) {

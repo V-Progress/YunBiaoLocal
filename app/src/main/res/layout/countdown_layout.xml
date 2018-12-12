@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/iv_countdown_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFFFFF" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="10">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="@dimen/countdown_margin_left_right_size"
+            android:layout_marginRight="@dimen/countdown_margin_left_right_size"
+            android:layout_weight="2.5">
+
+            <TextView
+                android:id="@+id/tv_countdown_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:text="标题"
+                android:textColor="#000000"
+                android:textSize="@dimen/countdown_title_size" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginLeft="@dimen/countdown_margin_left_right_size"
+            android:layout_marginRight="@dimen/countdown_margin_left_right_size"
+            android:layout_weight="5"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <RelativeLayout
+                android:id="@+id/rl_count_position_one"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginRight="20dp"
+                android:layout_weight="1"
+                android:background="@color/countdown_bg">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@mipmap/count_time_bg" />
+
+                <TextView
+                    android:id="@+id/tv_countdown_one"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true"
+                    android:gravity="center"
+                    android:text="0"
+                    android:textColor="#fff"
+                    android:textSize="@dimen/countdown_count_size" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_count_position_two"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginRight="20dp"
+                android:layout_toLeftOf="@id/rl_count_position_two"
+                android:layout_weight="1"
+                android:background="@color/countdown_bg">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@mipmap/count_time_bg" />
+
+                <TextView
+                    android:id="@+id/tv_countdown_two"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="0"
+                    android:textColor="#fff"
+                    android:textSize="@dimen/countdown_count_size" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_count_position_three"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_toRightOf="@id/rl_count_position_two"
+                android:layout_weight="1"
+                android:background="@color/countdown_bg">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@mipmap/count_time_bg" />
+
+                <TextView
+                    android:id="@+id/tv_countdown_three"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="0"
+                    android:textColor="#fff"
+                    android:textSize="@dimen/countdown_count_size" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/tv_countdown_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginLeft="10dp"
+                android:text="天"
+                android:textSize="@dimen/countdown_title_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginLeft="@dimen/countdown_margin_left_right_size"
+            android:layout_marginRight="@dimen/countdown_margin_left_right_size"
+            android:layout_marginTop="10dp"
+            android:layout_weight="2.5">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tv_countdown_slogan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="口号"
+                    android:textSize="@dimen/countdown_slogan_size" />
+
+                <TextView
+                    android:id="@+id/tv_timer_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:text="计时日期"
+                    android:textSize="@dimen/countdown_slogan_size" />
+
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</RelativeLayout>

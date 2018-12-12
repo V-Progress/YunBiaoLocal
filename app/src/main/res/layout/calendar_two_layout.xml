@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/calendar_style">
+
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+
+        <LinearLayout
+            android:id="@+id/ll_cal_two_year"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tv_cal_two_year"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/calendar_margin_right"
+                android:text="2016"
+                android:textColor="@color/red"
+                android:textSize="@dimen/calendar_content" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/calendar_margin_right"
+                android:text="年"
+                android:textColor="@color/calendar_head"
+                android:textSize="@dimen/calendar_head" />
+
+            <TextView
+                android:id="@+id/tv_cal_two_month"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/calendar_margin_right"
+                android:text="01"
+                android:textColor="@color/red"
+                android:textSize="@dimen/calendar_content" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/calendar_margin_right"
+                android:text="月"
+                android:textColor="@color/calendar_head"
+                android:textSize="@dimen/calendar_head" />
+
+            <TextView
+                android:id="@+id/tv_cal_two_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/calendar_margin_right"
+                android:text="01"
+                android:textColor="@color/red"
+                android:textSize="@dimen/calendar_content" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/calendar_margin_right"
+                android:text="日"
+                android:textColor="@color/calendar_head"
+                android:textSize="@dimen/calendar_content" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_cal_two_position_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ll_cal_two_year"
+            android:layout_marginTop="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="时间："
+                android:textColor="@color/calendar_head"
+                android:textSize="@dimen/calendar_head" />
+
+            <TextView
+                android:id="@+id/tv_cal_two_hour"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00"
+                android:textColor="@color/red"
+                android:textSize="@dimen/calendar_head" />
+
+            <TextView
+                android:id="@+id/tv_cal_two_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text=":"
+                android:textColor="@color/red"
+                android:textSize="@dimen/calendar_head" />
+
+            <TextView
+                android:id="@+id/tv_cal_two_minute"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00"
+                android:textColor="@color/red"
+                android:textSize="@dimen/calendar_head" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/ll_cal_two_position_weather"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ll_cal_two_position_time"
+            android:layout_marginTop="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="温度："
+                android:textColor="@color/calendar_head"
+                android:textSize="@dimen/calendar_head" />
+
+            <TextView
+                android:id="@+id/tv_cal_two_temperature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="35dp"
+                android:text="00℃"
+                android:textColor="@color/red"
+                android:textSize="@dimen/calendar_head" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_cal_two_position_air"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ll_cal_two_position_time"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_toRightOf="@id/ll_cal_two_position_weather">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="质量："
+                android:textColor="@color/calendar_head"
+                android:textSize="@dimen/calendar_head" />
+
+            <TextView
+                android:id="@+id/tv_cal_two_pm25"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/red"
+                android:textSize="@dimen/calendar_head" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/ll_cal_two_position_air"
+            android:layout_below="@id/ll_cal_two_year"
+            android:layout_marginTop="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="星期："
+                android:textColor="@color/calendar_head"
+                android:textSize="@dimen/calendar_head" />
+
+            <TextView
+                android:id="@+id/tv_cal_two_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:textColor="@color/red"
+                android:textSize="@dimen/calendar_head" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>

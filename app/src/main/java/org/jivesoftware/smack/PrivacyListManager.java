@@ -51,7 +51,7 @@ public class PrivacyListManager {
     		new PacketExtensionFilter("query", "jabber:iq:privacy"));
 
     static {
-        // Create a new PrivacyListManager on every established connection. In the init()
+        // Create a new PrivacyListManager on every established connection. In the layoutInit()
         // method of PrivacyListManager, we'll add a listener that will delete the
         // instance when the connection is closed.
         Connection.addConnectionCreationListener(new ConnectionCreationListener() {
