@@ -42,6 +42,11 @@ public class LayoutRefresher {
         mOnRefreshIner.removeView();
     }
 
+    public void refreshLayout(){
+        removeAllView();
+        LayoutDataHandle.getInstance().handleLayoutData();
+    }
+
     public interface OnRefreshIner{
         void layoutInit();
         void addView(View view);

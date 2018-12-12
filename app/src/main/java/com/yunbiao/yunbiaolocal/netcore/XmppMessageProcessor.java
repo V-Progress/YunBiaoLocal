@@ -93,8 +93,7 @@ public class XmppMessageProcessor {
 
                 break;
             case CONTENT_TYPE:
-                LayoutRefresher.getInstance().removeAllView();
-                LayoutDataHandle.getInstance().handleLayoutData();
+                LayoutRefresher.getInstance().refreshLayout();
                 break;
             case RUNSET_TYPE://设备自动开关机
                 ThreadUtil.getInstance().runInCommonThread(new Runnable() {
