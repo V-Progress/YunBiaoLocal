@@ -24,6 +24,7 @@ import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.layout.bean.Center;
 import com.yunbiao.yunbiaolocal.layout.bean.LayoutPosition;
 import com.yunbiao.yunbiaolocal.layout.bean.TextDetail;
+import com.yunbiao.yunbiaolocal.layout.view.baseControls.BusinessBase;
 import com.yunbiao.yunbiaolocal.layout.view.web.MyWebView;
 import com.yunbiao.yunbiaolocal.layout.view.web.MyXWalkView;
 import com.yunbiao.yunbiaolocal.utils.CommonUtils;
