@@ -20,7 +20,7 @@ import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.cache.CacheManager;
 import com.yunbiao.yunbiaolocal.common.Const;
 import com.yunbiao.yunbiaolocal.common.ResourceConst;
-import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
+import com.yunbiao.yunbiaolocal.common.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.resolve.VideoDataResolver;
 import com.yunbiao.yunbiaolocal.utils.DialogUtil;

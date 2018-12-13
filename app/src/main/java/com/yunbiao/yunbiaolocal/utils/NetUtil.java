@@ -3,10 +3,12 @@ package com.yunbiao.yunbiaolocal.utils;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import com.yunbiao.yunbiaolocal.APP;
+import com.yunbiao.yunbiaolocal.common.Const;
 import com.yunbiao.yunbiaolocal.common.ResourceConst;
 import com.yunbiao.yunbiaolocal.netcore.DownloadListener;
 import com.yunbiao.yunbiaolocal.netcore.DownloadTask;
-import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
+import com.yunbiao.yunbiaolocal.common.HeartBeatClient;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.Callback;
 import com.zhy.http.okhttp.callback.FileCallBack;
@@ -149,6 +151,41 @@ public class NetUtil {
             onDownLoadListener.onError(e);
         }
 
+    }
+
+    /**
+     * 上传设备信息
+     */
+    public void upLoadHardWareMessage() {
+        ThreadUtil.getInstance().runInCommonThread(new Runnable() {
+            @Override
+            public void run() {
+                Map<String, String> map = new HashMap<>();
+                map.put("deviceNo", HeartBeatClient.getDeviceNo());
+                map.put("screenWidth", String.valueOf(CommonUtils.getScreenWidth(APP.getContext())));
+                map.put("screenHeight", String.valueOf(CommonUtils.getScreenHeight(APP.getContext())));
+                map.put("diskSpace", CommonUtils.getMemoryTotalSize());
+                map.put("useSpace", CommonUtils.getMemoryUsedSize());
+                map.put("softwareVersion", CommonUtils.getAppVersion(APP.getContext()) + "_" + Const.VERSION_TYPE.TYPE);
+//                map.put("screenRotate", String.valueOf(SystemProperties.get("persist.sys.hwrotation")));
+                map.put("deviceCpu", CommonUtils.getCpuName() + " " + CommonUtils.getNumCores() + "核" + CommonUtils
+                        .getMaxCpuFreq() + "khz");
+                map.put("deviceIp", CommonUtils.getIpAddress());//当前设备IP地址
+                map.put("mac", CommonUtils.getLocalMacAddress());//设备的本机MAC地址
+                NetUtil.getInstance()
+                        .post(ResourceConst.REMOTE_RES.UPLOAD_DEVICE_INFO, map, new StringCallback() {
+                            @Override
+                            public void onError(Call call, Exception e, int id) {
+                                LogUtil.E(e.getMessage());
+                            }
+
+                            @Override
+                            public void onResponse(String response, int id) {
+                                LogUtil.E(response);
+                            }
+                        });
+            }
+        });
     }
 
     public interface OnDownLoadListener {

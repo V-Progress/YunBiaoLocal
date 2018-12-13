@@ -10,7 +10,7 @@ import com.yunbiao.yunbiaolocal.act.AbsoluteActivity;
 import com.yunbiao.yunbiaolocal.act.MainActivity;
 import com.yunbiao.yunbiaolocal.act.MenuActivity;
 import com.yunbiao.yunbiaolocal.common.Const;
-import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
+import com.yunbiao.yunbiaolocal.common.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.utils.CommonUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 

@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.yunbiao.yunbiaolocal.cache.CacheManager;
+import com.yunbiao.yunbiaolocal.common.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.devicectrl.ScreenShot;
 import com.yunbiao.yunbiaolocal.devicectrl.actions.XBHActions;
 import com.yunbiao.yunbiaolocal.devicectrl.power.PowerOffTool;
@@ -22,6 +23,7 @@ import com.yunbiao.yunbiaolocal.netcore.bean.VoiceModel;
 import com.yunbiao.yunbiaolocal.utils.CommonUtils;
 import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.LogUtil;
+import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.yunbiao.yunbiaolocal.utils.SystemInfoUtil;
 import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
 import com.yunbiao.yunbiaolocal.view.TipToast;
@@ -70,7 +72,8 @@ public class XmppMessageProcessor {
 
         switch (Integer.valueOf(type)) {
             case ONLINE_TYPE://登录
-                MachineDetial.getInstance().upLoadHardWareMessage();
+                NetUtil.getInstance().upLoadHardWareMessage();
+
                 LoginModel loginModel = new Gson().fromJson(content, LoginModel.class);
                 LogUtil.E(loginModel.toString());
                 CacheManager.SP.putDeviceNum(loginModel.getSerNum());

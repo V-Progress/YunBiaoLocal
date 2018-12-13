@@ -1,10 +1,8 @@
 package com.yunbiao.yunbiaolocal.act;
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
@@ -19,9 +17,9 @@ import android.widget.Toast;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.br.USBBroadcastReceiver;
+import com.yunbiao.yunbiaolocal.netcore.OnXmppConnListener;
 import com.yunbiao.yunbiaolocal.netcore.PnServerController;
 import com.yunbiao.yunbiaolocal.resolve.VideoDataResolver;
-import com.yunbiao.yunbiaolocal.utils.LogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.yunbiao.yunbiaolocal.utils.SystemInfoUtil;
 import com.yunbiao.yunbiaolocal.view.InsertPlayDialog;
@@ -290,11 +288,6 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
         }
         vtmVideo.resume();
         vtmVideo.start();
-
-//        if (!vtmVideo.isPlaying()) {
-//            vtmVideo.resume();
-//            vtmVideo.start();
-//        }
     }
 
     @Override
@@ -393,4 +386,61 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
         }
         return false;
     }
+
+    public OnXmppConnListener xmppConnListener = new OnXmppConnListener() {
+        @Override
+        public void onConnecting() {
+
+        }
+
+        @Override
+        public void onConnected() {
+
+        }
+
+        @Override
+        public void onConnError() {
+
+        }
+
+        @Override
+        public void onReConnecting() {
+
+        }
+
+        @Override
+        public void onNetChange(boolean isConnect) {
+
+        }
+
+        @Override
+        public void onLogon(String sn, String pwd, String status, String deviceQrCode) {
+
+        }
+
+        @Override
+        public void onConnClosed() {
+
+        }
+
+        @Override
+        public void Onreceived(String sn, String pwd, String status, String deviceQrCode) {
+
+        }
+
+        @Override
+        public void OnreceivedDtype(Integer dtype) {
+
+        }
+
+        @Override
+        public void OndeviceIsOnline(boolean isOnline) {
+
+        }
+
+        @Override
+        public void OnnetChange(boolean isConnect) {
+
+        }
+    };
 }

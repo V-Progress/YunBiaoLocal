@@ -12,7 +12,7 @@ import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.common.Const;
 import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.common.ResourceConst;
-import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
+import com.yunbiao.yunbiaolocal.common.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.view.TipToast;
 import com.zhy.http.okhttp.callback.StringCallback;
 

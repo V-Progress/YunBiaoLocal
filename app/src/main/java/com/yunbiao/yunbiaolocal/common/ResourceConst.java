@@ -27,6 +27,10 @@ public class ResourceConst {
     }
 
     public interface REMOTE_RES {
+        /***
+         * 设备信息上传
+         */
+        String UPLOAD_DEVICE_INFO = Const.BASE_URL + "device/service/updateDeviceHardwareInfo.html";
         /**
          * 微信打印
          */

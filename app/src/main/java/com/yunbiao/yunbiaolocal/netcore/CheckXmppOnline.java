@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Message;
 
 
+import com.yunbiao.yunbiaolocal.common.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.common.ResourceConst;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.yunbiao.yunbiaolocal.utils.ThreadUtil;

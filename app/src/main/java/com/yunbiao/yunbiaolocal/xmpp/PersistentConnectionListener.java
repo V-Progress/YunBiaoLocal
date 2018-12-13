@@ -17,7 +17,8 @@ package com.yunbiao.yunbiaolocal.xmpp;
 
 import android.util.Log;
 
-import com.yunbiao.yunbiaolocal.SwitchLayout;
+import com.yunbiao.yunbiaolocal.APP;
+import com.yunbiao.yunbiaolocal.act.MainActivity;
 
 import org.jivesoftware.smack.ConnectionListener;
 
@@ -31,16 +32,19 @@ public class PersistentConnectionListener implements ConnectionListener {
     private static final String LOGTAG = LogUtil.makeLogTag(PersistentConnectionListener.class);
 
     private XmppManager xmppManager;
+    private final MainActivity mainActivity;
 
     public PersistentConnectionListener(XmppManager xmppManager) {
         this.xmppManager = xmppManager;
+        mainActivity = APP.getMainActivity();
     }
 
     @Override
     public void connectionClosed() {
         Log.d(LOGTAG, "connectionClosed()...");
-        if (SwitchLayout.onReceivedSn != null) {
-            SwitchLayout.onReceivedSn.OndeviceIsOnline(false);
+        if (mainActivity.xmppConnListener != null) {
+            mainActivity.xmppConnListener.OndeviceIsOnline(false);
+            mainActivity.xmppConnListener.onConnClosed();
         }
 
         xmppManager.startReconnectionThread();
@@ -49,8 +53,10 @@ public class PersistentConnectionListener implements ConnectionListener {
     @Override
     public void connectionClosedOnError(Exception e) {
         Log.d(LOGTAG, "connectionClosedOnError()...");
-        if (SwitchLayout.onReceivedSn != null) {
-            SwitchLayout.onReceivedSn.OndeviceIsOnline(false);
+        if (mainActivity.xmppConnListener != null) {
+            mainActivity.xmppConnListener.OndeviceIsOnline(false);
+            mainActivity.xmppConnListener.onConnError();
+
         }
 
         if (xmppManager.getConnection() != null && xmppManager.getConnection().isConnected()) {
@@ -72,8 +78,9 @@ public class PersistentConnectionListener implements ConnectionListener {
     @Override
     public void reconnectionSuccessful() {
         Log.d(LOGTAG, "reconnectionSuccessful()...");
-        if (SwitchLayout.onReceivedSn != null) {
-            SwitchLayout.onReceivedSn.OndeviceIsOnline(true);
+        if (mainActivity.xmppConnListener != null) {
+            mainActivity.xmppConnListener.OndeviceIsOnline(true);
+            mainActivity.xmppConnListener.onConnected();
         }
     }
 

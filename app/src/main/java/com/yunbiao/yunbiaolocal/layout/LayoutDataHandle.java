@@ -1,12 +1,9 @@
 package com.yunbiao.yunbiaolocal.layout;
 
-import android.graphics.Color;
 import android.graphics.Point;
-import android.support.v4.app.Fragment;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.AbsoluteLayout;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -16,7 +13,7 @@ import com.yunbiao.yunbiaolocal.layout.bean.Center;
 import com.yunbiao.yunbiaolocal.layout.bean.Container;
 import com.yunbiao.yunbiaolocal.layout.bean.LayoutModel;
 import com.yunbiao.yunbiaolocal.layout.bean.LayoutPosition;
-import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
+import com.yunbiao.yunbiaolocal.common.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.utils.LogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.zhy.http.okhttp.callback.StringCallback;

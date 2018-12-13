@@ -4,7 +4,7 @@ import android.os.Handler;
 import android.widget.TextView;
 
 import com.yunbiao.yunbiaolocal.common.ResourceConst;
-import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
+import com.yunbiao.yunbiaolocal.common.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.zhy.http.okhttp.callback.StringCallback;
 
