@@ -252,7 +252,7 @@ public class Presence extends Packet {
             buf.append("<priority>").append(priority).append("</priority>");
         }
         if (mode != null && mode != Mode.available) {
-            buf.append("<show>").append(mode).append("</show>");
+            buf.append("<showInsert>").append(mode).append("</showInsert>");
         }
 
         buf.append(this.getExtensionsXML());

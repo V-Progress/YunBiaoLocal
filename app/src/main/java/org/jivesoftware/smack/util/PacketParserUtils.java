@@ -221,7 +221,7 @@ public class PacketParserUtils {
                         presence.setPriority(0);
                     }
                 }
-                else if (elementName.equals("show")) {
+                else if (elementName.equals("showInsert")) {
                     String modeText = parser.nextText();
                     try {
                         presence.setMode(Presence.Mode.valueOf(modeText));

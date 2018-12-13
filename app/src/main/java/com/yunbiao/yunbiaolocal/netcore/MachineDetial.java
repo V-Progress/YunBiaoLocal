@@ -78,7 +78,7 @@ public class MachineDetial {
 //                    map.put("cityName", LocationBean.getCity());
 //                    //定位后在SharedPreferences存入定位得到的城市名字，后边获取。重启后定位覆盖
 //                    String city = LocationBean.getCity();
-//                    SpUtils.saveString(APP.getContext(), SpUtils.CITY_NAME, city);
+//                    SPCache.saveString(APP.getContext(), SPCache.CITY_NAME, city);
                 }
                 NetUtil.getInstance().post(upMechineDetialUrl, map, new StringCallback() {
                     @Override

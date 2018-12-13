@@ -9,7 +9,8 @@ import android.widget.TextView;
 
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.R;
-import com.yunbiao.yunbiaolocal.cache.SpUtils;
+import com.yunbiao.yunbiaolocal.cache.CacheManager;
+import com.yunbiao.yunbiaolocal.cache.SPCache;
 import com.yunbiao.yunbiaolocal.layout.view.baseControls.util.CalendarTwoThread;
 import com.yunbiao.yunbiaolocal.utils.DateUtil;
 import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
@@ -42,7 +43,7 @@ public class CalendarTwoView {
         new TimeThread().start();
         Timer timer = new Timer();
         timer.schedule(timerTask, 1, 1000);
-        String city = SpUtils.getString(APP.getContext(), SpUtils.CITY_NAME, "");
+        String city = CacheManager.SP.getCityName();
         handler.postDelayed(new CalendarTwoThread(temperatureTextView, pm25TextView, city), 1000);
     }
 

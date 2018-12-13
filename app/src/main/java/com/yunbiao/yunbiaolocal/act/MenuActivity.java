@@ -1,14 +1,11 @@
 package com.yunbiao.yunbiaolocal.act;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.SoundPool;
-import android.os.Bundle;
 import android.support.percent.PercentRelativeLayout;
 import android.text.TextUtils;
 import android.view.View;
@@ -23,7 +20,6 @@ import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.cache.CacheManager;
 import com.yunbiao.yunbiaolocal.common.Const;
 import com.yunbiao.yunbiaolocal.common.ResourceConst;
-import com.yunbiao.yunbiaolocal.layout.LayoutRefresher;
 import com.yunbiao.yunbiaolocal.netcore.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.resolve.VideoDataResolver;
@@ -37,7 +33,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 import okhttp3.Call;
 
@@ -198,11 +193,11 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
 
         tvShowOnscreenTime.setText(String.valueOf(Const.SYSTEM_CONFIG.MENU_STAY_DURATION));
 
-        tvMenuInfoEquipmentMum.setText(CacheManager.getSerNumber());
-        tvMenuInfoAccessCode.setText(CacheManager.getPwd());
+        tvMenuInfoEquipmentMum.setText(CacheManager.SP.getDeviceNum());
+        tvMenuInfoAccessCode.setText(CacheManager.SP.getAccessCode());
 
         //设备是否绑定
-        String bindStatus = CacheManager.getBindStatus();
+        String bindStatus = CacheManager.SP.getBindStatus();
         if (!bindStatus.equals("1")) {//已绑定
             menuInfoBindBtn.setText(R.string.unbind);
             menuInfoBindBtn.setTextColor(Color.parseColor("#ADADAD"));

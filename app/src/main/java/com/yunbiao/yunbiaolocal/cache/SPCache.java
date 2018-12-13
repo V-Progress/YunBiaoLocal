@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by LiuShao on 2016/2/21.
  */
-public class SpUtils {
+public class SPCache {
 
     private static SharedPreferences sp;
     private static final String SP_NAME = "service";
@@ -61,16 +61,17 @@ public class SpUtils {
     public static final String OUTER_PATH="outer_path";
     public static final String EXTSD_PATH="extsd_path";
 
-
-    public static void saveString(Context context, String key, String value) {
-        if (sp == null)
+    public SPCache(Context context) {
+        if (sp == null){
             sp = context.getSharedPreferences(SP_NAME, 0);
-        sp.edit().putString(key, value).apply();
+        }
     }
 
-    public static String getString(Context context, String key, String defValue) {
-        if (sp == null)
-            sp = context.getSharedPreferences(SP_NAME, 0);
+    public static boolean saveString(String key, String value) {
+        return sp.edit().putString(key, value).commit();
+    }
+
+    public static String getString(String key, String defValue) {
         return sp.getString(key, defValue);
     }
 

@@ -10,7 +10,8 @@ import android.widget.TextView;
 
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.R;
-import com.yunbiao.yunbiaolocal.cache.SpUtils;
+import com.yunbiao.yunbiaolocal.cache.CacheManager;
+import com.yunbiao.yunbiaolocal.cache.SPCache;
 import com.yunbiao.yunbiaolocal.layout.view.baseControls.util.CalendarThread;
 import com.yunbiao.yunbiaolocal.utils.DateUtil;
 import com.yunbiao.yunbiaolocal.utils.ThreadUtil;
@@ -39,7 +40,7 @@ public class CalendarView {
         Timer timer = new Timer();
         timer.schedule(timerTask, 1, 1000);
         //在sp获取定位存入的城市名字
-        String city = SpUtils.getString(APP.getContext(), SpUtils.CITY_NAME, "");
+        String city = CacheManager.SP.getCityName();
         cityTextView.setText(city);
         handler.postDelayed(new CalendarThread(weatherTextView, weatherImageView, bgImageView, numTextView, city), 1000);
     }

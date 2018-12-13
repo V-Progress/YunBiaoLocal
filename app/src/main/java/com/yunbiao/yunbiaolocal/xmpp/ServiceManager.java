@@ -67,7 +67,7 @@ public final class ServiceManager {
 
         apiKey = Const.API_KEY;
 
-        String machineIpAdress = CacheManager.getMechineIp();
+        String machineIpAdress = CacheManager.SP.getDeviceIP();
         if(!TextUtils.isEmpty(machineIpAdress)){
             String ipAdress = machineIpAdress.substring(0, machineIpAdress.indexOf(","));
             if (!TextUtils.isEmpty(ipAdress)) {

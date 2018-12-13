@@ -127,7 +127,7 @@ public class DialogUtil {
      */
     public static void showInsertDialog(Activity activity, int type, String content) {
         insertPlayDialog = InsertPlayDialog.build(activity);
-        insertPlayDialog.show(content, type);
+        insertPlayDialog.showInsert(content, type);
     }
 
     public static void showProgressDialog(Activity activity, String title, String message) {

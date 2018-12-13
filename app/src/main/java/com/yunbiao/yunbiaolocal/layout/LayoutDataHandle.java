@@ -150,7 +150,6 @@ public class LayoutDataHandle {
         int width = point.x;
         int height = point.y - TOOL_HEIGHT - FOOT_HEIGHT;
 
-        LayoutPosition layoutPostion = new LayoutPosition();
         String widths = container.getWidth();
         String heights = container.getHeight();
         String lefts = container.getLeft();
@@ -166,6 +165,7 @@ public class LayoutDataHandle {
         Float layLeft = (layoutLeft * width);
         Float layTop = (layoutTop * height);
 
+        LayoutPosition layoutPostion = new LayoutPosition();
         layoutPostion.setHeight(getFloatToInt(layHeight, "#"));
         layoutPostion.setWidth(getFloatToInt(layWidth, "#"));
         layoutPostion.setLeft(getFloatToInt(layLeft, "#"));

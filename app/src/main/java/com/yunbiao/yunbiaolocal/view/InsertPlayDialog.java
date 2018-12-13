@@ -1,7 +1,6 @@
 package com.yunbiao.yunbiaolocal.view;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -19,6 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.VideoView;
 
 import com.google.gson.Gson;
+import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.act.MainActivity;
 import com.yunbiao.yunbiaolocal.cache.CacheManager;
@@ -61,11 +61,11 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
     }
 
     public void init() {
-        int showType = CacheManager.getInsertType();
-        String adsinfoTemp = CacheManager.getInsertAds();
+        int showType = CacheManager.FILE.getInsertType();
+        String adsinfoTemp = CacheManager.FILE.getInsertAds();
         LogUtil.E(showType+","+adsinfoTemp);
         if (!TextUtils.isEmpty(adsinfoTemp)) {
-            show(adsinfoTemp,showType);
+            showInsert(adsinfoTemp,showType);
         }
     }
 
@@ -85,7 +85,7 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         pbInsertLoading = rootView.findViewById(R.id.pb_insert_loading);
         msTvInsert = rootView.findViewById(R.id.mstv_insert);
 
-        videoView.setZOrderOnTop(true);//解决背景色问题
+        videoView.setZOrderOnTop(true);//解决VideoView被Dialog遮挡问题
 //        videoView.setZOrderMediaOverlay(true);//解决遮挡问题
         videoView.setOnInfoListener(this);
         videoView.setOnPreparedListener(this);
@@ -131,7 +131,7 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         mp.setLooping(true);//循环播放
     }
 
-    public void show(final String content, int insertType) {
+    public void showInsert(final String content, int insertType) {
         final int showType = insertType;
         ThreadUtil.getInstance().runInCommonThread(new Runnable() {
             @Override
@@ -144,8 +144,8 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
                             //判断是否清除字幕
                             if(TextUtils.equals("2",insertTextModel.getPlayType())){
                                 if(insertPlayDialog.isShowing()){
-                                    CacheManager.putInsertAds("");//清除广告缓存
-                                    insertPlayDialog.dismiss();
+                                    CacheManager.FILE.putInsertAds("");//清除广告缓存
+                                    dismiss();
                                 }
                                 return;
                             }
@@ -155,21 +155,21 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
                             final Date[] dates1 = resolveTime(playDate1, playCurTime1);
 
                             if (dates1 != null && dates1.length > 0) {
-                                CacheManager.putInsertType(showType);
-                                CacheManager.putInsertAds(content);
+                                CacheManager.FILE.putInsertType(showType);
+                                CacheManager.FILE.putInsertAds(content);
                                 TimerExecutor.getInstance().addInTimerQueue(dates1[0], new TimerExecutor.OnTimeOutListener() {
                                     @Override
                                     public void execute() {
                                         LogUtil.E("显示InsertDialog");
-                                        InsertPlayDialog.super.show();
                                         showTextContent(insertTextModel);
+                                        show();
                                     }
                                 });
                                 TimerExecutor.getInstance().addInTimerQueue(dates1[1], new TimerExecutor.OnTimeOutListener() {
                                     @Override
                                     public void execute() {
                                         LogUtil.E("隐藏InsertDialog");
-                                        insertPlayDialog.dismiss();
+                                        dismiss();
                                     }
                                 });
                             } else {
@@ -185,8 +185,8 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
                             String playCurTime = insertVideoModel.getPlayCurTime();
                             final Date[] dates = resolveTime(playDate, playCurTime);
                             if (dates != null && dates.length > 0) {
-                                CacheManager.putInsertType(showType);
-                                CacheManager.putInsertAds(content);
+                                CacheManager.FILE.putInsertType(showType);
+                                CacheManager.FILE.putInsertAds(content);
                                 final String fileUrl = insertVideoModel.getFileurl();
                                 setVideo(dates[0], dates[1], fileUrl);
                             } else {
@@ -202,6 +202,24 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         });
     }
 
+    @Override
+    public void show() {
+        super.show();
+        pauseMainPlay();
+    }
+
+    @Override
+    public void dismiss() {
+        super.dismiss();
+        resumeMainPlay();
+    }
+
+    /*
+     * 设置播放视频
+     * @param startDate
+     * @param endDate
+     * @param fileurl
+     */
     private void setVideo(final Date startDate, final Date endDate, String fileurl) {
         if (fileurl.endsWith(".avi")||fileurl.endsWith(".mp4")||fileurl.endsWith(".3gp")) {
             NetUtil.getInstance().downLoadFile(fileurl, new NetUtil.OnDownLoadListener() {
@@ -220,14 +238,14 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
                     TimerExecutor.getInstance().addInTimerQueue(startDate, new TimerExecutor.OnTimeOutListener() {
                         @Override
                         public void execute() {
-                            InsertPlayDialog.super.show();
+                            show();
                             playVideo(response.getAbsolutePath());
                         }
                     });
                     TimerExecutor.getInstance().addInTimerQueue(endDate, new TimerExecutor.OnTimeOutListener() {
                         @Override
                         public void execute() {
-                            insertPlayDialog.dismiss();
+                            dismiss();
                         }
                     });
                 }
@@ -249,6 +267,27 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         }
     }
 
+    /*
+     * 广告开始的时候，暂停背景视频
+     */
+    private void pauseMainPlay(){
+        MainActivity mainActivity = APP.getMainActivity();
+        if(mainActivity != null){
+            mainActivity.pause();
+        }
+    }
+
+    /*
+     * 广告结束的时候，开始背景视频
+     */
+    private void resumeMainPlay(){
+        MainActivity mainActivity = APP.getMainActivity();
+        if(mainActivity != null){
+            mainActivity.resume();
+        }
+    }
+
+    //修正播放时间
     private String correctTime(String time) {
         String[] beginTimes = time.split(":");
         for (int i = 0; i < beginTimes.length; i++) {
@@ -261,6 +300,7 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         return beginTimes[0] + ":" + beginTimes[1];
     }
 
+    //解析播放时间
     private Date[] resolveTime(String playDate, String playTime) throws Exception {
         if (!playDate.contains("-")) {
             throw new Exception("playDate formal error!");

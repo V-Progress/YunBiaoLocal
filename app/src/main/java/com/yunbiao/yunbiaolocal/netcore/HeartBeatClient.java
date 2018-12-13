@@ -54,14 +54,7 @@ public class HeartBeatClient {
      * @return
      */
     public static String getDeviceNo() {
-        sbDeviceId = CacheManager.getDeviceNo();
-//        if (TextUtils.isEmpty(sbDeviceId) || sbDeviceId.equals("-1")) {
-//            sbDeviceId = createDeviceNo();
-//            return sbDeviceId;
-//        } else {
-//            return sbDeviceId;
-//        }
-        return sbDeviceId;
+        return CacheManager.SP.getDeviceUniCode();
     }
 
     /**
@@ -96,12 +89,11 @@ public class HeartBeatClient {
                 if (response.equals("1")) {//服务器中有，继续使用该数据
                     deviceNo = tmPhone;
                 } else if (response.equals("0")) {//服务器中没有，就使用getMacAddress()获取唯一标识
-//                    deviceNo = getMacAddress();
                     deviceNo = getMacAddress(5);//重复五次防止出厂从未打开wifi获取不到wifimac
                 }
 
                 if (!deviceNo.equals("-1")) {
-                    CacheManager.putDeviceNo(deviceNo);
+                    CacheManager.SP.putDeviceUniCode(deviceNo);
                 }
 
                 LogUtil.E(TAG, "createDeviceNo: " + deviceNo);

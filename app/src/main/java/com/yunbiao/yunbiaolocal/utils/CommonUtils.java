@@ -13,7 +13,6 @@ import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.text.format.Formatter;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Surface;
 import android.view.WindowManager;
 
@@ -422,7 +421,7 @@ public class CommonUtils {
             }
             String broadInfo = result.toString();
             LogUtil.E(TAG, "主板信息: " + broadInfo);
-            CacheManager.putBroadInfo(broadInfo);
+            CacheManager.SP.putBroadInfo(broadInfo);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -442,7 +441,7 @@ public class CommonUtils {
      * @return 0其他（国威）  1中恒  2深圳鸿世达科技  3亿晟科技  4小百合  5建益达
      */
     public static Integer getBroadType() {
-        String broad_info = CacheManager.getBroadInfo();
+        String broad_info = CacheManager.SP.getBroadInfo();
         if (broad_info.contains("zhsd")) {
             return 1;
         } else if (broad_info.contains("yunbiao") || broad_info.contains("lichao")|| broad_info.contains("shizhenxi")) {//yunbiao   shizhenxi

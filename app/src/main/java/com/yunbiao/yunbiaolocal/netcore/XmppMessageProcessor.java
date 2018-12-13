@@ -12,7 +12,6 @@ import com.yunbiao.yunbiaolocal.devicectrl.actions.XBHActions;
 import com.yunbiao.yunbiaolocal.devicectrl.power.PowerOffTool;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.devicectrl.SoundControl;
-import com.yunbiao.yunbiaolocal.layout.LayoutDataHandle;
 import com.yunbiao.yunbiaolocal.layout.LayoutRefresher;
 import com.yunbiao.yunbiaolocal.netcore.bean.ChannelBean;
 import com.yunbiao.yunbiaolocal.netcore.bean.DiskInfoBean;
@@ -74,14 +73,15 @@ public class XmppMessageProcessor {
                 MachineDetial.getInstance().upLoadHardWareMessage();
                 LoginModel loginModel = new Gson().fromJson(content, LoginModel.class);
                 LogUtil.E(loginModel.toString());
-                CacheManager.putExpireDate(loginModel.getExpireDate());
-                CacheManager.putBindStatus(loginModel.getBindStatus());
-                CacheManager.putRunStatus(loginModel.getRunStatus());
-                CacheManager.putSerNumber(loginModel.getSerNum());
-                CacheManager.putPwd(loginModel.getPwd());
-                CacheManager.putDecName(loginModel.getDeviceName());
-                CacheManager.putDeviceQrCode(loginModel.getDeviceQrCode());
-                CacheManager.putIsMirror(loginModel.getIsMirror());
+                CacheManager.SP.putDeviceNum(loginModel.getSerNum());
+                CacheManager.SP.putAccessCode(loginModel.getPwd());
+                CacheManager.SP.putIsMirror(loginModel.getIsMirror());
+                CacheManager.SP.putDeviceName(loginModel.getDeviceName());
+                CacheManager.SP.putRunStatus(loginModel.getRunStatus());
+                CacheManager.SP.putBindStatus(loginModel.getBindStatus());
+                CacheManager.SP.putExpireDate(loginModel.getExpireDate());
+                CacheManager.SP.putDeviceQrCode(loginModel.getDeviceQrCode());
+                CacheManager.SP.putDeviceType(loginModel.getDtype());
 
                 //是否有密码
                 String password = loginModel.getPassword();
@@ -117,7 +117,7 @@ public class XmppMessageProcessor {
                         APP.getSmdt().smdtSetStatusBar(APP.getContext().getApplicationContext(), false);
                     }
                 } else {
-                    TipToast.showLongToast(APP.getMainActivity(), "设备编号：" + CacheManager.getSerNumber());
+                    TipToast.showLongToast(APP.getMainActivity(), "设备编号：" + CacheManager.SP.getDeviceNum());
                 }
                 break;
             case CUTSCREN_TYPE:

@@ -68,31 +68,6 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
     private static int lineNumber = 0;
     private float playSpeed = 1.0f;
 
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
-//        APP.setMainActivity(this);
-//        ButterKnife.bind(this);
-//
-//        //初始化控件
-//        initView();
-//
-//        //初始化播放数据
-//        initPlayData();
-//
-//        //初始化播放器
-//        initVTMPlayer();
-//
-//        //连接XMPP
-//        PnServerController.startXMPP(this);
-//
-//        //初始化广告插播，如果有未播完的广告则自动播放
-//        InsertPlayDialog.build(this).layoutInit();
-//
-//
-//    }
-
     protected int setLayout(){
         APP.setMainActivity(this);
         return R.layout.activity_main;
@@ -133,7 +108,16 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
     /*===========播放器控制相关=====================================================================
      * 初始化播放器
      */
+    public void pause(){
+        mediaPlayer.pause();
+    }
+
+    public void resume(){
+        mediaPlayer.start();
+    }
+
     public void initVTMPlayer() {
+        initPlayData();
         MediaController mediaController = new MediaController(MainActivity.this);
         mediaController.setInstantSeeking(false);
         vtmVideo.setMediaController(mediaController);
@@ -232,8 +216,10 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
     /*===========播放器状态监听=====================================================================
      * vitamio准备好的回调
      */
+    MediaPlayer mediaPlayer;
     @Override
     public void onPrepared(MediaPlayer mp) {
+        mediaPlayer = mp;
         mp.setPlaybackSpeed(1.0f);
     }
 
@@ -302,10 +288,13 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
         if (!vtmVideo.isShown()) {
             vtmVideo.setVisibility(View.VISIBLE);
         }
-        if (!vtmVideo.isPlaying()) {
-            vtmVideo.resume();
-            vtmVideo.start();
-        }
+        vtmVideo.resume();
+        vtmVideo.start();
+
+//        if (!vtmVideo.isPlaying()) {
+//            vtmVideo.resume();
+//            vtmVideo.start();
+//        }
     }
 
     @Override
