@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/weichat_bg">
+
+    <FrameLayout
+        android:id="@+id/fl_wei_chat"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:background="@android:color/transparent"
+        android:padding="13dp"
+        android:layout_alignParentRight="true"
+        android:textStyle="bold"
+        android:text="30"
+        android:textColor="@color/white"
+        android:textSize="24dp"
+        android:id="@+id/tv_rem_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:id="@+id/ll_wei_chat_ll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp"
+        android:orientation="vertical">
+
+        <com.yunbiao.yunbiaolocal.view.NumberProgressBar
+            android:id="@+id/pp_weichat_pp"
+            style="@style/NumberProgressBar_Passing_Green"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"/>
+
+        <TextView
+            android:id="@+id/tv_er_control"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="10dp"
+            android:text="微信扫码快发"
+            android:textColor="@color/white"
+            android:textSize="15sp"/>
+
+        <ImageView
+            android:id="@+id/iv_erimage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:src="@mipmap/erwei_card" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_head_msg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="10dp"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/iv_head_icon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@mipmap/erwei_card" />
+
+        <TextView
+            android:id="@+id/tv_head_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="名字"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_tip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/ll_head_msg"
+        android:layout_toRightOf="@id/ll_wei_chat_ll"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="按“菜单键”进入设置页面"
+            android:textColor="@color/white"
+            android:textSize="24sp"/>
+    </LinearLayout>
+
+
+</RelativeLayout>

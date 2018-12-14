@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.yunbiao.yunbiaolocal.APP;
+import com.yunbiao.yunbiaolocal.act.weichat.WeichatActivity;
 import com.yunbiao.yunbiaolocal.cache.CacheManager;
 import com.yunbiao.yunbiaolocal.common.Const;
 import com.yunbiao.yunbiaolocal.common.ResourceConst;
@@ -267,7 +268,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                 startActivity(new Intent(this,AbsoluteActivity.class));
                 break;
             case R.id.btn_weiChat_page:
-
+                startActivity(new Intent(this,WeichatActivity.class));
                 break;
             case R.id.menu_info_bind_btn:
                 showBindDialog(this);

@@ -64,11 +64,11 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile(name: 'xwalk_core_library-17.46.448.10-arm', ext: 'aar')
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     //约束布局
     //百分比布局
     compile files('libs/gson-2.8.5.jar')
-    //noinspection GradleCompatible
-    //noinspection GradleCompatible
     compile files('libs/universal-image-loader-1.9.5.jar')
     compile project(':vitamio')
     compile files('libs/smdt.jar')
@@ -79,10 +79,7 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support:percent:23.2.1'
     compile 'com.jakewharton:butterknife:8.8.1'
-    compile(name: 'xwalk_core_library-17.46.448.10-arm', ext: 'aar')
-
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
-
-    compile "io.reactivex.rxjava2:rxjava:2.2.4"
+    compile 'io.reactivex.rxjava2:rxjava:2.2.4'
     compile 'io.reactivex.rxjava2:rxandroid:2.1.0'
+
 }

@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import okhttp3.Call;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * Created by Administrator on 2018/11/22.

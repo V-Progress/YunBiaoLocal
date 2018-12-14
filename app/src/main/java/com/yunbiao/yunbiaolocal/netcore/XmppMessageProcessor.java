@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
+import com.yunbiao.yunbiaolocal.act.weichat.WeiChatSave;
 import com.yunbiao.yunbiaolocal.cache.CacheManager;
 import com.yunbiao.yunbiaolocal.common.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.devicectrl.ScreenShot;
@@ -75,7 +76,6 @@ public class XmppMessageProcessor {
                 NetUtil.getInstance().upLoadHardWareMessage();
 
                 LoginModel loginModel = new Gson().fromJson(content, LoginModel.class);
-                LogUtil.E(loginModel.toString());
                 CacheManager.SP.putDeviceNum(loginModel.getSerNum());
                 CacheManager.SP.putAccessCode(loginModel.getPwd());
                 CacheManager.SP.putIsMirror(loginModel.getIsMirror());
@@ -86,12 +86,16 @@ public class XmppMessageProcessor {
                 CacheManager.SP.putDeviceQrCode(loginModel.getDeviceQrCode());
                 CacheManager.SP.putDeviceType(loginModel.getDtype());
 
+                WeiChatSave.saveString(APP.getContext(), WeiChatSave.WEICHAT_CHAT_ID, loginModel.getTicket());
+                WeiChatSave.saveString(APP.getContext(), WeiChatSave.DEVICEQRCODE, loginModel.getDeviceQrCode());
+
                 //是否有密码
                 String password = loginModel.getPassword();
                 LogUtil.E(TAG, "*****" + password);
                 if (TextUtils.isEmpty(password) || password.equals(" ") || password.equals("null")) {
                 } else {
                 }
+
 
 
                 break;

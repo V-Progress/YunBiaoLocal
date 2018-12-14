@@ -68,6 +68,12 @@ public class ScreenShot {
         ThreadUtil.getInstance().runInCommonThread(new Runnable() {
             @Override
             public void run() {
+                String dirPath = ResourceConst.LOCAL_RES.SCREEN_CACHE_PATH;
+                File dirFile = new File(dirPath);
+                if(!dirFile.exists()){
+                    dirFile.mkdirs();
+                }
+
                 String filePath = ResourceConst.LOCAL_RES.SCREEN_CACHE_PATH + CUT_SCREEN_NAME;
                 File ssfile = new File(filePath);
                 if (ssfile.exists() && ssfile.isFile()) {
@@ -104,26 +110,31 @@ public class ScreenShot {
      * 视频截图，主页播放视频的时候
      * @param fileUrl
      */
-    private void videoShot(String fileUrl) {
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever(APP.getContext());
-        try {
-            long currentPosition = APP.getMainActivity().getVideoCurrTime();
-            String currPlayVideo = APP.getMainActivity().getCurrPlayVideo();
-            if (TextUtils.isEmpty(currPlayVideo)) {
-                LogUtil.E("当前无播放的视频");
-                return;
-            }
-            retriever.setDataSource(currPlayVideo);
-            Bitmap frameAtTime = retriever.getFrameAtTime(currentPosition*1000);
+    private void videoShot(final String fileUrl) {
+        ThreadUtil.getInstance().runInCommonThread(new Runnable() {
+            @Override
+            public void run() {
+                MediaMetadataRetriever retriever = new MediaMetadataRetriever(APP.getContext());
+                try {
+                    long currentPosition = APP.getMainActivity().getVideoCurrTime();
+                    String currPlayVideo = APP.getMainActivity().getCurrPlayVideo();
+                    if (TextUtils.isEmpty(currPlayVideo)) {
+                        LogUtil.E("当前无播放的视频");
+                        return;
+                    }
+                    retriever.setDataSource(currPlayVideo);
+                    Bitmap frameAtTime = retriever.getFrameAtTime(currentPosition*1000);
 
-            writeToSd(fileUrl,frameAtTime);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }finally {
-            retriever.release();
-        }
+                    writeToSd(fileUrl,frameAtTime);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }finally {
+                    retriever.release();
+                }
+            }
+        });
     }
 
     /***

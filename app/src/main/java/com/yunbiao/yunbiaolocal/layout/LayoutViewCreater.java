@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -255,7 +256,13 @@ public class LayoutViewCreater {
         }
     }
 
-
+    /***
+     * 添加直播控件
+     * @param context
+     * @param layoutInfo
+     * @param layoutParams
+     * @return
+     */
     public static FrameLayout addLiveRadioView(Context context, Center layoutInfo, AbsoluteLayout.LayoutParams layoutParams) {
         FrameLayout linearLayout = new FrameLayout(context);
         linearLayout.setLayoutParams(layoutParams);
@@ -309,6 +316,13 @@ public class LayoutViewCreater {
         return linearLayout;
     }
 
+    /***
+     * 创建基础控件
+     * @param context
+     * @param layoutParams
+     * @param center
+     * @return
+     */
     private View createBaseView(Context context, AbsoluteLayout.LayoutParams layoutParams, Center center) {
         Integer windowType = mContent.getWindowType();
         if (windowType == null) {
@@ -317,6 +331,60 @@ public class LayoutViewCreater {
         return BusinessBase.getInstance().runBaseControlsView(context, center, layoutParams);
     }
 
+
+//    public static void addLocalResource(Context context, LayoutInfo layoutInfo, WindowManager wm, AbsoluteLayout absoluteLayout) {
+//        String sdcardPath = TYTool.getSdcardPath();
+//        if (sdcardPath.equals("")) {
+//            //目录中没有图片和视频
+//            LayoutPosition lp = LayoutJsonTool.getViewPostion(layoutInfo, wm);
+//
+//            AbsoluteLayout.LayoutParams layoutParams = new AbsoluteLayout.LayoutParams(lp.getWidth(), lp.getHeight(), lp.getLeft(), lp.getTop());
+//            FrameLayout linearLayout = new FrameLayout(context);
+//            linearLayout.setBackgroundColor(Color.parseColor("#333333"));
+//
+//            linearLayout.setLayoutParams(layoutParams);
+//            TextView textView = new TextView(context);
+//
+//            textView.setText(R.string.no_sdcard);
+//            textView.setTextSize(25);
+//            textView.setGravity(Gravity.CENTER);
+//            textView.setTextColor(Color.WHITE);
+//            FrameLayout.LayoutParams imageViewParam = new FrameLayout.LayoutParams(lp.getWidth(), lp.getHeight());
+//            imageViewParam.gravity = Gravity.CENTER;
+//
+//            linearLayout.addView(textView, imageViewParam);
+//            absoluteLayout.addView(linearLayout);
+//        } else {
+//            String[] playFiles = TYTool.getSDFilesByWinId(sdcardPath, layoutInfo.getId());
+//            if (playFiles != null && playFiles.length > 0) {
+//                layoutInfo.setContent(playFiles);
+//                FrameLayout frameLayout = addImageAndVideo(context, layoutInfo, wm);
+//                absoluteLayout.addView(frameLayout);
+//            } else {
+//                //目录中没有图片和视频
+//                LayoutPosition lp = LayoutJsonTool.getViewPostion(layoutInfo, wm);
+//
+//                AbsoluteLayout.LayoutParams layoutParams = new AbsoluteLayout.LayoutParams(lp.getWidth(), lp.getHeight(), lp.getLeft(), lp.getTop());
+//                FrameLayout linearLayout = new FrameLayout(context);
+//                linearLayout.setBackgroundColor(Color.parseColor("#333333"));
+//
+//                linearLayout.setLayoutParams(layoutParams);
+//                TextView textView = new TextView(context);
+//
+//                textView.setText(context.getResources().getString(R.string.sd_one) + layoutInfo.getId() + "\t" + context
+//                        .getResources().getString(R.string.sd_two));
+//                textView.setTextSize(25);
+//                textView.setGravity(Gravity.CENTER);
+//                textView.setTextColor(Color.WHITE);
+//                FrameLayout.LayoutParams imageViewParam = new FrameLayout.LayoutParams(lp.getWidth(), lp.getHeight());
+//                imageViewParam.gravity = Gravity.CENTER;
+//
+//                linearLayout.addView(textView, imageViewParam);
+//
+//                absoluteLayout.addView(linearLayout);
+//            }
+//        }
+//    }
 
     /**
      * 设置文本字体

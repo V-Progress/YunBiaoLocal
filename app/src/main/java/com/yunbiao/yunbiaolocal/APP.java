@@ -6,6 +6,8 @@ import android.app.smdt.SmdtManager;
 import android.content.Context;
 import android.media.AudioManager;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.yunbiao.yunbiaolocal.act.AbsoluteActivity;
 import com.yunbiao.yunbiaolocal.act.MainActivity;
 import com.yunbiao.yunbiaolocal.act.MenuActivity;
@@ -62,6 +64,10 @@ public class APP extends Application {
                 .writeTimeout(Const.NET_TIME_OUT, TimeUnit.MINUTES)
                 .build();
         OkHttpUtils.initClient(okHttpClient);
+
+        //初始化ImageLoader
+        ImageLoaderConfiguration imageLoaderConfiguration = ImageLoaderConfiguration.createDefault(APP.getContext());
+        ImageLoader.getInstance().init(imageLoaderConfiguration);
 
         //初始化设备号
         HeartBeatClient.initDeviceNo();

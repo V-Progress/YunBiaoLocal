@@ -66,6 +66,11 @@ public class Const {
          * 菜单界面停留时长
          */
         int MENU_STAY_DURATION = 60;
+
+        /***
+         * 微信单个消息显示总时长
+         */
+        int WEICHAT_MSG_TIME = 30;
     }
 
     {
