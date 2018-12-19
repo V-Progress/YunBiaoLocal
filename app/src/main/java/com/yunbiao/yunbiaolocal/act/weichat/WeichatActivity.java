@@ -20,6 +20,7 @@ import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.act.BaseActivity;
 import com.yunbiao.yunbiaolocal.act.weichat.bean.WeiMessage;
+import com.yunbiao.yunbiaolocal.cache.CacheManager;
 import com.yunbiao.yunbiaolocal.common.Const;
 import com.yunbiao.yunbiaolocal.view.NumberProgressBar;
 import com.yunbiao.yunbiaolocal.xmpp.Constants;
@@ -94,8 +95,8 @@ public class WeichatActivity extends BaseActivity implements WeiChatReceiver.OnW
     * 获取二维码
     * */
     private void getWeichatQRCode() {
-        String ticketid = WeiChatSave.getString(APP.getContext(), WeiChatSave.WEICHAT_CHAT_ID, "");
-        ImageLoader.getInstance().displayImage(WeiChatConstant.TICKET_URL + ticketid, ivErimage);
+        String wechatTicket = CacheManager.SP.getWechatTicket();
+        ImageLoader.getInstance().displayImage(WeiChatConstant.TICKET_URL + wechatTicket, ivErimage);
     }
 
     /***
@@ -116,46 +117,42 @@ public class WeichatActivity extends BaseActivity implements WeiChatReceiver.OnW
     @SuppressLint("ShowToast")
     private void parseReceivedMsg(final String msg) {
         WeiMessage weiMessage = new Gson().fromJson(msg, WeiMessage.class);
-        weiMessageList.add(weiMessage);
-        timeHandler.sendEmptyMessage(0);
+        weiMessageList.add(weiMessage);//每接收到一条消息就将其添加进list中
+        if(!isTiming){//如果不在计时状态才会重新发
+            timeHandler.sendEmptyMessage(0);
+        }
     }
 
-    /**
-     * 启动或者是发布的状态的处理，主要是因为多屏显示
-     *
-     * @param weiMessage
-     */
-    private void handReceived(WeiMessage weiMessage) {
-
-
-    }
+    private boolean isTiming = false;
 
     Handler timeHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+            isTiming = true;
             tvRemTime.setText("" + totalTime_Seconds);
             if (totalTime_Seconds == 30) {
-                setView(weiMessageList.get(0));
-                weiMessageList.remove(0);
+                setView(weiMessageList.get(0));//设置显示
+                weiMessageList.remove(0);//删除显示的数据
             }
 
-            totalTime_Seconds--;
-            if (totalTime_Seconds < 0) {
+            totalTime_Seconds--;//总时长递减
+            if (totalTime_Seconds < 0) {//小于0后重置
                 totalTime_Seconds = Const.SYSTEM_CONFIG.WEICHAT_MSG_TIME;
             }
 
-            if (weiMessageList.size() > 0) {
+            if (weiMessageList.size() > 0) {//list内容大于0时继续计时
                 timeHandler.sendEmptyMessageDelayed(0, 1000);
-            } else {
+            } else {//不大于0时则进行最后一步计时
                 new CountDownTimer((totalTime_Seconds +1)*1000, 1000) {
                     @Override
                     public void onTick(long millisUntilFinished) {
-                        tvRemTime.setText("" + millisUntilFinished/1000);
+                        tvRemTime.setText("" + millisUntilFinished/1000);//设置数秒
                     }
 
                     @Override
                     public void onFinish() {
-                        finish();
+                        isTiming = false;
+                        finish();//计时结束关闭界面
                     }
                 }.start();
             }
@@ -171,10 +168,10 @@ public class WeichatActivity extends BaseActivity implements WeiChatReceiver.OnW
         if (type == -1) {//隐藏与显示
             if (llWeiChatLl.getVisibility() == View.VISIBLE) {
                 llWeiChatLl.setVisibility(View.INVISIBLE);
-                WeiChatSave.saveBoolean(WeichatActivity.this, WeiChatSave.WEICHAT_ECODE_VISIBILE, false);
+//                WeiChatSave.saveBoolean(WeichatActivity.this, WeiChatSave.WEICHAT_ECODE_VISIBILE, false);
             } else {
                 llWeiChatLl.setVisibility(View.VISIBLE);
-                WeiChatSave.saveBoolean(WeichatActivity.this, WeiChatSave.WEICHAT_ECODE_VISIBILE, true);
+//                WeiChatSave.saveBoolean(WeichatActivity.this, WeiChatSave.WEICHAT_ECODE_VISIBILE, true);
             }
             return;
         }

@@ -107,10 +107,16 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
      * 初始化播放器
      */
     public void pause(){
+        if(mediaPlayer == null){
+            return;
+        }
         mediaPlayer.pause();
     }
 
     public void resume(){
+        if(mediaPlayer == null){
+            return;
+        }
         mediaPlayer.start();
     }
 

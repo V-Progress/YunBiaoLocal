@@ -35,10 +35,16 @@ public class LayoutRefresher {
             new Exception("view can not be null!").printStackTrace();
             return;
         }
+        if(mOnRefreshIner == null){
+            return;
+        }
         mOnRefreshIner.addView(view);
     }
 
     public void removeAllView(){
+        if(mOnRefreshIner == null){
+            return;
+        }
         mOnRefreshIner.removeView();
     }
 

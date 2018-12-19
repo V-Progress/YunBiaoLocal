@@ -39,7 +39,31 @@ import java.util.regex.Pattern;
 
 public class CommonUtils {
     private static final String TAG = "CommonUtils";
-
+    /**
+     * 设备是否有摄像头
+     */
+    public static String checkCamera() {//1有  0没有
+        Integer type = CommonUtils.getBroadType();
+        String isHas;
+        if (type == 0) {//荣朗 判断摄像头是否存在 判断dev/video0是否存在
+            File file = new File("dev/video0");
+            boolean exists = file.exists();
+            if (exists) {
+                isHas = "1";
+            } else {
+                isHas = "-1";
+            }
+            return isHas;
+        } else {//其他主板
+            int camera = CameraTool.getCamera();
+            if (camera != -1) {//有
+                isHas = "1";
+            } else {
+                isHas = "-1";//没有
+            }
+            return isHas;
+        }
+    }
     /**
      * 获取现在时间
      *

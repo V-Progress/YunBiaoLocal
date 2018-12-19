@@ -1,28 +1,26 @@
 package com.yunbiao.yunbiaolocal.act;
 
-import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.os.Build;
 import android.support.percent.PercentRelativeLayout;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.yunbiao.yunbiaolocal.APP;
+import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.act.weichat.WeichatActivity;
 import com.yunbiao.yunbiaolocal.cache.CacheManager;
 import com.yunbiao.yunbiaolocal.common.Const;
-import com.yunbiao.yunbiaolocal.common.ResourceConst;
 import com.yunbiao.yunbiaolocal.common.HeartBeatClient;
-import com.yunbiao.yunbiaolocal.R;
+import com.yunbiao.yunbiaolocal.common.ResourceConst;
 import com.yunbiao.yunbiaolocal.resolve.VideoDataResolver;
 import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
@@ -39,73 +37,35 @@ import okhttp3.Call;
 
 public class MenuActivity extends BaseActivity implements View.OnFocusChangeListener {
 
-    @BindView(R.id.btn_weiChat_page)
-    Button btnWeiChatPage;
-    @BindView(R.id.menu_info_bind_btn)
-    Button menuInfoBindBtn;
-    @BindView(R.id.tv_menu_info_time)
-    TextClock tvMenuInfoTime;
-    @BindView(R.id.tv_menu_info_date)
-    TextClock tvMenuInfoDate;
-    @BindView(R.id.tv_menu_info_temper)
-    TextView tvMenuInfoTemper;
-    @BindView(R.id.iv_menu_info_temper)
-    ImageView ivMenuInfoTemper;
-    @BindView(R.id.ll_menu_above)
-    PercentRelativeLayout llMenuAbove;
-    @BindView(R.id.iv_menu_info_prompt)
-    ImageView ivMenuInfoPrompt;
     @BindView(R.id.tv_menu_info_prompt)
     TextView tvMenuInfoPrompt;
-    @BindView(R.id.menu_info_ellipse_btn)
-    Button menuInfoEllipseBtn;
     @BindView(R.id.tv_menu_info_equipmentMum)
     TextView tvMenuInfoEquipmentMum;
     @BindView(R.id.tv_menu_info_accessCode)
     TextView tvMenuInfoAccessCode;
-    @BindView(R.id.ll_menu_bottom)
-    PercentRelativeLayout llMenuBottom;
     @BindView(R.id.btn_menu_start)
     Button btnMenuStart;
-    @BindView(R.id.iv_menu_icon_start)
-    ImageView ivMenuIconStart;
     @BindView(R.id.tv_show_onscreen_time)
     TextView tvShowOnscreenTime;
     @BindView(R.id.tv_menu_start_hints)
     TextView tvMenuStartHints;
     @BindView(R.id.tv_menu_start_hints_2)
     TextView tvMenuStartHints2;
-    @BindView(R.id.perRe_position_01)
-    PercentRelativeLayout perRePosition01;
     @BindView(R.id.tv_menu_start)
     TextView tvMenuStart;
     @BindView(R.id.btn_menu_playlist)
     Button btnMenuOffline;
-    @BindView(R.id.iv_menu_icon_offline)
-    ImageView ivMenuIconOffline;
     @BindView(R.id.tv_menu_offline_hints)
     TextView tvMenuOfflineHints;
     @BindView(R.id.tv_menu_offline_hints_2)
     TextView tvMenuOfflineHints2;
     @BindView(R.id.tv_menu_offline_hints_3)
     TextView tvMenuOfflineHints3;
-    @BindView(R.id.perRe_position_02_1)
-    PercentRelativeLayout perRePosition021;
-    @BindView(R.id.btn_menu_offline2)
-    Button btnMenuOffline2;
-    @BindView(R.id.iv_menu_icon_offline2)
-    ImageView ivMenuIconOffline2;
-    @BindView(R.id.tv_menu_offline2_hints)
-    TextView tvMenuOffline2Hints;
-    @BindView(R.id.tv_menu_offline2_hints_2)
-    TextView tvMenuOffline2Hints2;
-    @BindView(R.id.perRe_position_02_2)
-    PercentRelativeLayout perRePosition022;
-    @BindView(R.id.perRe_position_02)
-    PercentRelativeLayout perRePosition02;
+    @BindView(R.id.prl_bind_area)
+    PercentRelativeLayout prlBindArea;
     @BindView(R.id.tv_menu_offline)
     TextView tvMenuOffline;
-    @BindView(R.id.btn_menu_service)
+    @BindView(R.id.btn_menu_bind)
     Button btnMenuService;
     @BindView(R.id.iv_menu_icon_service)
     ImageView ivMenuIconService;
@@ -113,52 +73,41 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     TextView tvMenuServiceHints;
     @BindView(R.id.tv_menu_service_hints_2)
     TextView tvMenuServiceHints2;
-    @BindView(R.id.tv_menu_info_ser_head)
-    TextView tvMenuInfoSerHead;
     @BindView(R.id.tv_menu_info_ser)
     TextView tvMenuInfoSer;
-    @BindView(R.id.tv_menu_info_conn_head)
-    TextView tvMenuInfoConnHead;
     @BindView(R.id.tv_menu_info_conn)
     TextView tvMenuInfoConn;
-    @BindView(R.id.tv_menu_info_decName_head)
-    TextView tvMenuInfoDecNameHead;
     @BindView(R.id.tv_menu_info_decName)
     TextView tvMenuInfoDecName;
-    @BindView(R.id.prl_ser_one)
-    PercentRelativeLayout prlSerOne;
-    @BindView(R.id.perRe_position_03)
-    PercentRelativeLayout perRePosition03;
     @BindView(R.id.tv_menu_service)
     TextView tvMenuService;
     @BindView(R.id.btn_menu_setting)
     Button btnMenuSetting;
-    @BindView(R.id.iv_menu_icon_setting)
-    ImageView ivMenuIconSetting;
     @BindView(R.id.tv_menu_setting_hints)
     TextView tvMenuSettingHints;
     @BindView(R.id.tv_menu_setting_hints_2)
     TextView tvMenuSettingHints2;
-    @BindView(R.id.tv_menu_ip)
-    TextView tvMenuIp;
-    @BindView(R.id.iv_menu_is_network)
-    ImageView ivMenuIsNetwork;
-    @BindView(R.id.perRe_position_04)
-    PercentRelativeLayout perRePosition04;
     @BindView(R.id.tv_menu_setting)
     TextView tvMenuSetting;
+    @BindView(R.id.edt_bind_username)
+    EditText edtBindUsername;
+    @BindView(R.id.edt_bind_code)
+    EditText edtBindCode;
+    @BindView(R.id.tv_menu_info_bindstate)
+    TextView tvBindStatus;
+    @BindView(R.id.tv_bind_hints)
+    TextView tvBindHints;
 
     private SoundPool soundPool;//用来管理和播放音频文件
     private int music;
-    private AlertDialog bindDecDialog;
     private TimerUtil timerUtil;
 
-    protected int setLayout(){
+    protected int setLayout() {
         APP.setMenuActivity(this);
         return R.layout.activity_menu;
     }
 
-    protected void initData(){
+    protected void initData() {
         soundPool = new SoundPool(10, AudioManager.STREAM_RING, 5);//第一个参数为同时播放数据流的最大个数，第二数据流类型，第三为声音质量
         music = soundPool.load(this, R.raw.di, 1);
         timerUtil = TimerUtil.getInstance(this).listen(onTimerListener);
@@ -167,7 +116,6 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     protected void initView() {
         btnMenuStart.setOnFocusChangeListener(this);
         btnMenuOffline.setOnFocusChangeListener(this);
-        btnMenuOffline2.setOnFocusChangeListener(this);
         btnMenuService.setOnFocusChangeListener(this);
         btnMenuSetting.setOnFocusChangeListener(this);
 
@@ -176,39 +124,43 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         tvMenuOfflineHints.setText("本地资源");
         tvMenuOfflineHints2.setText(R.string.use_usb_play);
         tvMenuOfflineHints2.setText("查看本地已保存的节目");
-        tvMenuServiceHints.setText(R.string.yun_or_local);
-        tvMenuServiceHints2.setText(R.string.delete_current_layout);
-        tvMenuSettingHints.setText(R.string.system_base_setting);
-        tvMenuSettingHints2.setText(R.string.pwd_on_off);
-        tvMenuOffline2Hints.setText(R.string.import_layout);
-        tvMenuOffline2Hints2.setText(R.string.use_yun_import_layout);
+        tvMenuServiceHints.setText("绑定已有用户");
+        tvMenuServiceHints2.setText("通过管理平台控制设备");
+        tvMenuSettingHints.setText("微信消息查看");
+        tvMenuSettingHints2.setText("微信上墙消息查看");
         tvMenuOfflineHints3.setText("节目列表");
         tvMenuInfoPrompt.setText(R.string.hint_click_play);
 
-        menuInfoBindBtn.setText("未绑定");
-        menuInfoBindBtn.setTextColor(Color.parseColor("#ADADAD"));
-        menuInfoBindBtn.setBackgroundResource(R.drawable.no_service_btn);
-
-        tvMenuInfoDate.setFormat24Hour("yyyy-MM-dd");
-        tvMenuInfoTime.setFormat12Hour("HH:mm");
-
         tvShowOnscreenTime.setText(String.valueOf(Const.SYSTEM_CONFIG.MENU_STAY_DURATION));
 
-        tvMenuInfoEquipmentMum.setText(CacheManager.SP.getDeviceNum());
-        tvMenuInfoAccessCode.setText(CacheManager.SP.getAccessCode());
+        setConnInfo(0);
 
-        //设备是否绑定
-        String bindStatus = CacheManager.SP.getBindStatus();
-        if (!bindStatus.equals("1")) {//已绑定
-            menuInfoBindBtn.setText(R.string.unbind);
-            menuInfoBindBtn.setTextColor(Color.parseColor("#ADADAD"));
-            menuInfoBindBtn.setBackgroundResource(R.drawable.no_service_btn);
-        } else {
-            menuInfoBindBtn.setText(R.string.menu_bind_user);
-            menuInfoBindBtn.setTextColor(Color.parseColor("#95e546"));
-            menuInfoBindBtn.setBackgroundResource(R.drawable.is_service_btn);
+        String status = CacheManager.SP.getStatus();//0未绑定 1绑定
+        if(TextUtils.equals("0",status)){
+            unbind();
+        }else{
+            binded();
         }
+
+        edtBindUsername.setOnFocusChangeListener(focusChangeListener);
+        edtBindCode.setOnFocusChangeListener(focusChangeListener);
     }
+
+    View.OnFocusChangeListener focusChangeListener = new View.OnFocusChangeListener() {
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+            switch (v.getId()) {
+                case R.id.edt_bind_username:
+                case R.id.edt_bind_code:
+                    if(!hasFocus){
+                        onResume();
+                        return;
+                    }
+                    onPause();
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onResume() {
@@ -243,7 +195,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         }
     };
 
-    @OnClick({R.id.menu_info_bind_btn, R.id.btn_weiChat_page, R.id.btn_menu_start, R.id.btn_menu_playlist, R.id.btn_menu_offline2, R.id.btn_menu_service, R.id.btn_menu_setting})
+    @OnClick({R.id.btn_bind, R.id.btn_menu_start, R.id.btn_menu_playlist, R.id.btn_menu_bind, R.id.btn_menu_setting})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_menu_start:
@@ -260,18 +212,14 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                     }
                 });
                 break;
-            case R.id.btn_menu_offline2:
-                break;
-            case R.id.btn_menu_service:
+            case R.id.btn_menu_bind:
                 break;
             case R.id.btn_menu_setting:
-                startActivity(new Intent(this,AbsoluteActivity.class));
+                startActivity(new Intent(this, WeichatActivity.class));
+//                startActivity(new Intent(this, AbsoluteActivity.class));
                 break;
-            case R.id.btn_weiChat_page:
-                startActivity(new Intent(this,WeichatActivity.class));
-                break;
-            case R.id.menu_info_bind_btn:
-                showBindDialog(this);
+            case R.id.btn_bind:
+                requestBindUser();
                 break;
         }
     }
@@ -283,92 +231,70 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         }
     }
 
-    /**
-     * 显示绑定设备dialog
-     *
-     * @param context
-     */
-    private void showBindDialog(Context context) {
-        timerUtil.pause();
-        bindDecDialog = new AlertDialog.Builder(context).create();
-        View view = View.inflate(context, R.layout.menu_bind_dialog, null);
-        TextView bindTitleTextView = view.findViewById(R.id.tv_bind_title);
-        final EditText bindNameEditText = view.findViewById(R.id.et_bind_name);
-        final EditText bindNumEditText = view.findViewById(R.id.et_bind_num);
-        Button bindCancelBtn = view.findViewById(R.id.btn_bind_cancel);
-        final Button bindSureBtn = view.findViewById(R.id.btn_bind_sure);
-        final TextView bindHintsTextView = view.findViewById(R.id.tv_bind_hints);
+    private void requestBindUser(){
+        String deviceNo = HeartBeatClient.getDeviceNo();
+        String userName = edtBindUsername.getText().toString();
+        String userRand = edtBindCode.getText().toString();
 
-        bindTitleTextView.setText(R.string.bind_dev);
+        if(TextUtils.isEmpty(deviceNo)){
+            tvBindHints.setText(getResources().getString(R.string.bind_code_no_get));
+            return;
+        }
+        if(TextUtils.isEmpty(userName) || TextUtils.isEmpty(userRand)){
+            tvBindHints.setText(getResources().getString(R.string.bind_code_is_null));
+            return;
+        }
 
-        View.OnClickListener clickListener = new View.OnClickListener() {
+        Map map = new HashMap();
+        map.put("deviceNo", deviceNo);
+        map.put("userName", userName);
+        map.put("userRand", userRand);
+        NetUtil.getInstance().post(ResourceConst.REMOTE_RES.DEC_NUM, map, new StringCallback() {
             @Override
-            public void onClick(View v) {
-                switch (v.getId()) {
-                    case R.id.btn_bind_sure:
-                        String deviceNo = HeartBeatClient.getDeviceNo();
-                        String userName = bindNameEditText.getText().toString();
-                        String userRand = bindNumEditText.getText().toString();
-                        if (!TextUtils.isEmpty(deviceNo)) {
-                            Map map = new HashMap();
-                            map.put("deviceNo", deviceNo);
-                            map.put("userName", userName);
-                            map.put("userRand", userRand);
+            public void onError(Call call, Exception e, int id) {
 
-                            NetUtil.getInstance().post(ResourceConst.REMOTE_RES.DEC_NUM, map, new StringCallback() {
-                                @Override
-                                public void onError(Call call, Exception e, int id) {
-
-                                }
-
-                                @Override
-                                public void onResponse(String response, int id) {
-                                    if (response.startsWith("\"")) {
-                                        response = response.substring(1, response.length() - 1);
-                                    }
-                                    if (!response.equals("faile")) {
-                                        String[] split = response.split("\"");
-                                        String result1 = split[split.length - 2];
-                                        switch (result1) {
-                                            case "1":
-
-                                                if (menuInfoBindBtn != null) {
-                                                    menuInfoBindBtn.setText(R.string.menu_bind_user);
-                                                    menuInfoBindBtn.setTextColor(Color.parseColor("#95e546"));
-                                                    menuInfoBindBtn.setBackgroundResource(R.drawable.is_service_btn);
-                                                }
-//                                                if (btn2 != null) {
-//                                                    btn2.setText(R.string.bind_user);
-//                                                    btn2.setBackgroundResource(R.drawable.wei_chat_btn);
-//                                                }
-                                                Toast.makeText(APP.getContext(), R.string.bind_dev_ok, Toast.LENGTH_SHORT).show();
-                                                bindDecDialog.dismiss();
-                                                break;
-                                            case "2":
-                                                bindHintsTextView.setText(R.string.bind_code_no);
-                                                break;
-                                            default:
-                                                bindHintsTextView.setText(R.string.bind_code_transfer_error);
-                                                break;
-                                        }
-                                    }
-                                }
-                            });
-                        }
-                        break;
-                    case R.id.btn_bind_cancel:
-
-                        bindDecDialog.dismiss();
-                        break;
-                }
-                timerUtil.start(60);
             }
-        };
-        bindCancelBtn.setOnClickListener(clickListener);
-        bindSureBtn.setOnClickListener(clickListener);
 
-        bindDecDialog.setView(view, 0, 0, 0, 0);
-        bindDecDialog.show();
+            @Override
+            public void onResponse(String response, int id) {
+                if (response.startsWith("\"")) {
+                    response = response.substring(1, response.length() - 1);
+                }
+                if (!response.equals("faile")) {
+                    String[] split = response.split("\"");
+                    String result1 = split[split.length - 2];
+                    switch (result1) {
+                        case "1":
+                            binded();
+                            onResume();
+                            CacheManager.SP.putStatus("1");
+                            Toast.makeText(APP.getContext(), R.string.bind_dev_ok, Toast.LENGTH_SHORT).show();
+                            break;
+                        case "2":
+                            tvBindHints.setText(R.string.bind_code_no);
+                            break;
+                        default:
+                            tvBindHints.setText(R.string.bind_code_transfer_error);
+                            break;
+                    }
+                }
+            }
+        });
+
+    }
+
+    private void binded(){
+        prlBindArea.setVisibility(View.GONE);
+        tvBindStatus.setText(R.string.bind_user);
+        tvBindStatus.setTextColor(Color.parseColor("#95e546"));
+        ivMenuIconService.setVisibility(View.VISIBLE);
+    }
+
+    private void unbind(){
+        ivMenuIconService.setVisibility(View.INVISIBLE);
+        prlBindArea.setVisibility(View.VISIBLE);
+        tvBindStatus.setText(R.string.unbind_user);
+        tvBindStatus.setTextColor(Color.parseColor("#ADADAD"));
     }
 
     @Override
@@ -377,60 +303,20 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         APP.setMenuActivity(null);
     }
 
-    //    private LayoutInfo getLayoutView(String id, String left, String top, String content){
-//
-//        Container container = new Container();
-//        container.setHeight("50%");
-//        container.setWidth("50%");
-//        container.setLeft(left);
-//        container.setTop(top);
-//
-//        TextDetail textDetail = new TextDetail();
-//        textDetail.setBackground("#ffffff");
-//        textDetail.setDataType(0);
-//        textDetail.setFontColor("#FF0000");
-//        textDetail.setFontFamily("1");
-//        textDetail.setFontSize(52);
-//        textDetail.setIsPlay(true);
-//        textDetail.setPlayTime(0.1f);
-//        textDetail.setPlayType("0");
-//        textDetail.setTextAlign("");
-//
-//        LayoutInfo layoutInfo = new LayoutInfo();
-//        layoutInfo.setType(2);
-//        layoutInfo.setTextDetail(textDetail);
-//        layoutInfo.setContainer(container);
-//        layoutInfo.setId(id);
-//        layoutInfo.setContent(new String[]{content});
-//        return layoutInfo;
-//    }
-//
-//    private LayoutInfo getAdsLayout(String id, String left, String top, String content){
-//
-//        Container container = new Container();
-//        container.setHeight("20%");
-//        container.setWidth("100%");
-//        container.setLeft(left);
-//        container.setTop(top);
-//
-//        TextDetail textDetail = new TextDetail();
-//        textDetail.setBackground("#00ff00");
-//        textDetail.setDataType(0);
-//        textDetail.setFontColor("#FF0000");
-//        textDetail.setFontFamily("1");
-//        textDetail.setFontSize(52);
-//        textDetail.setIsPlay(true);
-//        textDetail.setPlayTime(0.1f);
-//        textDetail.setPlayType("0");
-//        textDetail.setTextAlign("");
-//
-//        LayoutInfo layoutInfo = new LayoutInfo();
-//        layoutInfo.setType(2);
-//        layoutInfo.setTextDetail(textDetail);
-//        layoutInfo.setContainer(container);
-//        layoutInfo.setId(id);
-//        layoutInfo.setContent(new String[]{content});
-//        return layoutInfo;
-//    }
+    public void setConnInfo(int isConn) {
+        tvMenuInfoConn.setText("正在连接...");
+        if(isConn == 1){
+            tvMenuInfoConn.setText("连接成功");
+        }
+        tvMenuInfoEquipmentMum.setText(CacheManager.SP.getDeviceNum());
+        tvMenuInfoAccessCode.setText(CacheManager.SP.getAccessCode());
+        tvMenuInfoDecName.setText(Build.MODEL);
+        tvMenuInfoSer.setText(Const.DOMAIN);
 
+        //设备是否绑定
+        String bindStatus = CacheManager.SP.getBindStatus();
+        if(!TextUtils.equals("1",bindStatus)){
+            unbind();
+        }
+    }
 }

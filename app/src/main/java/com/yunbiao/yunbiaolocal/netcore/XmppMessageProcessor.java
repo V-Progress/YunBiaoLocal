@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
+import com.yunbiao.yunbiaolocal.act.MenuActivity;
 import com.yunbiao.yunbiaolocal.act.weichat.WeiChatSave;
 import com.yunbiao.yunbiaolocal.cache.CacheManager;
 import com.yunbiao.yunbiaolocal.common.HeartBeatClient;
@@ -76,28 +77,19 @@ public class XmppMessageProcessor {
                 NetUtil.getInstance().upLoadHardWareMessage();
 
                 LoginModel loginModel = new Gson().fromJson(content, LoginModel.class);
-                CacheManager.SP.putDeviceNum(loginModel.getSerNum());
-                CacheManager.SP.putAccessCode(loginModel.getPwd());
-                CacheManager.SP.putIsMirror(loginModel.getIsMirror());
-                CacheManager.SP.putDeviceName(loginModel.getDeviceName());
-                CacheManager.SP.putRunStatus(loginModel.getRunStatus());
-                CacheManager.SP.putBindStatus(loginModel.getBindStatus());
-                CacheManager.SP.putExpireDate(loginModel.getExpireDate());
-                CacheManager.SP.putDeviceQrCode(loginModel.getDeviceQrCode());
-                CacheManager.SP.putDeviceType(loginModel.getDtype());
-
-                WeiChatSave.saveString(APP.getContext(), WeiChatSave.WEICHAT_CHAT_ID, loginModel.getTicket());
-                WeiChatSave.saveString(APP.getContext(), WeiChatSave.DEVICEQRCODE, loginModel.getDeviceQrCode());
+                CacheManager.SP.putDeviceName(loginModel.getDeviceName());//设备名称
+                CacheManager.SP.putSettingPwd(loginModel.getPassword());
+                CacheManager.SP.putAccessCode(loginModel.getPwd());//接入码
+                CacheManager.SP.putDeviceNum(loginModel.getSerNum());//设备编号
+                CacheManager.SP.putStatus(loginModel.getStatus());
+                CacheManager.SP.putWechatTicket(loginModel.getTicket());
 
                 //是否有密码
-                String password = loginModel.getPassword();
-                LogUtil.E(TAG, "*****" + password);
-                if (TextUtils.isEmpty(password) || password.equals(" ") || password.equals("null")) {
-                } else {
+                LogUtil.E(TAG, "*****" + loginModel.getPassword());
+                MenuActivity menuActivity = APP.getMenuActivity();
+                if(menuActivity != null){//调用一下菜单界面的方法，避免先打开菜单后连接成功导致菜单界面数据不刷新
+                    menuActivity.setConnInfo(1);
                 }
-
-
-
                 break;
             case CONTENT_TYPE:
                 LayoutRefresher.getInstance().refreshLayout();

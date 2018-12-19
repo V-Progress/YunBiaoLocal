@@ -16,29 +16,17 @@ android {
     buildTypes {
         debug {
             minifyEnabled false
-            /*1.PRO 2.UAT 3.TST 4.DEV*/
-            buildConfigField "int", "SERVER_TYPE", "3";
-            buildConfigField "String", "URL_PRO", "\"www.yunbiaowulian.com\"";
-            buildConfigField "String", "PORT_PRO", "\"5222\"";
-
-            buildConfigField "String", "URL_TST", "\"192.168.1.101\"";
-            buildConfigField "String", "PORT_TST", "\"5222\"";
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            buildConfigField "int", "SERVER_TYPE", "3";
-            buildConfigField "String", "URL_PRO", "\"www.yunbiaowulian.com\"";
-            buildConfigField "String", "PORT_PRO", "\"5222\"";
-
-            buildConfigField "String", "URL_TST", "\"192.168.1.101\"";
-            buildConfigField "String", "PORT_TST", "\"5222\"";
         }
     }
 
     productFlavors {
         // 生产版本
         pro {
+
             // 服务地址
             buildConfigField "String", "DOMAIN", "com.yunbiao.yunbiaolocal.common.Const.URL.PRO"
             // 服务端口
@@ -49,7 +37,7 @@ android {
         // 开发版本
         dev {
             // 服务地址
-            buildConfigField "String", "DOMAIN", "com.yunbiao.yunbiaolocal.common.Const.URL.PRO"
+            buildConfigField "String", "DOMAIN", "com.yunbiao.yunbiaolocal.common.Const.URL.DEV"
             // 服务端口
             buildConfigField "String", "PORT", "com.yunbiao.yunbiaolocal.common.Const.PORT.DEV"
             // 是否打印日志到文件
@@ -60,6 +48,25 @@ android {
     repositories {
         flatDir { dirs 'libs' }
     }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+    //以下是为了找到android.os.SystemProperties这个隐藏的类
+    String SDK_DIR = System.getenv("ANDROID_SDK_HOME")
+    //("TAG", "SDK_DIR = " + SDK_DIR );
+    if(SDK_DIR == null) {
+        Properties props = new Properties()
+        props.load(new FileInputStream(project.rootProject.file("local.properties")))
+        SDK_DIR = props.get('sdk.dir');
+    }
+    dependencies {
+        provided files("${SDK_DIR}/platforms/android-21/data/layoutlib.jar")
+    }
+    //以上是为了找到android.os.SystemProperties这个隐藏的类
 }
 
 dependencies {
@@ -81,5 +88,5 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.8.1'
     compile 'io.reactivex.rxjava2:rxjava:2.2.4'
     compile 'io.reactivex.rxjava2:rxandroid:2.1.0'
-
+    compile files('libs/BaiduLBS_Android.jar')
 }

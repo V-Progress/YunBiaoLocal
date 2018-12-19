@@ -58,8 +58,13 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
 
     private InsertPlayDialog(@NonNull Context context) {
         super(context, R.style.FullScreenDialog);
+        initView();
+        setCancelable(false);
     }
 
+    /***
+     * 检查当前是否有广告数据缓存，如果有，取出并设置
+     */
     public void init() {
         int showType = CacheManager.FILE.getInsertType();
         String adsinfoTemp = CacheManager.FILE.getInsertAds();
@@ -67,13 +72,6 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         if (!TextUtils.isEmpty(adsinfoTemp)) {
             showInsert(adsinfoTemp,showType);
         }
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        initView();
-        setCancelable(false);
     }
 
     private void initView() {
@@ -97,40 +95,43 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         dialogWindow.setAttributes(lp);
     }
 
+    //监听直播源的播放情况
     @Override
     public boolean onInfo(MediaPlayer mp, int what, int extra) {
         switch (what) {
-            case MediaPlayer.MEDIA_INFO_BUFFERING_START:
+            case MediaPlayer.MEDIA_INFO_BUFFERING_START://开始缓冲
                 if (videoView.isPlaying()) {
                     videoView.stopPlayback();
                 }
                 setLoading(View.VISIBLE);
                 break;
-            case MediaPlayer.MEDIA_INFO_BUFFERING_END:
+            case MediaPlayer.MEDIA_INFO_BUFFERING_END://缓冲结束
                 videoView.start();
                 setLoading(View.GONE);
                 break;
-            case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
+            case MediaPlayer.MEDIA_ERROR_TIMED_OUT://缓冲超时
                 rePlayVideo();
                 break;
-            case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+            case MediaPlayer.MEDIA_ERROR_SERVER_DIED://无法连接服务器
                 showErrText("无法连接到服务器！");
                 break;
-            case MediaPlayer.MEDIA_ERROR_UNKNOWN:
+            case MediaPlayer.MEDIA_ERROR_UNKNOWN://未知的直播源
                 showErrText("直播源播放失败，未知错误！");
                 break;
-            case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
+            case MediaPlayer.MEDIA_ERROR_UNSUPPORTED://不支持的视频格式
                 showErrText("不支持的视频流格式！");
                 break;
         }
         return true;
     }
 
+    //播放器准备完毕后的监听，设置为循环播放
     @Override
     public void onPrepared(MediaPlayer mp) {
         mp.setLooping(true);//循环播放
     }
 
+    //显示插入广告
     public void showInsert(final String content, int insertType) {
         final int showType = insertType;
         ThreadUtil.getInstance().runInCommonThread(new Runnable() {
@@ -202,12 +203,14 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         });
     }
 
+    //显示的同时暂停首页的视频
     @Override
     public void show() {
         super.show();
         pauseMainPlay();
     }
 
+    //关闭的时候开启首页的视频
     @Override
     public void dismiss() {
         super.dismiss();

@@ -6,6 +6,8 @@ import android.app.smdt.SmdtManager;
 import android.content.Context;
 import android.media.AudioManager;
 
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.yunbiao.yunbiaolocal.act.AbsoluteActivity;
@@ -14,6 +16,7 @@ import com.yunbiao.yunbiaolocal.act.MenuActivity;
 import com.yunbiao.yunbiaolocal.common.Const;
 import com.yunbiao.yunbiaolocal.common.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.utils.CommonUtils;
+import com.yunbiao.yunbiaolocal.utils.BDLocationListener;
 import com.zhy.http.okhttp.OkHttpUtils;
 
 import java.util.ArrayList;
@@ -38,6 +41,8 @@ public class APP extends Application {
     private static List<Activity> actList;
 
     private static AbsoluteActivity absoluteActivity;
+    private static LocationClient locationClient;
+
     public static void setAbsAct(AbsoluteActivity absAct){
         absoluteActivity = absAct;
     }
@@ -52,6 +57,9 @@ public class APP extends Application {
         actList = new ArrayList<>();
         smdt = SmdtManager.create(this);
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);// 安卓音频初始化
+
+        //初始化定位
+        initLocation();
 
         //初始化VITAMIO
         Vitamio.initialize(this);
@@ -73,6 +81,29 @@ public class APP extends Application {
         HeartBeatClient.initDeviceNo();
         //保存设备号
         CommonUtils.saveBroadInfo();
+    }
+
+    private void initLocation(){
+        LocationClientOption option = new LocationClientOption();
+        option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
+        option.setCoorType("bd09ll");
+        option.setScanSpan(600000);
+        option.setOpenGps(true);
+        option.setIgnoreKillProcess(false);
+        option.SetIgnoreCacheException(false);
+        option.setWifiCacheTimeOut(5*60*1000);
+        option.setIsNeedAddress(true);
+        option.setIsNeedAltitude(true);
+        option.setIsNeedLocationDescribe(true);
+        locationClient = new LocationClient(this,option);
+
+        BDLocationListener bdLocationListener = new BDLocationListener();
+        locationClient.registerLocationListener(bdLocationListener);
+        locationClient.start();
+    }
+
+    public static LocationClient getLocationClient(){
+        return locationClient;
     }
 
     public static OkHttpClient getOkHttpClient() {

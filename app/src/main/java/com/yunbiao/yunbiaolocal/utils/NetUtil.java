@@ -1,9 +1,15 @@
 package com.yunbiao.yunbiaolocal.utils;
 
+import android.content.Context;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.Environment;
+import android.os.SystemProperties;
 import android.text.TextUtils;
+import android.view.WindowManager;
 
 import com.yunbiao.yunbiaolocal.APP;
+import com.yunbiao.yunbiaolocal.cache.CacheManager;
 import com.yunbiao.yunbiaolocal.common.Const;
 import com.yunbiao.yunbiaolocal.common.ResourceConst;
 import com.yunbiao.yunbiaolocal.netcore.DownloadListener;
@@ -167,13 +173,24 @@ public class NetUtil {
                 map.put("screenWidth", String.valueOf(CommonUtils.getScreenWidth(APP.getContext())));
                 map.put("screenHeight", String.valueOf(CommonUtils.getScreenHeight(APP.getContext())));
                 map.put("diskSpace", CommonUtils.getMemoryTotalSize());
-                map.put("useSpace", CommonUtils.getMemoryUsedSize());
                 map.put("softwareVersion", CommonUtils.getAppVersion(APP.getContext()) + "_" + Const.VERSION_TYPE.TYPE);
-//                map.put("screenRotate", String.valueOf(SystemProperties.get("persist.sys.hwrotation")));
+
+                String ori = SystemProperties.get("persist.sys.hwrotation");
+                LogUtil.E("当前屏幕方向："+ori);
+                map.put("screenRotate", ori);
                 map.put("deviceCpu", CommonUtils.getCpuName() + " " + CommonUtils.getNumCores() + "核" + CommonUtils
                         .getMaxCpuFreq() + "khz");
-                map.put("deviceIp", CommonUtils.getIpAddress());//当前设备IP地址
+                map.put("useSpace", CommonUtils.getMemoryUsedSize());
+
+                map.put("latitude",CacheManager.SP.getLatitude());
+                map.put("longitude",CacheManager.SP.getLongitude());
+                map.put("address",CacheManager.SP.getAddress());
+                map.put("cityName",CacheManager.SP.getCityName());
+                map.put("addressHeight",CacheManager.SP.getAltitude());
                 map.put("mac", CommonUtils.getLocalMacAddress());//设备的本机MAC地址
+                map.put("camera",CommonUtils.checkCamera());
+                map.put("deviceIp", CommonUtils.getIpAddress());//当前设备IP地址
+                LogUtil.E("上传设备信息："+map.toString());
                 NetUtil.getInstance()
                         .post(ResourceConst.REMOTE_RES.UPLOAD_DEVICE_INFO, map, new StringCallback() {
                             @Override

@@ -30,7 +30,7 @@ public class ResourceConst {
         /***
          * 设备信息上传
          */
-        String UPLOAD_DEVICE_INFO = Const.BASE_URL + "device/service/updateDeviceHardwareInfo.html";
+        String UPLOAD_DEVICE_INFO = Const.BASE_URL + "api/device/updateDeviceHardwareInfo.html";
         /**
          * 微信打印
          */

@@ -46,35 +46,4 @@ public class WeiChatSave {
         }
         return null;
     }
-
-    private static SharedPreferences sp;
-    private static String SP_NAME = "config";
-    static final String WEICHAT_LIST_SAVE = "wei_chat_save";
-    static final String WEICHAT_ECODE_VISIBILE = "wei_chat_visible";
-    public static final String WEICHAT_CHAT_ID = "wei_chat_id";//二维码
-    public static final String DEVICEQRCODE = "deviceQrCode";//绑定二维码
-
-    public static void saveString(Context context, String key, String value) {
-        if (sp == null)
-            sp = context.getSharedPreferences(SP_NAME, 0);
-        sp.edit().putString(key, value).apply();
-    }
-
-    public static String getString(Context context, String key, String defValue) {
-        if (sp == null)
-            sp = context.getSharedPreferences(SP_NAME, 0);
-        return sp.getString(key, defValue);
-    }
-
-    static void saveBoolean(Context context, String key, boolean value) {
-        if (sp == null)
-            sp = context.getSharedPreferences(SP_NAME, 0);
-        sp.edit().putBoolean(key, value).apply();
-    }
-
-    static boolean getBoolean(Context context, String key, boolean defValue) {
-        if (sp == null)
-            sp = context.getSharedPreferences(SP_NAME, 0);
-        return sp.getBoolean(key, defValue);
-    }
 }

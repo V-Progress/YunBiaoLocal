@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.utils.DialogUtil;
@@ -29,6 +31,21 @@ public abstract class BaseActivity extends Activity {
         initView();
         initData();
     }
+
+    View.OnTouchListener onTouchListener = new View.OnTouchListener() {
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            if(null != BaseActivity.this.getCurrentFocus()){
+                /**
+                 * 点击空白位置 隐藏软键盘
+                 */
+                InputMethodManager mInputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                return mInputMethodManager.hideSoftInputFromWindow(BaseActivity.this.getCurrentFocus().getWindowToken(), 0);
+            }
+            return false;
+        }
+    };
 
     protected abstract void initData();
 

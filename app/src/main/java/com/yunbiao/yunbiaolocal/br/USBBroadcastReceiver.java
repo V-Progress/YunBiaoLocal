@@ -21,7 +21,6 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
         dataString = intent.getDataString().substring(7);
         if (!dataString.matches("/mnt/usbhost\\d") && !dataString.matches("/storage/usbhost\\d")) {
             Toast.makeText(context, "请插入SD卡或者U盘" + dataString, Toast.LENGTH_SHORT).show();
