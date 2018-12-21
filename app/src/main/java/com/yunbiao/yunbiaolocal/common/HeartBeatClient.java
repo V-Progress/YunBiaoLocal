@@ -32,20 +32,7 @@ public class HeartBeatClient {
     /**
      * 心跳频率 默认10s
      */
-    private static HeartBeatClient instance = null;
-
     private static String sbDeviceId = null;
-
-    public static synchronized HeartBeatClient getInstance() {
-        if (instance == null) {
-            instance = new HeartBeatClient();
-        }
-        return instance;
-    }
-
-    private HeartBeatClient() {
-        initDeviceNo();
-    }
 
     /**
      * 获取设备唯一编号
@@ -53,7 +40,11 @@ public class HeartBeatClient {
      * @return
      */
     public static String getDeviceNo() {
-        return CacheManager.SP.getDeviceUniCode();
+        String deviceUniCode = CacheManager.SP.getDeviceUniCode();
+        if(TextUtils.isEmpty(deviceUniCode)){
+            createDeviceNo();
+        }
+        return deviceUniCode;
     }
 
     /**
@@ -65,7 +56,8 @@ public class HeartBeatClient {
         }
     }
 
-    private static void createDeviceNo() {
+    public static void createDeviceNo() {
+
         // 最开始 100台 的时候使用AndroidID出现标识码改变的情况
         // 先去到服务器上判断是否有设备id存在，如果不存在就用新设备id，如果有就还用之前的序号
         final String tmPhone = getAndroidId();
@@ -75,11 +67,12 @@ public class HeartBeatClient {
         NetUtil.getInstance().post(ResourceConst.REMOTE_RES.SER_NUMBER, paramMap, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-
+                LogUtil.E("ResourceConst.REMOTE_RES.SER_NUMBER-----"+e.getMessage());
             }
 
             @Override
             public void onResponse(String response, int id) {
+                LogUtil.E("ResourceConst.REMOTE_RES.SER_NUMBER-----"+response);
                 String deviceNo = "-1";
 
                 if (response.startsWith("\"")) {

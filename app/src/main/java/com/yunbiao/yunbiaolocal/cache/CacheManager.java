@@ -37,18 +37,18 @@ public class CacheManager {
     private static final String DEVICE_BINDSTATUS = "bindStatus";//绑定状态
     private static final String DEVICE_BROAD_INFO = "broad_info";//主板信息
 
-
-
-
-
-
     public static final String LATITUDE = "latitude";//定位城市s
     public static final String LONGITUDE = "longitude";//定位城市s
     public static final String ALTITUDE = "altitude";//定位城市s
     public static final String CITY_NAME = "city_name";//定位城市s
     public static final String ADDRESS = "address";//定位城市s
-    //文件缓存
-    private static final String LAYOUT_DATA = "layoutJson";//布局数据
+
+    //文件缓存----------------------------------------------------------
+    //布局资源
+    private static final String TODAY_RES_DATA = "todayResData";//今天的资源数据
+    private static final String TOMMOROW_RES_DATA = "todayResData";//明天的资源数据
+
+
     private static final String SAVE_SOUND_MUSIC = "save_sound_music";
     private static final String ADSINFO_TEMP = "adsinfo_temp";//广告信息缓存
     public static final String INSERT_TYPE = "insert_type";
@@ -186,20 +186,20 @@ public class CacheManager {
     }
 
     public static class FILE {
-        public static void putLayoutData(String data) {
-            fileCache.put(LAYOUT_DATA, data);
+        public static void putTodayResource(String dataJson){
+            fileCache.put(TODAY_RES_DATA,dataJson);
         }
 
-        public static String getLayoutData() {
-            return fileCache.getAsString(LAYOUT_DATA);
+        public static String getTodayResource(){
+            return fileCache.getAsString(TODAY_RES_DATA);
         }
 
-        public static void clearLayout() {
-            fileCache.clear();
+        public static void putTommorowResource(String dataJson){
+            fileCache.put(TOMMOROW_RES_DATA,dataJson);
         }
 
-        public static void removeLayout() {
-            fileCache.remove(LAYOUT_DATA);
+        public static String getTommorowResource(){
+            return fileCache.getAsString(TOMMOROW_RES_DATA);
         }
 
         public static void putInsertType(Integer insertType) {

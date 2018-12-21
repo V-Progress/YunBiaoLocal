@@ -78,8 +78,9 @@ public class APP extends Application {
         ImageLoader.getInstance().init(imageLoaderConfiguration);
 
         //初始化设备号
-        HeartBeatClient.initDeviceNo();
-        //保存设备号
+        HeartBeatClient.createDeviceNo();
+
+        //保存主板信息
         CommonUtils.saveBroadInfo();
     }
 

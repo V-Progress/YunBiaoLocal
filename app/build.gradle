@@ -58,7 +58,7 @@ android {
     //以下是为了找到android.os.SystemProperties这个隐藏的类
     String SDK_DIR = System.getenv("ANDROID_SDK_HOME")
     //("TAG", "SDK_DIR = " + SDK_DIR );
-    if(SDK_DIR == null) {
+    if (SDK_DIR == null) {
         Properties props = new Properties()
         props.load(new FileInputStream(project.rootProject.file("local.properties")))
         SDK_DIR = props.get('sdk.dir');
@@ -72,13 +72,13 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile(name: 'xwalk_core_library-17.46.448.10-arm', ext: 'aar')
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     //约束布局
     //百分比布局
     compile files('libs/gson-2.8.5.jar')
     compile files('libs/universal-image-loader-1.9.5.jar')
     compile project(':vitamio')
     compile files('libs/smdt.jar')
+    compile files('libs/BaiduLBS_Android.jar')
     compile 'com.android.support:appcompat-v7:26.0.0-alpha1'
     compile 'com.squareup.okhttp3:okhttp:3.10.0'
     compile 'com.zhy:okhttputils:2.6.2'
@@ -88,5 +88,5 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.8.1'
     compile 'io.reactivex.rxjava2:rxjava:2.2.4'
     compile 'io.reactivex.rxjava2:rxandroid:2.1.0'
-    compile files('libs/BaiduLBS_Android.jar')
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 }

@@ -1,9 +1,13 @@
 package com.yunbiao.yunbiaolocal.act;
 
 import android.app.ActivityManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Handler;
+import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -17,9 +21,12 @@ import android.widget.Toast;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.br.USBBroadcastReceiver;
+import com.yunbiao.yunbiaolocal.netcore.DownloadService;
 import com.yunbiao.yunbiaolocal.netcore.OnXmppConnListener;
 import com.yunbiao.yunbiaolocal.netcore.PnServerController;
 import com.yunbiao.yunbiaolocal.resolve.VideoDataResolver;
+import com.yunbiao.yunbiaolocal.utils.DeleteResUtil;
+import com.yunbiao.yunbiaolocal.utils.LogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.yunbiao.yunbiaolocal.utils.SystemInfoUtil;
 import com.yunbiao.yunbiaolocal.view.InsertPlayDialog;
@@ -101,6 +108,13 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
 
         //初始化广告插播，如果有未播完的广告则自动播放
         InsertPlayDialog.build(this).init();
+
+        //绑定资源下载线程
+        bindDownloadService();
+    }
+
+    private void bindDownloadService(){
+        startService(new Intent(this, DownloadService.class));
     }
 
     /*===========播放器控制相关=====================================================================
@@ -321,7 +335,7 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
         }
 
         @Override
-        public void onDownloading(int progress) {
+        public void onProgress(int progress) {
             pbUpdate.setProgress(progress);
         }
 

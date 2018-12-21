@@ -9,7 +9,7 @@
         android:id="@+id/ll_menu_above"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_heightPercent="8%">
+        app:layout_heightPercent="10%">
 
         <TextClock
             android:layout_marginLeft="20dp"
@@ -162,7 +162,7 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_centerInParent="true"
-                app:layout_heightPercent="70%"
+                app:layout_heightPercent="65%"
                 app:layout_widthPercent="85%">
 
                 <Button
@@ -236,7 +236,7 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_centerInParent="true"
-                app:layout_heightPercent="70%"
+                app:layout_heightPercent="65%"
                 app:layout_widthPercent="85%">
 
                 <!--2.1-->
@@ -318,7 +318,7 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_centerInParent="true"
-                app:layout_heightPercent="70%"
+                app:layout_heightPercent="65%"
                 app:layout_widthPercent="85%">
 
                 <Button
@@ -339,6 +339,7 @@
                     app:layout_widthPercent="50%" />
 
                 <android.support.percent.PercentRelativeLayout
+                    android:visibility="gone"
                     android:id="@+id/prl_bind_area"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
@@ -488,6 +489,7 @@
                         android:textSize="@dimen/menu1080_tv_20_dp" />
 
                     <TextView
+                        android:visibility="invisible"
                         android:id="@+id/tv_menu_info_bindstate_heads"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -497,6 +499,7 @@
                         android:textSize="@dimen/menu1080_tv_20_dp" />
 
                     <TextView
+                        android:visibility="invisible"
                         android:id="@+id/tv_menu_info_bindstate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -531,7 +534,7 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_centerInParent="true"
-                app:layout_heightPercent="70%"
+                app:layout_heightPercent="65%"
                 app:layout_widthPercent="85%">
 
                 <Button

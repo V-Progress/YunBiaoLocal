@@ -13,11 +13,11 @@ public class VideoDataModel {
     private String start;
     private List<Play> playlist;
 
-    static class Play{
+    public static class Play{
         private String playday;
         private List<Rule> rules;
 
-        static class Rule{
+        public static class Rule{
             private String date;
             private String res;
 

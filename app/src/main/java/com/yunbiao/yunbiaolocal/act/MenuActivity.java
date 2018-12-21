@@ -135,12 +135,13 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
 
         setConnInfo(0);
 
-        String status = CacheManager.SP.getStatus();//0未绑定 1绑定
-        if(TextUtils.equals("0",status)){
-            unbind();
-        }else{
-            binded();
-        }
+        //屏蔽绑定功能
+//        String status = CacheManager.SP.getStatus();//0未绑定 1绑定
+//        if(TextUtils.equals("0",status)){
+//            unbind();
+//        }else{
+//            binded();
+//        }
 
         edtBindUsername.setOnFocusChangeListener(focusChangeListener);
         edtBindCode.setOnFocusChangeListener(focusChangeListener);

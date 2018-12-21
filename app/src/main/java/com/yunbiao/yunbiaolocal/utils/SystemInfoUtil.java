@@ -277,7 +277,7 @@ public class SystemInfoUtil {
      * @param onDownLoadListener
      */
     public static void downloadUpdate(NetUtil.OnDownLoadListener onDownLoadListener){
-        NetUtil.getInstance().downLoadFile(apkUrl,onDownLoadListener);
+        NetUtil.getInstance().downloadFile(apkUrl,onDownLoadListener);
     }
 
     /**

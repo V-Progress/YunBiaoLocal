@@ -2,27 +2,27 @@ package com.yunbiao.yunbiaolocal.common;
 
 import android.os.Environment;
 
-import com.yunbiao.yunbiaolocal.common.Const;
-
 public class ResourceConst {
 
     public interface LOCAL_RES {
-        String EXTERNAL_DIR = Environment.getExternalStorageDirectory().getAbsolutePath();//外存根目录
+        String EXTERNAL_ROOT_DIR = Environment.getExternalStorageDirectory().getAbsolutePath();//外存根目录
         String APP_CACHE_BASE_PATH = "/mnt/sdcard/hsd";//外存根目录
-        String APP_MAIN_DIR = EXTERNAL_DIR + "/yunbiao";//APP资源主目录
+        String APP_MAIN_DIR = EXTERNAL_ROOT_DIR + "/yunbiao";//APP资源主目录
+
+        String RES_SAVE_PATH = APP_MAIN_DIR+"/resource";
 
         //截屏存储
-        String SCREEN_CACHE_PATH = EXTERNAL_DIR + APP_CACHE_BASE_PATH + "/screen";
+        String SCREEN_CACHE_PATH = EXTERNAL_ROOT_DIR + APP_CACHE_BASE_PATH + "/screen";
         //参数资源存储
-        String PROPERTY_CACHE_PATH = EXTERNAL_DIR + APP_CACHE_BASE_PATH + "/property";
-        //资源存储
-        String IMAGE_CACHE_PATH = EXTERNAL_DIR + APP_CACHE_BASE_PATH + "/resource";
-        // 资源存储目录
-        String WEI_CACHE_PATH = EXTERNAL_DIR + APP_CACHE_BASE_PATH + "/wei";
+        String PROPERTY_CACHE_PATH = EXTERNAL_ROOT_DIR + APP_CACHE_BASE_PATH + "/property";
+        //图片资源存储
+        String IMAGE_CACHE_PATH = EXTERNAL_ROOT_DIR + APP_CACHE_BASE_PATH + "/resource";
+        //微信资源存储目录
+        String WEI_CACHE_PATH = EXTERNAL_ROOT_DIR + APP_CACHE_BASE_PATH + "/wei";
         //推送消息存储
-        String PUSH_CACHE_PATH = EXTERNAL_DIR + APP_CACHE_BASE_PATH + "/push";
+        String PUSH_CACHE_PATH = EXTERNAL_ROOT_DIR + APP_CACHE_BASE_PATH + "/push";
         //播放日志存储
-        String PLAYLOG_PATH = EXTERNAL_DIR + APP_CACHE_BASE_PATH + "/playLog";
+        String PLAYLOG_PATH = EXTERNAL_ROOT_DIR + APP_CACHE_BASE_PATH + "/playLog";
 
     }
 
@@ -31,6 +31,35 @@ public class ResourceConst {
          * 设备信息上传
          */
         String UPLOAD_DEVICE_INFO = Const.BASE_URL + "api/device/updateDeviceHardwareInfo.html";
+
+        /***
+         * APP版本信息上传地址
+         */
+        String UPLOAD_APP_VERSION_URL = Const.BASE_URL + "api/device/uploadAppVersion.html";
+
+        /***
+         * 磁盘信息上传地址
+         */
+        String UPLOAD_DISK_URL = Const.BASE_URL + "api/device/uploadDisk.html";
+
+        /**
+         * 截图上传
+         **/
+        String SCREEN_UPLOAD_URL = Const.BASE_URL + "api/device/uploadScreenImg.html";
+
+        /***
+         * 获取今天或明天的节目数据
+         */
+        String GET_RESOURCE = Const.BASE_URL + "api/layout/getlayoutconfig.html";
+
+        /***
+         * 设备号
+         */
+        String SER_NUMBER = Const.BASE_URL + "api/device/getHasNumber.html";
+
+
+
+
         /**
          * 微信打印
          */
@@ -44,32 +73,17 @@ public class ResourceConst {
         /***
          * 设备信息上传
          */
-        String DEVICE_ONLINE_STATUS = Const.BASE_URL + "device/status/getrunstatus.html";
-
-        /***
-         * 设备号
-         */
-        String SER_NUMBER = Const.BASE_URL + "device/status/getHasNumber.html";
+        String DEVICE_ONLINE_STATUS = Const.BASE_URL + "api/device/status/getrunstatus.html";
 
         /**
          * 版本检测
          **/
-        String VERSION_URL = Const.BASE_URL + "device/service/getversion.html";
+        String VERSION_URL = Const.BASE_URL + "api/device/service/getversion.html";
 
         /**
          * 开关机时间获取
          **/
-        String POWER_OFF_URL = Const.BASE_URL + "device/service/poweroff.html";
-
-        /***
-         * APP版本信息上传地址
-         */
-        String UPLOAD_APP_VERSION_URL = Const.BASE_URL + "device/service/uploadAppVersionNew.html";
-
-        /***
-         * 磁盘信息上传地址
-         */
-        String UPLOAD_DISK_URL = Const.BASE_URL + "device/service/uploadDisk.html";
+        String POWER_OFF_URL = Const.BASE_URL + "api/device/service/poweroff.html";
 
         /**
          * 资源获取
@@ -107,11 +121,6 @@ public class ResourceConst {
         public static String RMBRATE_URL = Const.BASE_URL + "weather/exrate.html";
 
         /**
-         * 截图上传
-         **/
-        public static String SCREEN_UPLOAD_URL = Const.BASE_URL + "device/service/uploadScreenImg.html";
-
-        /**
          * 上传进度
          **/
         public static String RES_UPLOAD_URL = Const.BASE_URL + "device/service/rsupdate.html";
@@ -125,11 +134,6 @@ public class ResourceConst {
          * 绑定设备
          */
         public static String DEC_NUM = Const.BASE_URL + "device/status/binduser.html";
-
-        /**
-         * 获取续费二维码
-         */
-        public static String QRCODE = Const.BASE_URL + "device/renewal/getopenrenewalqrcode.html";
 
         /**
          * 上传人脸识别

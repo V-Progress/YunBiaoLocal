@@ -25,7 +25,10 @@ public class XMLParse {
         JSONObject configuration = new JSONObject();
         FileInputStream fileInputStream = null;
         try {
-            fileInputStream = new FileInputStream(new File(file, "config.xml"));
+            if(!file.isFile()){
+                file = new File(file, "config.xml");
+            }
+            fileInputStream = new FileInputStream(file);
             XmlPullParser xmlPullParser = Xml.newPullParser();
             xmlPullParser.setInput(fileInputStream, "utf-8");
             for (int eventType = xmlPullParser.getEventType(); eventType != XmlPullParser.END_DOCUMENT; eventType = xmlPullParser.next()) {
@@ -91,7 +94,10 @@ public class XMLParse {
         VideoDataModel videoDataModel = new VideoDataModel();
         FileInputStream fileInputStream = null;
         try {
-            fileInputStream = new FileInputStream(new File(file, "config.xml"));
+            if(!file.isFile()){
+                file = new File(file, "config.xml");
+            }
+            fileInputStream = new FileInputStream(file);
             XmlPullParser xmlPullParser = Xml.newPullParser();
             xmlPullParser.setInput(fileInputStream, "utf-8");
             for (int eventType = xmlPullParser.getEventType(); eventType != XmlPullParser.END_DOCUMENT; eventType = xmlPullParser.next()) {

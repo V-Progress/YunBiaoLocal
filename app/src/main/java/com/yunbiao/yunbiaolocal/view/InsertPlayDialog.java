@@ -6,7 +6,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.MediaPlayer;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -225,14 +224,14 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
      */
     private void setVideo(final Date startDate, final Date endDate, String fileurl) {
         if (fileurl.endsWith(".avi")||fileurl.endsWith(".mp4")||fileurl.endsWith(".3gp")) {
-            NetUtil.getInstance().downLoadFile(fileurl, new NetUtil.OnDownLoadListener() {
+            NetUtil.getInstance().downloadFile(fileurl, new NetUtil.OnDownLoadListener() {
                 @Override
                 public void onStart(String fileName) {
                     LogUtil.E("开始下载视频");
                 }
 
                 @Override
-                public void onDownloading(int progress) {
+                public void onProgress(int progress) {
                     LogUtil.E("正在下载-" + progress+"%");
                 }
 

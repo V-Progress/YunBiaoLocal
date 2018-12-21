@@ -114,7 +114,6 @@ public class DownloadTask extends AsyncTask<String,Integer,Integer> {
                         //可以调用publishProgress()方法完成。
                         publishProgress(progress,len);
                     }
-
                 }
                 response.body().close();
                 return TYPE_SUCCESS;

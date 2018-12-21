@@ -1,12 +1,7 @@
 package com.yunbiao.yunbiaolocal.utils;
 
-import android.content.Context;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.os.Environment;
 import android.os.SystemProperties;
-import android.text.TextUtils;
-import android.view.WindowManager;
 
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.cache.CacheManager;
@@ -26,8 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import okhttp3.Call;
-import okhttp3.Request;
-import okhttp3.Response;
 
 /**
  * Created by Administrator on 2018/11/22.
@@ -90,11 +83,11 @@ public class NetUtil {
 
     private String lastCacheUrl;
 
-    public void downLoadFile(final String url, final OnDownLoadListener onDownLoadListener) {
-        if (TextUtils.equals(url, lastCacheUrl)) {
-            LogUtil.E("此文件正在下载。");
-            return;
-        }
+    public void downloadFile(final String url,final OnDownLoadListener onDownLoadListener){
+        downloadFile(url,rootDir,onDownLoadListener);
+    }
+
+    public void downloadFile(final String url, String localPath, final OnDownLoadListener onDownLoadListener) {
         lastCacheUrl = url;
         String fileName = url.substring(url.lastIndexOf("/") + 1);
         onDownLoadListener.onStart(fileName);
@@ -107,7 +100,7 @@ public class NetUtil {
         }
 
         try {
-            File file = new File(rootDir);
+            File file = new File(localPath);
             String[] list = file.list();
             for (String fn : list) {
                 if (fn.contains(fileName)) {
@@ -128,7 +121,7 @@ public class NetUtil {
                         @Override
                         public void onError(Call call, Exception e, int id) {
                             try {
-                                downLoadFile(url, onDownLoadListener);
+//                                downloadFile(url, onDownLoadListener);
                             } catch (Exception e1) {
                                 e1.printStackTrace();
                             }
@@ -145,7 +138,7 @@ public class NetUtil {
                         public void inProgress(float progress, long total, int id) {
                             int i = (int) (100 * progress);
                             if (mainProg != i) {
-                                onDownLoadListener.onDownloading(i);
+                                onDownLoadListener.onProgress(i);
                             }
                             mainProg = i;
                         }
@@ -165,7 +158,7 @@ public class NetUtil {
      * 上传设备信息
      */
     public void upLoadHardWareMessage() {
-        ThreadUtil.getInstance().runInCommonThread(new Runnable() {
+        ThreadUtil.getInstance().runInRemoteThread(new Runnable() {
             @Override
             public void run() {
                 Map<String, String> map = new HashMap<>();
@@ -191,8 +184,7 @@ public class NetUtil {
                 map.put("camera",CommonUtils.checkCamera());
                 map.put("deviceIp", CommonUtils.getIpAddress());//当前设备IP地址
                 LogUtil.E("上传设备信息："+map.toString());
-                NetUtil.getInstance()
-                        .post(ResourceConst.REMOTE_RES.UPLOAD_DEVICE_INFO, map, new StringCallback() {
+                post(ResourceConst.REMOTE_RES.UPLOAD_DEVICE_INFO, map, new StringCallback() {
                             @Override
                             public void onError(Call call, Exception e, int id) {
                                 LogUtil.E(e.getMessage());
@@ -210,7 +202,7 @@ public class NetUtil {
     public interface OnDownLoadListener {
         void onStart(String fileName);
 
-        void onDownloading(int progress);
+        void onProgress(int progress);
 
         void onComplete(File response);
 
