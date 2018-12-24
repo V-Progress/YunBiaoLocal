@@ -7,7 +7,7 @@ import android.util.Log;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.devicectrl.actions.JYDActions;
 
-class  JYDBroadControl {
+public class  JYDBroadControl {
     private static final String TAG = "JYDBroadControl";
 
     /**
@@ -18,7 +18,7 @@ class  JYDBroadControl {
      * minutes 0-59
      */
 
-    JYDBroadControl() {
+    public JYDBroadControl() {
         String on = PowerOffTool.getInstance().getPowerParam(PowerOffTool.POWER_ON); //1,2,3,4,5,6,7;08:00
         String off = PowerOffTool.getInstance().getPowerParam(PowerOffTool.POWER_OFF);
 

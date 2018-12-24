@@ -54,7 +54,12 @@ public class AbsoluteActivity extends BaseActivity implements LayoutRefresher.On
     }
 
     @Override
-    public void removeView() {
+    public void removeView(View view) {
+
+    }
+
+    @Override
+    public void removeAllView() {
         absLayout.removeAllViews();
     }
 }

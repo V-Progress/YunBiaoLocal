@@ -54,6 +54,14 @@ public class CacheManager {
     public static final String INSERT_TYPE = "insert_type";
 
     public static class SP {
+        public static boolean put(String key,String value){
+            return spCache.saveString(key,value);
+        }
+
+        public static String get(String key, String defValue){
+            return spCache.getString(key,defValue);
+        }
+
         public static boolean putLatitude(String la){
             return spCache.saveString(LATITUDE, la);
         }

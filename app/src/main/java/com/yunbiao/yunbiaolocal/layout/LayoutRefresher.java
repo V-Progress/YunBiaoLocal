@@ -45,7 +45,7 @@ public class LayoutRefresher {
         if(mOnRefreshIner == null){
             return;
         }
-        mOnRefreshIner.removeView();
+        mOnRefreshIner.removeAllView();
     }
 
     public void refreshLayout(){
@@ -53,10 +53,15 @@ public class LayoutRefresher {
         LayoutDataHandle.getInstance().handleLayoutData();
     }
 
+    public void removeView(View view){
+        mOnRefreshIner.removeView(view);
+    }
+
     public interface OnRefreshIner{
         void layoutInit();
         void addView(View view);
-        void removeView();
+        void removeView(View view);
+        void removeAllView();
     }
 
 }

@@ -18,6 +18,10 @@ import com.yunbiao.yunbiaolocal.utils.TimerExecutor;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -120,7 +124,11 @@ public class DownloadService extends Service {
             @Override
             public void onComplete(File response) {
                 LogUtil.D(TAG, "下载完成：" + response.getAbsolutePath());
-                resolveConfigXML(response);
+                try {
+                    resolveConfigXML(response);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
@@ -141,8 +149,8 @@ public class DownloadService extends Service {
         });
     }
 
-    private void resolveConfigXML(File response) {
-        List<String> videoNameList = new ArrayList<>();
+    private void resolveConfigXML(File response) throws UnsupportedEncodingException {
+        List<String> urlList = new ArrayList<>();
         VideoDataModel videoDataModel = new XMLParse().parseJsonModel(response);
         List<VideoDataModel.Play> playlist = videoDataModel.getPlaylist();
         for (VideoDataModel.Play play : playlist) {
@@ -151,39 +159,56 @@ public class DownloadService extends Service {
                 String res = rule.getRes();
                 String[] split = res.split(",");
                 for (String rPath : split) {
-                    if (!TextUtils.isEmpty(rPath.replace("\n", "").trim())) {
-                        videoNameList.add(new StringBuilder(ftpServiceUrl).append(rPath).toString());
+                    String urlStr = rPath.replace("\n", "").trim().replace("%20", "");
+                    if (!TextUtils.isEmpty(urlStr)) {
+                        String url = URLEncoder.encode(urlStr, "UTF-8");
+                        urlList.add(url);
                     }
                 }
 
             }
         }
 
-        BPDownloadUtil.getInstance().breakPointDownload(videoNameList, new BPDownloadUtil.MutiFileDownloadListener() {
-            @Override
-            public void onBefore(int totalNum) {
-                LogUtil.E(TAG,"准备开始下载，共有：" + totalNum);
-            }
-
-            @Override
-            public void onProgress(int currNum, int progress) {
-                LogUtil.E(TAG,"当前下载的是第 " + currNum + " 个文件，进度：" + progress);
-            }
-
-            @Override
-            public void onSuccess(int currFileNum) {
-                LogUtil.E(TAG,"第 " + currFileNum + " 个文件下载完成");
-            }
-
-            @Override
-            public void onFinish() {
-                LogUtil.E(TAG,"资源全部下载结束");
-            }
-
-            @Override
-            public void onError(Exception e) {
-                LogUtil.E(TAG,"下载出现错误：" + e.getMessage());
-            }
-        });
+//        BPDownloadUtil.getInstance().breakPointDownload(urlList, new MutiFileDownloadListener() {
+//            @Override
+//            public void onBefore(int totalNum) {
+//                LogUtil.E(TAG,"共有：" + totalNum);
+//            }
+//
+//            @Override
+//            public void onStart(int currNum) {
+//                LogUtil.E(TAG,"第"+currNum+"文件开始");
+//            }
+//
+//            @Override
+//            public void onProgress(int progress) {
+//                LogUtil.E(TAG,"进度：" + progress);
+//            }
+//
+//            @Override
+//            public void onDownloadSpeed(long speed) {
+//                LogUtil.E(TAG,"速度："+speed);
+//            }
+//
+//            @Override
+//            public void onSuccess(int currFileNum) {
+//                LogUtil.E(TAG,"第 " + currFileNum + " 个文件下载完成");
+//            }
+//
+//            @Override
+//            public void onError(Exception e) {
+//                LogUtil.E(TAG,"下载出现错误：" + e.getMessage());
+//            }
+//
+//            @Override
+//            public void onDownloadFinish() {
+//                LogUtil.E(TAG,"资源全部下载结束");
+//            }
+//
+//            @Override
+//            public void onFailed(Exception e) {
+//                LogUtil.E(TAG,"下载失败："+e.getMessage());
+//            }
+//        });
     }
 }

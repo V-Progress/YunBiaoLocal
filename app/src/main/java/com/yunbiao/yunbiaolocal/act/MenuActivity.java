@@ -61,26 +61,8 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     TextView tvMenuOfflineHints2;
     @BindView(R.id.tv_menu_offline_hints_3)
     TextView tvMenuOfflineHints3;
-    @BindView(R.id.prl_bind_area)
-    PercentRelativeLayout prlBindArea;
     @BindView(R.id.tv_menu_offline)
     TextView tvMenuOffline;
-    @BindView(R.id.btn_menu_bind)
-    Button btnMenuService;
-    @BindView(R.id.iv_menu_icon_service)
-    ImageView ivMenuIconService;
-    @BindView(R.id.tv_menu_service_hints)
-    TextView tvMenuServiceHints;
-    @BindView(R.id.tv_menu_service_hints_2)
-    TextView tvMenuServiceHints2;
-    @BindView(R.id.tv_menu_info_ser)
-    TextView tvMenuInfoSer;
-    @BindView(R.id.tv_menu_info_conn)
-    TextView tvMenuInfoConn;
-    @BindView(R.id.tv_menu_info_decName)
-    TextView tvMenuInfoDecName;
-    @BindView(R.id.tv_menu_service)
-    TextView tvMenuService;
     @BindView(R.id.btn_menu_setting)
     Button btnMenuSetting;
     @BindView(R.id.tv_menu_setting_hints)
@@ -89,14 +71,6 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     TextView tvMenuSettingHints2;
     @BindView(R.id.tv_menu_setting)
     TextView tvMenuSetting;
-    @BindView(R.id.edt_bind_username)
-    EditText edtBindUsername;
-    @BindView(R.id.edt_bind_code)
-    EditText edtBindCode;
-    @BindView(R.id.tv_menu_info_bindstate)
-    TextView tvBindStatus;
-    @BindView(R.id.tv_bind_hints)
-    TextView tvBindHints;
 
     private SoundPool soundPool;//用来管理和播放音频文件
     private int music;
@@ -116,7 +90,6 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     protected void initView() {
         btnMenuStart.setOnFocusChangeListener(this);
         btnMenuOffline.setOnFocusChangeListener(this);
-        btnMenuService.setOnFocusChangeListener(this);
         btnMenuSetting.setOnFocusChangeListener(this);
 
         tvMenuStartHints.setText(R.string.play);
@@ -124,8 +97,6 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         tvMenuOfflineHints.setText("本地资源");
         tvMenuOfflineHints2.setText(R.string.use_usb_play);
         tvMenuOfflineHints2.setText("查看本地已保存的节目");
-        tvMenuServiceHints.setText("绑定已有用户");
-        tvMenuServiceHints2.setText("通过管理平台控制设备");
         tvMenuSettingHints.setText("微信消息查看");
         tvMenuSettingHints2.setText("微信上墙消息查看");
         tvMenuOfflineHints3.setText("节目列表");
@@ -133,35 +104,8 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
 
         tvShowOnscreenTime.setText(String.valueOf(Const.SYSTEM_CONFIG.MENU_STAY_DURATION));
 
-        setConnInfo(0);
-
-        //屏蔽绑定功能
-//        String status = CacheManager.SP.getStatus();//0未绑定 1绑定
-//        if(TextUtils.equals("0",status)){
-//            unbind();
-//        }else{
-//            binded();
-//        }
-
-        edtBindUsername.setOnFocusChangeListener(focusChangeListener);
-        edtBindCode.setOnFocusChangeListener(focusChangeListener);
+        setConnInfo();
     }
-
-    View.OnFocusChangeListener focusChangeListener = new View.OnFocusChangeListener() {
-        @Override
-        public void onFocusChange(View v, boolean hasFocus) {
-            switch (v.getId()) {
-                case R.id.edt_bind_username:
-                case R.id.edt_bind_code:
-                    if(!hasFocus){
-                        onResume();
-                        return;
-                    }
-                    onPause();
-                    break;
-            }
-        }
-    };
 
     @Override
     protected void onResume() {
@@ -196,7 +140,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         }
     };
 
-    @OnClick({R.id.btn_bind, R.id.btn_menu_start, R.id.btn_menu_playlist, R.id.btn_menu_bind, R.id.btn_menu_setting})
+    @OnClick({R.id.btn_menu_start, R.id.btn_menu_playlist, R.id.btn_menu_setting})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_menu_start:
@@ -204,7 +148,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                 break;
             case R.id.btn_menu_playlist:
                 onPause();
-                DialogUtil.showPlayListDialog(this, VideoDataResolver.playList == null
+                DialogUtil.getInstance().showPlayListDialog(this, VideoDataResolver.playList == null
                         ? new ArrayList<String>()
                         : VideoDataResolver.playList, new View.OnClickListener() {
                     @Override
@@ -213,14 +157,8 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                     }
                 });
                 break;
-            case R.id.btn_menu_bind:
-                break;
             case R.id.btn_menu_setting:
                 startActivity(new Intent(this, WeichatActivity.class));
-//                startActivity(new Intent(this, AbsoluteActivity.class));
-                break;
-            case R.id.btn_bind:
-                requestBindUser();
                 break;
         }
     }
@@ -232,92 +170,14 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         }
     }
 
-    private void requestBindUser(){
-        String deviceNo = HeartBeatClient.getDeviceNo();
-        String userName = edtBindUsername.getText().toString();
-        String userRand = edtBindCode.getText().toString();
-
-        if(TextUtils.isEmpty(deviceNo)){
-            tvBindHints.setText(getResources().getString(R.string.bind_code_no_get));
-            return;
-        }
-        if(TextUtils.isEmpty(userName) || TextUtils.isEmpty(userRand)){
-            tvBindHints.setText(getResources().getString(R.string.bind_code_is_null));
-            return;
-        }
-
-        Map map = new HashMap();
-        map.put("deviceNo", deviceNo);
-        map.put("userName", userName);
-        map.put("userRand", userRand);
-        NetUtil.getInstance().post(ResourceConst.REMOTE_RES.DEC_NUM, map, new StringCallback() {
-            @Override
-            public void onError(Call call, Exception e, int id) {
-
-            }
-
-            @Override
-            public void onResponse(String response, int id) {
-                if (response.startsWith("\"")) {
-                    response = response.substring(1, response.length() - 1);
-                }
-                if (!response.equals("faile")) {
-                    String[] split = response.split("\"");
-                    String result1 = split[split.length - 2];
-                    switch (result1) {
-                        case "1":
-                            binded();
-                            onResume();
-                            CacheManager.SP.putStatus("1");
-                            Toast.makeText(APP.getContext(), R.string.bind_dev_ok, Toast.LENGTH_SHORT).show();
-                            break;
-                        case "2":
-                            tvBindHints.setText(R.string.bind_code_no);
-                            break;
-                        default:
-                            tvBindHints.setText(R.string.bind_code_transfer_error);
-                            break;
-                    }
-                }
-            }
-        });
-
-    }
-
-    private void binded(){
-        prlBindArea.setVisibility(View.GONE);
-        tvBindStatus.setText(R.string.bind_user);
-        tvBindStatus.setTextColor(Color.parseColor("#95e546"));
-        ivMenuIconService.setVisibility(View.VISIBLE);
-    }
-
-    private void unbind(){
-        ivMenuIconService.setVisibility(View.INVISIBLE);
-        prlBindArea.setVisibility(View.VISIBLE);
-        tvBindStatus.setText(R.string.unbind_user);
-        tvBindStatus.setTextColor(Color.parseColor("#ADADAD"));
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         APP.setMenuActivity(null);
     }
 
-    public void setConnInfo(int isConn) {
-        tvMenuInfoConn.setText("正在连接...");
-        if(isConn == 1){
-            tvMenuInfoConn.setText("连接成功");
-        }
+    private void setConnInfo() {
         tvMenuInfoEquipmentMum.setText(CacheManager.SP.getDeviceNum());
         tvMenuInfoAccessCode.setText(CacheManager.SP.getAccessCode());
-        tvMenuInfoDecName.setText(Build.MODEL);
-        tvMenuInfoSer.setText(Const.DOMAIN);
-
-        //设备是否绑定
-        String bindStatus = CacheManager.SP.getBindStatus();
-        if(!TextUtils.equals("1",bindStatus)){
-            unbind();
-        }
     }
 }

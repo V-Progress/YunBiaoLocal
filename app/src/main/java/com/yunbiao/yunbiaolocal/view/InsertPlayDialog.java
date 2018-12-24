@@ -61,18 +61,6 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         setCancelable(false);
     }
 
-    /***
-     * 检查当前是否有广告数据缓存，如果有，取出并设置
-     */
-    public void init() {
-        int showType = CacheManager.FILE.getInsertType();
-        String adsinfoTemp = CacheManager.FILE.getInsertAds();
-        LogUtil.E(showType+","+adsinfoTemp);
-        if (!TextUtils.isEmpty(adsinfoTemp)) {
-            showInsert(adsinfoTemp,showType);
-        }
-    }
-
     private void initView() {
         LayoutInflater inflater = LayoutInflater.from(getContext());
         rootView = inflater.inflate(R.layout.dialog_insert_content, null);
@@ -83,7 +71,6 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         msTvInsert = rootView.findViewById(R.id.mstv_insert);
 
         videoView.setZOrderOnTop(true);//解决VideoView被Dialog遮挡问题
-//        videoView.setZOrderMediaOverlay(true);//解决遮挡问题
         videoView.setOnInfoListener(this);
         videoView.setOnPreparedListener(this);
 
@@ -131,68 +118,21 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
     }
 
     //显示插入广告
-    public void showInsert(final String content, int insertType) {
-        final int showType = insertType;
+    public void showInsert(final String content) {
         ThreadUtil.getInstance().runInCommonThread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    switch (showType) {
-                        case DialogUtil.INSERT_TEXT:
-                            final InsertTextModel insertTextModel = new Gson().fromJson(content, InsertTextModel.class);
+                    InsertVideoModel insertVideoModel = new Gson().fromJson(content, InsertVideoModel.class);
+                    String playDate = insertVideoModel.getPlayDate();
+                    String playCurTime = insertVideoModel.getPlayCurTime();
+                    final Date[] dates = resolveTime(playDate, playCurTime);
+                    if (dates != null && dates.length > 0) {
 
-                            //判断是否清除字幕
-                            if(TextUtils.equals("2",insertTextModel.getPlayType())){
-                                if(insertPlayDialog.isShowing()){
-                                    CacheManager.FILE.putInsertAds("");//清除广告缓存
-                                    dismiss();
-                                }
-                                return;
-                            }
-
-                            String playDate1 = insertTextModel.getContent().getPlayDate();
-                            String playCurTime1 = insertTextModel.getContent().getPlayCurTime();
-                            final Date[] dates1 = resolveTime(playDate1, playCurTime1);
-
-                            if (dates1 != null && dates1.length > 0) {
-                                CacheManager.FILE.putInsertType(showType);
-                                CacheManager.FILE.putInsertAds(content);
-                                TimerExecutor.getInstance().addInTimerQueue(dates1[0], new TimerExecutor.OnTimeOutListener() {
-                                    @Override
-                                    public void execute() {
-                                        LogUtil.E("显示InsertDialog");
-                                        showTextContent(insertTextModel);
-                                        show();
-                                    }
-                                });
-                                TimerExecutor.getInstance().addInTimerQueue(dates1[1], new TimerExecutor.OnTimeOutListener() {
-                                    @Override
-                                    public void execute() {
-                                        LogUtil.E("隐藏InsertDialog");
-                                        dismiss();
-                                    }
-                                });
-                            } else {
-                                LogUtil.E("播放时间已过！");
-                            }
-
-                            break;
-
-                        case DialogUtil.INSERT_LIVE:
-                        case DialogUtil.INSERT_VIDEO:
-                            InsertVideoModel insertVideoModel = new Gson().fromJson(content, InsertVideoModel.class);
-                            String playDate = insertVideoModel.getPlayDate();
-                            String playCurTime = insertVideoModel.getPlayCurTime();
-                            final Date[] dates = resolveTime(playDate, playCurTime);
-                            if (dates != null && dates.length > 0) {
-                                CacheManager.FILE.putInsertType(showType);
-                                CacheManager.FILE.putInsertAds(content);
-                                final String fileUrl = insertVideoModel.getFileurl();
-                                setVideo(dates[0], dates[1], fileUrl);
-                            } else {
-                                LogUtil.E("播放时间已过！");
-                            }
-                            break;
+                        final String fileUrl = insertVideoModel.getFileurl();
+                        setVideo(dates[0], dates[1], fileUrl);
+                    } else {
+                        LogUtil.E("播放时间已过！");
                     }
 
                 } catch (Exception e) {
@@ -223,7 +163,7 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
      * @param fileurl
      */
     private void setVideo(final Date startDate, final Date endDate, String fileurl) {
-        if (fileurl.endsWith(".avi")||fileurl.endsWith(".mp4")||fileurl.endsWith(".3gp")) {
+        if (fileurl.endsWith(".avi") || fileurl.endsWith(".mp4") || fileurl.endsWith(".3gp")) {
             NetUtil.getInstance().downloadFile(fileurl, new NetUtil.OnDownLoadListener() {
                 @Override
                 public void onStart(String fileName) {
@@ -232,7 +172,7 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
 
                 @Override
                 public void onProgress(int progress) {
-                    LogUtil.E("正在下载-" + progress+"%");
+                    LogUtil.E("正在下载-" + progress + "%");
                 }
 
                 @Override
@@ -272,9 +212,9 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
     /*
      * 广告开始的时候，暂停背景视频
      */
-    private void pauseMainPlay(){
+    private void pauseMainPlay() {
         MainActivity mainActivity = APP.getMainActivity();
-        if(mainActivity != null){
+        if (mainActivity != null) {
             mainActivity.pause();
         }
     }
@@ -282,9 +222,9 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
     /*
      * 广告结束的时候，开始背景视频
      */
-    private void resumeMainPlay(){
+    private void resumeMainPlay() {
         MainActivity mainActivity = APP.getMainActivity();
-        if(mainActivity != null){
+        if (mainActivity != null) {
             mainActivity.resume();
         }
     }
@@ -336,7 +276,7 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
 
         LogUtil.E("开始毫秒：" + beginTime.getTime());
         LogUtil.E("结束毫秒：" + endTime.getTime());
-        if(endTime.getTime() < yyyyMMddHH_mm.parse(yyyyMMddHH_mm.format(currDateTime)).getTime()){
+        if (endTime.getTime() < yyyyMMddHH_mm.parse(yyyyMMddHH_mm.format(currDateTime)).getTime()) {
             return null;
         }
 
@@ -397,7 +337,7 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         msTvInsert.setText(insertTextModel.getText());//内容
     }
 
-    public Bitmap screenShot(){
+    public Bitmap screenShot() {
         rootView.setDrawingCacheEnabled(true);
         rootView.buildDrawingCache();
         return Bitmap.createBitmap(rootView.getDrawingCache());

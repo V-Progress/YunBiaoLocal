@@ -7,8 +7,6 @@ import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.cache.CacheManager;
 import com.yunbiao.yunbiaolocal.common.Const;
 import com.yunbiao.yunbiaolocal.common.ResourceConst;
-import com.yunbiao.yunbiaolocal.netcore.DownloadListener;
-import com.yunbiao.yunbiaolocal.netcore.DownloadTask;
 import com.yunbiao.yunbiaolocal.common.HeartBeatClient;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.Callback;
@@ -30,7 +28,6 @@ public class NetUtil {
     private static NetUtil mInstance;
     private RequestCall build;
     private final String rootDir = Environment.getExternalStorageDirectory().getAbsolutePath();
-    private DownloadTask downloadTask;
 
     public synchronized static NetUtil getInstance() {
         if (mInstance == null) {
@@ -72,13 +69,6 @@ public class NetUtil {
                 .tag(this)
                 .build()
                 .execute(stringCallback);
-    }
-
-    public void breakPointDownLoad(String url, DownloadListener listener) {
-        if (downloadTask == null) {
-            downloadTask = new DownloadTask(listener);
-        }
-        downloadTask.execute(url);
     }
 
     private String lastCacheUrl;

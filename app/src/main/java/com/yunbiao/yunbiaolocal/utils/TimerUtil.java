@@ -46,7 +46,6 @@ public class TimerUtil {
     }
 
     public void pause(){
-        Log.e("123","暂停！");
         if(mTimer != null){
             mTimer.cancel();
             onScreenTask.cancel();

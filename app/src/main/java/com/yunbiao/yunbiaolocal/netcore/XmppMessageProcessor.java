@@ -11,6 +11,7 @@ import com.yunbiao.yunbiaolocal.act.weichat.WeiChatSave;
 import com.yunbiao.yunbiaolocal.cache.CacheManager;
 import com.yunbiao.yunbiaolocal.common.HeartBeatClient;
 import com.yunbiao.yunbiaolocal.devicectrl.ScreenShot;
+import com.yunbiao.yunbiaolocal.devicectrl.Test;
 import com.yunbiao.yunbiaolocal.devicectrl.actions.XBHActions;
 import com.yunbiao.yunbiaolocal.devicectrl.power.PowerOffTool;
 import com.yunbiao.yunbiaolocal.APP;
@@ -86,10 +87,6 @@ public class XmppMessageProcessor {
 
                 //是否有密码
                 LogUtil.E(TAG, "*****" + loginModel.getPassword());
-                MenuActivity menuActivity = APP.getMenuActivity();
-                if(menuActivity != null){//调用一下菜单界面的方法，避免先打开菜单后连接成功导致菜单界面数据不刷新
-                    menuActivity.setConnInfo(1);
-                }
                 break;
             case CONTENT_TYPE:
                 LayoutRefresher.getInstance().refreshLayout();
@@ -98,9 +95,11 @@ public class XmppMessageProcessor {
                 ThreadUtil.getInstance().runInCommonThread(new Runnable() {
                     @Override
                     public void run() {// 开关机时间设置
-                        PowerOffTool.getInstance().getPowerOffTime(HeartBeatClient.getDeviceNo());
+//                        PowerOffTool.getInstance().getPowerOffTime(HeartBeatClient.getDeviceNo());
+                        Test.getPowerOffTool().getPowerOffTime(HeartBeatClient.getDeviceNo());
                     }
                 });
+
                 break;
             case SHOW_SERNUM:// 显示设备编号
                 SerNumBean serNumBean = new Gson().fromJson(content, SerNumBean.class);
@@ -128,6 +127,7 @@ public class XmppMessageProcessor {
                 });
 
                 break;
+
             case SHOW_VERSION://显示版本号
                 SystemInfoUtil.uploadAppVersion();
                 break;
@@ -182,10 +182,10 @@ public class XmppMessageProcessor {
                 break;
             case PUSH_MESSAGE://插播字幕
                 LogUtil.E("显示字幕");
-                DialogUtil.showInsertDialog(APP.getMainActivity(),DialogUtil.INSERT_TEXT, content);
+                DialogUtil.getInstance().showInsert(APP.getMainActivity(),content,DialogUtil.INSERT_TEXT);
                 break;
             case VIDEO_PUSH://插播视频
-                DialogUtil.showInsertDialog(APP.getMainActivity(),DialogUtil.INSERT_VIDEO, content);
+                DialogUtil.getInstance().showInsert(APP.getMainActivity(),content,DialogUtil.INSERT_VIDEO);
                 break;
         }
     }

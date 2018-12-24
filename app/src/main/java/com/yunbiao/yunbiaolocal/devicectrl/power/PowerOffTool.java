@@ -493,7 +493,7 @@ public class PowerOffTool {
     }
 
     public void reboot() {
-        DialogUtil.showProgressDialog(APP.getMainActivity(),"重启", "3秒后设备将重启");
+        DialogUtil.getInstance().showProgressDialog(APP.getMainActivity(),"重启", "3秒后设备将重启");
         TimerExecutor.getInstance().delayExecute(3000, new TimerExecutor.OnTimeOutListener() {
             @Override
             public void execute() {
@@ -528,7 +528,7 @@ public class PowerOffTool {
      * 机器关机
      */
     public void shutdown() {
-        DialogUtil.showProgressDialog(APP.getMainActivity(),"关机", "3秒后设备将关机");
+        DialogUtil.getInstance().showProgressDialog(APP.getMainActivity(),"关机", "3秒后设备将关机");
         TimerExecutor.getInstance().delayExecute(3000, new TimerExecutor.OnTimeOutListener() {
             @Override
             public void execute() {

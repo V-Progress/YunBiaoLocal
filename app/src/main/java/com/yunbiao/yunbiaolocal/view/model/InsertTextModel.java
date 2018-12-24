@@ -37,11 +37,11 @@ public class InsertTextModel {
     public class Content {
         private String background;
         private String fontColor;
-        private String fontSize;
+        private Integer fontSize;
         private String location;
         private String playCurTime;
         private String playDate;
-        private String playSpeed;
+        private Integer playSpeed;
         private String playTime;
         private String playType;
         private String speechCount;
@@ -63,11 +63,11 @@ public class InsertTextModel {
             this.fontColor = fontColor;
         }
 
-        public String getFontSize() {
+        public Integer getFontSize() {
             return fontSize;
         }
 
-        public void setFontSize(String fontSize) {
+        public void setFontSize(Integer fontSize) {
             this.fontSize = fontSize;
         }
 
@@ -95,11 +95,11 @@ public class InsertTextModel {
             this.playDate = playDate;
         }
 
-        public String getPlaySpeed() {
+        public Integer getPlaySpeed() {
             return playSpeed;
         }
 
-        public void setPlaySpeed(String playSpeed) {
+        public void setPlaySpeed(Integer playSpeed) {
             this.playSpeed = playSpeed;
         }
 

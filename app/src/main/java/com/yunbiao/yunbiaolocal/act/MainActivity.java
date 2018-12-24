@@ -1,18 +1,19 @@
 package com.yunbiao.yunbiaolocal.act;
 
 import android.app.ActivityManager;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
+import android.graphics.Color;
+import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -21,23 +22,31 @@ import android.widget.Toast;
 import com.yunbiao.yunbiaolocal.APP;
 import com.yunbiao.yunbiaolocal.R;
 import com.yunbiao.yunbiaolocal.br.USBBroadcastReceiver;
+import com.yunbiao.yunbiaolocal.layout.LayoutRefresher;
+import com.yunbiao.yunbiaolocal.layout.LayoutViewCreater;
+import com.yunbiao.yunbiaolocal.layout.bean.TextDetail;
+import com.yunbiao.yunbiaolocal.netcore.BPDownloadUtil;
 import com.yunbiao.yunbiaolocal.netcore.DownloadService;
+import com.yunbiao.yunbiaolocal.netcore.MutiFileDownloadListener;
 import com.yunbiao.yunbiaolocal.netcore.OnXmppConnListener;
 import com.yunbiao.yunbiaolocal.netcore.PnServerController;
 import com.yunbiao.yunbiaolocal.resolve.VideoDataResolver;
-import com.yunbiao.yunbiaolocal.utils.DeleteResUtil;
+import com.yunbiao.yunbiaolocal.utils.DialogUtil;
 import com.yunbiao.yunbiaolocal.utils.LogUtil;
 import com.yunbiao.yunbiaolocal.utils.NetUtil;
 import com.yunbiao.yunbiaolocal.utils.SystemInfoUtil;
 import com.yunbiao.yunbiaolocal.view.InsertPlayDialog;
 import com.yunbiao.yunbiaolocal.view.MainVideoView;
+import com.yunbiao.yunbiaolocal.view.MyScrollTextView;
 
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.vov.vitamio.MediaPlayer;
 import io.vov.vitamio.widget.MediaController;
 
@@ -66,6 +75,8 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
     ProgressBar pbUpdate;
     @BindView(R.id.ll_update_area)
     LinearLayout llUpdateArea;
+    @BindView(R.id.fl_root)
+    FrameLayout flRoot;
 
     private USBBroadcastReceiver usbBroadcastReceiver;//USB监听广播
     private static String[] playList;//播放列表
@@ -73,8 +84,9 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
     private static int lineNumber = 0;
     private float playSpeed = 1.0f;
 
-    protected int setLayout(){
+    protected int setLayout() {
         APP.setMainActivity(this);
+        LayoutRefresher.getInstance().registerActivity(onLayoutRefresher);
         return R.layout.activity_main;
     }
 
@@ -96,7 +108,7 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
         }
     }
 
-    protected void initData(){
+    protected void initData() {
         //初始化播放数据
         initPlayData();
 
@@ -107,28 +119,50 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
         PnServerController.startXMPP(this);
 
         //初始化广告插播，如果有未播完的广告则自动播放
-        InsertPlayDialog.build(this).init();
+        DialogUtil.getInstance().initInsData(this);
 
         //绑定资源下载线程
-        bindDownloadService();
+//        bindDownloadService();
     }
 
-    private void bindDownloadService(){
+    private void bindDownloadService() {
         startService(new Intent(this, DownloadService.class));
     }
+
+    LayoutRefresher.OnRefreshIner onLayoutRefresher = new LayoutRefresher.OnRefreshIner() {
+        @Override
+        public void layoutInit() {
+
+        }
+
+        @Override
+        public void addView(View view) {
+            flRoot.addView(view);
+        }
+
+        @Override
+        public void removeView(View view) {
+            flRoot.removeView(view);
+        }
+
+        @Override
+        public void removeAllView() {
+            flRoot.removeAllViews();
+        }
+    };
 
     /*===========播放器控制相关=====================================================================
      * 初始化播放器
      */
-    public void pause(){
-        if(mediaPlayer == null){
+    public void pause() {
+        if (mediaPlayer == null) {
             return;
         }
         mediaPlayer.pause();
     }
 
-    public void resume(){
-        if(mediaPlayer == null){
+    public void resume() {
+        if (mediaPlayer == null) {
             return;
         }
         mediaPlayer.start();
@@ -235,6 +269,7 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
      * vitamio准备好的回调
      */
     MediaPlayer mediaPlayer;
+
     @Override
     public void onPrepared(MediaPlayer mp) {
         mediaPlayer = mp;
@@ -378,14 +413,14 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
     };
 
     public Long getVideoCurrTime() {
-        if(vtmVideo != null && vtmVideo.isPlaying()){
+        if (vtmVideo != null && vtmVideo.isPlaying()) {
             return vtmVideo.getCurrentPosition();
         }
         return 0L;
     }
 
     public String getCurrPlayVideo() {
-        if(playList != null && playList.length>0){
+        if (playList != null && playList.length > 0) {
             return playList[videoIndex];
         }
         return "null";

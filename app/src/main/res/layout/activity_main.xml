@@ -1,23 +1,23 @@
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/fl_root"
     tools:context=".act.MainActivity">
 
     <com.yunbiao.yunbiaolocal.view.MainVideoView
         android:id="@+id/vtm_video"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_centerInParent="true"/>
+        android:layout_centerInParent="true" />
 
     <ProgressBar
-        android:visibility="invisible"
-        android:layout_gravity="center"
         android:id="@+id/pb_video"
-        android:layout_centerInParent="true"
         android:layout_width="60dp"
-        android:layout_height="60dp" />
+        android:layout_height="60dp"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:visibility="invisible" />
 
     <TextView
         android:id="@+id/permission"
@@ -27,30 +27,32 @@
         android:gravity="center"
         android:text="未授权"
         android:textSize="32sp"
-        android:visibility="invisible"/>
+        android:visibility="invisible" />
 
     <TextView
-        android:layout_gravity="center"
         android:id="@+id/state"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
+        android:layout_gravity="center"
         android:text="没有视频"
-        android:textSize="18sp"/>
+        android:textSize="18sp" />
 
     <LinearLayout
-        android:visibility="gone"
         android:id="@+id/ll_console"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:visibility="gone">
+
         <ProgressBar
-            style="?android:attr/progressBarStyleHorizontal"
             android:id="@+id/progress"
+            style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="6dp"
-            android:layout_above="@+id/console"/>
+            android:layout_above="@+id/console" />
+
         <TextView
             android:id="@+id/console"
             android:layout_width="match_parent"
@@ -59,56 +61,59 @@
             android:background="#ee000000"
             android:gravity="bottom"
             android:paddingBottom="10dp"
-            android:paddingLeft="200dp"/>
+            android:paddingLeft="200dp" />
     </LinearLayout>
 
     <LinearLayout
-        android:layout_gravity="bottom"
-        android:visibility="gone"
-        android:background="#ee000000"
         android:id="@+id/ll_progress_area"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:background="#ee000000"
         android:gravity="center"
         android:orientation="vertical"
         android:padding="8dp"
-        android:layout_alignParentBottom="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:visibility="gone">
+
         <ProgressBar
             android:id="@+id/pb_download"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+
         <TextView
-            android:layout_marginTop="5dp"
             android:id="@+id/tv_download_state"
-            android:text="1231312"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="1231312" />
     </LinearLayout>
 
     <LinearLayout
-        android:visibility="gone"
-        android:layout_gravity="center_horizontal"
         android:id="@+id/ll_update_area"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:background="#ee000000"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp"
         android:gravity="center"
         android:orientation="vertical"
+        android:paddingBottom="10dp"
         android:paddingLeft="50dp"
         android:paddingRight="50dp"
-        android:layout_width="300dp"
-        android:layout_height="wrap_content">
+        android:paddingTop="10dp"
+        android:visibility="gone">
 
         <ProgressBar
-            android:layout_weight="1"
             android:id="@+id/pb_update"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
-            android:layout_height="6dp" />
+            android:layout_height="6dp"
+            android:layout_weight="1" />
+
         <TextView
-            android:layout_marginTop="10dp"
-            android:text="正在下载更新"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="正在下载更新" />
     </LinearLayout>
 </FrameLayout>
