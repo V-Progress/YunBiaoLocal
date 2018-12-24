@@ -442,60 +442,63 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
         return false;
     }
 
+    private String testTag = "123456";
+
     public OnXmppConnListener xmppConnListener = new OnXmppConnListener() {
         @Override
         public void onConnecting() {
 
+            LogUtil.E(testTag,"onConnecting...");
         }
 
         @Override
         public void onConnected() {
-
+            LogUtil.E(testTag,"onConnected...");
         }
 
         @Override
         public void onConnError() {
-
+            LogUtil.E(testTag,"onConnError...");
         }
 
         @Override
         public void onReConnecting() {
-
+            LogUtil.E(testTag,"onReConnecting...");
         }
 
         @Override
         public void onNetChange(boolean isConnect) {
-
+            LogUtil.E(testTag,"onNetChange..."+isConnect);
         }
 
         @Override
         public void onLogon(String sn, String pwd, String status, String deviceQrCode) {
-
+            LogUtil.E(testTag,"onLogon..."+sn+"---"+pwd+"---"+status+"---"+deviceQrCode);
         }
 
         @Override
         public void onConnClosed() {
-
+            LogUtil.E(testTag,"onConnClosed...");
         }
 
         @Override
         public void Onreceived(String sn, String pwd, String status, String deviceQrCode) {
-
+            LogUtil.E(testTag,"Onreceived..."+sn+"---"+pwd+"---"+status+"---"+deviceQrCode);
         }
 
         @Override
         public void OnreceivedDtype(Integer dtype) {
-
+            LogUtil.E(testTag,"OnreceivedDtype..."+dtype);
         }
 
         @Override
         public void OndeviceIsOnline(boolean isOnline) {
-
+            LogUtil.E(testTag,"OndeviceIsOnline..."+isOnline);
         }
 
         @Override
         public void OnnetChange(boolean isConnect) {
-
+            LogUtil.E(testTag,"OnnetChange..."+isConnect);
         }
     };
 }
