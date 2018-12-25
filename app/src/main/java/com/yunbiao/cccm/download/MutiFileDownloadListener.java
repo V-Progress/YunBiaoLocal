@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.netcore;
+package com.yunbiao.cccm.download;
 
 /**
  * Created by Wei.Zhang on 2018/12/24.
@@ -47,7 +47,7 @@ public interface MutiFileDownloadListener {
     /***
      * downloading finish
      */
-    void onDownloadFinish();
+    void onFinish();
 
     /***
      * Unable to deal with downloading

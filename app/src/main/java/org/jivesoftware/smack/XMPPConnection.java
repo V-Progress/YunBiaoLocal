@@ -592,7 +592,7 @@ public class XMPPConnection extends Connection {
             usingCompression = false;
         }
 
-        // Set the reader and writer instance variables
+        // Set the reader and writer getInstance variables
         initReaderAndWriter();
 
         try {

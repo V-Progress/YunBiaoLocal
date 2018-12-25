@@ -103,7 +103,7 @@ public class LayoutDataHandle {
                     public void accept(List<View> views) throws Exception {
                         LogUtil.E("subscribe线程：" + Thread.currentThread().getName());
                         for (View view : views) {
-                            LayoutRefresher.getInstance().addView(view);
+                            LayoutController.getInstance().addView(view);
                         }
                     }
                 }, new Consumer<Throwable>() {

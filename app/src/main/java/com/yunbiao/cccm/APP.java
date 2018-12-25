@@ -85,16 +85,7 @@ public class APP extends Application {
 
         //保存主板信息
         CommonUtils.saveBroadInfo();
-
-        //自动开关机
-        ThreadUtil.getInstance().runInCommonThread(machineRestartRun);
     }
-
-    public Runnable machineRestartRun = new Runnable() {
-        public void run() {
-            PowerOffTool.getInstance().machineStart();
-        }
-    };
 
     private void initLocation() {
         LocationClientOption option = new LocationClientOption();
@@ -113,14 +104,6 @@ public class APP extends Application {
         BDLocationListener bdLocationListener = new BDLocationListener();
         locationClient.registerLocationListener(bdLocationListener);
         locationClient.start();
-    }
-
-    public static LocationClient getLocationClient() {
-        return locationClient;
-    }
-
-    public static OkHttpClient getOkHttpClient() {
-        return okHttpClient;
     }
 
     public static Application getContext() {

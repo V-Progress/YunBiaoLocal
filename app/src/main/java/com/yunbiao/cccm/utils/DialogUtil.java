@@ -21,7 +21,7 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.yunbiao.cccm.cache.CacheManager;
-import com.yunbiao.cccm.layout.LayoutRefresher;
+import com.yunbiao.cccm.layout.LayoutController;
 import com.yunbiao.cccm.resolve.VideoDataResolver;
 import com.yunbiao.cccm.view.InsertPlayDialog;
 import com.yunbiao.cccm.R;
@@ -155,7 +155,7 @@ public class DialogUtil {
                 if (TextUtils.equals("2", insertTextModel.getPlayType())) {
                     CacheManager.FILE.putInsertAds("");//清除广告缓存
                     if (myScrollTextView != null) {
-                        LayoutRefresher.getInstance().removeView(myScrollTextView);
+                        LayoutController.getInstance().removeView(myScrollTextView);
                     }
                     if (insertPlayDialog != null) {
                         insertPlayDialog.dismiss();
@@ -178,13 +178,13 @@ public class DialogUtil {
                         TimerExecutor.getInstance().addInTimerQueue(dates1[0], new TimerExecutor.OnTimeOutListener() {
                             @Override
                             public void execute() {
-                                LayoutRefresher.getInstance().addView(myScrollTextView);
+                                LayoutController.getInstance().addView(myScrollTextView);
                             }
                         });
                         TimerExecutor.getInstance().addInTimerQueue(dates1[1], new TimerExecutor.OnTimeOutListener() {
                             @Override
                             public void execute() {
-                                LayoutRefresher.getInstance().removeView(myScrollTextView);
+                                LayoutController.getInstance().removeView(myScrollTextView);
                             }
                         });
                     } else {

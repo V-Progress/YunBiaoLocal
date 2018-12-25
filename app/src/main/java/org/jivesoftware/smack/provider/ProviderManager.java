@@ -64,8 +64,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * entries attempt to register to handle the same namespace, the first entry loaded from the
  * classpath will take precedence. The IQ provider class can either implement the IQProvider
  * interface, or extend the IQ class. In the former case, each IQProvider is responsible for
- * parsing the raw XML stream to create an IQ instance. In the latter case, bean introspection
- * is used to try to automatically set properties of the IQ instance using the values found
+ * parsing the raw XML stream to create an IQ getInstance. In the latter case, bean introspection
+ * is used to try to automatically set properties of the IQ getInstance using the values found
  * in the IQ packet XML. For example, an XMPP time packet resembles the following:
  * <pre>
  * &lt;iq type='result' to='joe@example.com' from='mary@example.com' id='time_1'&gt;
@@ -80,7 +80,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * providers file above, it must have the methods setUtc(String), setTz(String), and
  * setDisplay(String). The introspection service will automatically try to convert the String
  * value from the XML into a boolean, int, long, float, double, or Class depending on the
- * type the IQ instance expects.<p>
+ * type the IQ getInstance expects.<p>
  *
  * A pluggable system for packet extensions, child elements in a custom namespace for
  * message and presence packets, also exists. Each extension provider
@@ -123,11 +123,11 @@ public class ProviderManager {
     private Map<String, Object> iqProviders = new ConcurrentHashMap<String, Object>();
 
     /**
-     * Returns the only ProviderManager valid instance.  Use {@link #setInstance(ProviderManager)}
-     * to configure your own provider manager. If non was provided then an instance of this
+     * Returns the only ProviderManager valid getInstance.  Use {@link #setInstance(ProviderManager)}
+     * to configure your own provider manager. If non was provided then an getInstance of this
      * class will be used.
      *
-     * @return the only ProviderManager valid instance.
+     * @return the only ProviderManager valid getInstance.
      */
     public static synchronized ProviderManager getInstance() {
         if (instance == null) {
@@ -137,11 +137,11 @@ public class ProviderManager {
     }
 
     /**
-     * Sets the only ProviderManager valid instance to be used by all Connections. If you
+     * Sets the only ProviderManager valid getInstance to be used by all Connections. If you
      * want to provide your own provider manager then you need to do it before creating
      * any Connection. Otherwise an IllegalStateException will be thrown.
      *
-     * @param providerManager the only ProviderManager valid instance to be used.
+     * @param providerManager the only ProviderManager valid getInstance to be used.
      * @throws IllegalStateException if a provider manager was already configued.
      */
     public static synchronized void setInstance(ProviderManager providerManager) {
@@ -185,7 +185,7 @@ public class ProviderManager {
                                     String key = getProviderKey(elementName, namespace);
                                     if (!iqProviders.containsKey(key)) {
                                         // Attempt to load the provider class and then create
-                                        // a new instance if it's an IQProvider. Otherwise, if it's
+                                        // a new getInstance if it's an IQProvider. Otherwise, if it's
                                         // an IQ class, add the class object itself, then we'll use
                                         // reflection later to create instances of the class.
                                         try {
@@ -218,7 +218,7 @@ public class ProviderManager {
                                     String key = getProviderKey(elementName, namespace);
                                     if (!extensionProviders.containsKey(key)) {
                                         // Attempt to load the provider class and then create
-                                        // a new instance if it's a Provider. Otherwise, if it's
+                                        // a new getInstance if it's a Provider. Otherwise, if it's
                                         // a PacketExtension, add the class object itself and
                                         // then we'll use reflection later to create instances
                                         // of the class.
@@ -287,7 +287,7 @@ public class ProviderManager {
 
     /**
      * Returns an unmodifiable collection of all IQProvider instances. Each object
-     * in the collection will either be an IQProvider instance, or a Class object
+     * in the collection will either be an IQProvider getInstance, or a Class object
      * that implements the IQProvider interface.
      *
      * @return all IQProvider instances.
@@ -297,7 +297,7 @@ public class ProviderManager {
     }
 
     /**
-     * Adds an IQ provider (must be an instance of IQProvider or Class object that is an IQ)
+     * Adds an IQ provider (must be an getInstance of IQProvider or Class object that is an IQ)
      * with the specified element name and name space. The provider will override any providers
      * loaded through the classpath.
      *
@@ -312,7 +312,7 @@ public class ProviderManager {
                 IQ.class.isAssignableFrom((Class)provider))))
         {
             throw new IllegalArgumentException("Provider must be an IQProvider " +
-                    "or a Class instance.");
+                    "or a Class getInstance.");
         }
         String key = getProviderKey(elementName, namespace);
         iqProviders.put(key, provider);
@@ -358,7 +358,7 @@ public class ProviderManager {
     /**
      * Adds an extension provider with the specified element name and name space. The provider
      * will override any providers loaded through the classpath. The provider must be either
-     * a PacketExtensionProvider instance, or a Class object of a Javabean.
+     * a PacketExtensionProvider getInstance, or a Class object of a Javabean.
      *
      * @param elementName the XML element name.
      * @param namespace the XML namespace.
@@ -369,7 +369,7 @@ public class ProviderManager {
     {
         if (!(provider instanceof PacketExtensionProvider || provider instanceof Class)) {
             throw new IllegalArgumentException("Provider must be a PacketExtensionProvider " +
-                    "or a Class instance.");
+                    "or a Class getInstance.");
         }
         String key = getProviderKey(elementName, namespace);
         extensionProviders.put(key, provider);
@@ -390,7 +390,7 @@ public class ProviderManager {
 
     /**
      * Returns an unmodifiable collection of all PacketExtensionProvider instances. Each object
-     * in the collection will either be a PacketExtensionProvider instance, or a Class object
+     * in the collection will either be a PacketExtensionProvider getInstance, or a Class object
      * that implements the PacketExtensionProvider interface.
      *
      * @return all PacketExtensionProvider instances.

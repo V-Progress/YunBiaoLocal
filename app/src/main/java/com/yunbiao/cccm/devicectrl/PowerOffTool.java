@@ -18,6 +18,7 @@ import com.yunbiao.cccm.utils.CommonUtils;
 import com.yunbiao.cccm.utils.DialogUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.NetUtil;
+import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.utils.TimerExecutor;
 import com.zhy.http.okhttp.callback.StringCallback;
 
@@ -60,10 +61,11 @@ public class PowerOffTool {
         }
         return powerOffTool;
     }
+
     /**
-     * 机器开机时候，判断是否需要到网络查询
+     * 机器开机时候，初始化开关机数据
      */
-    public void machineStart() {
+    public void initPowerData() {
 //        Long[] powerOn = getPowerTime(POWER_ON);
 //        Long[] powerOff = getPowerTime(POWER_OFF);
 //        // 如果开关机时间没有设置，就进行网络获取
@@ -81,7 +83,12 @@ public class PowerOffTool {
 //            selectPowerOnOff();
 //        } else {
         //开关机时间为空，则去网络下载
-        getPowerOffTime(HeartBeatClient.getDeviceNo());
+        ThreadUtil.getInstance().runInCommonThread(new Runnable() {
+            public void run() {
+                getPowerOffTime(HeartBeatClient.getDeviceNo());
+            }
+        });
+
 //        }
     }
 
@@ -90,16 +97,21 @@ public class PowerOffTool {
      *
      * @param uid 设备id
      */
-    public void getPowerOffTime(String uid) {
-        Map<String ,String> params = new HashMap<>();
-        params.put("uid",uid);
+    public void getPowerOffTime(final String uid) {
+        Map<String, String> params = new HashMap<>();
+        params.put("uid", uid);
 
-        String powerOffUrl = ResourceConst.REMOTE_RES.POWER_OFF_URL;
-        LogUtil.E("开关机："+powerOffUrl);
-        NetUtil.getInstance().post(powerOffUrl, params, new StringCallback() {
+        NetUtil.getInstance().post(ResourceConst.REMOTE_RES.POWER_OFF_URL, params, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-                Log.e(TAG, "获取定时开关机失败: "+e.getMessage());
+                Log.e(TAG, "获取定时开关机失败: " + e.getMessage());
+                try {
+                    //获取失败的时候隔20秒再获取
+                    Thread.sleep(20000);
+                    getPowerOffTime(uid);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
             }
 
             @Override
@@ -107,11 +119,10 @@ public class PowerOffTool {
                 response = response.replaceAll("\\\\", "");
                 if (response.startsWith("\"")) {
                     response = response.substring(1, response.length() - 1);
-                    LogUtil.E("onSuccess: " + response);
                 }
 
                 try {
-                    String runDate="", listStr="";
+                    String runDate = "", listStr = "";
                     if (!TextUtils.isEmpty(response) && !response.equals("null")) {
                         List<PowerTimesBean> timesBeanList = new ArrayList<>();
                         JSONObject jsonObject = new JSONObject(response);
@@ -135,8 +146,8 @@ public class PowerOffTool {
 //                        listStr = "[{\"closeTime\":\"14:00\",\"openTime\":\"17:10\"},"
 //                                + "{\"closeTime\":\"20:40\",\"openTime\":\"9:30\"}]";
 //                    }
-                    CacheManager.SP.put(TIMESRUNDATE,runDate);
-                    CacheManager.SP.put(TIMESBEANLIST,listStr);
+                    CacheManager.SP.put(TIMESRUNDATE, runDate);
+                    CacheManager.SP.put(TIMESBEANLIST, listStr);
                     selectPowerOnOff();
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -146,15 +157,16 @@ public class PowerOffTool {
     }
 
     private String TAG = "123";
+
     /**
      * 在开关机时间集合中 选择符合当前策略的时间段
      * 并执行开关机策略
      */
     private void selectPowerOnOff() {
-        String powerDate = CacheManager.SP.get(TIMESRUNDATE,"");
-        String powerTimes = CacheManager.SP.get(TIMESBEANLIST,"");
-        Log.e(TAG, "powerDate: " + powerDate);
-        Log.e(TAG, "powerTimes: " + powerTimes);
+        String powerDate = CacheManager.SP.get(TIMESRUNDATE, "");
+        String powerTimes = CacheManager.SP.get(TIMESBEANLIST, "");
+        LogUtil.D("powerDate: " + powerDate);
+        LogUtil.D("powerTimes: " + powerTimes);
         if (!TextUtils.isEmpty(powerDate) && !TextUtils.isEmpty(powerTimes)) {
             try {
                 SimpleDateFormat df = new SimpleDateFormat("HH:mm");
@@ -196,8 +208,8 @@ public class PowerOffTool {
                 // 1,2,3,4,5,6,7;08:00
                 String powerOff = powerDate + ";" + powerClose;
                 String powerOn = powerDate + ";" + poserOpen;
-                Log.e(TAG, "powerOff: " + powerOff);
-                Log.e(TAG, "powerOn: " + powerOn);
+                LogUtil.D("powerOff: " + powerOff);
+                LogUtil.D("powerOn: " + powerOn);
                 putPowerParam(POWER_OFF, powerOff);
                 putPowerParam(POWER_ON, powerOn);
 
@@ -207,6 +219,7 @@ public class PowerOffTool {
             }
         }
     }
+
     private void setPowerRestartTime() {
         Integer type = CommonUtils.getBroadType();
         switch (type) {
@@ -246,10 +259,10 @@ public class PowerOffTool {
                 onh = offset / 60;
             }
             OnOffTool.setEnabled(onh.byteValue(), onm.byteValue(), offh.byteValue(), offm.byteValue());
-            Log.e("time::::", "onh:" + onh + "======onm:" + onm + "========offh:" + offh + "======offm:" + offm);
+            LogUtil.D("time::::", "onh:" + onh + "======onm:" + onm + "========offh:" + offh + "======offm:" + offm);
             executefailedPowerDown();
         } else {
-            Log.e("time", "没有找到开关机时间");
+            LogUtil.E("time "+"没有找到开关机时间");
             OnOffTool.setDisabled();
         }
     }
@@ -286,6 +299,7 @@ public class PowerOffTool {
             }
         }
     }
+
     /*//开关机失败。间隔时间小于5秒，重设开关机时间*/
     private void setPowerFailedDown(int intervalTime) {
         if (intervalTime < 5) {
@@ -304,7 +318,7 @@ public class PowerOffTool {
      * @return 1, 2, 3, 4, 5, 6, 7;08:00
      */
     public String getPowerParam(String key) {
-        return CacheManager.SP.get(key,"");
+        return CacheManager.SP.get(key, "");
     }
 
     /**
@@ -391,6 +405,7 @@ public class PowerOffTool {
         }
         return between;
     }
+
     /**
      * 获取时间间隔
      *
@@ -441,6 +456,7 @@ public class PowerOffTool {
         }
         return week;
     }
+
     public final static String POWER_ON = "poerOn";
     public final static String POWER_OFF = "poerOff";
 
@@ -455,7 +471,7 @@ public class PowerOffTool {
      * 机器关机
      */
     public void shutdown() {
-        DialogUtil.getInstance().showProgressDialog(APP.getMainActivity(),"关机", "3秒后设备将关机");
+        DialogUtil.getInstance().showProgressDialog(APP.getMainActivity(), "关机", "3秒后设备将关机");
         TimerExecutor.getInstance().delayExecute(3000, new TimerExecutor.OnTimeOutListener() {
             @Override
             public void execute() {
@@ -484,7 +500,7 @@ public class PowerOffTool {
     }
 
     public void reboot() {
-        DialogUtil.getInstance().showProgressDialog(APP.getMainActivity(),"重启", "3秒后设备将重启");
+        DialogUtil.getInstance().showProgressDialog(APP.getMainActivity(), "重启", "3秒后设备将重启");
         TimerExecutor.getInstance().delayExecute(3000, new TimerExecutor.OnTimeOutListener() {
             @Override
             public void execute() {
@@ -530,7 +546,7 @@ public class PowerOffTool {
             byte[] buffer = new byte[is.available()];
             is.read(buffer);
             String out = new String(buffer);
-            Log.i("tag", out + aa);
+            LogUtil.D("tag", out + aa);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

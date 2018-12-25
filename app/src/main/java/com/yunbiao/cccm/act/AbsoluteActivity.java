@@ -5,9 +5,9 @@ import android.widget.AbsoluteLayout;
 
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
-import com.yunbiao.cccm.layout.LayoutRefresher;
+import com.yunbiao.cccm.layout.LayoutController;
 
-public class AbsoluteActivity extends BaseActivity implements LayoutRefresher.OnRefreshIner {
+public class AbsoluteActivity extends BaseActivity implements LayoutController.OnRefreshIner {
 
     private AbsoluteLayout absLayout;
 
@@ -21,7 +21,7 @@ public class AbsoluteActivity extends BaseActivity implements LayoutRefresher.On
     protected void initView() {
         absLayout = findViewById(R.id.abs_layout);
         //在布局刷新器中注册，完全由其来控制布局的刷新
-        LayoutRefresher.getInstance().registerActivity(this);
+        LayoutController.getInstance().registerActivity(this);
     }
 
     @Override
@@ -32,12 +32,7 @@ public class AbsoluteActivity extends BaseActivity implements LayoutRefresher.On
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        LayoutRefresher.getInstance().unRegisterActivity();
-    }
-
-    @Override
-    public void layoutInit() {
-        // TODO: 2018/12/11 初始化头部和脚部
+        LayoutController.getInstance().unRegisterActivity();
     }
 
     @Override
@@ -53,5 +48,10 @@ public class AbsoluteActivity extends BaseActivity implements LayoutRefresher.On
     @Override
     public void removeAllView() {
         absLayout.removeAllViews();
+    }
+
+    @Override
+    public void update() {
+
     }
 }

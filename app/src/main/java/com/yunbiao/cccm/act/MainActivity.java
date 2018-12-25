@@ -18,8 +18,9 @@ import android.widget.Toast;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.br.USBBroadcastReceiver;
-import com.yunbiao.cccm.layout.LayoutRefresher;
-import com.yunbiao.cccm.netcore.DownloadService;
+import com.yunbiao.cccm.devicectrl.PowerOffTool;
+import com.yunbiao.cccm.download.DownloadManager;
+import com.yunbiao.cccm.layout.LayoutController;
 import com.yunbiao.cccm.netcore.OnXmppConnListener;
 import com.yunbiao.cccm.netcore.PnServerController;
 import com.yunbiao.cccm.resolve.VideoDataResolver;
@@ -74,7 +75,7 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
 
     protected int setLayout() {
         APP.setMainActivity(this);
-        LayoutRefresher.getInstance().registerActivity(onLayoutRefresher);
+        LayoutController.getInstance().registerActivity(onLayoutRefresher);
         return R.layout.activity_main;
     }
 
@@ -85,6 +86,7 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
         intentFilter.addAction(Intent.ACTION_MEDIA_MOUNTED);
         intentFilter.addDataScheme("file");
         registerReceiver(usbBroadcastReceiver, intentFilter);
+
         //是否授权
         try {
             long expire = new SimpleDateFormat("yyyyMMdd").parse("20250101").getTime();
@@ -109,22 +111,21 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
         //初始化广告插播，如果有未播完的广告则自动播放
         DialogUtil.getInstance().initInsData(this);
 
-        //绑定资源下载线程
-//        bindDownloadService();
+        //初始化自动开关机数据
+        PowerOffTool.getInstance().initPowerData();
+
+        //初始化数据下载
+        DownloadManager.getInstance().initResData();
     }
 
-    private void bindDownloadService() {
-        startService(new Intent(this, DownloadService.class));
-    }
-
-    LayoutRefresher.OnRefreshIner onLayoutRefresher = new LayoutRefresher.OnRefreshIner() {
-        @Override
-        public void layoutInit() {
-
-        }
+    LayoutController.OnRefreshIner onLayoutRefresher = new LayoutController.OnRefreshIner() {
 
         @Override
         public void addView(View view) {
+            if(view == null){
+                LogUtil.E("收到了service的消息，运行在线程:"+Thread.currentThread().getName());
+                return;
+            }
             flRoot.addView(view);
         }
 
@@ -136,6 +137,11 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
         @Override
         public void removeAllView() {
             flRoot.removeAllViews();
+        }
+
+        @Override
+        public void update() {
+
         }
     };
 
@@ -318,6 +324,9 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
             startActivity(new Intent(this, MenuActivity.class));
             vtmVideo.pause();
             vtmVideo.setVisibility(View.GONE);
+        }else if(keyCode == KeyEvent.KEYCODE_BACK){
+            APP.exit();
+            return false;
         }
 
         return super.onKeyDown(keyCode, event);

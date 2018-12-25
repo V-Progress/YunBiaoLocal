@@ -12,7 +12,8 @@ import com.yunbiao.cccm.devicectrl.PowerOffTool;
 import com.yunbiao.cccm.devicectrl.actions.XBHActions;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.devicectrl.SoundControl;
-import com.yunbiao.cccm.layout.LayoutRefresher;
+import com.yunbiao.cccm.download.DownloadManager;
+import com.yunbiao.cccm.layout.LayoutController;
 import com.yunbiao.cccm.netcore.bean.ChannelBean;
 import com.yunbiao.cccm.netcore.bean.DiskInfoBean;
 import com.yunbiao.cccm.netcore.bean.LoginModel;
@@ -85,7 +86,10 @@ public class XmppMessageProcessor {
                 LogUtil.E(TAG, "*****" + loginModel.getPassword());
                 break;
             case CONTENT_TYPE:
-                LayoutRefresher.getInstance().refreshLayout();
+                JSONObject jo = JSON.parseObject(content);
+                String tp = jo.getString("type");
+                DownloadManager.getInstance().requestConfigXML(tp);
+
                 break;
             case RUNSET_TYPE://设备自动开关机
                 ThreadUtil.getInstance().runInCommonThread(new Runnable() {

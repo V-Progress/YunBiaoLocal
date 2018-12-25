@@ -148,7 +148,6 @@ public class XMLParse {
                         rules.add(rule);
                 }
             }
-            Log.d("XMLConfiguration", videoDataModel.toString());
         } catch (XmlPullParserException | IOException e) {
             e.printStackTrace();
         } finally {

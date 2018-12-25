@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.netcore;
+package com.yunbiao.cccm.download;
 
 import android.os.Environment;
 import android.util.Log;
@@ -99,8 +99,7 @@ public class BPDownloadUtil {
      */
     private void download(Queue<String> urlQueue, MutiFileDownloadListener l) {
         if (urlQueue.size() <= 0) {
-            onSuccess(l);
-            l.onDownloadFinish();
+            l.onFinish();
             return;
         }
 
@@ -111,7 +110,7 @@ public class BPDownloadUtil {
             URL url = new URL(downloadUrl);
             url.openStream();
         } catch (IOException  e) {
-            l.onError(new Exception("cannot resolve this url"));
+            l.onError(e);
             download(urlQueue, l);
             return;
         }
@@ -145,7 +144,6 @@ public class BPDownloadUtil {
         d("download length: "+contentLength);
         //如果下载的文件长度为0，不下载
         if (contentLength == 0) {
-            l.onError(new Exception("get File's length failed, replay"));
             //下载失败时将该url添加回队列的尾部
             urlQueue.offer(downloadUrl);
             delayReplay(urlQueue, l);
@@ -217,7 +215,6 @@ public class BPDownloadUtil {
             }
 
         } catch (final IOException e) {
-            e.printStackTrace();
             l.onError(e);
 
             urlQueue.offer(downloadUrl);
@@ -231,7 +228,6 @@ public class BPDownloadUtil {
                     savedFile.close();
                 }
             } catch (final Exception e) {
-                e.printStackTrace();
                 l.onError(e);
 
                 urlQueue.offer(downloadUrl);
@@ -292,7 +288,7 @@ public class BPDownloadUtil {
         }
 
         @Override
-        public void onDownloadFinish() {
+        public void onFinish() {
 
         }
 

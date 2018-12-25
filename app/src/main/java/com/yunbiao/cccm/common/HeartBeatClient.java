@@ -67,12 +67,11 @@ public class HeartBeatClient {
         NetUtil.getInstance().post(ResourceConst.REMOTE_RES.SER_NUMBER, paramMap, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-                LogUtil.E("ResourceConst.REMOTE_RES.SER_NUMBER-----"+e.getMessage());
+                LogUtil.E("获取设备编号.-----"+e.getMessage());
             }
 
             @Override
             public void onResponse(String response, int id) {
-                LogUtil.E("ResourceConst.REMOTE_RES.SER_NUMBER-----"+response);
                 String deviceNo = "-1";
 
                 if (response.startsWith("\"")) {
@@ -88,7 +87,7 @@ public class HeartBeatClient {
                     CacheManager.SP.putDeviceUniCode(deviceNo);
                 }
 
-                LogUtil.E(TAG, "createDeviceNo: " + deviceNo);
+                LogUtil.D(TAG, "createDeviceNo: " + deviceNo);
             }
         });
     }

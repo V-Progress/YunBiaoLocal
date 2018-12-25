@@ -46,7 +46,7 @@ public class Const {
         /***
          * 数据处理的线程数量
          */
-        int DATA_HANDLE_THREAD_NUMBER = 4;
+        int DATA_HANDLE_THREAD_NUMBER = 5;
 
         /***
          * 网络请求专用线程数量

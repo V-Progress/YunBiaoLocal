@@ -27,7 +27,7 @@ import okhttp3.Call;
 public class NetUtil {
     private static NetUtil mInstance;
     private RequestCall build;
-    private final String rootDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+    private final String rootDir = ResourceConst.LOCAL_RES.APP_MAIN_DIR;
 
     public synchronized static NetUtil getInstance() {
         if (mInstance == null) {
@@ -90,31 +90,15 @@ public class NetUtil {
         }
 
         try {
-            File file = new File(localPath);
-            String[] list = file.list();
-            for (String fn : list) {
-                if (fn.contains(fileName)) {
-                    LogUtil.E("内存中已有该文件");
-                    onDownLoadListener.onComplete(new File(rootDir + "/" + fn));
-                    onDownLoadListener.onFinish();
-                    return;
-                }
-            }
-
             OkHttpUtils.get()
                     .url(url)
                     .tag(this)
                     .build()
-                    .execute(new FileCallBack(rootDir, fileName) {
+                    .execute(new FileCallBack(localPath, fileName) {
                         int mainProg;
 
                         @Override
                         public void onError(Call call, Exception e, int id) {
-                            try {
-//                                downloadFile(url, onDownLoadListener);
-                            } catch (Exception e1) {
-                                e1.printStackTrace();
-                            }
                             onDownLoadListener.onError(e);
                             onDownLoadListener.onFinish();
                         }

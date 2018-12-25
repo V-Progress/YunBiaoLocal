@@ -444,7 +444,7 @@ public class CommonUtils {
                 result.append(line);
             }
             String broadInfo = result.toString();
-            LogUtil.E(TAG, "主板信息: " + broadInfo);
+            LogUtil.D(TAG, "主板信息: " + broadInfo);
             CacheManager.SP.putBroadInfo(broadInfo);
         } catch (IOException e) {
             e.printStackTrace();

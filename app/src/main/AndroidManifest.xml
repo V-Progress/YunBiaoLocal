@@ -88,7 +88,7 @@
             android:name="com.baidu.location.f"
             android:enabled="true"
             android:process=":remote" />
-        <service android:name="com.yunbiao.cccm.netcore.DownloadService"
+        <service android:name="com.yunbiao.cccm.download.DownloadService"
             android:enabled="true"
             android:label="DownloadService">
             <intent-filter>
