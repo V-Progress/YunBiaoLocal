@@ -7,8 +7,6 @@ import android.content.Intent;
 import com.yunbiao.cccm.act.MainActivity;
 
 public class BootBroadcastReceiver extends BroadcastReceiver {
-    private static final String TAG = "BootRestartSeceiver";
-    private String ACTION = "android.intent.action.BOOT_COMPLETED";
 
     @Override
     public void onReceive(Context context, Intent intent) {
