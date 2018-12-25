@@ -6,7 +6,7 @@ android {
     buildToolsVersion "26.0.3"
 
     defaultConfig {
-        applicationId "com.yunbiao.yunbiaolocal"
+        applicationId "com.yunbiao.cccm"
         minSdkVersion 17
         targetSdkVersion 22
         versionCode 1
@@ -28,18 +28,18 @@ android {
         pro {
 
             // 服务地址
-            buildConfigField "String", "DOMAIN", "com.yunbiao.yunbiaolocal.common.Const.URL.PRO"
+            buildConfigField "String", "DOMAIN", "com.yunbiao.cccm.common.Const.URL.PRO"
             // 服务端口
-            buildConfigField "Integer", "PORT", "com.yunbiao.yunbiaolocal.common.Const.PORT.PRO"
+            buildConfigField "Integer", "PORT", "com.yunbiao.cccm.common.Const.PORT.PRO"
             // 是否打印日志到文件
             buildConfigField "boolean", "IS_LOG_TO_FILE", "false"
         }
         // 开发版本
         dev {
             // 服务地址
-            buildConfigField "String", "DOMAIN", "com.yunbiao.yunbiaolocal.common.Const.URL.DEV"
+            buildConfigField "String", "DOMAIN", "com.yunbiao.cccm.common.Const.URL.DEV"
             // 服务端口
-            buildConfigField "String", "PORT", "com.yunbiao.yunbiaolocal.common.Const.PORT.DEV"
+            buildConfigField "String", "PORT", "com.yunbiao.cccm.common.Const.PORT.DEV"
             // 是否打印日志到文件
             buildConfigField "boolean", "IS_LOG_TO_FILE", "false"
         }

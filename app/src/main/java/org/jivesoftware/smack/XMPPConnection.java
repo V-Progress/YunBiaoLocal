@@ -20,7 +20,7 @@
 
 package org.jivesoftware.smack;
 
-import com.yunbiao.yunbiaolocal.xmpp.XmppManager;
+import com.yunbiao.cccm.xmpp.XmppManager;
 
 import org.apache.harmony.javax.security.auth.callback.Callback;
 import org.apache.harmony.javax.security.auth.callback.CallbackHandler;

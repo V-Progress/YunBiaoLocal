@@ -18,7 +18,7 @@
         android:layout_centerInParent="true"
         android:visibility="gone" />
 
-    <com.yunbiao.yunbiaolocal.view.MyScrollTextView
+    <com.yunbiao.cccm.view.MyScrollTextView
         android:id="@+id/mstv_insert"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

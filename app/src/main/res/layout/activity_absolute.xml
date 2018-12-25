@@ -5,6 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/abs_layout"
-    tools:context="com.yunbiao.yunbiaolocal.act.AbsoluteActivity">
+    tools:context="com.yunbiao.cccm.act.AbsoluteActivity">
 
 </AbsoluteLayout>

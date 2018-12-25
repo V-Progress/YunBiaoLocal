@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.yunbiao.yunbiaolocal">
+    package="com.yunbiao.cccm">
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
@@ -67,7 +67,7 @@
     <uses-permission android:name="android.permission.RESTART_PACKAGES" />
 
     <application
-        android:name=".APP"
+        android:name="com.yunbiao.cccm.APP"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -76,11 +76,11 @@
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="NGpAA4gQyYdIc1OsKw4iejQqjycKyPpY" />
 
-        <receiver android:name=".br.BootBroadcastReceiver">
+        <receiver android:name="com.yunbiao.cccm.br.BootBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.HOME" />
+                <!--<category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.HOME" />-->
             </intent-filter>
         </receiver>
 
@@ -88,7 +88,7 @@
             android:name="com.baidu.location.f"
             android:enabled="true"
             android:process=":remote" />
-        <service android:name=".netcore.DownloadService"
+        <service android:name="com.yunbiao.cccm.netcore.DownloadService"
             android:enabled="true"
             android:label="DownloadService">
             <intent-filter>
@@ -97,7 +97,7 @@
         </service>
 
         <service
-            android:name=".xmpp.NotificationService"
+            android:name="com.yunbiao.cccm.xmpp.NotificationService"
             android:enabled="true"
             android:label="NotificationService">
             <intent-filter>
@@ -107,7 +107,7 @@
 
 
         <activity
-            android:name=".act.MainActivity"
+            android:name="com.yunbiao.cccm.act.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask">
             <intent-filter>
@@ -116,12 +116,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".act.MenuActivity" />
-        <activity android:name=".act.AbsoluteActivity" />
+        <activity android:name="com.yunbiao.cccm.act.MenuActivity" />
+        <activity android:name="com.yunbiao.cccm.act.AbsoluteActivity" />
 
-        <receiver android:name=".act.weichat.WeiChatReceiver" />
+        <receiver android:name="com.yunbiao.cccm.act.weichat.WeiChatReceiver" />
 
-        <activity android:name=".act.weichat.WeichatActivity" />
+        <activity android:name="com.yunbiao.cccm.act.weichat.WeichatActivity" />
     </application>
 
 </manifest>

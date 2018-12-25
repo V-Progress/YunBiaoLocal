@@ -21,11 +21,10 @@
 package org.jivesoftware.smack;
 
 import org.jivesoftware.smack.packet.Packet;
-import org.jivesoftware.smack.packet.Presence;
 
 import android.util.Log;
 
-import com.yunbiao.yunbiaolocal.xmpp.XmppManager;
+import com.yunbiao.cccm.xmpp.XmppManager;
 
 import java.io.IOException;
 import java.io.Writer;

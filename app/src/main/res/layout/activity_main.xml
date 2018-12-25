@@ -5,7 +5,7 @@
     android:id="@+id/fl_root"
     tools:context=".act.MainActivity">
 
-    <com.yunbiao.yunbiaolocal.view.MainVideoView
+    <com.yunbiao.cccm.view.MainVideoView
         android:id="@+id/vtm_video"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
