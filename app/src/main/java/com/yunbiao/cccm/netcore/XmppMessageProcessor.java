@@ -8,9 +8,8 @@ import com.google.gson.Gson;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.devicectrl.ScreenShot;
-import com.yunbiao.cccm.devicectrl.Test;
+import com.yunbiao.cccm.devicectrl.PowerOffTool;
 import com.yunbiao.cccm.devicectrl.actions.XBHActions;
-import com.yunbiao.cccm.devicectrl.power.PowerOffTool;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.devicectrl.SoundControl;
 import com.yunbiao.cccm.layout.LayoutRefresher;
@@ -93,7 +92,7 @@ public class XmppMessageProcessor {
                     @Override
                     public void run() {// 开关机时间设置
 //                        PowerOffTool.getInstance().getPowerOffTime(HeartBeatClient.getDeviceNo());
-                        Test.getPowerOffTool().getPowerOffTime(HeartBeatClient.getDeviceNo());
+                        PowerOffTool.getInstance().getPowerOffTime(HeartBeatClient.getDeviceNo());
                     }
                 });
 

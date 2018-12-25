@@ -15,8 +15,10 @@ import com.yunbiao.cccm.act.MainActivity;
 import com.yunbiao.cccm.act.MenuActivity;
 import com.yunbiao.cccm.common.Const;
 import com.yunbiao.cccm.common.HeartBeatClient;
+import com.yunbiao.cccm.devicectrl.PowerOffTool;
 import com.yunbiao.cccm.utils.CommonUtils;
 import com.yunbiao.cccm.utils.BDLocationListener;
+import com.yunbiao.cccm.utils.ThreadUtil;
 import com.zhy.http.okhttp.OkHttpUtils;
 
 import java.util.ArrayList;
@@ -43,10 +45,11 @@ public class APP extends Application {
     private static AbsoluteActivity absoluteActivity;
     private static LocationClient locationClient;
 
-    public static void setAbsAct(AbsoluteActivity absAct){
+    public static void setAbsAct(AbsoluteActivity absAct) {
         absoluteActivity = absAct;
     }
-    public static AbsoluteActivity getAbsoluteActivity(){
+
+    public static AbsoluteActivity getAbsoluteActivity() {
         return absoluteActivity;
     }
 
@@ -58,12 +61,6 @@ public class APP extends Application {
         smdt = SmdtManager.create(this);
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);// 安卓音频初始化
 
-        //初始化定位
-        initLocation();
-
-        //初始化VITAMIO
-        Vitamio.initialize(this);
-
         //初始化OKHTTPUTILS
         okHttpClient = new OkHttpClient()
                 .newBuilder()
@@ -72,6 +69,12 @@ public class APP extends Application {
                 .writeTimeout(Const.NET_TIME_OUT, TimeUnit.MINUTES)
                 .build();
         OkHttpUtils.initClient(okHttpClient);
+
+        //初始化定位
+        initLocation();
+
+        //初始化VITAMIO
+        Vitamio.initialize(this);
 
         //初始化ImageLoader
         ImageLoaderConfiguration imageLoaderConfiguration = ImageLoaderConfiguration.createDefault(APP.getContext());
@@ -82,9 +85,18 @@ public class APP extends Application {
 
         //保存主板信息
         CommonUtils.saveBroadInfo();
+
+        //自动开关机
+        ThreadUtil.getInstance().runInCommonThread(machineRestartRun);
     }
 
-    private void initLocation(){
+    public Runnable machineRestartRun = new Runnable() {
+        public void run() {
+            PowerOffTool.getInstance().machineStart();
+        }
+    };
+
+    private void initLocation() {
         LocationClientOption option = new LocationClientOption();
         option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
         option.setCoorType("bd09ll");
@@ -92,18 +104,18 @@ public class APP extends Application {
         option.setOpenGps(true);
         option.setIgnoreKillProcess(false);
         option.SetIgnoreCacheException(false);
-        option.setWifiCacheTimeOut(5*60*1000);
+        option.setWifiCacheTimeOut(5 * 60 * 1000);
         option.setIsNeedAddress(true);
         option.setIsNeedAltitude(true);
         option.setIsNeedLocationDescribe(true);
-        locationClient = new LocationClient(this,option);
+        locationClient = new LocationClient(this, option);
 
         BDLocationListener bdLocationListener = new BDLocationListener();
         locationClient.registerLocationListener(bdLocationListener);
         locationClient.start();
     }
 
-    public static LocationClient getLocationClient(){
+    public static LocationClient getLocationClient() {
         return locationClient;
     }
 
@@ -143,7 +155,7 @@ public class APP extends Application {
         actList.add(activity);
     }
 
-    public static void removeActivity(Activity activity){
+    public static void removeActivity(Activity activity) {
         actList.remove(activity);
     }
 

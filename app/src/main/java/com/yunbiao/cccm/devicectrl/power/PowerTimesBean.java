@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.devicectrl;
+package com.yunbiao.cccm.devicectrl.power;
 
 /**
  * Created by Administrator on 2018/4/18.

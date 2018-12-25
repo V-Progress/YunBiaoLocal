@@ -1,23 +1,33 @@
 package com.yunbiao.cccm.devicectrl;
 
+import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.common.ResourceConst;
+import com.yunbiao.cccm.devicectrl.actions.JYDActions;
+import com.yunbiao.cccm.devicectrl.actions.XBHActions;
 import com.yunbiao.cccm.devicectrl.power.JYDBroadControl;
 import com.yunbiao.cccm.devicectrl.power.OnOffTool;
+import com.yunbiao.cccm.devicectrl.power.PowerTimesBean;
 import com.yunbiao.cccm.utils.CommonUtils;
+import com.yunbiao.cccm.utils.DialogUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.NetUtil;
+import com.yunbiao.cccm.utils.TimerExecutor;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,19 +42,19 @@ import okhttp3.Call;
  * Created by Administrator on 2018/12/24.
  */
 
-public class Test {
+public class PowerOffTool {
 
 
-    private static Test powerOffTool = null;
+    private static PowerOffTool powerOffTool = null;
 
-    private Test() {
+    private PowerOffTool() {
     }
 
-    public static Test getPowerOffTool() {
+    public static PowerOffTool getInstance() {
         if (powerOffTool == null) {
-            synchronized (Test.class) {
+            synchronized (PowerOffTool.class) {
                 if (powerOffTool == null) {
-                    powerOffTool = new Test();
+                    powerOffTool = new PowerOffTool();
                 }
             }
         }
@@ -94,7 +104,6 @@ public class Test {
 
             @Override
             public void onResponse(String response, int id) {
-//                result="{\"runDate\":\"1,2,3,4,5\",\"runTimes\":[{\"closeTime\":\"18:35\",\"openTime\":\"18:40\"},{\"closeTime\":\"21:0\",\"openTime\":\"18:4\"}],\"deviceId\":\"00000000-0de9-51dc-0000-00000f931edc\"}";
                 response = response.replaceAll("\\\\", "");
                 if (response.startsWith("\"")) {
                     response = response.substring(1, response.length() - 1);
@@ -442,5 +451,100 @@ public class Test {
         CacheManager.SP.put(key, value);
     }
 
+    /**
+     * 机器关机
+     */
+    public void shutdown() {
+        DialogUtil.getInstance().showProgressDialog(APP.getMainActivity(),"关机", "3秒后设备将关机");
+        TimerExecutor.getInstance().delayExecute(3000, new TimerExecutor.OnTimeOutListener() {
+            @Override
+            public void execute() {
+                Integer broadType = CommonUtils.getBroadType();
+                Intent intent = new Intent();
+                if (broadType == 4) {
+                    intent.setAction(XBHActions.ACTION_SHUTDOWN);
+                    APP.getContext().sendBroadcast(intent);
+                } else if (broadType == 5) {
+                    intent.setAction(JYDActions.ACTION_SHUTDOWN);
+                    APP.getContext().sendBroadcast(intent);
+                } else {
+                    Process process = null;
+                    try {
+                        process = Runtime.getRuntime().exec("su");
+                        DataOutputStream out = new DataOutputStream(process.getOutputStream());
+                        out.writeBytes("reboot -p\n");
+                        out.writeBytes("exit\n");
+                        out.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
 
+    public void reboot() {
+        DialogUtil.getInstance().showProgressDialog(APP.getMainActivity(),"重启", "3秒后设备将重启");
+        TimerExecutor.getInstance().delayExecute(3000, new TimerExecutor.OnTimeOutListener() {
+            @Override
+            public void execute() {
+                Integer broadType = CommonUtils.getBroadType();
+                Intent intent = new Intent();
+                switch (broadType) {
+                    case 0:
+                    case 2:
+                    case 3:
+                        execSuCmd("reboot");
+                        break;
+                    case 1:
+                        intent.setAction("com.zhsd.setting.syscmd");
+                        intent.putExtra("cmd", "reboot");
+                        APP.getContext().sendBroadcast(intent);
+                        break;
+                    case 4:
+                        intent.setAction(XBHActions.ACTION_REBOOT);
+                        APP.getContext().sendBroadcast(intent);
+                        break;
+                    case 5:
+                        intent.setAction(JYDActions.ACTION_REBOOT);
+                        APP.getContext().sendBroadcast(intent);
+                        break;
+                }
+            }
+        });
+
+    }
+
+    public void execSuCmd(String cmd) {
+        Process process = null;
+        DataOutputStream os = null;
+        DataInputStream is = null;
+        try {
+            process = Runtime.getRuntime().exec("su");
+            os = new DataOutputStream(process.getOutputStream());
+            os.writeBytes(cmd + "\n");
+            os.writeBytes("exit\n");
+            os.flush();
+            int aa = process.waitFor();
+            is = new DataInputStream(process.getInputStream());
+            byte[] buffer = new byte[is.available()];
+            is.read(buffer);
+            String out = new String(buffer);
+            Log.i("tag", out + aa);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (os != null) {
+                    os.close();
+                }
+                if (is != null) {
+                    is.close();
+                }
+                process.destroy();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

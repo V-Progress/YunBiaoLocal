@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.yunbiao.cccm.APP;
+import com.yunbiao.cccm.devicectrl.PowerOffTool;
 import com.yunbiao.cccm.devicectrl.actions.JYDActions;
 
 public class  JYDBroadControl {
