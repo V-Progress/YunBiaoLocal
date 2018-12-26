@@ -1,9 +1,12 @@
 package com.yunbiao.cccm.resolve;
 
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.ResourceConst;
-import com.yunbiao.cccm.APP;
+import com.yunbiao.cccm.act.MainController;
 import com.yunbiao.cccm.utils.DateUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
@@ -20,16 +23,150 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class VideoDataResolver {
+    private final String RES_DIR = ResourceConst.LOCAL_RES.RES_SAVE_PATH;
     public static List<String> playList;
     public static Map<String, String> previewMap;
     public static String timer = "开机时间：--:--\n关机时间：--:--";
     private List<Timer> timerList;
 
-    public List<String> getPlayList(){
-        if(playList != null && playList.size()>0){
+    public List<String> getPlayList() {
+        if (playList != null && playList.size() > 0) {
             return playList;
         }
         return new ArrayList<>();
+    }
+
+    public void resolvePlayLists() {
+        ThreadUtil.getInstance().runInCommonThread(new Runnable() {
+            @Override
+            public void run() {
+                String todayResource = CacheManager.FILE.getTodayResource();
+                if (TextUtils.isEmpty(todayResource)) {
+                    LogUtil.E("今日数据缓存为null");
+                    return;
+                }
+
+                //清空播放列表
+                playList = new ArrayList<>();
+                previewMap = new HashMap<>();
+
+                //关闭所有定时播放任务
+                if (timerList != null) {
+                    for (Timer timer : timerList) {
+                        timer.cancel();
+                    }
+                }
+                timerList = new ArrayList<>();
+
+                //开关机时间
+                String[] timerString = null;
+
+                VideoDataModel videoDataModel = new Gson().fromJson(todayResource, VideoDataModel.class);
+
+                List<VideoDataModel.Play> playlist = videoDataModel.getPlaylist();
+                try {
+                    //获取每天的播放数据
+                    for (VideoDataModel.Play play : playlist) {
+                        String playDay = play.getPlayday().trim();
+                        List<VideoDataModel.Play.Rule> rules = play.getRules();
+
+                        //解析播放日期
+                        String playDate = DateUtil.yyyy_MM_dd_Format(DateUtil.yyyyMMdd_Parse(playDay));
+
+                        for (VideoDataModel.Play.Rule rule : rules) {
+                            String[] times = rule.getDate().trim().split("-");
+                            playList.add(playDate + "\t\t\t" + times[0] + "-" + times[1]);
+
+                            final StringBuilder videoPath = new StringBuilder();
+                            //分割单条
+                            String[] ress = rule.getRes().split(",");
+                            for (int ind = 0; ind < ress.length; ind++) {
+                                String videoStr = ress[ind];
+                                //分割名称
+                                String[] pathStr = videoStr.split("/");
+                                String videoName = pathStr[pathStr.length - 1].trim().replace("\n", "");
+                                if (!TextUtils.isEmpty(videoName)) {
+                                    String index = ind + 1 > 9 ? ind + 1 + " " : ind + 1 + "  ";
+                                    File video = new File(RES_DIR, videoName);
+                                    if (!video.exists()) {
+                                        playList.add(index + videoName + "(无)");
+                                        continue;
+                                    }
+                                    playList.add(index + videoName);
+                                    // TODO: 2018/12/26 暂时只用文件名做主键
+                                    previewMap.put(/*DateUtil.yyyyMMdd_Format(new Date()) + */videoName, video.getPath());
+                                    if (videoPath.length() > 0) {
+                                        videoPath.append(",");
+                                    }
+                                    videoPath.append(video.getPath());
+                                }
+                            }
+
+                            //获取开关机时间
+                            if (timerString == null) {
+                                timerString = new String[]{videoDataModel.getStart().trim(), videoDataModel.getEnd().trim()};
+                            }
+
+                            //没有可播的放视频时，不添加定时任务
+                            if (videoPath.length() == 0) {
+                                continue;
+                            }
+
+                            //添加定时任务
+                            LogUtil.E("123", "开始时间" + playDay + times[0]);
+                            LogUtil.E("123", "结束时间" + playDay + times[1]);
+                            Date beginTime = DateUtil.yyyyMMddHH_mm_Parse(playDay + times[0]);
+                            Date endTime = DateUtil.yyyyMMddHH_mm_Parse(playDay + times[1]);
+                            LogUtil.E(/*file.getPath() + */"  " + DateUtil.yyyy_MM_dd_HH_mm_Format(beginTime) + " 至 " + DateUtil.yyyy_MM_dd_HH_mm_Format(endTime));
+
+                            //播放结束时间小于当前时间时，不添加定时任务
+                            if ((endTime.getTime() - 10000 < System.currentTimeMillis())) {
+                                continue;
+                            }
+
+                            //播放定时任务
+                            Timer beginTimer = new Timer();
+                            beginTimer.schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    ThreadUtil.getInstance().runInUIThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            LogUtil.E("当前的地址为："+videoPath.toString());
+                                            MainController.getInstance().startPlay(videoPath.toString());
+                                        }
+                                    });
+                                }
+                            }, beginTime);
+
+                            //停止定时任务
+                            Timer endTimer = new Timer();
+                            endTimer.schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    Log.d("log", "停止播放");
+                                    ThreadUtil.getInstance().runInUIThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            MainController.getInstance().stopPlay();
+                                        }
+                                    });
+                                }
+                            }, new Date(endTime.getTime() - 10000));
+
+                            //添加定时任务到任务列表
+                            timerList.add(beginTimer);
+                            timerList.add(endTimer);
+                        }
+                    }
+
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+
     }
 
     public void resolvePlayList() {
@@ -145,7 +282,7 @@ public class VideoDataResolver {
                                         ThreadUtil.getInstance().runInUIThread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                APP.getMainActivity().vtmPlay(videoPath.toString());
+                                                MainController.getInstance().startPlay(videoPath.toString());
                                             }
                                         });
                                     }
@@ -160,7 +297,7 @@ public class VideoDataResolver {
                                         ThreadUtil.getInstance().runInUIThread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                APP.getMainActivity().vtmStop();
+                                                MainController.getInstance().stopPlay();
                                             }
                                         });
                                     }

@@ -3,6 +3,8 @@ package com.yunbiao.cccm.download;
 import android.os.Environment;
 import android.util.Log;
 
+import com.yunbiao.cccm.common.ResourceConst;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +34,7 @@ public class BPDownloadUtil {
     private final ScheduledExecutorService singlePool;//单线程下载
 
     //下载文件存放的目录
-    private String directory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/yunbiao/resource";
+    private String directory = ResourceConst.LOCAL_RES.RES_SAVE_PATH;
     //OkHttp
     private final OkHttpClient okHttpClient;
 
@@ -106,15 +108,6 @@ public class BPDownloadUtil {
         //队列中取出并删除
         String downloadUrl = urlQueue.poll();
 
-        try {
-            URL url = new URL(downloadUrl);
-            url.openStream();
-        } catch (IOException  e) {
-            l.onError(e);
-            download(urlQueue, l);
-            return;
-        }
-
         //下载文件的名称
         String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/"));
 
@@ -128,9 +121,6 @@ public class BPDownloadUtil {
                 return;
             }
         }
-
-        d("start download...");
-        l.onStart(currFileNum);
 
         //取出本地文件的大小
         long localFileLength = 0;
@@ -152,10 +142,13 @@ public class BPDownloadUtil {
 
         //如果本地文件的长度和远程的相等，代表下载完成
         if (localFileLength == contentLength) {
-            onSuccess(l);
+//            onSuccess(l);
             download(urlQueue, l);
             return;
         }
+
+        d("start download...");
+        l.onStart(currFileNum);
 
         InputStream is = null;
         RandomAccessFile savedFile = null;

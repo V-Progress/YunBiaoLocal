@@ -1,10 +1,12 @@
 package com.yunbiao.cccm.netcore;
 
 import android.content.Intent;
+import android.os.Handler;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
+import com.yunbiao.cccm.act.MainController;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.devicectrl.ScreenShot;
@@ -13,7 +15,6 @@ import com.yunbiao.cccm.devicectrl.actions.XBHActions;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.devicectrl.SoundControl;
 import com.yunbiao.cccm.download.DownloadManager;
-import com.yunbiao.cccm.layout.LayoutController;
 import com.yunbiao.cccm.netcore.bean.ChannelBean;
 import com.yunbiao.cccm.netcore.bean.DiskInfoBean;
 import com.yunbiao.cccm.netcore.bean.LoginModel;
@@ -26,6 +27,7 @@ import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.utils.SystemInfoUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
+import com.yunbiao.cccm.utils.TimerExecutor;
 import com.yunbiao.cccm.view.TipToast;
 
 /**
@@ -89,6 +91,7 @@ public class XmppMessageProcessor {
                 JSONObject jo = JSON.parseObject(content);
                 String tp = jo.getString("type");
                 DownloadManager.getInstance().requestConfigXML(tp);
+
 
                 break;
             case RUNSET_TYPE://设备自动开关机

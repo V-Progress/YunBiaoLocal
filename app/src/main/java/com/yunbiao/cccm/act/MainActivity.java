@@ -4,6 +4,9 @@ import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -20,7 +23,6 @@ import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.br.USBBroadcastReceiver;
 import com.yunbiao.cccm.devicectrl.PowerOffTool;
 import com.yunbiao.cccm.download.DownloadManager;
-import com.yunbiao.cccm.layout.LayoutController;
 import com.yunbiao.cccm.netcore.OnXmppConnListener;
 import com.yunbiao.cccm.netcore.PnServerController;
 import com.yunbiao.cccm.resolve.VideoDataResolver;
@@ -39,7 +41,7 @@ import butterknife.BindView;
 import io.vov.vitamio.MediaPlayer;
 import io.vov.vitamio.widget.MediaController;
 
-public class MainActivity extends BaseActivity implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener, MediaPlayer.OnCompletionListener {
+public class MainActivity extends BaseActivity implements MainRefreshListener {
     @BindView(R.id.vtm_video)
     public MainVideoView vtmVideo;
     @BindView(R.id.permission)
@@ -52,12 +54,6 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
     ProgressBar progress;
     @BindView(R.id.pb_video)
     ProgressBar pbVideo;
-    @BindView(R.id.pb_download)
-    ProgressBar pbDownload;
-    @BindView(R.id.tv_download_state)
-    TextView tvDownloadState;
-    @BindView(R.id.ll_progress_area)
-    LinearLayout llProgressArea;
     @BindView(R.id.ll_console)
     LinearLayout llConsole;
     @BindView(R.id.pb_update)
@@ -72,14 +68,19 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
     private static int videoIndex;//当前视频在列表中处于的位置
     private static int lineNumber = 0;
     private float playSpeed = 1.0f;
+    private MediaPlayer mediaPlayer;
+    private FragmentManager mFragmentManager;
+    private InsertFragment insertFragment;
 
     protected int setLayout() {
         APP.setMainActivity(this);
-        LayoutController.getInstance().registerActivity(onLayoutRefresher);
+        MainController.getInstance().registerActivity(this);
         return R.layout.activity_main;
     }
 
     protected void initView() {
+        mFragmentManager = getSupportFragmentManager();
+
         //USB广播监听
         usbBroadcastReceiver = new USBBroadcastReceiver();
         IntentFilter intentFilter = new IntentFilter();
@@ -103,7 +104,7 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
         initPlayData();
 
         //初始化播放器
-        initVTMPlayer();
+        initPlayer();
 
         //连接XMPP
         PnServerController.startXMPP(this);
@@ -118,92 +119,48 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
         DownloadManager.getInstance().initResData();
     }
 
-    LayoutController.OnRefreshIner onLayoutRefresher = new LayoutController.OnRefreshIner() {
-
-        @Override
-        public void addView(View view) {
-            if(view == null){
-                LogUtil.E("收到了service的消息，运行在线程:"+Thread.currentThread().getName());
-                return;
-            }
-            flRoot.addView(view);
-        }
-
-        @Override
-        public void removeView(View view) {
-            flRoot.removeView(view);
-        }
-
-        @Override
-        public void removeAllView() {
-            flRoot.removeAllViews();
-        }
-
-        @Override
-        public void update() {
-
-        }
-    };
-
-    /*===========播放器控制相关=====================================================================
-     * 初始化播放器
-     */
-    public void pause() {
-        if (mediaPlayer == null) {
-            return;
-        }
-        mediaPlayer.pause();
-    }
-
-    public void resume() {
-        if (mediaPlayer == null) {
-            return;
-        }
-        mediaPlayer.start();
-    }
-
-    public void initVTMPlayer() {
-        initPlayData();
-        MediaController mediaController = new MediaController(MainActivity.this);
+    //-------------------------------------------------------------------------
+    @Override
+    public void initPlayer() {
+        MediaController mediaController = new MediaController(this);
         mediaController.setInstantSeeking(false);
         vtmVideo.setMediaController(mediaController);
         vtmVideo.setVideoQuality(MediaPlayer.VIDEOQUALITY_HIGH);//播放画质
-        vtmVideo.setOnPreparedListener(this);//准备完毕监听
-        vtmVideo.setOnErrorListener(this);//播放错误监听
-        vtmVideo.setOnInfoListener(this);//播放信息监听
+        vtmVideo.setOnPreparedListener(preparedListener);//准备完毕监听
+        vtmVideo.setOnErrorListener(errorListener);//播放错误监听
+        vtmVideo.setOnInfoListener(infoListener);//播放信息监听
+        vtmVideo.setOnCompletionListener(completionListener);
+    }
+
+    @Override
+    public void startPlay(String videoString) {
+        videoIndex = 0;
+        playList = videoString.split(",");
+
+        Log.d("log", "开始播放");
+        vtmVideo.setVisibility(View.VISIBLE);
+        state.setVisibility(View.INVISIBLE);
+
+        vtmVideo.stopPlayback();
+        vtmVideo.setVideoPath(playList[videoIndex]);
+        vtmVideo.start();
     }
 
     /*
      * 初始化播放数据
      */
+    @Override
     public void initPlayData() {
         VideoDataResolver videoDataResolve = new VideoDataResolver();
-        videoDataResolve.resolvePlayList();
+//        videoDataResolve.resolvePlayList();
+        videoDataResolve.resolvePlayLists();
         if (videoDataResolve.getPlayList() == null || videoDataResolve.getPlayList().isEmpty()) {
             state.setVisibility(View.VISIBLE);
         }
     }
 
-    /*
-     * 开始播放
-     */
-    public void vtmPlay(String videoString) {
-        Log.d("log", "开始播放");
-        vtmVideo.setVisibility(View.VISIBLE);
-        state.setVisibility(View.INVISIBLE);
-        vtmVideo.stopPlayback();
-        playList = videoString.split(",");
-        videoIndex = 0;
-        vtmVideo.setVideoPath(playList[0]);
-        vtmVideo.setOnCompletionListener(this);
-        vtmVideo.start();
-
-    }
-
-    /*
-     * 停止播放
-     */
-    public void vtmStop() {
+    @Override
+    public void stopPlay() {
         if (vtmVideo == null) {
             return;
         }
@@ -212,9 +169,11 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
         state.setVisibility(View.VISIBLE);
     }
 
+//-------------------------------------------------------------------------
     /*
      * 打开控制台
      */
+    @Override
     public void openConsole() {
         llConsole.setVisibility(View.VISIBLE);
     }
@@ -222,6 +181,7 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
     /*
      * 关闭控制台
      */
+    @Override
     public void closeConsole() {
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -234,10 +194,8 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
         }, 3000);
     }
 
-    /*
-     * 更新控制台显示
-     */
-    public void updateConsole(final String msg) {
+    @Override
+    public void updateConsole(String msg) {
         String text = console.getText().toString();
         if (lineNumber < 5) {
             lineNumber++;
@@ -251,68 +209,91 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
         console.setText(text + msg);
     }
 
+    //-------------------------------------------------------------------------
+    @Override
     public void initProgress(final int max) {
         progress.setMax(max);
     }
 
+    @Override
     public void updateProgress(final int pg) {
         progress.setProgress(pg);
     }
-
-    /*===========播放器状态监听=====================================================================
-     * vitamio准备好的回调
-     */
-    MediaPlayer mediaPlayer;
+//-------------------------------------------------------------------------
 
     @Override
-    public void onPrepared(MediaPlayer mp) {
-        mediaPlayer = mp;
-        mp.setPlaybackSpeed(1.0f);
+    public void insertPlay() {
+        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.dialog_top_enter, R.anim.dialog_top_exit);
+
+        insertFragment = new InsertFragment();
+        fragmentTransaction.add(R.id.fl_root, insertFragment).commit();
     }
 
-    /*
-     * 当前视频播放完毕的监听
-     */
     @Override
-    public void onCompletion(MediaPlayer mp) {
-        videoIndex++;
-        if (videoIndex == playList.length) {
-            videoIndex = 0;
+    public void closeInsertPlay() {
+        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.dialog_top_enter, R.anim.dialog_top_exit);
+
+        fragmentTransaction.hide(insertFragment).commit();
+    }
+
+    @Override
+    public void noRemoteFile() {
+
+    }
+
+    /*===========播放器控制相关=====================================================================
+     * 初始化播放器
+     */
+    private MediaPlayer.OnPreparedListener preparedListener = new MediaPlayer.OnPreparedListener() {
+        @Override
+        public void onPrepared(MediaPlayer mp) {
+            mediaPlayer = mp;
+            mp.setPlaybackSpeed(1.0f);
         }
-        try {
-            mp.setPlaybackSpeed(playSpeed);
+    };
+
+    private MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
+        @Override
+        public boolean onError(MediaPlayer mp, int what, int extra) {
             vtmVideo.stopPlayback();
-            vtmVideo.setVideoPath(playList[videoIndex]);
+            vtmVideo.resume();
             vtmVideo.start();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
+            return false;
         }
-    }
+    };
 
-    /*
-     * 播放暂停的监听
-     */
-    @Override
-    public boolean onInfo(MediaPlayer mp, int what, int extra) {
-        if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
-            pbVideo.setVisibility(View.VISIBLE);
-            pbVideo.setInterpolator(new AccelerateDecelerateInterpolator());
-        } else {
-            pbVideo.setVisibility(View.INVISIBLE);
+    private MediaPlayer.OnInfoListener infoListener = new MediaPlayer.OnInfoListener() {
+        @Override
+        public boolean onInfo(MediaPlayer mp, int what, int extra) {
+            if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
+                pbVideo.setVisibility(View.VISIBLE);
+                pbVideo.setInterpolator(new AccelerateDecelerateInterpolator());
+            } else {
+                pbVideo.setVisibility(View.INVISIBLE);
+            }
+            return true;
         }
-        return true;
-    }
+    };
 
-    /*
-     * vitamio播放错误回调
-     */
-    @Override
-    public boolean onError(MediaPlayer mp, int what, int extra) {
-        vtmVideo.stopPlayback();
-        vtmVideo.resume();
-        vtmVideo.start();
-        return false;
-    }
+    private MediaPlayer.OnCompletionListener completionListener = new MediaPlayer.OnCompletionListener() {
+        @Override
+        public void onCompletion(MediaPlayer mp) {
+            videoIndex++;
+            if (videoIndex == playList.length) {
+                videoIndex = 0;
+            }
+            try {
+                mp.setPlaybackSpeed(playSpeed);
+                vtmVideo.stopPlayback();
+                vtmVideo.setVideoPath(playList[videoIndex]);
+                vtmVideo.start();
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+        }
+    };
 
     /*===========页面控件相关=====================================================================
      * 初始化播放列表
@@ -324,7 +305,7 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
             startActivity(new Intent(this, MenuActivity.class));
             vtmVideo.pause();
             vtmVideo.setVisibility(View.GONE);
-        }else if(keyCode == KeyEvent.KEYCODE_BACK){
+        } else if (keyCode == KeyEvent.KEYCODE_BACK) {
             APP.exit();
             return false;
         }
@@ -348,6 +329,20 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
         vtmVideo.pause();
     }
 
+    public void pause() {
+        if (mediaPlayer == null) {
+            return;
+        }
+        mediaPlayer.pause();
+    }
+
+    public void resume() {
+        if (mediaPlayer == null) {
+            return;
+        }
+        mediaPlayer.start();
+    }
+
     @Override
     protected void onDestroy() {
         unregisterReceiver(usbBroadcastReceiver);
@@ -362,13 +357,14 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
     public NetUtil.OnDownLoadListener downloadUpdateListener = new NetUtil.OnDownLoadListener() {
         @Override
         public void onStart(String fileName) {
-            llUpdateArea.setVisibility(View.VISIBLE);
-            pbUpdate.setMax(100);
+            openConsole();
+            updateConsole("开始下载更新...");
+            initProgress(100);
         }
 
         @Override
         public void onProgress(int progress) {
-            pbUpdate.setProgress(progress);
+            updateProgress(progress);
         }
 
         @Override
@@ -378,7 +374,7 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
 
         @Override
         public void onFinish() {
-            llUpdateArea.setVisibility(View.GONE);
+            closeConsole();
         }
 
         @Override
@@ -391,15 +387,11 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
             switch (message) {
                 case "1":
                     Toast.makeText(APP.getContext(), "当前版本为最新版本", Toast.LENGTH_SHORT).show();
-                    if (llUpdateArea.isShown()) {
-                        llUpdateArea.setVisibility(View.GONE);
-                    }
+                    closeConsole();
                     break;
                 case "fail":
                     Toast.makeText(APP.getContext(), "网络连接失败，请检查网络", Toast.LENGTH_SHORT).show();
-                    if (llUpdateArea.isShown()) {
-                        llUpdateArea.setVisibility(View.GONE);
-                    }
+                    closeConsole();
                     break;
                 default:
                     Toast.makeText(APP.getContext(), message, Toast.LENGTH_SHORT).show();
@@ -439,63 +431,5 @@ public class MainActivity extends BaseActivity implements MediaPlayer.OnPrepared
         return false;
     }
 
-    private String testTag = "123456";
-
-    public OnXmppConnListener xmppConnListener = new OnXmppConnListener() {
-        @Override
-        public void onConnecting() {
-
-            LogUtil.E(testTag,"onConnecting...");
-        }
-
-        @Override
-        public void onConnected() {
-            LogUtil.E(testTag,"onConnected...");
-        }
-
-        @Override
-        public void onConnError() {
-            LogUtil.E(testTag,"onConnError...");
-        }
-
-        @Override
-        public void onReConnecting() {
-            LogUtil.E(testTag,"onReConnecting...");
-        }
-
-        @Override
-        public void onNetChange(boolean isConnect) {
-            LogUtil.E(testTag,"onNetChange..."+isConnect);
-        }
-
-        @Override
-        public void onLogon(String sn, String pwd, String status, String deviceQrCode) {
-            LogUtil.E(testTag,"onLogon..."+sn+"---"+pwd+"---"+status+"---"+deviceQrCode);
-        }
-
-        @Override
-        public void onConnClosed() {
-            LogUtil.E(testTag,"onConnClosed...");
-        }
-
-        @Override
-        public void Onreceived(String sn, String pwd, String status, String deviceQrCode) {
-            LogUtil.E(testTag,"Onreceived..."+sn+"---"+pwd+"---"+status+"---"+deviceQrCode);
-        }
-
-        @Override
-        public void OnreceivedDtype(Integer dtype) {
-            LogUtil.E(testTag,"OnreceivedDtype..."+dtype);
-        }
-
-        @Override
-        public void OndeviceIsOnline(boolean isOnline) {
-            LogUtil.E(testTag,"OndeviceIsOnline..."+isOnline);
-        }
-
-        @Override
-        public void OnnetChange(boolean isConnect) {
-            LogUtil.E(testTag,"OnnetChange..."+isConnect);
-        }
-    };
+    public OnXmppConnListener xmppConnListener = null;
 }

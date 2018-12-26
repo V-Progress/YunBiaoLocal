@@ -43,9 +43,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:orientation="vertical"
-        android:visibility="gone">
-
+        android:orientation="vertical">
         <ProgressBar
             android:id="@+id/progress"
             style="?android:attr/progressBarStyleHorizontal"
@@ -65,31 +63,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/ll_progress_area"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_gravity="bottom"
-        android:background="#ee000000"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="8dp"
-        android:visibility="gone">
-
-        <ProgressBar
-            android:id="@+id/pb_download"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/tv_download_state"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:text="1231312" />
-    </LinearLayout>
-
-    <LinearLayout
+        android:visibility="gone"
         android:id="@+id/ll_update_area"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
@@ -100,8 +74,7 @@
         android:paddingBottom="10dp"
         android:paddingLeft="50dp"
         android:paddingRight="50dp"
-        android:paddingTop="10dp"
-        android:visibility="gone">
+        android:paddingTop="10dp">
 
         <ProgressBar
             android:id="@+id/pb_update"
@@ -116,4 +89,7 @@
             android:layout_marginTop="10dp"
             android:text="正在下载更新" />
     </LinearLayout>
+
+
+
 </FrameLayout>

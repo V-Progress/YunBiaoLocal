@@ -3,6 +3,7 @@ package com.yunbiao.cccm.act;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -17,7 +18,7 @@ import butterknife.ButterKnife;
  * Created by Administrator on 2018/12/11.
  */
 
-public abstract class BaseActivity extends Activity {
+public abstract class BaseActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,21 +30,6 @@ public abstract class BaseActivity extends Activity {
         initView();
         initData();
     }
-
-    View.OnTouchListener onTouchListener = new View.OnTouchListener() {
-
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if(null != BaseActivity.this.getCurrentFocus()){
-                /**
-                 * 点击空白位置 隐藏软键盘
-                 */
-                InputMethodManager mInputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-                return mInputMethodManager.hideSoftInputFromWindow(BaseActivity.this.getCurrentFocus().getWindowToken(), 0);
-            }
-            return false;
-        }
-    };
 
     protected abstract void initData();
 

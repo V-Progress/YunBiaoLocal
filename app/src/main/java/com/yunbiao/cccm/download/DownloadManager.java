@@ -4,6 +4,9 @@ import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.google.gson.Gson;
+import com.yunbiao.cccm.act.MainController;
+import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.resolve.VideoDataModel;
@@ -16,13 +19,13 @@ import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.vov.vitamio.VIntent;
 import okhttp3.Call;
 
 /**
@@ -39,12 +42,17 @@ public class DownloadManager {
     private String ftpServiceUrl;//FTP文件地址
 
     private static DownloadManager instance;
+    private final List<String> urlList;
 
     public static synchronized DownloadManager getInstance() {
         if (instance == null) {
             instance = new DownloadManager();
         }
         return instance;
+    }
+
+    public DownloadManager() {
+        urlList = new ArrayList<>();
     }
 
     /***
@@ -73,11 +81,16 @@ public class DownloadManager {
                 requestRes(type);
             }
         });
-
     }
 
     private void requestRes(final String type) {
-        LogUtil.E("日期类型是："+type);
+        if(isInit){
+            //开启控制台
+            MainController.getInstance().openConsole();
+            MainController.getInstance().updateConsole("检查播放资源...");
+        }
+
+        LogUtil.E("日期类型是：" + type);
         Map<String, String> map = new HashMap<>();
         map.put("deviceNo", HeartBeatClient.getDeviceNo());
         map.put("type", type);
@@ -85,13 +98,16 @@ public class DownloadManager {
 
             @Override
             public void onError(Call call, Exception e, int id) {
-                try {
-                    Thread.sleep(downloadDelay);
-                    requestRes(type);//请求异常之后再次请求
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
+
                 LogUtil.E(TAG, e.getMessage());
+                MainController.getInstance().updateConsole("检查资源失败...");
+                MainController.getInstance().closeConsole();
+//                try {
+//                    Thread.sleep(downloadDelay);
+//                    requestRes(type);//请求异常之后再次请求
+//                } catch (InterruptedException e1) {
+//                    e1.printStackTrace();
+//                }
             }
 
             @Override
@@ -109,17 +125,16 @@ public class DownloadManager {
                 ftpServiceUrl = dateJson.getString("ftpServiceUrl");
 
                 String configUrl = dateJson.getString("configUrl");
-                downloadConfigXML(configUrl);
+                downloadConfigXML(type,configUrl);
             }
         });
     }
 
     //下载config文件
-    private void downloadConfigXML(final String url) {
+    private void downloadConfigXML(final String type, final String url) {
         NetUtil.getInstance().downloadFile(url, ResourceConst.LOCAL_RES.APP_MAIN_DIR, new NetUtil.OnDownLoadListener() {
             @Override
             public void onStart(String fileName) {
-                LogUtil.D(TAG, "开始下载config文件");
             }
 
             @Override
@@ -130,41 +145,65 @@ public class DownloadManager {
             @Override
             public void onComplete(File response) {
                 LogUtil.D(TAG, "下载完成：" + response.getAbsolutePath());
-
                 List<String> strings = null;
                 try {
-                    strings = resolveDownloadList(response);
+                    strings = resolveDownloadList(type,response);
 
                     download(strings);
                 } catch (UnsupportedEncodingException e) {
+
+                    MainController.getInstance().updateConsole("下载失败...");
                     e.printStackTrace();
                 }
-
-
             }
 
             @Override
             public void onFinish() {
+
             }
 
             @Override
             public void onError(Exception e) {
                 LogUtil.E(TAG, "下载错误：" + e.getMessage() + ",60秒后重新下载");
-                try {
-                    Thread.sleep(downloadDelay);
-                    LogUtil.D(TAG, "重新开始下载config文件");
-                    downloadConfigXML(url);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
+                MainController.getInstance().updateConsole("下载失败...");
+                MainController.getInstance().closeConsole();
+//                try {
+//                    Thread.sleep(downloadDelay);
+//                    LogUtil.D(TAG, "重新开始下载config文件");
+//                    downloadConfigXML(type, url);
+//                } catch (InterruptedException e1) {
+//                    e1.printStackTrace();
+//                }
             }
         });
     }
 
     //解析XML文件
-    private List<String> resolveDownloadList(File response) throws UnsupportedEncodingException {
-        List<String> urlList = new ArrayList<>();
+    private List<String> resolveDownloadList(String type, File response) throws UnsupportedEncodingException {
+
         VideoDataModel videoDataModel = new XMLParse().parseJsonModel(response);
+        String videoModleStr = new Gson().toJson(videoDataModel);
+
+        Integer typeInt = Integer.valueOf(type);
+        switch (typeInt) {
+            case TYPE_TODAY:
+                String todayResource = CacheManager.FILE.getTodayResource();
+                LogUtil.E("对比1："+todayResource);
+                LogUtil.E("对比2："+videoModleStr);
+                if(!TextUtils.equals(videoModleStr,todayResource)){
+                    CacheManager.FILE.putTodayResource(videoModleStr);
+                }
+                break;
+            case TYPE_TOMMO:
+                String tommorowResource = CacheManager.FILE.getTommorowResource();
+                LogUtil.E("对比1："+tommorowResource);
+                LogUtil.E("对比2："+videoModleStr);
+                if(!TextUtils.equals(videoModleStr,tommorowResource)){
+                    CacheManager.FILE.putTommorowResource(videoModleStr);
+                }
+                break;
+        }
+
         List<VideoDataModel.Play> playlist = videoDataModel.getPlaylist();
         for (VideoDataModel.Play play : playlist) {
             String today = DateUtil.yyyyMMdd_Format(new Date());
@@ -177,11 +216,10 @@ public class DownloadManager {
                     for (String rPath : split) {
                         String urlStr = rPath.replace("\n", "").trim().replace("%20", "");
                         if (!TextUtils.isEmpty(urlStr)) {
-                            String url = null;
-                            url = URLEncoder.encode(urlStr, "UTF-8");
-                            if (!urlList.contains(url)) {
-                                urlList.add(ftpServiceUrl+url);
+                            if (!urlList.contains(urlStr)) {
+                                urlList.add(ftpServiceUrl + urlStr);
                             }
+
                         }
                     }
                 }
@@ -191,16 +229,19 @@ public class DownloadManager {
     }
 
     //开始多文件下载
-    private void download(List<String> urlList) {
+    private void download(final List<String> urlList) {
         BPDownloadUtil.getInstance().breakPointDownload(urlList, new MutiFileDownloadListener() {
             @Override
             public void onBefore(int totalNum) {
-                LogUtil.E(TAG, "共有：" + totalNum);
+                if(isInit){
+                    MainController.getInstance().updateConsole("共有：" + totalNum+"个文件");
+                    MainController.getInstance().initProgress(totalNum);
+                }
             }
 
             @Override
             public void onStart(int currNum) {
-                LogUtil.E(TAG, "第" + currNum + "文件开始");
+                MainController.getInstance().updateConsole("开始下载第"+currNum+1+"个文件");
             }
 
             @Override
@@ -210,23 +251,30 @@ public class DownloadManager {
 
             @Override
             public void onDownloadSpeed(long speed) {
-                LogUtil.E(TAG, "速度：" + speed);
             }
 
             @Override
             public void onSuccess(int currFileNum) {
-                LogUtil.E(TAG, "第 " + currFileNum + " 个文件下载完成");
+                MainController.getInstance().updateProgress(currFileNum+1);
+                MainController.getInstance().updateConsole("下载完成");
+                if(isInit){
+                    MainController.getInstance().initPlayData();
+                }
             }
 
             @Override
             public void onError(Exception e) {
-                LogUtil.E(TAG, "下载出现错误：" + e.getMessage());
+                MainController.getInstance().updateConsole("下载错误:"+e.getMessage());
+                e.printStackTrace();
             }
 
             @Override
             public void onFinish() {
-                LogUtil.E(TAG, "资源全部下载结束");
+                urlList.clear();
                 if (isInit) {
+                    MainController.getInstance().updateProgress(urlList.size());
+                    MainController.getInstance().updateConsole("已全部下载结束");
+                    MainController.getInstance().closeConsole();
                     LogUtil.D("dataTag不为2，继续开始请求");
                     requestConfigXML(String.valueOf(TYPE_TOMMO));//请求明天时会将isInit置为false
                 }
@@ -234,7 +282,7 @@ public class DownloadManager {
 
             @Override
             public void onFailed(Exception e) {
-                LogUtil.E(TAG, "下载失败：" + e.getMessage());
+                MainController.getInstance().updateConsole("下载失败，请检查网络或Config:"+e.getMessage());
             }
         });
     }

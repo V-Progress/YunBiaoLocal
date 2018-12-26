@@ -7,16 +7,15 @@ import android.widget.Toast;
 
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.act.MainActivity;
+import com.yunbiao.cccm.act.MainController;
 import com.yunbiao.cccm.utils.CopyUtil;
 import com.yunbiao.cccm.utils.copyFileListener;
 import com.yunbiao.cccm.utils.ThreadUtil;
 
 public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileListener {
     private String dataString;
-    private MainActivity mainActivity;
 
     public USBBroadcastReceiver() {
-        mainActivity = APP.getMainActivity();
     }
 
     @Override
@@ -34,8 +33,8 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mainActivity.openConsole();
-                mainActivity.updateConsole(usbFilePath);
+                MainController.getInstance().openConsole();
+                MainController.getInstance().updateConsole(usbFilePath);
             }
         });
     }
@@ -45,8 +44,8 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mainActivity.updateConsole("文件数量" + count);
-                mainActivity.initProgress(count);
+                MainController.getInstance().updateConsole("文件数量" + count);
+                MainController.getInstance().initProgress(count);
             }
         });
     }
@@ -56,8 +55,8 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mainActivity.updateConsole("U盘中没有云标目录");
-                mainActivity.closeConsole();
+                MainController.getInstance().updateConsole("U盘中没有云标目录");
+                MainController.getInstance().closeConsole();
             }
         });
     }
@@ -67,7 +66,7 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mainActivity.updateProgress(i);
+                MainController.getInstance().updateProgress(i);
             }
         });
     }
@@ -77,8 +76,8 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mainActivity.updateConsole("复制完成\n加载视频...");
-                mainActivity.initVTMPlayer();
+                MainController.getInstance().updateConsole("复制完成\n加载视频...");
+                MainController.getInstance().initPlayer();
             }
         });
     }
@@ -88,7 +87,7 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mainActivity.closeConsole();
+                MainController.getInstance().closeConsole();
             }
         });
     }
@@ -98,7 +97,7 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mainActivity.updateConsole("删除：" + path);
+                MainController.getInstance().updateConsole("删除：" + path);
             }
         });
     }

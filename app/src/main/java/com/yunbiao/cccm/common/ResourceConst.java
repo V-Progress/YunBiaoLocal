@@ -14,7 +14,7 @@ public class ResourceConst {
         //截屏存储
         String SCREEN_CACHE_PATH = EXTERNAL_ROOT_DIR + APP_CACHE_BASE_PATH + "/screen";
         //参数资源存储
-        String PROPERTY_CACHE_PATH = EXTERNAL_ROOT_DIR + APP_CACHE_BASE_PATH + "/property";
+        String PROPERTY_CACHE_PATH = APP_MAIN_DIR + "/property";
         //图片资源存储
         String IMAGE_CACHE_PATH = EXTERNAL_ROOT_DIR + APP_CACHE_BASE_PATH + "/resource";
         //微信资源存储目录

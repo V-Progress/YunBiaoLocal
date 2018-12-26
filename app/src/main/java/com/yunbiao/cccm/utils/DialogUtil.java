@@ -21,7 +21,6 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.yunbiao.cccm.cache.CacheManager;
-import com.yunbiao.cccm.layout.LayoutController;
 import com.yunbiao.cccm.resolve.VideoDataResolver;
 import com.yunbiao.cccm.view.InsertPlayDialog;
 import com.yunbiao.cccm.R;
@@ -107,7 +106,7 @@ public class DialogUtil {
                 if (mPreview.isPlaying()) {
                     mPreview.stopPlayback();
                 }
-                String path = VideoDataResolver.previewMap.get(yyyyMMdd + text.substring(3));
+                String path = VideoDataResolver.previewMap.get(/*yyyyMMdd + */text.substring(3));
                 if (TextUtils.isEmpty(path)) {
                     Toast.makeText(mActivity, "没有视频", Toast.LENGTH_SHORT).show();
                     return;
@@ -155,7 +154,7 @@ public class DialogUtil {
                 if (TextUtils.equals("2", insertTextModel.getPlayType())) {
                     CacheManager.FILE.putInsertAds("");//清除广告缓存
                     if (myScrollTextView != null) {
-                        LayoutController.getInstance().removeView(myScrollTextView);
+//                        MainController.getInstance().removeView(myScrollTextView);
                     }
                     if (insertPlayDialog != null) {
                         insertPlayDialog.dismiss();
@@ -178,13 +177,13 @@ public class DialogUtil {
                         TimerExecutor.getInstance().addInTimerQueue(dates1[0], new TimerExecutor.OnTimeOutListener() {
                             @Override
                             public void execute() {
-                                LayoutController.getInstance().addView(myScrollTextView);
+//                                MainController.getInstance().addView(myScrollTextView);
                             }
                         });
                         TimerExecutor.getInstance().addInTimerQueue(dates1[1], new TimerExecutor.OnTimeOutListener() {
                             @Override
                             public void execute() {
-                                LayoutController.getInstance().removeView(myScrollTextView);
+//                                MainController.getInstance().removeView(myScrollTextView);
                             }
                         });
                     } else {

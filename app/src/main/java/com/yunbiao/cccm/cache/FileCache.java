@@ -37,18 +37,8 @@ public class FileCache {
     private static Map<String, FileCache> instanceMap = new HashMap<>();
     private ACacheManager mCache;
 
-    public static FileCache get(Context ctx) {
-        File f = new File(ctx.getCacheDir(), "FileCache");
-        return get(f, MAX_SIZE, MAX_COUNT);
-    }
-
     public static FileCache get(File cacheDir) {
         return get(cacheDir, MAX_SIZE, MAX_COUNT);
-    }
-
-    public static FileCache get(Context ctx, int max_zise, int max_count) {
-        File f = new File(ctx.getCacheDir(), "FileCache");
-        return get(f, max_zise, max_count);
     }
 
     public static FileCache get(File cacheDir, int max_zise, int max_count) {

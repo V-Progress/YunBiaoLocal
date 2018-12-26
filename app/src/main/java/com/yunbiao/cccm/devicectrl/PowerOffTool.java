@@ -83,12 +83,12 @@ public class PowerOffTool {
 //            selectPowerOnOff();
 //        } else {
         //开关机时间为空，则去网络下载
-        ThreadUtil.getInstance().runInCommonThread(new Runnable() {
+        ThreadUtil.getInstance().runInRemoteThread(new Runnable() {
+            @Override
             public void run() {
                 getPowerOffTime(HeartBeatClient.getDeviceNo());
             }
         });
-
 //        }
     }
 
