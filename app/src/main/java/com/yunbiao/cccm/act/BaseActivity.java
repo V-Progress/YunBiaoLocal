@@ -1,12 +1,9 @@
 package com.yunbiao.cccm.act;
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
+import android.support.v4.app.FragmentManager;
 
 import com.yunbiao.cccm.APP;
 
@@ -20,12 +17,15 @@ import butterknife.ButterKnife;
 
 public abstract class BaseActivity extends FragmentActivity {
 
+    protected FragmentManager mFragmentManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         APP.addActivity(this);
         setContentView(setLayout());
         ButterKnife.bind(this);
+        mFragmentManager = getSupportFragmentManager();
 
         initView();
         initData();

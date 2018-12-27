@@ -105,13 +105,6 @@ public class PowerOffTool {
             @Override
             public void onError(Call call, Exception e, int id) {
                 Log.e(TAG, "获取定时开关机失败: " + e.getMessage());
-                try {
-                    //获取失败的时候隔20秒再获取
-                    Thread.sleep(20000);
-                    getPowerOffTime(uid);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
             }
 
             @Override

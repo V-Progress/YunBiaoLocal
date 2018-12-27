@@ -64,7 +64,7 @@ public class BPDownloadUtil {
                 .build();
     }
 
-    public void close(){
+    public void close() {
         singlePool.shutdown();
     }
 
@@ -93,6 +93,7 @@ public class BPDownloadUtil {
     }
 
     private int currFileNum = 0;
+    private int retryNum = 0;
 
     /***
      * 断点下载
@@ -111,7 +112,7 @@ public class BPDownloadUtil {
         //下载文件的名称
         String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/"));
 
-        d("downloadUrl: "+downloadUrl);
+        d("downloadUrl: " + downloadUrl);
         //获取本地目录
         File localDir = new File(directory);
         if (!localDir.exists()) {
@@ -131,11 +132,16 @@ public class BPDownloadUtil {
 
         //获取要下载的文件的长度（因为要计算文件的进度，所以即使本地文件不存在也应该获取）
         long contentLength = getContentLength(downloadUrl);
-        d("download length: "+contentLength);
+        d("download length: " + contentLength);
         //如果下载的文件长度为0，不下载
         if (contentLength == 0) {
-            //下载失败时将该url添加回队列的尾部
-            urlQueue.offer(downloadUrl);
+            //下载失败时重试三次
+            if (retryNum < 3) {
+                retryNum++;
+                urlQueue.offer(downloadUrl);
+            }else{
+                retryNum = 0;
+            }
             delayReplay(urlQueue, l);
             return;
         }
@@ -233,7 +239,7 @@ public class BPDownloadUtil {
      * 只有下载成功的时候才会增加文件索引
      * @param l
      */
-    private void onSuccess(MutiFileDownloadListener l){
+    private void onSuccess(MutiFileDownloadListener l) {
         d("download onSuccess...");
         l.onSuccess(currFileNum);
         currFileNum++;

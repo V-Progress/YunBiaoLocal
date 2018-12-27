@@ -3,6 +3,10 @@ package com.yunbiao.cccm.act;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.support.percent.PercentRelativeLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -57,10 +61,13 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     TextView tvMenuSettingHints2;
     @BindView(R.id.tv_menu_setting)
     TextView tvMenuSetting;
+    @BindView(R.id.prl_root)
+    PercentRelativeLayout prlRoot;
 
     private SoundPool soundPool;//用来管理和播放音频文件
     private int music;
     private TimerUtil timerUtil;
+    private PlayListFragment playListFragment;
 
     protected int setLayout() {
         APP.setMenuActivity(this);
@@ -134,19 +141,35 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                 break;
             case R.id.btn_menu_playlist:
                 onPause();
-                DialogUtil.getInstance().showPlayListDialog(this, VideoDataResolver.playList == null
-                        ? new ArrayList<String>()
-                        : VideoDataResolver.playList, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onResume();
-                    }
-                });
+                playListFragment = new PlayListFragment();
+                FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+                fragmentTransaction.setCustomAnimations(R.anim.dialog_top_enter,R.anim.dialog_top_exit);
+                fragmentTransaction.add(R.id.prl_root, playListFragment).commit();
                 break;
             case R.id.btn_menu_setting:
                 startActivity(new Intent(this, WeichatActivity.class));
                 break;
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK && playListFragment.isVisible()){
+            backFragment(playListFragment);
+            return false;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    /***
+     * 回退Fragment
+     * @param fragment
+     */
+    public void backFragment(Fragment fragment){
+        onResume();
+        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.dialog_top_enter,R.anim.dialog_top_exit);
+        fragmentTransaction.remove(fragment).commit();
     }
 
     @Override

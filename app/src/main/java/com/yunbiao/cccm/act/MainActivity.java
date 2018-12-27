@@ -69,7 +69,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     private static int lineNumber = 0;
     private float playSpeed = 1.0f;
     private MediaPlayer mediaPlayer;
-    private FragmentManager mFragmentManager;
     private InsertFragment insertFragment;
 
     protected int setLayout() {
@@ -79,8 +78,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     }
 
     protected void initView() {
-        mFragmentManager = getSupportFragmentManager();
-
         //USB广播监听
         usbBroadcastReceiver = new USBBroadcastReceiver();
         IntentFilter intentFilter = new IntentFilter();
