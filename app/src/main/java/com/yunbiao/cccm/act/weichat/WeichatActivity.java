@@ -18,7 +18,7 @@ import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
-import com.yunbiao.cccm.act.BaseActivity;
+import com.yunbiao.cccm.act.base.BaseActivity;
 import com.yunbiao.cccm.act.weichat.bean.WeiMessage;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;

@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -21,6 +22,7 @@ import android.widget.VideoView;
 
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.resolve.VideoDataResolver;
+import com.yunbiao.cccm.utils.LogUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +31,7 @@ import java.util.List;
  * Created by Administrator on 2018/12/27.
  */
 
-public class PlayListFragment extends Fragment {
+public class PlayListFragment extends Fragment implements View.OnTouchListener {
 
     private VideoView videoView;
     private ListView listView;
@@ -46,6 +48,7 @@ public class PlayListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_playlist, container, false);
+        rootView.setOnTouchListener(this);
         return rootView;
     }
 
@@ -114,6 +117,12 @@ public class PlayListFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        videoView.stopPlayback();
         videoView.setVisibility(View.GONE);
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        return true;
     }
 }

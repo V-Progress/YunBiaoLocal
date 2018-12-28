@@ -1,10 +1,12 @@
 package com.yunbiao.cccm.view.model;
 
+import java.io.Serializable;
+
 /**
  * Created by Administrator on 2018/12/5.
  */
 
-public class InsertVideoModel{
+public class InsertVideoModel implements Serializable {
 
     private String fileurl;
     protected String playCurTime;
@@ -37,6 +39,8 @@ public class InsertVideoModel{
     public String toString() {
         return "InsertVideoModel{" +
                 "fileurl='" + fileurl + '\'' +
+                ", playCurTime='" + playCurTime + '\'' +
+                ", playDate='" + playDate + '\'' +
                 '}';
     }
 }

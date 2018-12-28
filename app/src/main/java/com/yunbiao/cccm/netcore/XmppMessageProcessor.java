@@ -29,6 +29,8 @@ import com.yunbiao.cccm.utils.SystemInfoUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.utils.TimerExecutor;
 import com.yunbiao.cccm.view.TipToast;
+import com.yunbiao.cccm.view.model.InsertTextModel;
+import com.yunbiao.cccm.view.model.InsertVideoModel;
 
 /**
  * 核心类：Xmpp消息处理
@@ -67,7 +69,7 @@ public class XmppMessageProcessor {
     /**
      * 消息分发
      */
-    public static void dispatchMsg(String message) {
+    public static void dispatchMsg(final String message) {
         JSONObject jsonObject = JSON.parseObject(message);
         final String content = jsonObject.getString("content");
         String type = jsonObject.getString("type");
@@ -88,17 +90,16 @@ public class XmppMessageProcessor {
                 LogUtil.E(TAG, "*****" + loginModel.getPassword());
                 break;
             case CONTENT_TYPE:
-                JSONObject jo = JSON.parseObject(content);
-                String tp = jo.getString("type");
-                DownloadManager.getInstance().requestConfigXML(tp);
-
+//                JSONObject jo = JSON.parseObject(content);
+//                String tp = jo.getString("type");
+//                DownloadManager.getInstance().requestConfigXML(Integer.valueOf(tp));
+                DownloadManager.getInstance().initResData();
 
                 break;
             case RUNSET_TYPE://设备自动开关机
                 ThreadUtil.getInstance().runInCommonThread(new Runnable() {
                     @Override
                     public void run() {// 开关机时间设置
-//                        PowerOffTool.getInstance().getPowerOffTime(HeartBeatClient.getDeviceNo());
                         PowerOffTool.getInstance().getPowerOffTime(HeartBeatClient.getDeviceNo());
                     }
                 });
@@ -128,9 +129,7 @@ public class XmppMessageProcessor {
                         ScreenShot.getInstanse().ss();
                     }
                 });
-
                 break;
-
             case SHOW_VERSION://显示版本号
                 SystemInfoUtil.uploadAppVersion();
                 break;
@@ -184,11 +183,22 @@ public class XmppMessageProcessor {
                 SoundControl.setMusicSound(voiceModel.getVoice());
                 break;
             case PUSH_MESSAGE://插播字幕
-                LogUtil.E("显示字幕");
-                DialogUtil.getInstance().showInsert(APP.getMainActivity(),content,DialogUtil.INSERT_TEXT);
+                ThreadUtil.getInstance().runInCommonThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        InsertTextModel insertTextModel = new Gson().fromJson(content, InsertTextModel.class);
+                        MainController.getInstance().insertPlay(insertTextModel,null);
+                    }
+                });
                 break;
             case VIDEO_PUSH://插播视频
-                DialogUtil.getInstance().showInsert(APP.getMainActivity(),content,DialogUtil.INSERT_VIDEO);
+                ThreadUtil.getInstance().runInCommonThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        InsertVideoModel insertVideoModel = new Gson().fromJson(content, InsertVideoModel.class);
+                        MainController.getInstance().insertPlay(null,insertVideoModel);
+                    }
+                });
                 break;
         }
     }

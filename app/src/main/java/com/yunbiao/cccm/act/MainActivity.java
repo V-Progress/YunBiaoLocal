@@ -3,16 +3,14 @@ package com.yunbiao.cccm.act;
 import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -20,17 +18,19 @@ import android.widget.Toast;
 
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
+import com.yunbiao.cccm.act.base.BaseActivity;
 import com.yunbiao.cccm.br.USBBroadcastReceiver;
 import com.yunbiao.cccm.devicectrl.PowerOffTool;
 import com.yunbiao.cccm.download.DownloadManager;
 import com.yunbiao.cccm.netcore.OnXmppConnListener;
 import com.yunbiao.cccm.netcore.PnServerController;
 import com.yunbiao.cccm.resolve.VideoDataResolver;
-import com.yunbiao.cccm.utils.DialogUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.utils.SystemInfoUtil;
 import com.yunbiao.cccm.view.MainVideoView;
+import com.yunbiao.cccm.view.model.InsertTextModel;
+import com.yunbiao.cccm.view.model.InsertVideoModel;
 
 import java.io.File;
 import java.text.ParseException;
@@ -60,8 +60,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     ProgressBar pbUpdate;
     @BindView(R.id.ll_update_area)
     LinearLayout llUpdateArea;
-    @BindView(R.id.fl_root)
-    FrameLayout flRoot;
 
     private USBBroadcastReceiver usbBroadcastReceiver;//USB监听广播
     private static String[] playList;//播放列表
@@ -78,6 +76,9 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     }
 
     protected void initView() {
+        //先将插播fragment创建出来
+
+        rootView = findViewById(R.id.fl_root);
         //USB广播监听
         usbBroadcastReceiver = new USBBroadcastReceiver();
         IntentFilter intentFilter = new IntentFilter();
@@ -97,17 +98,17 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     }
 
     protected void initData() {
-        //初始化播放数据
-        initPlayData();
-
         //初始化播放器
         initPlayer();
+
+        //初始化播放数据
+//        initPlayData();
 
         //连接XMPP
         PnServerController.startXMPP(this);
 
         //初始化广告插播，如果有未播完的广告则自动播放
-        DialogUtil.getInstance().initInsData(this);
+//        DialogUtil.getInstance().initInsData(this);
 
         //初始化自动开关机数据
         PowerOffTool.getInstance().initPowerData();
@@ -116,7 +117,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         DownloadManager.getInstance().initResData();
     }
 
-    //-------------------------------------------------------------------------
+    //-------播放器控制----------------------------------------------------------------
     @Override
     public void initPlayer() {
         MediaController mediaController = new MediaController(this);
@@ -140,6 +141,10 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
 
         vtmVideo.stopPlayback();
         vtmVideo.setVideoPath(playList[videoIndex]);
+        //如果插播正在播放，则不开始播放
+        if(insertFragment!=null && insertFragment.isVisible()){
+            return;
+        }
         vtmVideo.start();
     }
 
@@ -149,7 +154,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     @Override
     public void initPlayData() {
         VideoDataResolver videoDataResolve = new VideoDataResolver();
-//        videoDataResolve.resolvePlayList();
         videoDataResolve.resolvePlayLists();
         if (videoDataResolve.getPlayList() == null || videoDataResolve.getPlayList().isEmpty()) {
             state.setVisibility(View.VISIBLE);
@@ -166,7 +170,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         state.setVisibility(View.VISIBLE);
     }
 
-//-------------------------------------------------------------------------
+    //------控制台-----------------------------------------------------------------
     /*
      * 打开控制台
      */
@@ -206,7 +210,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         console.setText(text + msg);
     }
 
-    //-------------------------------------------------------------------------
+    //------进度条控制----------------------------------------------------------------
     @Override
     public void initProgress(final int max) {
         progress.setMax(max);
@@ -216,22 +220,32 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     public void updateProgress(final int pg) {
         progress.setProgress(pg);
     }
-//-------------------------------------------------------------------------
 
+    //-----广告插播----------------------------------------------------------------
     @Override
-    public void insertPlay() {
+    public void insertPlay(InsertTextModel insertTextModel, InsertVideoModel insertVideoModel) {
+//        LogUtil.E("insertTextModel: "+insertTextModel == null?"null":insertTextModel.toString());
+//        LogUtil.E("insertVideoModel: "+insertVideoModel == null?"null":insertVideoModel.toString());
+
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(R.anim.dialog_top_enter, R.anim.dialog_top_exit);
-
-        insertFragment = new InsertFragment();
-        fragmentTransaction.add(R.id.fl_root, insertFragment).commit();
+        if (insertFragment == null) {
+            insertFragment = new InsertFragment();
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(InsertFragment.KEY_INSERT_TXT, insertTextModel);
+            bundle.putSerializable(InsertFragment.KEY_INSERT_VIDEO, insertVideoModel);
+            insertFragment.setArguments(bundle);
+            fragmentTransaction.add(R.id.fl_root, insertFragment).commit();
+        } else {
+            insertFragment.updatePlayData(insertTextModel,insertVideoModel);
+            fragmentTransaction.show(insertFragment).commit();
+        }
     }
 
     @Override
     public void closeInsertPlay() {
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(R.anim.dialog_top_enter, R.anim.dialog_top_exit);
-
         fragmentTransaction.hide(insertFragment).commit();
     }
 
@@ -240,7 +254,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
 
     }
 
-    /*===========播放器控制相关=====================================================================
+    /*===========播放器监听关=====================================================================
      * 初始化播放器
      */
     private MediaPlayer.OnPreparedListener preparedListener = new MediaPlayer.OnPreparedListener() {
@@ -303,6 +317,9 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             vtmVideo.pause();
             vtmVideo.setVisibility(View.GONE);
         } else if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (insertFragment != null && insertFragment.isVisible()) {
+                return true;
+            }
             APP.exit();
             return false;
         }
@@ -347,7 +364,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         PnServerController.stopXMPP();
         APP.exit();
         super.onDestroy();
-
     }
 
     //下载更新的监听，外部静态调用

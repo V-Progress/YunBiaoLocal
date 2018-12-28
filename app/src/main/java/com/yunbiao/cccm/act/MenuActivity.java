@@ -13,14 +13,11 @@ import android.widget.TextView;
 
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
+import com.yunbiao.cccm.act.base.BaseActivity;
 import com.yunbiao.cccm.act.weichat.WeichatActivity;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
-import com.yunbiao.cccm.resolve.VideoDataResolver;
-import com.yunbiao.cccm.utils.DialogUtil;
 import com.yunbiao.cccm.utils.TimerUtil;
-
-import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -63,6 +60,8 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     TextView tvMenuSetting;
     @BindView(R.id.prl_root)
     PercentRelativeLayout prlRoot;
+    @BindView(R.id.btn_select_resource_menu)
+    Button btnSelectRes;
 
     private SoundPool soundPool;//用来管理和播放音频文件
     private int music;
@@ -154,7 +153,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == KeyEvent.KEYCODE_BACK && playListFragment.isVisible()){
+        if(keyCode == KeyEvent.KEYCODE_BACK && playListFragment!= null && playListFragment.isVisible()){
             backFragment(playListFragment);
             return false;
         }

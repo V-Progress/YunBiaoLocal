@@ -13,7 +13,6 @@ import java.util.concurrent.Executors;
 
 public class ThreadUtil {
     private static ThreadUtil threadUtil;
-    private ExecutorService mSingleThread;
     private ExecutorService commonPool;
     private Handler mHandler = new Handler();
     private final ExecutorService remotePool;
@@ -26,13 +25,8 @@ public class ThreadUtil {
     }
 
     public ThreadUtil() {
-        mSingleThread = Executors.newSingleThreadExecutor();
         commonPool = Executors.newFixedThreadPool(Const.SYSTEM_CONFIG.DATA_HANDLE_THREAD_NUMBER);
         remotePool = Executors.newFixedThreadPool(Const.SYSTEM_CONFIG.REMOTE_THREAD_NUMBER);
-    }
-
-    public void runInSingleThread(Runnable runnable) {
-        mSingleThread.execute(runnable);
     }
 
     /***
@@ -41,7 +35,7 @@ public class ThreadUtil {
      * 默认corePoolSize为4
      * @param runnable
      */
-    public void runInCommonThread(Runnable runnable) {
+    public void runInCommonThread(final Runnable runnable) {
         commonPool.execute(runnable);
     }
 
@@ -51,7 +45,7 @@ public class ThreadUtil {
      * 默认corePoolSize为2
      * @param runnable
      */
-    public void runInRemoteThread(Runnable runnable) {
+    public void runInRemoteThread(final Runnable runnable) {
         remotePool.execute(runnable);
     }
 

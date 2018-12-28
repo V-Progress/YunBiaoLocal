@@ -4,12 +4,14 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.yunbiao.cccm.common.ResourceConst;
+import com.yunbiao.cccm.utils.LogUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -22,6 +24,9 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
+ * 以队列形式实现
+ * 先对文件进行比对,相同大小的视为下载完成,不同大小的保存信息,
+ *
  * Created by Wei.Zhang on 2018/12/21.
  */
 
@@ -78,41 +83,6 @@ public class BPDownloadUtil {
             l = lis;
         }
 
-        final Queue<String> urlQueue = new LinkedList<>();
-        urlQueue.addAll(fileUrlList);
-
-        l.onBefore(urlQueue.size());
-
-        final MutiFileDownloadListener finalL = l;
-        singlePool.execute(new Runnable() {
-            @Override
-            public void run() {
-                download(urlQueue, finalL);
-            }
-        });
-    }
-
-    private int currFileNum = 0;
-    private int retryNum = 0;
-
-    /***
-     * 断点下载
-     * @param urlQueue 下载地址的list
-     * @param l 多文件下载的监听
-     */
-    private void download(Queue<String> urlQueue, MutiFileDownloadListener l) {
-        if (urlQueue.size() <= 0) {
-            l.onFinish();
-            return;
-        }
-
-        //队列中取出并删除
-        String downloadUrl = urlQueue.poll();
-
-        //下载文件的名称
-        String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/"));
-
-        d("downloadUrl: " + downloadUrl);
         //获取本地目录
         File localDir = new File(directory);
         if (!localDir.exists()) {
@@ -123,35 +93,126 @@ public class BPDownloadUtil {
             }
         }
 
+        final Queue<String> urlQueue = new LinkedList<>();
+        urlQueue.addAll(fileUrlList);
+        LogUtil.E("haha", "原有" + urlQueue.toString());
+
+        final Queue<DownloadInfo> downloadInfos = new LinkedList<>();
+        equalsFile(localDir.getAbsolutePath(), urlQueue, downloadInfos);
+        LogUtil.E("haha", downloadInfos.toString());
+
+        l.onBefore(downloadInfos.size());
+
+        final MutiFileDownloadListener finalL = l;
+        singlePool.execute(new Runnable() {
+            @Override
+            public void run() {
+                download(downloadInfos, finalL);
+            }
+        });
+    }
+
+    private int currFileNum = 0;
+    private int retryNum = 0;
+
+    class DownloadInfo {
+        private String url;
+        private long contentLength;
+        private long localFileLength;
+        private File localFile;
+
+        public File getLocalFile() {
+            return localFile;
+        }
+
+        public void setLocalFile(File localFile) {
+            this.localFile = localFile;
+        }
+
+        public long getLocalFileLength() {
+            return localFileLength;
+        }
+
+        public void setLocalFileLength(long localFileLength) {
+            this.localFileLength = localFileLength;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        public long getContentLength() {
+            return contentLength;
+        }
+
+        public void setContentLength(long contentLength) {
+            this.contentLength = contentLength;
+        }
+    }
+
+    private void equalsFile(String localPath, Queue<String> urlQueue, Queue<DownloadInfo> downloadInfos) {
+        if (urlQueue.size() <= 0) {
+            return;
+        }
+
+        String downloadUrl = urlQueue.poll();
+        String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/"));
+
         //取出本地文件的大小
         long localFileLength = 0;
-        final File localFile = new File(localDir.getAbsolutePath(), fileName);
+        final File localFile = new File(localPath, fileName);
         if (localFile.exists()) {
             localFileLength = localFile.length();
         }
 
         //获取要下载的文件的长度（因为要计算文件的进度，所以即使本地文件不存在也应该获取）
         long contentLength = getContentLength(downloadUrl);
-        d("download length: " + contentLength);
-        //如果下载的文件长度为0，不下载
-        if (contentLength == 0) {
+        //如果下载的文件长度为0并且重试次数未超
+        if (contentLength == 0 && retryNum < 2) {
+            retryNum++;
             //下载失败时重试三次
-            if (retryNum < 3) {
-                retryNum++;
-                urlQueue.offer(downloadUrl);
-            }else{
-                retryNum = 0;
-            }
-            delayReplay(urlQueue, l);
+            urlQueue.offer(downloadUrl);
+            equalsFile(localPath, urlQueue, downloadInfos);
             return;
         }
 
+        //重置重试次数
+        retryNum = 0;
         //如果本地文件的长度和远程的相等，代表下载完成
         if (localFileLength == contentLength) {
-//            onSuccess(l);
-            download(urlQueue, l);
+            equalsFile(localPath, urlQueue, downloadInfos);
             return;
         }
+
+        DownloadInfo downloadInfo = new DownloadInfo();
+        downloadInfo.setUrl(downloadUrl);
+        downloadInfo.setContentLength(contentLength);
+        downloadInfo.setLocalFileLength(localFileLength);
+        downloadInfo.setLocalFile(localFile);
+        downloadInfos.add(downloadInfo);
+        equalsFile(localPath, urlQueue, downloadInfos);
+    }
+
+    /***
+     * 断点下载
+     * @param downloadInfos 下载地址的list
+     * @param l 多文件下载的监听
+     */
+    private void download(Queue<DownloadInfo> downloadInfos, MutiFileDownloadListener l) {
+        if (downloadInfos.size() <= 0) {
+            l.onFinish();
+            return;
+        }
+
+        DownloadInfo downloadInfo = downloadInfos.poll();
+        String downloadUrl = downloadInfo.getUrl();
+        long localFileLength = downloadInfo.getLocalFileLength();
+        long contentLength = downloadInfo.getContentLength();
+        File localFile = downloadInfo.getLocalFile();
 
         d("start download...");
         l.onStart(currFileNum);
@@ -201,23 +262,24 @@ public class BPDownloadUtil {
                 response.body().close();
 
                 //如果當前下載文件長度和遠程文件不相同，則刪除掉重新下載
-                if (savedFile.length() != contentLength) {
+
+                if (localFile.length() != contentLength) {
                     boolean delete = localFile.delete();
                     l.onError(new Exception(localFile.getAbsolutePath() + " download failed, delete and replay"));
-                    urlQueue.offer(downloadUrl);
-                    delayReplay(urlQueue, l);
+                    downloadInfos.offer(downloadInfo);
+                    delayReplay(downloadInfos, l);
                     return;
                 }
 
                 onSuccess(l);
-                download(urlQueue, l);
+                download(downloadInfos, l);
             }
 
         } catch (final IOException e) {
             l.onError(e);
 
-            urlQueue.offer(downloadUrl);
-            delayReplay(urlQueue, l);
+            downloadInfos.offer(downloadInfo);
+            delayReplay(downloadInfos, l);
         } finally {
             try {
                 if (is != null) {
@@ -229,8 +291,8 @@ public class BPDownloadUtil {
             } catch (final Exception e) {
                 l.onError(e);
 
-                urlQueue.offer(downloadUrl);
-                delayReplay(urlQueue, l);
+                downloadInfos.offer(downloadInfo);
+                delayReplay(downloadInfos, l);
             }
         }
     }
@@ -246,10 +308,10 @@ public class BPDownloadUtil {
     }
 
     //延迟下载
-    private void delayReplay(final Queue<String> urlList, final MutiFileDownloadListener listener) {
+    private void delayReplay(final Queue<DownloadInfo> downloadInfos, final MutiFileDownloadListener listener) {
         try {
             Thread.sleep(REPLAY_DELAY);
-            download(urlList, listener);
+            download(downloadInfos, listener);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

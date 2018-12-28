@@ -1,9 +1,10 @@
-package com.yunbiao.cccm.act;
+package com.yunbiao.cccm.act.base;
 
 import android.app.ActivityManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.view.View;
 
 import com.yunbiao.cccm.APP;
 
@@ -17,7 +18,8 @@ import butterknife.ButterKnife;
 
 public abstract class BaseActivity extends FragmentActivity {
 
-    protected FragmentManager mFragmentManager;
+    public FragmentManager mFragmentManager;
+    public View rootView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

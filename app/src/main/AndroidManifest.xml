@@ -88,13 +88,6 @@
             android:name="com.baidu.location.f"
             android:enabled="true"
             android:process=":remote" />
-        <service android:name="com.yunbiao.cccm.download.DownloadService"
-            android:enabled="true"
-            android:label="DownloadService">
-            <intent-filter>
-                <action android:name="com.yunbiao.yunbiaolocal.netcore.DownloadService" />
-            </intent-filter>
-        </service>
 
         <service
             android:name="com.yunbiao.cccm.xmpp.NotificationService"
@@ -116,8 +109,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.yunbiao.cccm.act.MenuActivity" />
-        <activity android:name="com.yunbiao.cccm.act.AbsoluteActivity" />
+        <activity android:name="com.yunbiao.cccm.act.MenuActivity"/>
 
         <receiver android:name="com.yunbiao.cccm.act.weichat.WeiChatReceiver" />
 

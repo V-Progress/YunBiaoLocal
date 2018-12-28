@@ -8,10 +8,47 @@ import java.util.List;
 
 public class VideoDataModel {
 
-    private String end;
-    private String isdelete;
-    private String start;
+    private Config config;
     private List<Play> playlist;
+
+    public static class Config{
+        private String end;
+        private String isdelete;
+        private String start;
+
+        public String getEnd() {
+            return end;
+        }
+
+        public void setEnd(String end) {
+            this.end = end;
+        }
+
+        public String getIsdelete() {
+            return isdelete;
+        }
+
+        public void setIsdelete(String isdelete) {
+            this.isdelete = isdelete;
+        }
+
+        public String getStart() {
+            return start;
+        }
+
+        public void setStart(String start) {
+            this.start = start;
+        }
+
+        @Override
+        public String toString() {
+            return "Config{" +
+                    "end='" + end + '\'' +
+                    ", isdelete='" + isdelete + '\'' +
+                    ", start='" + start + '\'' +
+                    '}';
+        }
+    }
 
     public static class Play{
         private String playday;
@@ -71,30 +108,6 @@ public class VideoDataModel {
         }
     }
 
-    public String getEnd() {
-        return end;
-    }
-
-    public void setEnd(String end) {
-        this.end = end;
-    }
-
-    public String getIsdelete() {
-        return isdelete;
-    }
-
-    public void setIsdelete(String isdelete) {
-        this.isdelete = isdelete;
-    }
-
-    public String getStart() {
-        return start;
-    }
-
-    public void setStart(String start) {
-        this.start = start;
-    }
-
     public List<Play> getPlaylist() {
         return playlist;
     }
@@ -103,13 +116,19 @@ public class VideoDataModel {
         this.playlist = playlist;
     }
 
+    public Config getConfig() {
+        return config;
+    }
+
+    public void setConfig(Config config) {
+        this.config = config;
+    }
+
     @Override
     public String toString() {
         return "VideoDataModel{" +
-                "end='" + end + '\'' +
-                ", isdelete='" + isdelete + '\'' +
-                ", start='" + start + '\'' +
-                ", playlist=" + playlist.toString() +
+                "config=" + config +
+                ", playlist=" + playlist +
                 '}';
     }
 }

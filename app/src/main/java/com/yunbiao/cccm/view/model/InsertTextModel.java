@@ -1,10 +1,12 @@
 package com.yunbiao.cccm.view.model;
 
+import java.io.Serializable;
+
 /**
  * Created by Administrator on 2018/12/5.
  */
 
-public class InsertTextModel {
+public class InsertTextModel implements Serializable {
 
     private Content content;
     private String playType;
@@ -34,7 +36,7 @@ public class InsertTextModel {
         this.text = text;
     }
 
-    public class Content {
+    public class Content implements Serializable {
         private String background;
         private String fontColor;
         private Integer fontSize;
@@ -46,6 +48,23 @@ public class InsertTextModel {
         private String playType;
         private String speechCount;
         private String transparent;
+
+        @Override
+        public String toString() {
+            return "Content{" +
+                    "background='" + background + '\'' +
+                    ", fontColor='" + fontColor + '\'' +
+                    ", fontSize=" + fontSize +
+                    ", location='" + location + '\'' +
+                    ", playCurTime='" + playCurTime + '\'' +
+                    ", playDate='" + playDate + '\'' +
+                    ", playSpeed=" + playSpeed +
+                    ", playTime='" + playTime + '\'' +
+                    ", playType='" + playType + '\'' +
+                    ", speechCount='" + speechCount + '\'' +
+                    ", transparent='" + transparent + '\'' +
+                    '}';
+        }
 
         public String getBackground() {
             return background;
@@ -139,7 +158,7 @@ public class InsertTextModel {
     @Override
     public String toString() {
         return "InsertTextModel{" +
-                "content=" + content +
+                "content=" + content.toString() +
                 ", playType='" + playType + '\'' +
                 ", text='" + text + '\'' +
                 '}';

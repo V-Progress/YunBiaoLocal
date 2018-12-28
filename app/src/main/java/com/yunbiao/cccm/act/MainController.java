@@ -1,6 +1,8 @@
 package com.yunbiao.cccm.act;
 
 import com.yunbiao.cccm.utils.ThreadUtil;
+import com.yunbiao.cccm.view.model.InsertTextModel;
+import com.yunbiao.cccm.view.model.InsertVideoModel;
 
 /**
  * 内容控制器
@@ -120,12 +122,22 @@ public class MainController {
 
     }
 
-    public void insertPlay() {
-        mRefListener.insertPlay();
+    public void insertPlay(final InsertTextModel insertTextModel, final InsertVideoModel insertVideoModel) {
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                mRefListener.insertPlay(insertTextModel,insertVideoModel);
+            }
+        });
     }
 
     public void closeInsertPlay() {
-        mRefListener.closeInsertPlay();
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                mRefListener.closeInsertPlay();
+            }
+        });
     }
 
     public void noRemoteFile() {

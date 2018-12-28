@@ -192,19 +192,13 @@ public class CacheManager {
 
     public static class FILE {
         public static void putTodayResource(String dataJson){
-            fileCache.put(TODAY_RES_DATA,dataJson);
+            spCache.saveString(TODAY_RES_DATA,dataJson);
+//            fileCache.put(TODAY_RES_DATA,dataJson);
         }
 
         public static String getTodayResource(){
-            return fileCache.getAsString(TODAY_RES_DATA);
-        }
-
-        public static void putTommorowResource(String dataJson){
-            fileCache.put(TOMMOROW_RES_DATA,dataJson);
-        }
-
-        public static String getTommorowResource(){
-            return fileCache.getAsString(TOMMOROW_RES_DATA);
+            return spCache.getString(TODAY_RES_DATA,"");
+//            return fileCache.getAsString(TODAY_RES_DATA);
         }
 
         public static void putInsertType(Integer insertType) {

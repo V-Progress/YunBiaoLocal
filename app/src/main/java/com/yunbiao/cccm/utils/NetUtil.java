@@ -15,10 +15,12 @@ import com.zhy.http.okhttp.callback.StringCallback;
 import com.zhy.http.okhttp.request.RequestCall;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import okhttp3.Call;
+import okhttp3.Response;
 
 /**
  * Created by Administrator on 2018/11/22.
@@ -42,7 +44,7 @@ public class NetUtil {
         }
     }
 
-    public void get(String url, Callback callback){
+    public void get(String url, Callback callback) {
         OkHttpUtils.get()
                 .url(url)
                 .tag(this)
@@ -59,13 +61,17 @@ public class NetUtil {
                 .execute(stringCallback);
     }
 
+    public Response postSync(String url, Map<String, String> params) throws IOException {
+        return OkHttpUtils.post().url(url).params(params).tag(this).build().execute();
+    }
+
     public void postScreenShoot(String imgUrl, StringCallback stringCallback) {
         HashMap hashMap = new HashMap();
         hashMap.put("sid", HeartBeatClient.getDeviceNo());
         OkHttpUtils.post()
                 .url(ResourceConst.REMOTE_RES.SCREEN_UPLOAD_URL)
                 .params(hashMap)
-                .addFile("screenimage",imgUrl,new File(imgUrl))
+                .addFile("screenimage", imgUrl, new File(imgUrl))
                 .tag(this)
                 .build()
                 .execute(stringCallback);
@@ -73,8 +79,12 @@ public class NetUtil {
 
     private String lastCacheUrl;
 
-    public void downloadFile(final String url,final OnDownLoadListener onDownLoadListener){
-        downloadFile(url,rootDir,onDownLoadListener);
+    public void downloadFile(final String url, final OnDownLoadListener onDownLoadListener) {
+        downloadFile(url, rootDir, onDownLoadListener);
+    }
+
+    public Response downloadSync(String url) throws IOException {
+        return OkHttpUtils.get().url(url).tag(this).build().execute();
     }
 
     public void downloadFile(final String url, String localPath, final OnDownLoadListener onDownLoadListener) {
@@ -143,32 +153,32 @@ public class NetUtil {
                 map.put("softwareVersion", CommonUtils.getAppVersion(APP.getContext()) + "_" + Const.VERSION_TYPE.TYPE);
 
                 String ori = SystemProperties.get("persist.sys.hwrotation");
-                LogUtil.E("当前屏幕方向："+ori);
+                LogUtil.E("当前屏幕方向：" + ori);
                 map.put("screenRotate", ori);
                 map.put("deviceCpu", CommonUtils.getCpuName() + " " + CommonUtils.getNumCores() + "核" + CommonUtils
                         .getMaxCpuFreq() + "khz");
                 map.put("useSpace", CommonUtils.getMemoryUsedSize());
 
-                map.put("latitude",CacheManager.SP.getLatitude());
-                map.put("longitude",CacheManager.SP.getLongitude());
-                map.put("address",CacheManager.SP.getAddress());
-                map.put("cityName",CacheManager.SP.getCityName());
-                map.put("addressHeight",CacheManager.SP.getAltitude());
+                map.put("latitude", CacheManager.SP.getLatitude());
+                map.put("longitude", CacheManager.SP.getLongitude());
+                map.put("address", CacheManager.SP.getAddress());
+                map.put("cityName", CacheManager.SP.getCityName());
+                map.put("addressHeight", CacheManager.SP.getAltitude());
                 map.put("mac", CommonUtils.getLocalMacAddress());//设备的本机MAC地址
-                map.put("camera",CommonUtils.checkCamera());
+                map.put("camera", CommonUtils.checkCamera());
                 map.put("deviceIp", CommonUtils.getIpAddress());//当前设备IP地址
-                LogUtil.E("上传设备信息："+map.toString());
+                LogUtil.E("上传设备信息：" + map.toString());
                 post(ResourceConst.REMOTE_RES.UPLOAD_DEVICE_INFO, map, new StringCallback() {
-                            @Override
-                            public void onError(Call call, Exception e, int id) {
-                                LogUtil.E(e.getMessage());
-                            }
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        LogUtil.E(e.getMessage());
+                    }
 
-                            @Override
-                            public void onResponse(String response, int id) {
-                                LogUtil.E(response);
-                            }
-                        });
+                    @Override
+                    public void onResponse(String response, int id) {
+                        LogUtil.E(response);
+                    }
+                });
             }
         });
     }

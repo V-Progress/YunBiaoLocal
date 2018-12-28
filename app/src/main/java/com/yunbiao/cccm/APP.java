@@ -10,15 +10,12 @@ import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.yunbiao.cccm.act.AbsoluteActivity;
 import com.yunbiao.cccm.act.MainActivity;
 import com.yunbiao.cccm.act.MenuActivity;
 import com.yunbiao.cccm.common.Const;
 import com.yunbiao.cccm.common.HeartBeatClient;
-import com.yunbiao.cccm.devicectrl.PowerOffTool;
 import com.yunbiao.cccm.utils.CommonUtils;
 import com.yunbiao.cccm.utils.BDLocationListener;
-import com.yunbiao.cccm.utils.ThreadUtil;
 import com.zhy.http.okhttp.OkHttpUtils;
 
 import java.util.ArrayList;
@@ -42,20 +39,13 @@ public class APP extends Application {
     private static SmdtManager smdt;
     private static List<Activity> actList;
 
-    private static AbsoluteActivity absoluteActivity;
     private static LocationClient locationClient;
-
-    public static void setAbsAct(AbsoluteActivity absAct) {
-        absoluteActivity = absAct;
-    }
-
-    public static AbsoluteActivity getAbsoluteActivity() {
-        return absoluteActivity;
-    }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        BlockDetectByPrinter.start();
+
         instance = this;
         actList = new ArrayList<>();
         smdt = SmdtManager.create(this);

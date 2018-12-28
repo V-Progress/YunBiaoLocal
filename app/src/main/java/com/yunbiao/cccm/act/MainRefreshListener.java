@@ -1,5 +1,8 @@
 package com.yunbiao.cccm.act;
 
+import com.yunbiao.cccm.view.model.InsertTextModel;
+import com.yunbiao.cccm.view.model.InsertVideoModel;
+
 /**
  * 主界面刷新监听
  * 主界面实现此接口，在ContentController中对其进行统一管理
@@ -29,7 +32,7 @@ public interface MainRefreshListener {
     void updateProgress(int progress);
 
     //开启插播
-    void insertPlay();
+    void insertPlay(InsertTextModel insertTextModel, InsertVideoModel insertVideoModel);
     //关闭插播
     void closeInsertPlay();
 

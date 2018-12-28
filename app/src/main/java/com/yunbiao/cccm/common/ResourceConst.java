@@ -6,23 +6,23 @@ public class ResourceConst {
 
     public interface LOCAL_RES {
         String EXTERNAL_ROOT_DIR = Environment.getExternalStorageDirectory().getAbsolutePath();//外存根目录
-        String APP_CACHE_BASE_PATH = "/mnt/sdcard/hsd";//外存根目录
         String APP_MAIN_DIR = EXTERNAL_ROOT_DIR + "/yunbiao";//APP资源主目录
-
+        //本地资源
+        String LOCAL_RES_SAVE_PATH = APP_MAIN_DIR+"/local";
+        //资源存储
         String RES_SAVE_PATH = APP_MAIN_DIR+"/resource";
-
         //截屏存储
-        String SCREEN_CACHE_PATH = EXTERNAL_ROOT_DIR + APP_CACHE_BASE_PATH + "/screen";
+        String SCREEN_CACHE_PATH = APP_MAIN_DIR + "/screen";
         //参数资源存储
         String PROPERTY_CACHE_PATH = APP_MAIN_DIR + "/property";
         //图片资源存储
-        String IMAGE_CACHE_PATH = EXTERNAL_ROOT_DIR + APP_CACHE_BASE_PATH + "/resource";
+        String IMAGE_CACHE_PATH = APP_MAIN_DIR + "/img";
         //微信资源存储目录
-        String WEI_CACHE_PATH = EXTERNAL_ROOT_DIR + APP_CACHE_BASE_PATH + "/wei";
+        String WEI_CACHE_PATH = APP_MAIN_DIR + "/wei";
         //推送消息存储
-        String PUSH_CACHE_PATH = EXTERNAL_ROOT_DIR + APP_CACHE_BASE_PATH + "/push";
+        String PUSH_CACHE_PATH = APP_MAIN_DIR + "/push";
         //播放日志存储
-        String PLAYLOG_PATH = EXTERNAL_ROOT_DIR + APP_CACHE_BASE_PATH + "/playLog";
+        String PLAYLOG_PATH = APP_MAIN_DIR + "/playLog";
 
     }
 
