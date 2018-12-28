@@ -68,6 +68,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     private float playSpeed = 1.0f;
     private MediaPlayer mediaPlayer;
     private InsertFragment insertFragment;
+    private boolean isStop = false;
 
     protected int setLayout() {
         APP.setMainActivity(this);
@@ -132,6 +133,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
 
     @Override
     public void startPlay(String videoString) {
+        isStop = false;//每次开始播放的时候把标签置为false
         videoIndex = 0;
         playList = videoString.split(",");
 
@@ -162,6 +164,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
 
     @Override
     public void stopPlay() {
+        isStop = true;//将标签置为true，证明是全局状态的停止
         if (vtmVideo == null) {
             return;
         }
@@ -330,6 +333,9 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     @Override
     protected void onResume() {
         super.onResume();
+        if(isStop){//如果是全局停止的情况下，不再进行播放恢复，除非有新的资源播放将isStop置为false
+            return;
+        }
         if (!vtmVideo.isShown()) {
             vtmVideo.setVisibility(View.VISIBLE);
         }

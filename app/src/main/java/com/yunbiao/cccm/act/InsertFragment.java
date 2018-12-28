@@ -294,7 +294,7 @@ public class InsertFragment extends Fragment implements MediaPlayer.OnCompletion
         vvInsertFragment.setVideoPath(ResourceConst.LOCAL_RES.RES_SAVE_PATH + "/爱奇艺陈伟霆代言人g180829001501.avi");
         vvInsertFragment.start();
         vvInsertFragment.setVisibility(View.VISIBLE);
-        MainController.getInstance().stopPlay();
+//        MainController.getInstance().stopPlay();// TODO: 2018/12/28 不可用此方法停止，此方法会清空播放列表
     }
 
     //关闭视频（如果滚动文字没有在播放则关掉本页面）
