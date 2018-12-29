@@ -52,6 +52,10 @@ public class NetUtil {
                 .execute(callback);
     }
 
+    public Response syncGet(String url) throws IOException {
+        return OkHttpUtils.get().url(url).tag(this).build().execute();
+    }
+
     public void post(String url, Map<String, String> params, StringCallback stringCallback) {
         OkHttpUtils.post()
                 .url(url)

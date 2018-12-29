@@ -7,7 +7,7 @@ package com.yunbiao.cccm.download;
 /***
  * NOTICE: this interface is running in handle Thread
  */
-public interface MutiFileDownloadListener {
+public interface MultiFileDownloadListener {
     /***
      * before download
      * @param totalNum 下载文件的总数

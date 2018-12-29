@@ -1,5 +1,6 @@
 package com.yunbiao.cccm.act;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -10,23 +11,35 @@ import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.VideoView;
 
+import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.common.ResourceConst;
+import com.yunbiao.cccm.devicectrl.actions.XBHActions;
+import com.yunbiao.cccm.download.ResourceManager;
+import com.yunbiao.cccm.utils.CommonUtils;
 import com.yunbiao.cccm.utils.LogUtil;
-import com.yunbiao.cccm.utils.NetUtil;
-import com.yunbiao.cccm.utils.TimerExecutor;
+import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.view.MyScrollTextView;
+import com.yunbiao.cccm.view.TipToast;
 import com.yunbiao.cccm.view.model.InsertTextModel;
 import com.yunbiao.cccm.view.model.InsertVideoModel;
 
-import java.io.File;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,9 +52,9 @@ import butterknife.Unbinder;
 public class InsertFragment extends Fragment implements MediaPlayer.OnCompletionListener, MediaPlayer.OnInfoListener, MediaPlayer.OnPreparedListener {
 
     @BindView(R.id.mstv_insert_fragment)
-    MyScrollTextView mstvInsertFragment;
+    MyScrollTextView scrollText;
     @BindView(R.id.vv_insert_fragment)
-    VideoView vvInsertFragment;
+    VideoView videoView;
     @BindView(R.id.fl_insert_root)
     FrameLayout flInsertRoot;
     Unbinder unbinder;
@@ -55,10 +68,22 @@ public class InsertFragment extends Fragment implements MediaPlayer.OnCompletion
     private InsertTextModel insertTxtModel;
     private InsertVideoModel insertVideoModel;
 
+    private Map<String, Timer> timerMap = new HashMap<>();
+    private Integer isCycle;
+
+    int playIndex = 0;
+    private List<String> playList = new ArrayList<>();
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_insert, container, false);
+        rootView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
         unbinder = ButterKnife.bind(this, rootView);
         return rootView;
     }
@@ -79,9 +104,9 @@ public class InsertFragment extends Fragment implements MediaPlayer.OnCompletion
 
     //初始化控件
     private void initView() {
-        vvInsertFragment.setOnCompletionListener(this);
-        vvInsertFragment.setOnInfoListener(this);
-        vvInsertFragment.setOnPreparedListener(this);
+        videoView.setOnCompletionListener(this);
+        videoView.setOnInfoListener(this);
+        videoView.setOnPreparedListener(this);
     }
 
     //页面返回的时候重置显示控件
@@ -95,8 +120,13 @@ public class InsertFragment extends Fragment implements MediaPlayer.OnCompletion
     @Override
     public void onPause() {
         super.onPause();
-        vvInsertFragment.pause();
-        mstvInsertFragment.setVisibility(View.GONE);
+//        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                videoView.stopPlayback();
+//                scrollText.setVisibility(View.GONE);
+//            }
+//        });
     }
 
     //延迟启动广告
@@ -143,18 +173,35 @@ public class InsertFragment extends Fragment implements MediaPlayer.OnCompletion
         try {
             final Date[] dates1 = resolveTime(playDate1, playCurTime1);
             if (dates1 != null && dates1.length > 0) {
-                TimerExecutor.getInstance().addInTimerQueue(dates1[0], new TimerExecutor.OnTimeOutListener() {
+                Timer startTimer = timerMap.get("txt_start");
+                Timer endTimer = timerMap.get("txt_end");
+
+                if (startTimer != null) {
+                    startTimer.cancel();
+                }
+
+                if (endTimer != null) {
+                    endTimer.cancel();
+                }
+
+                startTimer = new Timer();
+                endTimer = new Timer();
+                startTimer.schedule(new TimerTask() {
                     @Override
-                    public void execute() {
+                    public void run() {
                         showTXT(itm);
                     }
-                });
-                TimerExecutor.getInstance().addInTimerQueue(dates1[1], new TimerExecutor.OnTimeOutListener() {
+                }, dates1[0]);
+
+                endTimer.schedule(new TimerTask() {
                     @Override
-                    public void execute() {
+                    public void run() {
                         closeTXT();
                     }
-                });
+                }, dates1[1]);
+
+                timerMap.put("txt_start", startTimer);
+                timerMap.put("txt_end", endTimer);
             } else {
                 LogUtil.E("播放时间已过！");
             }
@@ -168,148 +215,231 @@ public class InsertFragment extends Fragment implements MediaPlayer.OnCompletion
      * 显示滚动文字
      * @param insertTextModel
      */
-    private void showTXT(InsertTextModel insertTextModel) {
-        InsertTextModel.Content textDetail = insertTextModel.getContent();
-        Integer fontSize = textDetail.getFontSize();
-        String text = insertTextModel.getText();
+    private void showTXT(final InsertTextModel insertTextModel) {
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                InsertTextModel.Content textDetail = insertTextModel.getContent();
+                Integer fontSize = textDetail.getFontSize();
+                String text = insertTextModel.getText();
 
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (fontSize * 2.5));
-        if (TextUtils.equals("0", textDetail.getLocation())) {//顶部
-            layoutParams.gravity = Gravity.TOP;
-        } else {
-            layoutParams.gravity = Gravity.BOTTOM;
-        }
+                FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (fontSize * 2.5));
+                if (TextUtils.equals("0", textDetail.getLocation())) {//顶部
+                    layoutParams.gravity = Gravity.TOP;
+                } else {
+                    layoutParams.gravity = Gravity.BOTTOM;
+                }
 
-        mstvInsertFragment.setLayoutParams(layoutParams);
-        mstvInsertFragment.setTextSize(fontSize);//字号
-        mstvInsertFragment.setTextColor(Color.parseColor(textDetail.getFontColor()));//字体颜色
-        mstvInsertFragment.setScrollSpeed(textDetail.getPlaySpeed());
-        mstvInsertFragment.setDirection(Integer.valueOf(textDetail.getPlayType()));
-        mstvInsertFragment.setBackColor(Color.parseColor(textDetail.getBackground()));//背景色
-        mstvInsertFragment.setText(text);//内容
+                scrollText.setLayoutParams(layoutParams);
+                scrollText.setTextSize(fontSize);//字号
+                scrollText.setTextColor(Color.parseColor(textDetail.getFontColor()));//字体颜色
+                scrollText.setScrollSpeed(textDetail.getPlaySpeed());
+                scrollText.setDirection(Integer.valueOf(textDetail.getPlayType()));
+                scrollText.setBackColor(Color.parseColor(textDetail.getBackground()));//背景色
+                scrollText.setText(text);//内容
 
-        if (Integer.parseInt(textDetail.getPlayType()) == 0) {
-            mstvInsertFragment.setDirection(3);//向上滚动0,向左滚动3,向右滚动2,向上滚动1
-        } else if (Integer.parseInt(textDetail.getPlayType()) == 1) {
-            mstvInsertFragment.setDirection(0);
-        }
+                if (Integer.parseInt(textDetail.getPlayType()) == 0) {
+                    scrollText.setDirection(3);//向上滚动0,向左滚动3,向右滚动2,向上滚动1
+                } else if (Integer.parseInt(textDetail.getPlayType()) == 1) {
+                    scrollText.setDirection(0);
+                }
 
-        mstvInsertFragment.setVisibility(View.VISIBLE);
+                scrollText.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     //关闭滚动文字（如果视频没有在播放，则关掉本页面）
     private void closeTXT() {
-        mstvInsertFragment.setVisibility(View.GONE);
-        if (vvInsertFragment.isShown() && vvInsertFragment.isPlaying()) {
-            return;
-        }
-        MainController.getInstance().closeInsertPlay();
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                scrollText.setVisibility(View.GONE);
+                if (videoView.isShown() && videoView.isPlaying()) {
+                    return;
+                }
+                MainController.getInstance().closeInsertPlay();
+            }
+        });
     }
 
     /*==========视频处理=================================================================*/
+
+    private final int TYPE_VIDEO = 1;
+    private final int TYPE_LIVE = 2;
+    private final int TYPE_INPUT = 3;
 
     /***
      * 处理视频插播
      * @param ivm
      */
     private void handleVideo(InsertVideoModel ivm) {
+        playList.clear();
         if (ivm == null) {
             return;
         }
-
         insertVideoModel = ivm;
         try {
-            String playDate = ivm.getPlayDate();
-            String playCurTime = ivm.getPlayCurTime();
-            final Date[] dates = resolveTime(playDate, playCurTime);
-            if (dates != null && dates.length > 0) {
-                final String fileUrl = ivm.getFileurl();
-                setVideo(dates[0], dates[1], fileUrl);
-            } else {
-                LogUtil.E("播放时间已过！");
+            String ftpUrl;
+            InsertVideoModel.InsertData dateJson = ivm.getDateJson();
+            ftpUrl = dateJson.getHsdresourceUrl();
+
+            List<InsertVideoModel.Data> insertArray = dateJson.getInsertArray();
+
+            for (InsertVideoModel.Data data : insertArray) {
+                Date[] dateArray = resolve(data.getStartTime(), data.getEndTime());
+                Timer startTimer;
+                Timer endTimer;
+                switch (data.getPalyType()) {
+                    case TYPE_VIDEO:
+                        List<String> urlList = new ArrayList<>();
+                        String content = data.getContent();
+                        String[] playArray = content.split(",");
+                        isCycle = data.getIsCycle();
+                        for (String s : playArray) {
+                            String[] split = s.split("/");
+                            playList.add(ResourceConst.LOCAL_RES.RES_SAVE_PATH + "/" +split[split.length-1]);
+                            urlList.add(ftpUrl + s);
+                        }
+
+                        download(urlList,dateArray);
+                        break;
+                    case TYPE_LIVE://直播类
+                        final String liveUrl = data.getContent();
+                        startTimer = timerMap.get("live_start");
+                        endTimer = timerMap.get("live_end");
+                        if(startTimer != null){
+                            startTimer.cancel();
+                        }
+
+                        if(endTimer != null){
+                            endTimer.cancel();
+                        }
+
+                        startTimer = new Timer();
+                        endTimer = new Timer();
+
+                        startTimer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                showVideo(liveUrl);
+                            }
+                        },dateArray[0]);
+
+                        endTimer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                closeVideo();
+                            }
+                        },dateArray[1]);
+
+                        timerMap.put("live_start", startTimer);
+                        timerMap.put("live_end", endTimer);
+                        break;
+                    case TYPE_INPUT:
+                        startTimer = timerMap.get("hdmi_start");
+                        endTimer = timerMap.get("hdmi_end");
+                        if(startTimer != null){
+                            startTimer.cancel();
+                        }
+
+                        if(endTimer != null){
+                            endTimer.cancel();
+                        }
+
+                        startTimer = new Timer();
+                        endTimer = new Timer();
+
+                        startTimer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                checkHDMI(true);
+                            }
+                        },dateArray[0]);
+
+                        endTimer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                checkHDMI(false);
+                            }
+                        },dateArray[1]);
+
+                        timerMap.put("hdmi_start", startTimer);
+                        timerMap.put("hdmi_end", endTimer);
+                        break;
+                }
+            }
+
+            for (Map.Entry<String, Timer> stringTimerEntry : timerMap.entrySet()) {
+                LogUtil.E(stringTimerEntry.getKey() + "---" + stringTimerEntry.getValue());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    /*
-     * 设置播放视频
-     * @param startDate
-     * @param endDate
-     * @param fileurl
-     */
-    private void setVideo(final Date startDate, final Date endDate, String fileurl) {
-        if (fileurl.endsWith(".avi") || fileurl.endsWith(".mp4") || fileurl.endsWith(".3gp")) {
-            NetUtil.getInstance().downloadFile(fileurl, new NetUtil.OnDownLoadListener() {
-                @Override
-                public void onStart(String fileName) {
-                    LogUtil.E("开始下载视频");
-                }
-
-                @Override
-                public void onProgress(int progress) {
-                    LogUtil.E("正在下载-" + progress + "%");
-                }
-
-                @Override
-                public void onComplete(final File response) {
-
-                    TimerExecutor.getInstance().addInTimerQueue(startDate, new TimerExecutor.OnTimeOutListener() {
-                        @Override
-                        public void execute() {
-
-                        }
-                    });
-                    TimerExecutor.getInstance().addInTimerQueue(endDate, new TimerExecutor.OnTimeOutListener() {
-                        @Override
-                        public void execute() {
-                            closeVideo();
-                        }
-                    });
-                }
-
-                @Override
-                public void onFinish() {
-
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    LogUtil.E("下载失败：" + e.getMessage());
-                }
-            });
-        } else if ((fileurl.startsWith("http://") && fileurl.endsWith(".m3u8"))) {
-
+    private void checkHDMI(boolean isHdmi){
+        Integer broadType = CommonUtils.getBroadType();
+        if (broadType == 4) {//判断是不是小百合
+            Intent intent = new Intent();
+            intent.setAction(isHdmi ? XBHActions.CHANGE_TO_HDMI : XBHActions.CHANGE_TO_VGA);
+            APP.getContext().sendBroadcast(intent);
         } else {
-
+            TipToast.showLongToast(APP.getContext(), "暂不支持该功能");
         }
     }
 
-    /*
-     * 显示视频
-     * todo 暂未实现，数据不完整
-     */
-    private void showVideo() {
-        vvInsertFragment.setVideoPath(ResourceConst.LOCAL_RES.RES_SAVE_PATH + "/爱奇艺陈伟霆代言人g180829001501.avi");
-        vvInsertFragment.start();
-        vvInsertFragment.setVisibility(View.VISIBLE);
-//        MainController.getInstance().stopPlay();// TODO: 2018/12/28 不可用此方法停止，此方法会清空播放列表
+    private void showVideo(final String videoPath) {
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                ((MainActivity)getActivity()).pause();
+                videoView.setVideoPath(videoPath);
+                videoView.start();
+                videoView.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     //关闭视频（如果滚动文字没有在播放则关掉本页面）
     private void closeVideo() {
-        vvInsertFragment.stopPlayback();
-        vvInsertFragment.setVisibility(View.GONE);
-        if (mstvInsertFragment.isShown()) {
-            return;
-        }
-        MainController.getInstance().closeInsertPlay();
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                ((MainActivity)getActivity()).resume();
+                videoView.stopPlayback();
+                videoView.setVisibility(View.GONE);
+                if (scrollText.isShown()) {
+                    return;
+                }
+                MainController.getInstance().closeInsertPlay();
+            }
+        });
     }
 
     /*==========视频监听=================================================================*/
     @Override
     public void onCompletion(MediaPlayer mp) {
+        LogUtil.E("当前播放标签"+playIndex);
+        playIndex++;
+        LogUtil.E("当前播放标签"+playIndex);
+        if (playIndex >= playList.size()) {
+            LogUtil.E("playIndex >= playList.size()-1");
+            playIndex = 0;
+            if(isCycle <= -1){
+                LogUtil.E("isCycle <= -1");
+                closeVideo();
+                return;
+            }
+            LogUtil.E("playIndex = 0");
+        }
+        try {
+            videoView.stopPlayback();
+            videoView.setVideoPath(playList.get(playIndex));
+            videoView.start();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -319,7 +449,6 @@ public class InsertFragment extends Fragment implements MediaPlayer.OnCompletion
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        mp.setLooping(true);
     }
 
     /*==========数据处理=================================================================*/
@@ -364,6 +493,22 @@ public class InsertFragment extends Fragment implements MediaPlayer.OnCompletion
         return new Date[]{beginTime, endTime};
     }
 
+    private Date[] resolve(String startStr, String endStr) throws ParseException {
+        String endTime = correctTime(endStr);
+        String startTime = correctTime(startStr);
+        //获取当年月日
+        Date currDateTime = new Date(System.currentTimeMillis());
+        String currDateStr = yyyyMMdd.format(currDateTime);
+        //转换成date格式
+        Date start = yyyyMMddHH_mm.parse(currDateStr + startTime);
+        Date end = yyyyMMddHH_mm.parse(currDateStr + endTime);
+
+        LogUtil.E(currDateStr + startTime);
+        LogUtil.E(currDateStr + endTime);
+
+        return new Date[]{start,end};
+    }
+
     //修正播放时间
     private String correctTime(String time) {
         String[] beginTimes = time.split(":");
@@ -382,5 +527,55 @@ public class InsertFragment extends Fragment implements MediaPlayer.OnCompletion
         super.onDestroyView();
         unbinder.unbind();
     }
+
+    /*=======下载监听================================================================*/
+    public void download(List<String> urlList, final Date[] dateArray){
+        ResourceManager.getInstance().download(urlList,new ResourceManager.FileDownloadListener(){
+            @Override
+            public void onBefore(int totalNum) {
+                LogUtil.E("共要下载"+totalNum);
+            }
+
+            @Override
+            public void onFinish() {
+                LogUtil.E("下载结束");
+                Timer startTimer = timerMap.get("video_start");
+                Timer endTimer = timerMap.get("video_end");
+                if(startTimer != null){
+                    startTimer.cancel();
+                }
+
+                if(endTimer != null){
+                    endTimer.cancel();
+                }
+
+                startTimer = new Timer();
+                endTimer = new Timer();
+
+                startTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        showVideo(playList.get(playIndex));
+                    }
+                },dateArray[0]);
+
+                endTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        closeVideo();
+                    }
+                },dateArray[1]);
+
+                LogUtil.E("视频是否显示："+videoView.isShown());
+                LogUtil.E("视频是否播放："+videoView.isPlaying());
+
+                timerMap.put("video_start", startTimer);
+                timerMap.put("video_end", endTimer);
+            }
+
+        });
+    }
+
+
 
 }

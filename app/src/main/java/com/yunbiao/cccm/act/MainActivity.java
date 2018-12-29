@@ -11,21 +11,22 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.yunbiao.cccm.APP;
+import com.yunbiao.cccm.InsertManager;
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.act.base.BaseActivity;
 import com.yunbiao.cccm.br.USBBroadcastReceiver;
 import com.yunbiao.cccm.devicectrl.PowerOffTool;
-import com.yunbiao.cccm.download.DownloadManager;
+import com.yunbiao.cccm.download.ResourceManager;
 import com.yunbiao.cccm.netcore.OnXmppConnListener;
 import com.yunbiao.cccm.netcore.PnServerController;
 import com.yunbiao.cccm.resolve.VideoDataResolver;
-import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.utils.SystemInfoUtil;
 import com.yunbiao.cccm.view.MainVideoView;
@@ -60,6 +61,8 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     ProgressBar pbUpdate;
     @BindView(R.id.ll_update_area)
     LinearLayout llUpdateArea;
+    @BindView(R.id.fl_root)
+    FrameLayout flRoot;
 
     private USBBroadcastReceiver usbBroadcastReceiver;//USB监听广播
     private static String[] playList;//播放列表
@@ -103,19 +106,19 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         initPlayer();
 
         //初始化播放数据
-//        initPlayData();
+        initPlayData();
 
         //连接XMPP
         PnServerController.startXMPP(this);
-
-        //初始化广告插播，如果有未播完的广告则自动播放
-//        DialogUtil.getInstance().initInsData(this);
 
         //初始化自动开关机数据
         PowerOffTool.getInstance().initPowerData();
 
         //初始化数据下载
-        DownloadManager.getInstance().initResData();
+        ResourceManager.getInstance().initResData();
+
+        //初始化广告插播，如果有未播完的广告则自动播放
+        ResourceManager.getInstance().initInsertData();
     }
 
     //-------播放器控制----------------------------------------------------------------
@@ -141,7 +144,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         vtmVideo.setVisibility(View.VISIBLE);
         state.setVisibility(View.INVISIBLE);
 
-        vtmVideo.stopPlayback();
         vtmVideo.setVideoPath(playList[videoIndex]);
         //如果插播正在播放，则不开始播放
         if(insertFragment!=null && insertFragment.isVisible()){
@@ -227,34 +229,42 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     //-----广告插播----------------------------------------------------------------
     @Override
     public void insertPlay(InsertTextModel insertTextModel, InsertVideoModel insertVideoModel) {
-//        LogUtil.E("insertTextModel: "+insertTextModel == null?"null":insertTextModel.toString());
-//        LogUtil.E("insertVideoModel: "+insertVideoModel == null?"null":insertVideoModel.toString());
-
-        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.dialog_top_enter, R.anim.dialog_top_exit);
-        if (insertFragment == null) {
-            insertFragment = new InsertFragment();
-            Bundle bundle = new Bundle();
-            bundle.putSerializable(InsertFragment.KEY_INSERT_TXT, insertTextModel);
-            bundle.putSerializable(InsertFragment.KEY_INSERT_VIDEO, insertVideoModel);
-            insertFragment.setArguments(bundle);
-            fragmentTransaction.add(R.id.fl_root, insertFragment).commit();
-        } else {
-            insertFragment.updatePlayData(insertTextModel,insertVideoModel);
-            fragmentTransaction.show(insertFragment).commit();
-        }
+//        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+//        fragmentTransaction.setCustomAnimations(R.anim.dialog_top_enter, R.anim.dialog_top_exit);
+//        if (insertFragment == null) {
+//            insertFragment = new InsertFragment();
+//            Bundle bundle = new Bundle();
+//            bundle.putSerializable(InsertFragment.KEY_INSERT_TXT, insertTextModel);
+//            bundle.putSerializable(InsertFragment.KEY_INSERT_VIDEO, insertVideoModel);
+//            insertFragment.setArguments(bundle);
+//            fragmentTransaction.add(R.id.fl_root, insertFragment).commit();
+//        } else {
+//            insertFragment.updatePlayData(insertTextModel,insertVideoModel);
+//            fragmentTransaction.show(insertFragment).commit();
+//        }
     }
 
     @Override
     public void closeInsertPlay() {
-        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.dialog_top_enter, R.anim.dialog_top_exit);
-        fragmentTransaction.hide(insertFragment).commit();
+//        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+//        fragmentTransaction.setCustomAnimations(R.anim.dialog_top_enter, R.anim.dialog_top_exit);
+//        fragmentTransaction.hide(insertFragment).commit();
+//        onResume();
     }
 
     @Override
     public void noRemoteFile() {
 
+    }
+
+    @Override
+    public void removeView(View view) {
+        flRoot.removeView(view);
+    }
+
+    @Override
+    public void addView(View view) {
+        flRoot.addView(view);
     }
 
     /*===========播放器监听关=====================================================================
@@ -333,34 +343,31 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     @Override
     protected void onResume() {
         super.onResume();
-        if(isStop){//如果是全局停止的情况下，不再进行播放恢复，除非有新的资源播放将isStop置为false
+        InsertManager.getInstance(this).onResume();
+        resume();
+    }
+
+    public void resume(){
+        if(isStop || isInsertPlaying){//如果是全局停止的情况下，不再进行播放恢复，除非有新的资源播放将isStop置为false
             return;
         }
         if (!vtmVideo.isShown()) {
             vtmVideo.setVisibility(View.VISIBLE);
         }
-        vtmVideo.resume();
-        vtmVideo.start();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        vtmVideo.pause();
-    }
-
-    public void pause() {
-        if (mediaPlayer == null) {
-            return;
+        if(!vtmVideo.isPlaying()){
+            vtmVideo.resume();
+            vtmVideo.start();
         }
-        mediaPlayer.pause();
     }
-
-    public void resume() {
-        if (mediaPlayer == null) {
-            return;
+    private boolean isInsertPlaying = false;
+    public void pause(){
+        isInsertPlaying = true;
+        if(vtmVideo.isShown()){
+            vtmVideo.setVisibility(View.GONE);
         }
-        mediaPlayer.start();
+        if(vtmVideo.isPlaying()){
+            vtmVideo.pause();
+        }
     }
 
     @Override

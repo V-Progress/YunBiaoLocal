@@ -1,11 +1,11 @@
 package com.yunbiao.cccm.netcore;
 
 import android.content.Intent;
-import android.os.Handler;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
+import com.yunbiao.cccm.InsertManager;
 import com.yunbiao.cccm.act.MainController;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
@@ -14,7 +14,7 @@ import com.yunbiao.cccm.devicectrl.PowerOffTool;
 import com.yunbiao.cccm.devicectrl.actions.XBHActions;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.devicectrl.SoundControl;
-import com.yunbiao.cccm.download.DownloadManager;
+import com.yunbiao.cccm.download.ResourceManager;
 import com.yunbiao.cccm.netcore.bean.ChannelBean;
 import com.yunbiao.cccm.netcore.bean.DiskInfoBean;
 import com.yunbiao.cccm.netcore.bean.LoginModel;
@@ -22,12 +22,10 @@ import com.yunbiao.cccm.netcore.bean.PowerCtrlBean;
 import com.yunbiao.cccm.netcore.bean.SerNumBean;
 import com.yunbiao.cccm.netcore.bean.VoiceModel;
 import com.yunbiao.cccm.utils.CommonUtils;
-import com.yunbiao.cccm.utils.DialogUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.utils.SystemInfoUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
-import com.yunbiao.cccm.utils.TimerExecutor;
 import com.yunbiao.cccm.view.TipToast;
 import com.yunbiao.cccm.view.model.InsertTextModel;
 import com.yunbiao.cccm.view.model.InsertVideoModel;
@@ -90,11 +88,7 @@ public class XmppMessageProcessor {
                 LogUtil.E(TAG, "*****" + loginModel.getPassword());
                 break;
             case CONTENT_TYPE:
-//                JSONObject jo = JSON.parseObject(content);
-//                String tp = jo.getString("type");
-//                DownloadManager.getInstance().requestConfigXML(Integer.valueOf(tp));
-                DownloadManager.getInstance().initResData();
-
+                ResourceManager.getInstance().initResData();
                 break;
             case RUNSET_TYPE://设备自动开关机
                 ThreadUtil.getInstance().runInCommonThread(new Runnable() {
@@ -187,7 +181,8 @@ public class XmppMessageProcessor {
                     @Override
                     public void run() {
                         InsertTextModel insertTextModel = new Gson().fromJson(content, InsertTextModel.class);
-                        MainController.getInstance().insertPlay(insertTextModel,null);
+//                        MainController.getInstance().insertPlay(insertTextModel,null);
+                        InsertManager.getInstance(APP.getMainActivity()).insertTXT(insertTextModel);
                     }
                 });
                 break;

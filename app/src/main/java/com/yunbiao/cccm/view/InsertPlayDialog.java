@@ -119,22 +119,22 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
         ThreadUtil.getInstance().runInCommonThread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    InsertVideoModel insertVideoModel = new Gson().fromJson(content, InsertVideoModel.class);
-                    String playDate = insertVideoModel.getPlayDate();
-                    String playCurTime = insertVideoModel.getPlayCurTime();
-                    final Date[] dates = resolveTime(playDate, playCurTime);
-                    if (dates != null && dates.length > 0) {
-
-                        final String fileUrl = insertVideoModel.getFileurl();
-                        setVideo(dates[0], dates[1], fileUrl);
-                    } else {
-                        LogUtil.E("播放时间已过！");
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    InsertVideoModel insertVideoModel = new Gson().fromJson(content, InsertVideoModel.class);
+//                    String playDate = insertVideoModel.getPlayDate();
+//                    String playCurTime = insertVideoModel.getPlayCurTime();
+//                    final Date[] dates = resolveTime(playDate, playCurTime);
+//                    if (dates != null && dates.length > 0) {
+//
+//                        final String fileUrl = insertVideoModel.getFileurl();
+//                        setVideo(dates[0], dates[1], fileUrl);
+//                    } else {
+//                        LogUtil.E("播放时间已过！");
+//                    }
+//
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
             }
         });
     }
@@ -212,7 +212,6 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
     private void pauseMainPlay() {
         MainActivity mainActivity = APP.getMainActivity();
         if (mainActivity != null) {
-            mainActivity.pause();
         }
     }
 
@@ -222,7 +221,6 @@ public class InsertPlayDialog extends Dialog implements MediaPlayer.OnInfoListen
     private void resumeMainPlay() {
         MainActivity mainActivity = APP.getMainActivity();
         if (mainActivity != null) {
-            mainActivity.resume();
         }
     }
 

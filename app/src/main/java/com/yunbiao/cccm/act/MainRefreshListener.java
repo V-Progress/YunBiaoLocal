@@ -1,5 +1,7 @@
 package com.yunbiao.cccm.act;
 
+import android.view.View;
+
 import com.yunbiao.cccm.view.model.InsertTextModel;
 import com.yunbiao.cccm.view.model.InsertVideoModel;
 
@@ -40,4 +42,7 @@ public interface MainRefreshListener {
     //没有可下载文件，检测本地数据
     void noRemoteFile();
 
+    void removeView(View view);
+
+    void addView(View view);
 }

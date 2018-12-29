@@ -1,5 +1,7 @@
 package com.yunbiao.cccm.act;
 
+import android.view.View;
+
 import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.view.model.InsertTextModel;
 import com.yunbiao.cccm.view.model.InsertVideoModel;
@@ -122,6 +124,24 @@ public class MainController {
 
     }
 
+    public void removeView(final View view){
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                mRefListener.removeView(view);
+            }
+        });
+    }
+
+    public void addView(final View view){
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                mRefListener.addView(view);
+            }
+        });
+    }
+
     public void insertPlay(final InsertTextModel insertTextModel, final InsertVideoModel insertVideoModel) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
@@ -132,12 +152,7 @@ public class MainController {
     }
 
     public void closeInsertPlay() {
-        ThreadUtil.getInstance().runInUIThread(new Runnable() {
-            @Override
-            public void run() {
-                mRefListener.closeInsertPlay();
-            }
-        });
+
     }
 
     public void noRemoteFile() {

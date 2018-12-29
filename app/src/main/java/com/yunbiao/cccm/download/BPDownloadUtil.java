@@ -1,17 +1,13 @@
 package com.yunbiao.cccm.download;
 
-import android.os.Environment;
 import android.util.Log;
 
 import com.yunbiao.cccm.common.ResourceConst;
-import com.yunbiao.cccm.utils.LogUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -73,18 +69,13 @@ public class BPDownloadUtil {
         singlePool.shutdown();
     }
 
-    /***
-     *
-     * @param fileUrlList
-     * @param l
-     */
-    public void breakPointDownload(final List<String> fileUrlList, MutiFileDownloadListener l) {
+    public void breakPointDownload(String localPath,final List<String> fileUrlList, MultiFileDownloadListener l){
         if (l == null) {
             l = lis;
         }
 
         //获取本地目录
-        File localDir = new File(directory);
+        File localDir = new File(localPath);
         if (!localDir.exists()) {
             boolean mkdirs = localDir.mkdirs();
             if (!mkdirs) {
@@ -95,21 +86,28 @@ public class BPDownloadUtil {
 
         final Queue<String> urlQueue = new LinkedList<>();
         urlQueue.addAll(fileUrlList);
-        LogUtil.E("haha", "原有" + urlQueue.toString());
 
         final Queue<DownloadInfo> downloadInfos = new LinkedList<>();
         equalsFile(localDir.getAbsolutePath(), urlQueue, downloadInfos);
-        LogUtil.E("haha", downloadInfos.toString());
 
         l.onBefore(downloadInfos.size());
 
-        final MutiFileDownloadListener finalL = l;
+        final MultiFileDownloadListener finalL = l;
         singlePool.execute(new Runnable() {
             @Override
             public void run() {
                 download(downloadInfos, finalL);
             }
         });
+    }
+
+    /***
+     *
+     * @param fileUrlList
+     * @param l
+     */
+    public void breakPointDownload(final List<String> fileUrlList, MultiFileDownloadListener l) {
+        breakPointDownload(directory,fileUrlList,l);
     }
 
     private int currFileNum = 0;
@@ -202,7 +200,7 @@ public class BPDownloadUtil {
      * @param downloadInfos 下载地址的list
      * @param l 多文件下载的监听
      */
-    private void download(Queue<DownloadInfo> downloadInfos, MutiFileDownloadListener l) {
+    private void download(Queue<DownloadInfo> downloadInfos, MultiFileDownloadListener l) {
         if (downloadInfos.size() <= 0) {
             l.onFinish();
             return;
@@ -301,14 +299,14 @@ public class BPDownloadUtil {
      * 只有下载成功的时候才会增加文件索引
      * @param l
      */
-    private void onSuccess(MutiFileDownloadListener l) {
+    private void onSuccess(MultiFileDownloadListener l) {
         d("download onSuccess...");
         l.onSuccess(currFileNum);
         currFileNum++;
     }
 
     //延迟下载
-    private void delayReplay(final Queue<DownloadInfo> downloadInfos, final MutiFileDownloadListener listener) {
+    private void delayReplay(final Queue<DownloadInfo> downloadInfos, final MultiFileDownloadListener listener) {
         try {
             Thread.sleep(REPLAY_DELAY);
             download(downloadInfos, listener);
@@ -317,7 +315,7 @@ public class BPDownloadUtil {
         }
     }
 
-    private MutiFileDownloadListener lis = new MutiFileDownloadListener() {
+    private MultiFileDownloadListener lis = new MultiFileDownloadListener() {
         @Override
         public void onBefore(int totalNum) {
 

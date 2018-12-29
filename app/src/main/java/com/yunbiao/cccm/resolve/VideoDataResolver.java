@@ -113,11 +113,11 @@ public class VideoDataResolver {
                             }
 
                             //添加定时任务
-                            LogUtil.E("123", "开始时间" + playDay + times[0]);
-                            LogUtil.E("123", "结束时间" + playDay + times[1]);
+//                            LogUtil.E("123", "开始时间" + playDay + times[0]);
+//                            LogUtil.E("123", "结束时间" + playDay + times[1]);
                             Date beginTime = DateUtil.yyyyMMddHH_mm_Parse(playDay + times[0]);
                             Date endTime = DateUtil.yyyyMMddHH_mm_Parse(playDay + times[1]);
-                            LogUtil.E(/*file.getPath() + */"  " + DateUtil.yyyy_MM_dd_HH_mm_Format(beginTime) + " 至 " + DateUtil.yyyy_MM_dd_HH_mm_Format(endTime));
+//                            LogUtil.E(/*file.getPath() + */"  " + DateUtil.yyyy_MM_dd_HH_mm_Format(beginTime) + " 至 " + DateUtil.yyyy_MM_dd_HH_mm_Format(endTime));
 
                             //播放结束时间小于当前时间时，不添加定时任务
                             if ((endTime.getTime() - 10000 < System.currentTimeMillis())) {

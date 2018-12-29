@@ -63,6 +63,11 @@ public class ResourceConst {
          **/
         String POWER_OFF_URL = Const.BASE_URL + "api/device/poweroff.html";
 
+        /***
+         * 插播资源获取
+         */
+        String INSERT_CONTENT = Const.BASE_URL + "api/deviceinsert/getdeviceinsertlist.html";
+
 
 
 
