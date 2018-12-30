@@ -67,6 +67,13 @@ android {
         provided files("${SDK_DIR}/platforms/android-21/data/layoutlib.jar")
     }
     //以上是为了找到android.os.SystemProperties这个隐藏的类
+
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
 }
 
 dependencies {
