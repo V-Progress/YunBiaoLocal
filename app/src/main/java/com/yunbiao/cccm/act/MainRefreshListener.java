@@ -19,7 +19,7 @@ public interface MainRefreshListener {
     //停止播放
     void stopPlay();
     //初始化数据
-    void initPlayData();
+    void initPlayData(boolean isRemote);
     //初始化播放器
     void initPlayer();
 
@@ -32,15 +32,6 @@ public interface MainRefreshListener {
 
     void initProgress(int max);
     void updateProgress(int progress);
-
-    //开启插播
-    void insertPlay(InsertTextModel insertTextModel, InsertVideoModel insertVideoModel);
-    //关闭插播
-    void closeInsertPlay();
-
-    //多文件下载的监听
-    //没有可下载文件，检测本地数据
-    void noRemoteFile();
 
     void removeView(View view);
 

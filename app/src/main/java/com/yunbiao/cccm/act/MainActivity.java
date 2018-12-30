@@ -11,12 +11,14 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.InsertManager;
 import com.yunbiao.cccm.R;
@@ -27,6 +29,7 @@ import com.yunbiao.cccm.download.ResourceManager;
 import com.yunbiao.cccm.netcore.OnXmppConnListener;
 import com.yunbiao.cccm.netcore.PnServerController;
 import com.yunbiao.cccm.resolve.VideoDataResolver;
+import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.utils.SystemInfoUtil;
 import com.yunbiao.cccm.view.MainVideoView;
@@ -34,6 +37,8 @@ import com.yunbiao.cccm.view.model.InsertTextModel;
 import com.yunbiao.cccm.view.model.InsertVideoModel;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -70,7 +75,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     private static int lineNumber = 0;
     private float playSpeed = 1.0f;
     private MediaPlayer mediaPlayer;
-    private InsertFragment insertFragment;
     private boolean isStop = false;
 
     protected int setLayout() {
@@ -99,6 +103,37 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
+
+       /* // TODO: 2018/12/30 测试
+        String test = "{\n" +
+                "  \"dateJson\": {\n" +
+                "    \"hsdresourceUrl\": \"http://192.168.1.101:8080/imgserver/resource/\",\n" +
+                "    \"insertArray\": [{\n" +
+                "      \"content\": \"http://ivi.bupt.edu.cn/hls/btv1hd.m3u8\",\n" +
+                "      \"endTime\": \"15:17\",\n" +
+                "      \"isCycle\": 1,\n" +
+                "      \"playType\": 2,\n" +
+                "      \"startTime\": \"15:0\"\n" +
+                "    },\n" +
+                "    ]\n" +
+                "  },\n" +
+                "  \"message\": \"获取数据成功！\",\n" +
+                "  \"result\": 1\n" +
+                "}";
+
+        LogUtil.E("测试数据：" + test);
+
+        final InsertVideoModel insertVideoModel = new Gson().fromJson(test, InsertVideoModel.class);
+
+        LogUtil.E(insertVideoModel.toString());
+        Button btnTest = findViewById(R.id.btn_test);
+        btnTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                InsertManager.getInstance(APP.getMainActivity()).insertVideo(insertVideoModel);
+            }
+        });*/
     }
 
     protected void initData() {
@@ -106,7 +141,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         initPlayer();
 
         //初始化播放数据
-        initPlayData();
+        initPlayData(false);// TODO: 2018/12/30 初始化本地数据
 
         //连接XMPP
         PnServerController.startXMPP(this);
@@ -145,10 +180,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         state.setVisibility(View.INVISIBLE);
 
         vtmVideo.setVideoPath(playList[videoIndex]);
-        //如果插播正在播放，则不开始播放
-        if(insertFragment!=null && insertFragment.isVisible()){
-            return;
-        }
         vtmVideo.start();
     }
 
@@ -156,9 +187,14 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
      * 初始化播放数据
      */
     @Override
-    public void initPlayData() {
+    public void initPlayData(boolean isRemote) {
         VideoDataResolver videoDataResolve = new VideoDataResolver();
-        videoDataResolve.resolvePlayLists();
+        if(isRemote){
+            videoDataResolve.resolvePlayLists();
+        }else{
+            videoDataResolve.resolveLocalResource();
+        }
+
         if (videoDataResolve.getPlayList() == null || videoDataResolve.getPlayList().isEmpty()) {
             state.setVisibility(View.VISIBLE);
         }
@@ -227,35 +263,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     }
 
     //-----广告插播----------------------------------------------------------------
-    @Override
-    public void insertPlay(InsertTextModel insertTextModel, InsertVideoModel insertVideoModel) {
-//        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-//        fragmentTransaction.setCustomAnimations(R.anim.dialog_top_enter, R.anim.dialog_top_exit);
-//        if (insertFragment == null) {
-//            insertFragment = new InsertFragment();
-//            Bundle bundle = new Bundle();
-//            bundle.putSerializable(InsertFragment.KEY_INSERT_TXT, insertTextModel);
-//            bundle.putSerializable(InsertFragment.KEY_INSERT_VIDEO, insertVideoModel);
-//            insertFragment.setArguments(bundle);
-//            fragmentTransaction.add(R.id.fl_root, insertFragment).commit();
-//        } else {
-//            insertFragment.updatePlayData(insertTextModel,insertVideoModel);
-//            fragmentTransaction.show(insertFragment).commit();
-//        }
-    }
-
-    @Override
-    public void closeInsertPlay() {
-//        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-//        fragmentTransaction.setCustomAnimations(R.anim.dialog_top_enter, R.anim.dialog_top_exit);
-//        fragmentTransaction.hide(insertFragment).commit();
-//        onResume();
-    }
-
-    @Override
-    public void noRemoteFile() {
-
-    }
 
     @Override
     public void removeView(View view) {
@@ -330,9 +337,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             vtmVideo.pause();
             vtmVideo.setVisibility(View.GONE);
         } else if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (insertFragment != null && insertFragment.isVisible()) {
-                return true;
-            }
             APP.exit();
             return false;
         }
@@ -347,25 +351,27 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         resume();
     }
 
-    public void resume(){
-        if(isStop || isInsertPlaying){//如果是全局停止的情况下，不再进行播放恢复，除非有新的资源播放将isStop置为false
+    public void resume() {
+        if (isStop) {//如果是全局停止的情况下，不再进行播放恢复，除非有新的资源播放将isStop置为false
             return;
         }
         if (!vtmVideo.isShown()) {
             vtmVideo.setVisibility(View.VISIBLE);
         }
-        if(!vtmVideo.isPlaying()){
+        if (!vtmVideo.isPlaying()) {
             vtmVideo.resume();
             vtmVideo.start();
         }
     }
+
     private boolean isInsertPlaying = false;
-    public void pause(){
+
+    public void pause() {
         isInsertPlaying = true;
-        if(vtmVideo.isShown()){
+        if (vtmVideo.isShown()) {
             vtmVideo.setVisibility(View.GONE);
         }
-        if(vtmVideo.isPlaying()){
+        if (vtmVideo.isPlaying()) {
             vtmVideo.pause();
         }
     }

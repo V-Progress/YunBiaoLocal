@@ -91,6 +91,11 @@
             android:text="正在下载更新" />
     </LinearLayout>
 
+    <!--<Button
+        android:text="测试插入视频"
+        android:id="@+id/btn_test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />-->
 
 
 </FrameLayout>

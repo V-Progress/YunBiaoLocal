@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -35,8 +37,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import io.vov.vitamio.MediaPlayer;
-
 /**
  * Created by Administrator on 2018/12/29.
  */
@@ -63,31 +63,39 @@ public class InsertManager {
     private InsertTextModel insertTxtModel;
     private final String CLEAR_TXT = "2";
     private InsertVideoModel insertVideoModel;
+    private MediaPlayer mediaPlayer;
+    private int mPlayType;
 
     public static InsertManager getInstance(Activity activity) {
+        mActivity = activity;
         if (insertManager == null) {
             insertManager = new InsertManager();
         }
-        mActivity = activity;
         return insertManager;
     }
 
-    public void createVideo() {
-        ThreadUtil.getInstance().runInUIThread(new Runnable() {
-            @Override
-            public void run() {
-                FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-                videoView = new VideoView(mActivity);
-                videoView.setLayoutParams(layoutParams);
-                videoView.setOnCompletionListener(onCompletionListener);
-            }
-        });
+    public InsertManager() {
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+        videoView = new VideoView(mActivity);
+        videoView.setLayoutParams(layoutParams);
+        videoView.setOnCompletionListener(onCompletionListener);
+        videoView.setOnPreparedListener(onPreparedListener);
     }
 
-    android.media.MediaPlayer.OnCompletionListener onCompletionListener = new android.media.MediaPlayer.OnCompletionListener() {
+    MediaPlayer.OnPreparedListener onPreparedListener = new MediaPlayer.OnPreparedListener() {
         @Override
-        public void onCompletion(android.media.MediaPlayer mp) {
+        public void onPrepared(MediaPlayer mp) {
+            mediaPlayer = mp;
+        }
+    };
+
+    MediaPlayer.OnCompletionListener onCompletionListener = new MediaPlayer.OnCompletionListener() {
+        @Override
+        public void onCompletion(MediaPlayer mp) {
             LogUtil.E("当前播放标签" + playIndex);
+            if(mPlayType == TYPE_LIVE){
+                return;
+            }
             playIndex++;
             LogUtil.E("当前播放标签" + playIndex);
             if (playIndex >= playList.size()) {
@@ -95,7 +103,7 @@ public class InsertManager {
                 playIndex = 0;
                 if (isCycle <= -1) {
                     LogUtil.E("isCycle <= -1");
-                    MainController.getInstance().removeView(videoView);
+                    closeVideo();
                     return;
                 }
                 LogUtil.E("playIndex = 0");
@@ -147,12 +155,12 @@ public class InsertManager {
         });
     }
 
-    public void insertTXT(final InsertTextModel itm){
+    public void insertTXT(final InsertTextModel itm) {
         if (itm == null) {
             return;
         }
 
-        if(scrollText != null){
+        if (scrollText != null) {
             ThreadUtil.getInstance().runInUIThread(new Runnable() {
                 @Override
                 public void run() {
@@ -198,8 +206,6 @@ public class InsertManager {
                                 APP.getMainActivity().addView(scrollText);
                             }
                         });
-
-//                        MainController.getInstance().addView(scrollText);
                     }
                 }, dates1[0]);
 
@@ -212,8 +218,6 @@ public class InsertManager {
                                 APP.getMainActivity().removeView(scrollText);
                             }
                         });
-
-//                        MainController.getInstance().removeView(scrollText);
                     }
                 }, dates1[1]);
 
@@ -231,8 +235,8 @@ public class InsertManager {
         if (ivm == null) {
             return;
         }
-        playList.clear();
 
+        playList.clear();
         insertVideoModel = ivm;
         try {
             String ftpUrl;
@@ -242,105 +246,126 @@ public class InsertManager {
             List<InsertVideoModel.Data> insertArray = dateJson.getInsertArray();
 
             for (InsertVideoModel.Data data : insertArray) {
+                LogUtil.E("当前标签：" + data.getPalyType());
                 Date[] dateArray = resolve(data.getStartTime(), data.getEndTime());
-                Timer startTimer;
-                Timer endTimer;
                 switch (data.getPalyType()) {
                     case TYPE_VIDEO:
-                        List<String> urlList = new ArrayList<>();
                         String content = data.getContent();
                         String[] playArray = content.split(",");
                         isCycle = data.getIsCycle();
+
+                        List<String> urlList = new ArrayList<>();
+                        //拼装播放列表
                         for (String s : playArray) {
                             String[] split = s.split("/");
                             playList.add(ResourceConst.LOCAL_RES.RES_SAVE_PATH + "/" + split[split.length - 1]);
                             urlList.add(ftpUrl + s);
                         }
-
+                        LogUtil.E("播放列表：" + playList.toString());
+//                        handleVideo(dateArray[0], dateArray[1]); // TODO: 2018/12/30 测试
                         download(urlList, dateArray);
                         break;
                     case TYPE_LIVE://直播类
-                        if(videoView != null){
-                            APP.getMainActivity().removeView(videoView);
-                        }
-
-                        createVideo();
-
-                        final String liveUrl = data.getContent();
-                        startTimer = timerMap.get("live_start");
-                        endTimer = timerMap.get("live_end");
-                        if (startTimer != null) {
-                            startTimer.cancel();
-                        }
-
-                        if (endTimer != null) {
-                            endTimer.cancel();
-                        }
-
-                        startTimer = new Timer();
-                        endTimer = new Timer();
-
-                        startTimer.schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                APP.getMainActivity().addView(videoView);
-                            }
-                        }, dateArray[0]);
-
-                        endTimer.schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                APP.getMainActivity().removeView(videoView);
-                            }
-                        }, dateArray[1]);
-
-                        timerMap.put("live_start", startTimer);
-                        timerMap.put("live_end", endTimer);
+                        String liveUrl = data.getContent();
+                        handleLive(liveUrl, dateArray[0], dateArray[1]);
                         break;
                     case TYPE_INPUT:
-                        startTimer = timerMap.get("hdmi_start");
-                        endTimer = timerMap.get("hdmi_end");
-                        if (startTimer != null) {
-                            startTimer.cancel();
-                        }
-
-                        if (endTimer != null) {
-                            endTimer.cancel();
-                        }
-
-                        startTimer = new Timer();
-                        endTimer = new Timer();
-
-                        startTimer.schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-//                                checkHDMI(true);
-                            }
-                        }, dateArray[0]);
-
-                        endTimer.schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-//                                checkHDMI(false);
-                            }
-                        }, dateArray[1]);
-
-                        timerMap.put("hdmi_start", startTimer);
-                        timerMap.put("hdmi_end", endTimer);
+                        handleInput(dateArray[0], dateArray[1]);
                         break;
                 }
-            }
-
-            for (Map.Entry<String, Timer> stringTimerEntry : timerMap.entrySet()) {
-                LogUtil.E(stringTimerEntry.getKey() + "---" + stringTimerEntry.getValue());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 
+    private void handleLive(final String liveUrl, Date startTime, Date endTime) {
+        Timer startTimer = timerMap.get("live_start");
+        Timer endTimer = timerMap.get("live_end");
+        if (startTimer != null) {
+            startTimer.cancel();
+        }
+
+        if (endTimer != null) {
+            endTimer.cancel();
+        }
+
+        startTimer = new Timer();
+        endTimer = new Timer();
+
+        startTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+
+                ThreadUtil.getInstance().runInUIThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPlayType = TYPE_LIVE;
+                        openVideo(liveUrl);
+                    }
+                });
+
+            }
+        }, startTime);
+
+        endTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                ThreadUtil.getInstance().runInUIThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        LogUtil.E("结束直播源");
+                        closeVideo();
+                    }
+                });
+            }
+        }, endTime);
+
+        timerMap.put("live_start", startTimer);
+        timerMap.put("live_end", endTimer);
+    }
+
+    /***
+     * 处理插播信号源流程
+     * @param startTime
+     * @param endTime
+     */
+    private void handleInput(Date startTime, Date endTime) {
+        Timer startTimer = timerMap.get("hdmi_start");
+        Timer endTimer = timerMap.get("hdmi_end");
+        if (startTimer != null) {
+            startTimer.cancel();
+        }
+
+        if (endTimer != null) {
+            endTimer.cancel();
+        }
+
+        startTimer = new Timer();
+        endTimer = new Timer();
+
+        startTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+//                checkHDMI(true);
+            }
+        }, startTime);
+
+        endTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+//                checkHDMI(false);
+            }
+        }, endTime);
+
+        timerMap.put("hdmi_start", startTimer);
+        timerMap.put("hdmi_end", endTimer);
+    }
+
+    /***
+     * 切换HDMI信号 todo 待测试
+     * @param isHdmi
+     */
     private void checkHDMI(boolean isHdmi) {
         Integer broadType = CommonUtils.getBroadType();
         if (broadType == 4) {//判断是不是小百合
@@ -352,6 +377,104 @@ public class InsertManager {
         }
     }
 
+    /*=======视频插播流程================================================================*/
+    public void download(List<String> urlList, final Date[] dateArray) {
+        ResourceManager.getInstance().download(urlList, new ResourceManager.FileDownloadListener() {
+            @Override
+            public void onBefore(int totalNum) {
+                LogUtil.E("共要下载" + totalNum);
+            }
+
+            @Override
+            public void onFinish() {
+                handleVideo(dateArray[0], dateArray[1]);
+            }
+
+        });
+    }
+
+    private void handleVideo(Date startDate, Date endDate) {
+
+        //将之前的定时任务结束掉
+        Timer startTimer = timerMap.get("video_start");
+        Timer endTimer = timerMap.get("video_end");
+        if (startTimer != null) {
+            startTimer.cancel();
+        }
+
+        if (endTimer != null) {
+            endTimer.cancel();
+        }
+        //重新初始化定时任务
+        startTimer = new Timer();
+        endTimer = new Timer();
+        LogUtil.E("startTimer");
+        startTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                ThreadUtil.getInstance().runInUIThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPlayType = TYPE_VIDEO;
+                        openVideo(playList.get(playIndex));
+                    }
+                });
+            }
+        }, startDate);
+
+        endTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                ThreadUtil.getInstance().runInUIThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        closeVideo();
+                    }
+                });
+            }
+        }, endDate);
+
+        timerMap.put("video_start", startTimer);
+        timerMap.put("video_end", endTimer);
+    }
+
+    private void openVideo(String playPath){
+        if (videoView != null && videoView.isShown()) {
+            APP.getMainActivity().removeView(videoView);
+        }
+
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+        }
+
+        APP.getMainActivity().pause();
+        APP.getMainActivity().addView(videoView);
+
+        LogUtil.E("当前播放地址：" + playPath);
+        videoView.setVideoPath(playPath);
+        videoView.start();
+    }
+
+    private void closeVideo(){
+        if(videoView.isPlaying()){
+            videoView.stopPlayback();
+        }
+        APP.getMainActivity().removeView(videoView);
+        APP.getMainActivity().resume();
+    }
+
+    /***
+     * 在返回界面的时候调用这个方法，如果还有需要播放的数据会自动进行播放
+     */
+    public void onResume() {
+        if (videoView != null) {
+            videoView.setVisibility(View.VISIBLE);
+            videoView.resume();
+            videoView.start();
+        }
+    }
+
+    //解析播放时间，没有date的情况下默认为当天
     private Date[] resolve(String startStr, String endStr) throws ParseException {
         String endTime = correctTime(endStr);
         String startTime = correctTime(startStr);
@@ -368,7 +491,6 @@ public class InsertManager {
         return new Date[]{start, end};
     }
 
-
     //修正播放时间
     private String correctTime(String time) {
         String[] beginTimes = time.split(":");
@@ -380,89 +502,6 @@ public class InsertManager {
             beginTimes[i] = temp;
         }
         return beginTimes[0] + ":" + beginTimes[1];
-    }
-
-    /*=======下载监听================================================================*/
-    public void download(List<String> urlList, final Date[] dateArray) {
-        ResourceManager.getInstance().download(urlList, new ResourceManager.FileDownloadListener() {
-            @Override
-            public void onBefore(int totalNum) {
-                LogUtil.E("共要下载" + totalNum);
-            }
-
-            @Override
-            public void onFinish() {
-
-                if(videoView != null){
-                    ThreadUtil.getInstance().runInUIThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            APP.getMainActivity().removeView(videoView);
-                        }
-                    });
-                }
-
-                createVideo();
-
-                LogUtil.E("下载结束");
-                Timer startTimer = timerMap.get("video_start");
-                Timer endTimer = timerMap.get("video_end");
-                if (startTimer != null) {
-                    startTimer.cancel();
-                }
-
-                if (endTimer != null) {
-                    endTimer.cancel();
-                }
-
-                startTimer = new Timer();
-                endTimer = new Timer();
-
-                startTimer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        ThreadUtil.getInstance().runInUIThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                videoView.setVideoPath(playList.get(playIndex));
-                                videoView.start();
-                                APP.getMainActivity().pause();
-                                APP.getMainActivity().addView(videoView);
-                            }
-                        });
-                    }
-                }, dateArray[0]);
-
-                endTimer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        ThreadUtil.getInstance().runInUIThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                videoView.stopPlayback();
-                                APP.getMainActivity().resume();
-                                APP.getMainActivity().removeView(videoView);
-                            }
-                        });
-                    }
-                }, dateArray[1]);
-
-                LogUtil.E("视频是否显示：" + videoView.isShown());
-                LogUtil.E("视频是否播放：" + videoView.isPlaying());
-
-                timerMap.put("video_start", startTimer);
-                timerMap.put("video_end", endTimer);
-            }
-
-        });
-    }
-
-    public void onResume(){
-        if(videoView != null){
-            videoView.setVisibility(View.VISIBLE);
-            videoView.resume();
-            videoView.start();
-        }
     }
 
     //解析播放时间

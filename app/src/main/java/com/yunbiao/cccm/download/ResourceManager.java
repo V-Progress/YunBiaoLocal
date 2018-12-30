@@ -221,7 +221,7 @@ public class ResourceManager {
                 MainController.getInstance().updateProgress(currFileNum + 1);
                 MainController.getInstance().updateConsole("下载完成");
                 if (isInit) {
-                    MainController.getInstance().initPlayData();
+                    MainController.getInstance().initPlayData(true);
                 }
             }
 
@@ -235,7 +235,7 @@ public class ResourceManager {
             public void onFinish() {
                 urlList.clear();
                 if (isInit) {
-                    MainController.getInstance().initPlayData();
+                    MainController.getInstance().initPlayData(true);
                     MainController.getInstance().updateProgress(urlList.size());
                     MainController.getInstance().updateConsole("已全部下载结束");
                     MainController.getInstance().closeConsole();

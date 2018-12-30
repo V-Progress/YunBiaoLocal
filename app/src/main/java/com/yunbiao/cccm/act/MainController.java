@@ -54,11 +54,11 @@ public class MainController {
         });
     }
 
-    public void initPlayData() {
+    public void initPlayData(final boolean isRemote) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mRefListener.initPlayData();
+                mRefListener.initPlayData(isRemote);
             }
         });
 
@@ -140,19 +140,6 @@ public class MainController {
                 mRefListener.addView(view);
             }
         });
-    }
-
-    public void insertPlay(final InsertTextModel insertTextModel, final InsertVideoModel insertVideoModel) {
-        ThreadUtil.getInstance().runInUIThread(new Runnable() {
-            @Override
-            public void run() {
-                mRefListener.insertPlay(insertTextModel,insertVideoModel);
-            }
-        });
-    }
-
-    public void closeInsertPlay() {
-
     }
 
     public void noRemoteFile() {

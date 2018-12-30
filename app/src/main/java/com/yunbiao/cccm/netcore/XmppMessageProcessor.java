@@ -181,7 +181,6 @@ public class XmppMessageProcessor {
                     @Override
                     public void run() {
                         InsertTextModel insertTextModel = new Gson().fromJson(content, InsertTextModel.class);
-//                        MainController.getInstance().insertPlay(insertTextModel,null);
                         InsertManager.getInstance(APP.getMainActivity()).insertTXT(insertTextModel);
                     }
                 });
@@ -191,7 +190,7 @@ public class XmppMessageProcessor {
                     @Override
                     public void run() {
                         InsertVideoModel insertVideoModel = new Gson().fromJson(content, InsertVideoModel.class);
-                        MainController.getInstance().insertPlay(null,insertVideoModel);
+                        InsertManager.getInstance(APP.getMainActivity()).insertVideo(insertVideoModel);
                     }
                 });
                 break;
