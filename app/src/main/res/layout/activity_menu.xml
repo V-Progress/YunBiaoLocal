@@ -80,9 +80,11 @@
             android:textSize="@dimen/menu1080_tv_35_dp"
             app:layout_marginLeftPercent="1%" />
 
-        <Button
+        <CheckBox
+            android:gravity="center"
+            android:id="@+id/cb_select_res_menu"
+            android:button="@null"
             android:padding="10dp"
-            android:id="@+id/btn_select_resource_menu"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_centerVertical="true"
@@ -92,7 +94,22 @@
             android:textColor="@color/menu_bottom_num"
             android:textSize="20dp"
             app:layout_heightPercent="70%"
-            app:layout_widthPercent="12%" />
+            app:layout_widthPercent="12%"
+            />
+
+        <!--<Button-->
+            <!--android:padding="10dp"-->
+            <!--android:id="@+id/btn_select_resource_menu"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="0dp"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--android:layout_centerHorizontal="true"-->
+            <!--android:background="@drawable/is_service_btn"-->
+            <!--android:text="切换到本地资源"-->
+            <!--android:textColor="@color/menu_bottom_num"-->
+            <!--android:textSize="20dp"-->
+            <!--app:layout_heightPercent="70%"-->
+            <!--app:layout_widthPercent="12%" />-->
 
         <Button
             android:id="@+id/menu_info_ellipse_btn"

@@ -37,7 +37,7 @@ android {
         // 开发版本
         dev {
             // 服务地址
-            buildConfigField "String", "DOMAIN", "com.yunbiao.cccm.common.Const.URL.TST"
+            buildConfigField "String", "DOMAIN", "com.yunbiao.cccm.common.Const.URL.DEV"
             // 服务端口
             buildConfigField "String", "PORT", "com.yunbiao.cccm.common.Const.PORT.DEV"
             // 是否打印日志到文件

@@ -173,7 +173,6 @@ public class VideoDataResolver {
         ThreadUtil.getInstance().runInCommonThread(new Runnable() {
             @Override
             public void run() {
-//                File yunbiao = new File(ResourceConst.LOCAL_RES.LOCAL_RES_SAVE_PATH);
                 File yunbiao = new File(ResourceConst.LOCAL_RES.APP_MAIN_DIR);
 
                 //目录是否存在或可读
