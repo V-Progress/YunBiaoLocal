@@ -96,11 +96,11 @@ public class InsertVideoModel implements Serializable {
             this.isCycle = isCycle;
         }
 
-        public Integer getPalyType() {
+        public Integer getPlayType() {
             return playType;
         }
 
-        public void setPalyType(Integer playType) {
+        public void setPlayType(Integer playType) {
             this.playType = playType;
         }
 
@@ -118,7 +118,7 @@ public class InsertVideoModel implements Serializable {
                     "content='" + content + '\'' +
                     ", endTime='" + endTime + '\'' +
                     ", isCycle='" + isCycle + '\'' +
-                    ", palyType='" + playType + '\'' +
+                    ", playType='" + playType + '\'' +
                     ", startTime='" + startTime + '\'' +
                     '}';
         }

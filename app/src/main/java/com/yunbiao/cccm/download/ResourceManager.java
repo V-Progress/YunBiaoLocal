@@ -161,7 +161,6 @@ public class ResourceManager {
         }
     }
 
-
     //解析XML文件
     private List<String> resolveDownloadList(VideoDataModel videoDataModel) {
         List<VideoDataModel.Play> playlist = videoDataModel.getPlaylist();
@@ -252,6 +251,9 @@ public class ResourceManager {
 
     }
 
+    /***
+     * 初始化插播数据
+     */
     public void initInsertData() {
         ThreadUtil.getInstance().runInRemoteThread(new Runnable() {
             @Override

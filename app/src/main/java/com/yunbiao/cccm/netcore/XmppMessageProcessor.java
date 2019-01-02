@@ -30,6 +30,8 @@ import com.yunbiao.cccm.view.TipToast;
 import com.yunbiao.cccm.view.model.InsertTextModel;
 import com.yunbiao.cccm.view.model.InsertVideoModel;
 
+import java.text.ParseException;
+
 /**
  * 核心类：Xmpp消息处理
  * 分发后台消息
@@ -190,7 +192,11 @@ public class XmppMessageProcessor {
                     @Override
                     public void run() {
                         InsertVideoModel insertVideoModel = new Gson().fromJson(content, InsertVideoModel.class);
-                        InsertManager.getInstance(APP.getMainActivity()).insertVideo(insertVideoModel);
+                        try {
+                            InsertManager.getInstance(APP.getMainActivity()).insertVideo(insertVideoModel);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
                 break;

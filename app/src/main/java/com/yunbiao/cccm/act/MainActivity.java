@@ -104,22 +104,42 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             e.printStackTrace();
         }
 
-
-       /* // TODO: 2018/12/30 测试
-        String test = "{\n" +
-                "  \"dateJson\": {\n" +
-                "    \"hsdresourceUrl\": \"http://192.168.1.101:8080/imgserver/resource/\",\n" +
-                "    \"insertArray\": [{\n" +
-                "      \"content\": \"http://ivi.bupt.edu.cn/hls/btv1hd.m3u8\",\n" +
-                "      \"endTime\": \"15:17\",\n" +
-                "      \"isCycle\": 1,\n" +
-                "      \"playType\": 2,\n" +
-                "      \"startTime\": \"15:0\"\n" +
+        /*String test = "{\n" +
+                "    \"dateJson\": {\n" +
+                "        \"hsdresourceUrl\": \"http://192.168.1.101:8080/imgserver/resource/\",\n" +
+                "        \"insertArray\": [\n" +
+                "            {\n" +
+                "                \"content\": \"http://ivi.bupt.edu.cn/hls/btv1hd.m3u8\",\n" +
+                "                \"endTime\": \"16:11\",\n" +
+                "                \"isCycle\": 1,\n" +
+                "                \"playType\": 2,\n" +
+                "                \"startTime\": \"16:10\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"content\": \"http://ivi.bupt.edu.cn/hls/btv1hd.m3u8\",\n" +
+                "                \"endTime\": \"16:13\",\n" +
+                "                \"isCycle\": 1,\n" +
+                "                \"playType\": 2,\n" +
+                "                \"startTime\": \"16:12\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"content\": \"2018/12/27/38fff519-65db-474d-874e-77e9071f58b2.mp4,2018/12/28/72c65516-7c23-4a53-a934-947d4bc62f58.mp4\",\n" +
+                "                \"endTime\": \"16:12\",\n" +
+                "                \"isCycle\": 1,\n" +
+                "                \"playType\": 1,\n" +
+                "                \"startTime\": \"16:11\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"content\": \"2018/12/27/38fff519-65db-474d-874e-77e9071f58b2.mp4,2018/12/28/72c65516-7c23-4a53-a934-947d4bc62f58.mp4\",\n" +
+                "                \"endTime\": \"16:15\",\n" +
+                "                \"isCycle\": -1,\n" +
+                "                \"playType\": 1,\n" +
+                "                \"startTime\": \"16:13\"\n" +
+                "            }\n" +
+                "        ]\n" +
                 "    },\n" +
-                "    ]\n" +
-                "  },\n" +
-                "  \"message\": \"获取数据成功！\",\n" +
-                "  \"result\": 1\n" +
+                "    \"message\": \"获取数据成功！\",\n" +
+                "    \"result\": 1\n" +
                 "}";
 
         LogUtil.E("测试数据：" + test);
@@ -131,7 +151,11 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         btnTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                InsertManager.getInstance(APP.getMainActivity()).insertVideo(insertVideoModel);
+                try {
+                    InsertManager.getInstance(APP.getMainActivity()).insertVideo(insertVideoModel);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
         });*/
     }
