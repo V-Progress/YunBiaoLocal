@@ -3,14 +3,13 @@ package com.yunbiao.cccm;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
-import android.media.MediaPlayer;
 import android.text.TextUtils;
 import android.view.Gravity;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.VideoView;
 
+import com.yunbiao.cccm.act.MainController;
+import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.devicectrl.actions.XBHActions;
 import com.yunbiao.cccm.download.ResourceManager;
@@ -26,9 +25,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -39,28 +36,20 @@ import java.util.TimerTask;
 public class InsertManager {
     private static InsertManager insertManager;
     private static Activity mActivity;
-    private VideoView videoView;
 
-    private SimpleDateFormat yyyyMMddHH_mm = new SimpleDateFormat("yyyyMMddHH:mm");
+    private SimpleDateFormat yyyyMMddHH_mm_ss = new SimpleDateFormat("yyyyMMddHH:mm:ss");
     private SimpleDateFormat yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
-
-    public static final String KEY_INSERT_TXT = "insertTxt";
-    public static final String KEY_INSERT_VIDEO = "insertVideo";
 
     private final int TYPE_VIDEO = 1;
     private final int TYPE_LIVE = 2;
     private final int TYPE_INPUT = 3;
-    private Integer isCycle;
     private List<String> playList = new ArrayList<>();
-    private Map<String, Timer> timerMap = new HashMap<>();
-    int playIndex = 0;
     private MyScrollTextView scrollText;
-    private InsertTextModel insertTxtModel;
-    private final String CLEAR_TXT = "2";
-    private InsertVideoModel insertVideoModel;
-    private MediaPlayer mediaPlayer;
-    private int mPlayType;
+    private final String CLEAR_TXT = "2"; //清除字幕
     private final Date todayDate;
+
+    List<Timer> timerList = new ArrayList<>();
+    List<Timer> txtTimerList = new ArrayList<>();
 
     public static InsertManager getInstance(Activity activity) {
         mActivity = activity;
@@ -71,60 +60,17 @@ public class InsertManager {
     }
 
     public InsertManager() {
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-        videoView = new VideoView(mActivity);
-        videoView.setLayoutParams(layoutParams);
-        videoView.setOnCompletionListener(onCompletionListener);
-        videoView.setOnPreparedListener(onPreparedListener);
         //获取当年月日
         todayDate = new Date(System.currentTimeMillis());
-
+        initTXT();
     }
 
-    /***
-     * 在返回界面的时候调用这个方法，如果还有需要播放的数据会自动进行播放
-     */
-    public void onResume() {
-        if (videoView != null) {
-            videoView.setVisibility(View.VISIBLE);
-            videoView.resume();
-            videoView.start();
+    public void initTXT() {
+        InsertTextModel txtAds = CacheManager.FILE.getTXTAds();
+        if (txtAds != null) {
+            insertTXT(txtAds);
         }
     }
-
-    //准备好监听
-    MediaPlayer.OnPreparedListener onPreparedListener = new MediaPlayer.OnPreparedListener() {
-        @Override
-        public void onPrepared(MediaPlayer mp) {
-            mediaPlayer = mp;
-        }
-    };
-
-    //视频播放完成的监听
-    MediaPlayer.OnCompletionListener onCompletionListener = new MediaPlayer.OnCompletionListener() {
-        @Override
-        public void onCompletion(MediaPlayer mp) {
-            LogUtil.E("当前播放标签" + playIndex);
-            if (mPlayType == TYPE_LIVE) {
-                return;
-            }
-
-            //如果index大于播放列表的size
-            if (playIndex >= playList.size()) {
-                playIndex = 0;//将playIndex置为0
-
-                if (isCycle <= -1) {//如果是不重复
-                    closeVideo();//关闭后充值
-                    return;
-                }
-            }
-
-            playIndex++;
-            videoView.stopPlayback();
-            videoView.setVideoPath(playList.get(playIndex));
-            videoView.start();
-        }
-    };
 
     /***
      * 插播字幕
@@ -136,23 +82,25 @@ public class InsertManager {
             return;
         }
 
-        if (scrollText != null) {
-            ThreadUtil.getInstance().runInUIThread(new Runnable() {
-                @Override
-                public void run() {
-                    APP.getMainActivity().removeView(scrollText);
-                }
-            });
+        for (Timer timer : txtTimerList) {
+            timer.cancel();
         }
+        txtTimerList.clear();
+
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                APP.getMainActivity().removeView(scrollText);
+            }
+        });
 
         if (TextUtils.equals(CLEAR_TXT, itm.getPlayType())) {
-            insertTxtModel = null;
+            CacheManager.FILE.putTXTAds(null);
             return;
         }
 
-        createScrTXT(itm);
+        CacheManager.FILE.putTXTAds(itm);
 
-        insertTxtModel = itm;
         //取出内部的数据
         String playDate = itm.getContent().getPlayDate();
         String playCurTime = itm.getContent().getPlayCurTime();
@@ -160,17 +108,24 @@ public class InsertManager {
         try {
             final Date[] dates = resolveTime(playDate, playCurTime);
             if (dates != null && dates.length > 0) {
-                timeExecute("txt", dates[0], new TimerTask() {
+                Timer startTimer = new Timer();
+                Timer endTimer = new Timer();
+
+                startTimer.schedule(new TimerTask() {
                     @Override
                     public void run() {
                         ThreadUtil.getInstance().runInUIThread(new Runnable() {
                             @Override
                             public void run() {
+                                setTXT(itm);
+
                                 APP.getMainActivity().addView(scrollText);
                             }
                         });
                     }
-                }, dates[1], new TimerTask() {
+                }, dates[0]);
+
+                endTimer.schedule(new TimerTask() {
                     @Override
                     public void run() {
                         ThreadUtil.getInstance().runInUIThread(new Runnable() {
@@ -180,9 +135,10 @@ public class InsertManager {
                             }
                         });
                     }
-                });
-            } else {
-                LogUtil.E("播放时间已过！");
+                }, dates[1]);
+
+                txtTimerList.add(startTimer);
+                txtTimerList.add(endTimer);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -193,58 +149,54 @@ public class InsertManager {
      * 显示滚动文字
      * @param insertTextModel
      */
-    private void createScrTXT(final InsertTextModel insertTextModel) {
-        ThreadUtil.getInstance().runInUIThread(new Runnable() {
-            @Override
-            public void run() {
-                InsertTextModel.Content textDetail = insertTextModel.getContent();
-                Integer fontSize = textDetail.getFontSize();
-                String text = insertTextModel.getText();
+    private void setTXT(final InsertTextModel insertTextModel) {
+        InsertTextModel.Content textDetail = insertTextModel.getContent();
+        Integer fontSize = textDetail.getFontSize();
+        String text = insertTextModel.getText();
 
-                FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (fontSize * 2.5));
-                if (TextUtils.equals("0", textDetail.getLocation())) {//顶部
-                    layoutParams.gravity = Gravity.TOP;
-                } else {
-                    layoutParams.gravity = Gravity.BOTTOM;
-                }
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (fontSize * 2.5));
+        if (TextUtils.equals("0", textDetail.getLocation())) {//顶部
+            layoutParams.gravity = Gravity.TOP;
+        } else {
+            layoutParams.gravity = Gravity.BOTTOM;
+        }
 
-                scrollText = new MyScrollTextView(mActivity);
-                scrollText.setLayoutParams(layoutParams);
-                scrollText.setTextSize(fontSize);//字号
-                scrollText.setTextColor(Color.parseColor(textDetail.getFontColor()));//字体颜色
-                scrollText.setScrollSpeed(textDetail.getPlaySpeed());
-                scrollText.setDirection(Integer.valueOf(textDetail.getPlayType()));
-                scrollText.setBackColor(Color.parseColor(textDetail.getBackground()));//背景色
-                scrollText.setText(text);//内容
+        scrollText = new MyScrollTextView(mActivity);
+        scrollText.setLayoutParams(layoutParams);
+        scrollText.setTextSize(fontSize);//字号
+        scrollText.setTextColor(Color.parseColor(textDetail.getFontColor()));//字体颜色
+        scrollText.setScrollSpeed(textDetail.getPlaySpeed());
+        scrollText.setDirection(Integer.valueOf(textDetail.getPlayType()));
+        scrollText.setBackColor(Color.parseColor(textDetail.getBackground()));//背景色
+        scrollText.setText(text);//内容
 
-                if (Integer.parseInt(textDetail.getPlayType()) == 0) {
-                    scrollText.setDirection(3);//向上滚动0,向左滚动3,向右滚动2,向上滚动1
-                } else if (Integer.parseInt(textDetail.getPlayType()) == 1) {
-                    scrollText.setDirection(0);
-                }
-            }
-        });
+        if (Integer.parseInt(textDetail.getPlayType()) == 0) {
+            scrollText.setDirection(3);//向上滚动0,向左滚动3,向右滚动2,向上滚动1
+        } else if (Integer.parseInt(textDetail.getPlayType()) == 1) {
+            scrollText.setDirection(0);
+        }
     }
 
     /***
-     * 插播视频
+     * 插播类
      * ==================================================================================
      * @param ivm
      */
-    public void insertVideo(InsertVideoModel ivm) throws ParseException {
+    public void insertPlay(InsertVideoModel ivm) throws ParseException {
         if (ivm == null) {
             return;
         }
 
         playList.clear();
-        insertVideoModel = ivm;
+        clearTimer();
+
         InsertVideoModel.InsertData dateJson = ivm.getDateJson();
         String ftpUrl = dateJson.getHsdresourceUrl();
         List<InsertVideoModel.Data> insertArray = dateJson.getInsertArray();
 
         Date today = null;
         try {
-            today = yyyyMMddHH_mm.parse(yyyyMMddHH_mm.format(todayDate));
+            today = yyyyMMddHH_mm_ss.parse(yyyyMMddHH_mm_ss.format(todayDate));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -253,7 +205,6 @@ public class InsertManager {
             if (data == null) {
                 continue;
             }
-            LogUtil.E("插播数据：" + data.toString());
 
             Integer playType = data.getPlayType();
             if (playType == null) {
@@ -261,36 +212,32 @@ public class InsertManager {
             }
 
             Date[] dateArray = resolve(data.getStartTime(), data.getEndTime());
-            if (today.after(dateArray[1])) {
-                LogUtil.E("播放时间已过，不添加任务！");
+            if (today.equals(dateArray[1]) || today.after(dateArray[1])) {
                 continue;
             }
 
+            //是否轮播
+            boolean isCycle = data.getIsCycle() == 1;
             switch (playType) {
                 case TYPE_VIDEO:
-                    LogUtil.E("插播类型：视频");
                     String content = data.getContent();
                     String[] playArray = content.split(",");
-                    isCycle = data.getIsCycle();
 
                     List<String> urlList = new ArrayList<>();
+                    List<String> playList = new ArrayList<>();
                     //拼装播放列表
                     for (String s : playArray) {
                         String[] split = s.split("/");
                         playList.add(ResourceConst.LOCAL_RES.RES_SAVE_PATH + "/" + split[split.length - 1]);
                         urlList.add(ftpUrl + s);
                     }
-                    LogUtil.E("播放列表：" + playList.toString());
-//                    handleVideo(dateArray[0], dateArray[1]); // TODO: 2018/12/30 测试
-                    download(urlList, dateArray);
+                    download(isCycle,urlList, playList,dateArray);
                     break;
                 case TYPE_LIVE://直播类
-                    LogUtil.E("插播类型：直播源");
                     String liveUrl = data.getContent();
-                    handleLive(liveUrl, dateArray[0], dateArray[1]);
+                    handleLive(isCycle,liveUrl, dateArray[0], dateArray[1]);
                     break;
                 case TYPE_INPUT:
-                    LogUtil.E("插播类型：输入流");
                     handleInput(dateArray[0], dateArray[1]);
                     break;
             }
@@ -298,114 +245,67 @@ public class InsertManager {
     }
 
     /*=======视频处理流程================================================================*/
-    public void download(List<String> urlList, final Date[] dateArray) {
+    public void download(final boolean isCycle, List<String> urlList, final List<String> playList, final Date[] dateArray) {
         ResourceManager.getInstance().download(urlList, new ResourceManager.FileDownloadListener() {
             @Override
             public void onBefore(int totalNum) {
-                LogUtil.E("共要下载" + totalNum);
             }
 
             @Override
             public void onFinish() {
-                handleVideo(dateArray[0], dateArray[1]);
+                handleVideo(isCycle,playList, dateArray[0], dateArray[1]);
             }
 
         });
     }
 
     //处理视频
-    private void handleVideo(Date startTime, Date endTime) {
-        timeExecute("video", startTime, new TimerTask() {
+    private void handleVideo(final boolean isCycle, final List<String> playList, Date startTime, Date endTime) {
+        timeExecute(startTime, new TimerTask() {
             @Override
             public void run() {
-                ThreadUtil.getInstance().runInUIThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mPlayType = TYPE_VIDEO;
-                        openVideo(playList.get(playIndex));
-                    }
-                });
+                MainController.getInstance().startInsert(isCycle,playList);
             }
         }, endTime, new TimerTask() {
             @Override
             public void run() {
-                ThreadUtil.getInstance().runInUIThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        closeVideo();
-                    }
-                });
+                MainController.getInstance().stopInsert();
             }
         });
     }
 
     //处理直播数据
-    private void handleLive(final String liveUrl, Date startTime, Date endTime) {
-        timeExecute("live", startTime, new TimerTask() {
+    private void handleLive(final boolean isCycle, final String liveUrl, Date startTime, Date endTime) {
+        timeExecute(startTime, new TimerTask() {
             @Override
             public void run() {
-                ThreadUtil.getInstance().runInUIThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mPlayType = TYPE_LIVE;
-                        openVideo(liveUrl);
-                    }
-                });
+                List<String> list = new ArrayList<String>();
+                list.add(liveUrl);
+                MainController.getInstance().startInsert(isCycle, list);
             }
         }, endTime, new TimerTask() {
             @Override
             public void run() {
-                ThreadUtil.getInstance().runInUIThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        LogUtil.E("结束直播源");
-                        closeVideo();
-                    }
-                });
+                MainController.getInstance().stopInsert();
             }
         });
     }
 
     //处理插播信号源流程
     private void handleInput(Date startTime, Date endTime) {
-        timeExecute("hdmi", startTime, new TimerTask() {
+        timeExecute(startTime, new TimerTask() {
             @Override
             public void run() {
+                LogUtil.E("切换到HDMI信号");
 //                checkHDMI(true);
             }
         }, endTime, new TimerTask() {
             @Override
             public void run() {
-//                checkHDMI(false);
+                LogUtil.E("结束HDMI信号");
+//                checkHDMI(true);
             }
         });
-    }
-
-    //打开视频
-    private void openVideo(String playPath) {
-        if (videoView != null && videoView.isShown()) {
-            APP.getMainActivity().removeView(videoView);
-        }
-
-        if (mediaPlayer != null) {
-            mediaPlayer.release();
-        }
-
-        APP.getMainActivity().pause();
-        APP.getMainActivity().addView(videoView);
-
-        LogUtil.E("当前播放地址：" + playPath);
-        videoView.setVideoPath(playPath);
-        videoView.start();
-    }
-
-    //关闭视频
-    private void closeVideo() {
-        if (videoView.isPlaying()) {
-            videoView.stopPlayback();
-        }
-        APP.getMainActivity().removeView(videoView);
-        APP.getMainActivity().resume();
     }
 
     /***
@@ -426,38 +326,35 @@ public class InsertManager {
     /***定时执行开关任务
      * ==============================================================================
      */
-    private void timeExecute(String prefix, Date startTime, TimerTask startTask, Date endTime, TimerTask endTask) {
-        String key_start = prefix + "_start";
-        String key_end = prefix + "_end";
-        Timer startTimer = timerMap.get(key_start);
-        Timer endTimer = timerMap.get(key_end);
-        if (startTimer != null) {
-            startTimer.cancel();
-        }
-
-        if (endTimer != null) {
-            endTimer.cancel();
-        }
-
-        startTimer = new Timer();
-        endTimer = new Timer();
+    private void timeExecute(Date startTime, final TimerTask startTask, Date endTime, final TimerTask endTask) {
+        Timer startTimer = new Timer();
+        Timer endTimer = new Timer();
 
         startTimer.schedule(startTask, startTime);
         endTimer.schedule(endTask, endTime);
 
-        timerMap.put(key_start, startTimer);
-        timerMap.put(key_end, endTimer);
+        timerList.add(startTimer);
+        timerList.add(endTimer);
+    }
+
+    public void clearTimer() {
+        if (timerList.size() > 0) {
+            for (Timer timer : timerList) {
+                timer.cancel();
+            }
+            timerList.clear();
+        }
     }
 
     //解析播放时间，没有date的情况下默认为当天
     private Date[] resolve(String startStr, String endStr) throws ParseException {
-        String endTime = correctTime(endStr);
-        String startTime = correctTime(startStr);
+        String endTime = correctTime(endStr)+":00";
+        String startTime = correctTime(startStr)+":00";
 
         String currDateStr = yyyyMMdd.format(todayDate);
         //转换成date格式
-        Date start = yyyyMMddHH_mm.parse(currDateStr + startTime);
-        Date end = yyyyMMddHH_mm.parse(currDateStr + endTime);
+        Date start = yyyyMMddHH_mm_ss.parse(currDateStr + startTime);
+        Date end = yyyyMMddHH_mm_ss.parse(currDateStr + endTime);
 
         LogUtil.E(currDateStr + startTime);
         LogUtil.E(currDateStr + endTime);
@@ -502,17 +399,13 @@ public class InsertManager {
         }
 
         //修正时间字符串
-        String sTime = currDateStr + correctTime(times[0]);
-        String eTime = currDateStr + correctTime(times[1]);
-        LogUtil.E("开始时间-----" + sTime);
-        LogUtil.E("结束时间-----" + eTime);
+        String sTime = currDateStr + correctTime(times[0])+":00";
+        String eTime = currDateStr + correctTime(times[1])+":00";
         //转换成date格式
-        final Date beginTime = yyyyMMddHH_mm.parse(sTime);
-        final Date endTime = yyyyMMddHH_mm.parse(eTime);
+        final Date beginTime = yyyyMMddHH_mm_ss.parse(sTime);
+        final Date endTime = yyyyMMddHH_mm_ss.parse(eTime);
 
-        LogUtil.E("开始毫秒：" + beginTime.getTime());
-        LogUtil.E("结束毫秒：" + endTime.getTime());
-        if (endTime.getTime() < yyyyMMddHH_mm.parse(yyyyMMddHH_mm.format(currDateTime)).getTime()) {
+        if (endTime.getTime() < yyyyMMddHH_mm_ss.parse(yyyyMMddHH_mm_ss.format(currDateTime)).getTime()) {
             return null;
         }
 

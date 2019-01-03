@@ -5,6 +5,8 @@ import android.view.View;
 import com.yunbiao.cccm.view.model.InsertTextModel;
 import com.yunbiao.cccm.view.model.InsertVideoModel;
 
+import java.util.List;
+
 /**
  * 主界面刷新监听
  * 主界面实现此接口，在ContentController中对其进行统一管理
@@ -15,9 +17,16 @@ import com.yunbiao.cccm.view.model.InsertVideoModel;
 public interface MainRefreshListener {
 
     //开始播放
-    void startPlay(String videoString);
+    void startPlay(List<String> videoString);
     //停止播放
     void stopPlay();
+
+    //开始播放插播
+    void startInsert(boolean isCycle, List<String> videoString);
+
+    //停止播放插播
+    void stopInsert();
+
     //初始化数据
     void initPlayData(boolean isRemote);
     //初始化播放器
@@ -32,8 +41,4 @@ public interface MainRefreshListener {
 
     void initProgress(int max);
     void updateProgress(int progress);
-
-    void removeView(View view);
-
-    void addView(View view);
 }

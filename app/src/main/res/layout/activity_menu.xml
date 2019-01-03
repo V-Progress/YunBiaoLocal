@@ -80,9 +80,9 @@
             android:textSize="@dimen/menu1080_tv_35_dp"
             app:layout_marginLeftPercent="1%" />
 
-        <CheckBox
+        <Button
             android:gravity="center"
-            android:id="@+id/cb_select_res_menu"
+            android:id="@+id/btn_select_res_menu"
             android:button="@null"
             android:padding="10dp"
             android:layout_width="0dp"

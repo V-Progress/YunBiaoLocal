@@ -280,7 +280,7 @@ public class ResourceManager {
                         throw new Exception(insertVideo.getMessage());
                     }
 
-                    InsertManager.getInstance(APP.getMainActivity()).insertVideo(insertVideo);
+                    InsertManager.getInstance(APP.getMainActivity()).insertPlay(insertVideo);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (Exception e) {

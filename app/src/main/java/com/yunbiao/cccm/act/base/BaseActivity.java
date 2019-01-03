@@ -19,7 +19,6 @@ import butterknife.ButterKnife;
 public abstract class BaseActivity extends FragmentActivity {
 
     public FragmentManager mFragmentManager;
-    public View rootView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -6,6 +6,8 @@ import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.view.model.InsertTextModel;
 import com.yunbiao.cccm.view.model.InsertVideoModel;
 
+import java.util.List;
+
 /**
  * 内容控制器
  * 统一管理主界面与显示有关的所有内容
@@ -31,12 +33,7 @@ public class MainController {
         mRefListener = refListener;
     }
 
-    public void unRegisterActivity() {
-        mRefListener = null;
-    }
-
-
-    public void startPlay(final String videoString) {
+    public void startPlay(final List<String> videoString) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
@@ -50,6 +47,24 @@ public class MainController {
             @Override
             public void run() {
                 mRefListener.stopPlay();
+            }
+        });
+    }
+
+    public void startInsert(final boolean isCycle, final List<String> videoString){
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                mRefListener.startInsert(isCycle,videoString);
+            }
+        });
+    }
+
+    public void stopInsert(){
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                mRefListener.stopInsert();
             }
         });
     }
@@ -71,7 +86,6 @@ public class MainController {
                 mRefListener.initPlayer();
             }
         });
-
     }
 
     public void openConsole() {
@@ -81,7 +95,6 @@ public class MainController {
                 mRefListener.openConsole();
             }
         });
-
     }
 
     public void closeConsole() {
@@ -121,28 +134,6 @@ public class MainController {
                 mRefListener.updateProgress(progress);
             }
         });
-
-    }
-
-    public void removeView(final View view){
-        ThreadUtil.getInstance().runInUIThread(new Runnable() {
-            @Override
-            public void run() {
-                mRefListener.removeView(view);
-            }
-        });
-    }
-
-    public void addView(final View view){
-        ThreadUtil.getInstance().runInUIThread(new Runnable() {
-            @Override
-            public void run() {
-                mRefListener.addView(view);
-            }
-        });
-    }
-
-    public void noRemoteFile() {
 
     }
 }

@@ -2,8 +2,10 @@ package com.yunbiao.cccm.cache;
 
 import android.text.TextUtils;
 
+import com.google.gson.Gson;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.common.ResourceConst;
+import com.yunbiao.cccm.view.model.InsertTextModel;
 
 import java.io.File;
 
@@ -201,24 +203,20 @@ public class CacheManager {
 //            return fileCache.getAsString(TODAY_RES_DATA);
         }
 
-        public static void putInsertType(Integer insertType) {
-            fileCache.put(INSERT_TYPE, String.valueOf(insertType));
-        }
-
-        public static Integer getInsertType() {
-            String insertType = fileCache.getAsString(INSERT_TYPE);
-            if (TextUtils.isEmpty(insertType)) {
-                return 0;
+        public static boolean putTXTAds(InsertTextModel insertTextModel){
+            String adsStr = null;
+            if(insertTextModel != null){
+                adsStr = new Gson().toJson(insertTextModel);
             }
-            return Integer.valueOf(insertType);
+            return spCache.saveString(ADSINFO_TEMP,adsStr);
         }
 
-        public static void putInsertAds(String insertContent) {
-            fileCache.put(ADSINFO_TEMP, insertContent);
-        }
-
-        public static String getInsertAds() {
-            return fileCache.getAsString(ADSINFO_TEMP);
+        public static InsertTextModel getTXTAds(){
+            String string = spCache.getString(ADSINFO_TEMP, null);
+            if(!TextUtils.isEmpty(string)){
+                return new Gson().fromJson(string,InsertTextModel.class);
+            }
+            return null;
         }
     }
 

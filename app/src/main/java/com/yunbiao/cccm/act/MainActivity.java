@@ -3,24 +3,18 @@ package com.yunbiao.cccm.act;
 import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.yunbiao.cccm.APP;
-import com.yunbiao.cccm.InsertManager;
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.act.base.BaseActivity;
 import com.yunbiao.cccm.br.USBBroadcastReceiver;
@@ -33,12 +27,8 @@ import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.utils.SystemInfoUtil;
 import com.yunbiao.cccm.view.MainVideoView;
-import com.yunbiao.cccm.view.model.InsertTextModel;
-import com.yunbiao.cccm.view.model.InsertVideoModel;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -70,23 +60,22 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     FrameLayout flRoot;
 
     private USBBroadcastReceiver usbBroadcastReceiver;//USB监听广播
-    private static String[] playList;//播放列表
+    private List<String> playLists;
     private static int videoIndex;//当前视频在列表中处于的位置
     private static int lineNumber = 0;
     private float playSpeed = 1.0f;
-    private MediaPlayer mediaPlayer;
-    private boolean isStop = false;
+    private boolean isInsertPlaying = false;
+    private boolean isCycle = true;
 
     protected int setLayout() {
-        APP.setMainActivity(this);
-        MainController.getInstance().registerActivity(this);
         return R.layout.activity_main;
     }
 
     protected void initView() {
         //先将插播fragment创建出来
+        APP.setMainActivity(this);
+        MainController.getInstance().registerActivity(this);
 
-        rootView = findViewById(R.id.fl_root);
         //USB广播监听
         usbBroadcastReceiver = new USBBroadcastReceiver();
         IntentFilter intentFilter = new IntentFilter();
@@ -103,61 +92,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
-        /*String test = "{\n" +
-                "    \"dateJson\": {\n" +
-                "        \"hsdresourceUrl\": \"http://192.168.1.101:8080/imgserver/resource/\",\n" +
-                "        \"insertArray\": [\n" +
-                "            {\n" +
-                "                \"content\": \"http://ivi.bupt.edu.cn/hls/btv1hd.m3u8\",\n" +
-                "                \"endTime\": \"16:11\",\n" +
-                "                \"isCycle\": 1,\n" +
-                "                \"playType\": 2,\n" +
-                "                \"startTime\": \"16:10\"\n" +
-                "            },\n" +
-                "            {\n" +
-                "                \"content\": \"http://ivi.bupt.edu.cn/hls/btv1hd.m3u8\",\n" +
-                "                \"endTime\": \"16:13\",\n" +
-                "                \"isCycle\": 1,\n" +
-                "                \"playType\": 2,\n" +
-                "                \"startTime\": \"16:12\"\n" +
-                "            },\n" +
-                "            {\n" +
-                "                \"content\": \"2018/12/27/38fff519-65db-474d-874e-77e9071f58b2.mp4,2018/12/28/72c65516-7c23-4a53-a934-947d4bc62f58.mp4\",\n" +
-                "                \"endTime\": \"16:12\",\n" +
-                "                \"isCycle\": 1,\n" +
-                "                \"playType\": 1,\n" +
-                "                \"startTime\": \"16:11\"\n" +
-                "            },\n" +
-                "            {\n" +
-                "                \"content\": \"2018/12/27/38fff519-65db-474d-874e-77e9071f58b2.mp4,2018/12/28/72c65516-7c23-4a53-a934-947d4bc62f58.mp4\",\n" +
-                "                \"endTime\": \"16:15\",\n" +
-                "                \"isCycle\": -1,\n" +
-                "                \"playType\": 1,\n" +
-                "                \"startTime\": \"16:13\"\n" +
-                "            }\n" +
-                "        ]\n" +
-                "    },\n" +
-                "    \"message\": \"获取数据成功！\",\n" +
-                "    \"result\": 1\n" +
-                "}";
-
-        LogUtil.E("测试数据：" + test);
-
-        final InsertVideoModel insertVideoModel = new Gson().fromJson(test, InsertVideoModel.class);
-
-        LogUtil.E(insertVideoModel.toString());
-        Button btnTest = findViewById(R.id.btn_test);
-        btnTest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    InsertManager.getInstance(APP.getMainActivity()).insertVideo(insertVideoModel);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-        });*/
     }
 
     protected void initData() {
@@ -165,7 +99,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         initPlayer();
 
         //初始化播放数据
-        initPlayData(false);// TODO: 2018/12/30 初始化本地数据
+//        initPlayData(true);// TODO: 2018/12/30 初始化本地数据
 
         //连接XMPP
         PnServerController.startXMPP(this);
@@ -193,20 +127,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         vtmVideo.setOnCompletionListener(completionListener);
     }
 
-    @Override
-    public void startPlay(String videoString) {
-        isStop = false;//每次开始播放的时候把标签置为false
-        videoIndex = 0;
-        playList = videoString.split(",");
-
-        Log.d("log", "开始播放");
-        vtmVideo.setVisibility(View.VISIBLE);
-        state.setVisibility(View.INVISIBLE);
-
-        vtmVideo.setVideoPath(playList[videoIndex]);
-        vtmVideo.start();
-    }
-
     /*
      * 初始化播放数据
      */
@@ -224,15 +144,49 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         }
     }
 
+    //常规资源播放
     @Override
-    public void stopPlay() {
-        isStop = true;//将标签置为true，证明是全局状态的停止
-        if (vtmVideo == null) {
+    public void startPlay(List<String> videoList) {
+        if(isInsertPlaying){
+            LogUtil.E("广告正在播放，不执行startPlay");
             return;
         }
-        vtmVideo.stopPlayback();
-        vtmVideo.setVisibility(View.GONE);
-        state.setVisibility(View.VISIBLE);
+        play(videoList);
+    }
+
+    //常规资源停止
+    @Override
+    public void stopPlay() {
+        if(isInsertPlaying){
+            LogUtil.E("广告正在播放，不执行stopPlay");
+            return;
+        }
+        stop();
+    }
+
+    //插播资源播放
+    @Override
+    public void startInsert(final boolean isCycle, final List<String> videoList){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                MainActivity.this.isInsertPlaying = true;
+                MainActivity.this.isCycle = isCycle;
+                LogUtil.E("开始播放插播："+ videoList.toString());
+                LogUtil.E("是否轮播："+MainActivity.this.isCycle);
+                play(videoList);
+            }
+        },2000);
+    }
+
+    //插播资源停止
+    @Override
+    public void stopInsert(){
+        isCycle = true;
+        isInsertPlaying = false;
+        LogUtil.E("停止播放插播");
+        stop();
+        initPlayData(true);
     }
 
     //------控制台-----------------------------------------------------------------
@@ -286,14 +240,34 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         progress.setProgress(pg);
     }
 
-    //-----广告插播----------------------------------------------------------------
+    //-----常规方法----------------------------------------------------------------
+    private void stop(){
+        if (vtmVideo == null) {
+            return;
+        }
+        vtmVideo.stopPlayback();
+        vtmVideo.setVisibility(View.GONE);
+        state.setVisibility(View.VISIBLE);
+    }
 
-    @Override
+    private void play(final List<String> videoList){
+        videoIndex = 0;
+        playLists = videoList;
+
+        state.setVisibility(View.INVISIBLE);
+        if(vtmVideo.isPlaying()){
+            vtmVideo.stopPlayback();
+        }
+
+        vtmVideo.setVideoPath(playLists.get(videoIndex));
+        vtmVideo.setVisibility(View.VISIBLE);
+        vtmVideo.start();
+    }
+
     public void removeView(View view) {
         flRoot.removeView(view);
     }
 
-    @Override
     public void addView(View view) {
         flRoot.addView(view);
     }
@@ -304,7 +278,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     private MediaPlayer.OnPreparedListener preparedListener = new MediaPlayer.OnPreparedListener() {
         @Override
         public void onPrepared(MediaPlayer mp) {
-            mediaPlayer = mp;
             mp.setPlaybackSpeed(1.0f);
         }
     };
@@ -336,13 +309,19 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         @Override
         public void onCompletion(MediaPlayer mp) {
             videoIndex++;
-            if (videoIndex == playList.length) {
+            if (videoIndex == playLists.size()) {
                 videoIndex = 0;
+                LogUtil.E("是否轮播");
+                if(!isCycle){
+                    LogUtil.E("不轮播");
+                    stopInsert();
+                    return;
+                }
             }
             try {
                 mp.setPlaybackSpeed(playSpeed);
                 vtmVideo.stopPlayback();
-                vtmVideo.setVideoPath(playList[videoIndex]);
+                vtmVideo.setVideoPath(playLists.get(videoIndex));
                 vtmVideo.start();
             } catch (NullPointerException e) {
                 e.printStackTrace();
@@ -358,8 +337,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         //按下菜单键显示播放列表
         if (keyCode == KeyEvent.KEYCODE_MENU) {
             startActivity(new Intent(this, MenuActivity.class));
-            vtmVideo.pause();
-            vtmVideo.setVisibility(View.GONE);
         } else if (keyCode == KeyEvent.KEYCODE_BACK) {
             APP.exit();
             return false;
@@ -371,42 +348,23 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     @Override
     protected void onResume() {
         super.onResume();
-        InsertManager.getInstance(this).onResume();
-        resume();
+        vtmVideo.resume();
+        vtmVideo.start();
     }
 
-    public void resume() {
-        if (isStop) {//如果是全局停止的情况下，不再进行播放恢复，除非有新的资源播放将isStop置为false
-            return;
-        }
-        if (!vtmVideo.isShown()) {
-            vtmVideo.setVisibility(View.VISIBLE);
-        }
-        if (!vtmVideo.isPlaying()) {
-            vtmVideo.resume();
-            vtmVideo.start();
-        }
-    }
-
-    private boolean isInsertPlaying = false;
-
-    public void pause() {
-        isInsertPlaying = true;
-        if (vtmVideo.isShown()) {
-            vtmVideo.setVisibility(View.GONE);
-        }
-        if (vtmVideo.isPlaying()) {
-            vtmVideo.pause();
-        }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        vtmVideo.pause();
     }
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         unregisterReceiver(usbBroadcastReceiver);
         NetUtil.getInstance().stop();
         PnServerController.stopXMPP();
         APP.exit();
-        super.onDestroy();
     }
 
     //下载更新的监听，外部静态调用
@@ -465,8 +423,8 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     }
 
     public String getCurrPlayVideo() {
-        if (playList != null && playList.length > 0) {
-            return playList[videoIndex];
+        if (playLists != null && playLists.size() > 0) {
+            return playLists.get(videoIndex);
         }
         return "null";
     }

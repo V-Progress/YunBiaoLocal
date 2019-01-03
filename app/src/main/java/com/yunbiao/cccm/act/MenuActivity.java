@@ -9,7 +9,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
@@ -19,7 +18,6 @@ import com.yunbiao.cccm.act.base.BaseActivity;
 import com.yunbiao.cccm.act.weichat.WeichatActivity;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
-import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.TimerUtil;
 
 import butterknife.BindView;
@@ -63,8 +61,8 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     TextView tvMenuSetting;
     @BindView(R.id.prl_root)
     PercentRelativeLayout prlRoot;
-    @BindView(R.id.cb_select_res_menu)
-    CheckBox cbSelect;
+    @BindView(R.id.btn_select_res_menu)
+    Button btnSelect;
 
     private SoundPool soundPool;//用来管理和播放音频文件
     private int music;
@@ -99,23 +97,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
 
         tvShowOnscreenTime.setText(String.valueOf(Const.SYSTEM_CONFIG.MENU_STAY_DURATION));
 
-        cbSelect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                LogUtil.E("当前选择状态是：" + isChecked);
-                checkData(isChecked);
-            }
-        });
-
         setConnInfo();
-    }
-
-    private void checkData(boolean isChecked){
-        int normalColor = getResources().getColor(R.color.menu_bottom_num);
-        int checkedColor = getResources().getColor(android.R.color.white);
-        cbSelect.setTextColor(isChecked ? checkedColor : normalColor);
-        cbSelect.setText(isChecked ? "点击切换到网络资源" : "点击切换到本地资源");
-        MainController.getInstance().initPlayData(!isChecked);
     }
 
     @Override
@@ -151,7 +133,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         }
     };
 
-    @OnClick({R.id.btn_menu_start, R.id.btn_menu_playlist, R.id.btn_menu_setting})
+    @OnClick({R.id.btn_select_res_menu,R.id.btn_menu_start, R.id.btn_menu_playlist, R.id.btn_menu_setting})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_menu_start:
@@ -167,11 +149,11 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
             case R.id.btn_menu_setting:
                 startActivity(new Intent(this, WeichatActivity.class));
                 break;
+            case R.id.btn_select_res_menu:
+                MainController.getInstance().initPlayData(false);
+                break;
         }
     }
-
-    boolean isLocal = false;
-
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {

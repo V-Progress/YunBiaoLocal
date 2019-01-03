@@ -6,7 +6,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.yunbiao.cccm.InsertManager;
-import com.yunbiao.cccm.act.MainController;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.devicectrl.ScreenShot;
@@ -51,20 +50,11 @@ public class XmppMessageProcessor {
     private static final int SHOW_DISK_IFNO = 8;// 获取磁盘容量
     private static final int POWER_RELOAD = 9;// 设备 开机 重启
     private static final int PUSH_TO_UPDATE = 10;//软件升级
-    private final static int HARDWARE_UPDATE = 11;//通知设备硬件更新,上传设备信息
-    private final static int HARDWARESCREENROTATE_UPDATE = 12;//屏幕旋转
+
     private final static int SET_CLEAR_LAYOUT = 13;//一键删除布局
     private final static int PUSH_MESSAGE = 14;//推送广告消息，快发字幕
-    private final static int REFERSH_RENEWAL_STATUS = 15;//欠费停机设备支付
     private final static int CHANNEL_TYPE = 16;//输入源选择
-    private final static int PUSH_IMAGE = 17;//手机端快发图片
-    private final static int FACE_DETECT = 18;//开通人脸识别
-    private final static int EARTH_CINEMA = 19;//大地影院
-    private final static int UNICOM_SCREEN = 20;//联屏
-    private final static int IMAGE_PUSH = 21;//推送的图片
     private final static int VIDEO_PUSH = 22;//推送的视频
-    private final static int ADSINFO_PUSH = 23;//推送的自运营广告
-    private final static int SHARESTATUS_UPDATE = 24;//是否是广告机状态更改
 
     /**
      * 消息分发
@@ -89,7 +79,8 @@ public class XmppMessageProcessor {
                 //是否有密码
                 LogUtil.E(TAG, "*****" + loginModel.getPassword());
                 break;
-            case CONTENT_TYPE:
+            case CONTENT_TYPE://布局更新
+            case SET_CLEAR_LAYOUT://清除布局
                 ResourceManager.getInstance().initResData();
                 break;
             case RUNSET_TYPE://设备自动开关机
@@ -99,7 +90,6 @@ public class XmppMessageProcessor {
                         PowerOffTool.getInstance().getPowerOffTime(HeartBeatClient.getDeviceNo());
                     }
                 });
-
                 break;
             case SHOW_SERNUM:// 显示设备编号
                 SerNumBean serNumBean = new Gson().fromJson(content, SerNumBean.class);
@@ -193,7 +183,7 @@ public class XmppMessageProcessor {
                     public void run() {
                         InsertVideoModel insertVideoModel = new Gson().fromJson(content, InsertVideoModel.class);
                         try {
-                            InsertManager.getInstance(APP.getMainActivity()).insertVideo(insertVideoModel);
+                            InsertManager.getInstance(APP.getMainActivity()).insertPlay(insertVideoModel);
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }

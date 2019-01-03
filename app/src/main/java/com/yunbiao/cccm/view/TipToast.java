@@ -10,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.yunbiao.cccm.R;
+import com.yunbiao.cccm.utils.ThreadUtil;
 
 /**
  * Created by Administrator on 2018/12/4.
@@ -112,12 +113,22 @@ public class TipToast extends Toast {
         toast.show();
     }
 
-    public static void showShortToast(Context context,CharSequence text){
-        showToast(context,text,Toast.LENGTH_SHORT);
+    public static void showShortToast(final Context context, final CharSequence text){
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                showToast(context,text,Toast.LENGTH_SHORT);
+            }
+        });
     }
 
-    public static void showLongToast(Context context,CharSequence text){
-        showToast(context,text,Toast.LENGTH_LONG);
+    public static void showLongToast(final Context context, final CharSequence text){
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                showToast(context,text,Toast.LENGTH_LONG);
+            }
+        });
     }
 
 }
