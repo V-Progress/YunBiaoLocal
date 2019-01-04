@@ -95,23 +95,28 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     }
 
     protected void initData() {
-        //初始化播放器
-        initPlayer();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //初始化播放器
+                initPlayer();
 
-        //初始化播放数据
-//        initPlayData(true);// TODO: 2018/12/30 初始化本地数据
+                //初始化播放数据
+                //initPlayData(true);// TODO: 2018/12/30 初始化本地数据
 
-        //连接XMPP
-        PnServerController.startXMPP(this);
+                //连接XMPP
+                PnServerController.startXMPP(MainActivity.this);
 
-        //初始化自动开关机数据
-        PowerOffTool.getInstance().initPowerData();
+                //初始化自动开关机数据
+                PowerOffTool.getInstance().initPowerData();
 
-        //初始化数据下载
-        ResourceManager.getInstance().initResData();
+                //初始化数据下载
+                ResourceManager.getInstance().initResData();
 
-        //初始化广告插播，如果有未播完的广告则自动播放
-        ResourceManager.getInstance().initInsertData();
+                //初始化广告插播，如果有未播完的广告则自动播放
+                ResourceManager.getInstance().initInsertData();
+            }
+        }, 3000);
     }
 
     //-------播放器控制----------------------------------------------------------------
@@ -133,9 +138,9 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     @Override
     public void initPlayData(boolean isRemote) {
         VideoDataResolver videoDataResolve = new VideoDataResolver();
-        if(isRemote){
+        if (isRemote) {
             videoDataResolve.resolvePlayLists();
-        }else{
+        } else {
             videoDataResolve.resolveLocalResource();
         }
 
@@ -147,7 +152,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     //常规资源播放
     @Override
     public void startPlay(List<String> videoList) {
-        if(isInsertPlaying){
+        if (isInsertPlaying) {
             LogUtil.E("广告正在播放，不执行startPlay");
             return;
         }
@@ -157,7 +162,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     //常规资源停止
     @Override
     public void stopPlay() {
-        if(isInsertPlaying){
+        if (isInsertPlaying) {
             LogUtil.E("广告正在播放，不执行stopPlay");
             return;
         }
@@ -166,22 +171,22 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
 
     //插播资源播放
     @Override
-    public void startInsert(final boolean isCycle, final List<String> videoList){
+    public void startInsert(final boolean isCycle, final List<String> videoList) {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 MainActivity.this.isInsertPlaying = true;
                 MainActivity.this.isCycle = isCycle;
-                LogUtil.E("开始播放插播："+ videoList.toString());
-                LogUtil.E("是否轮播："+MainActivity.this.isCycle);
+                LogUtil.E("开始播放插播：" + videoList.toString());
+                LogUtil.E("是否轮播：" + MainActivity.this.isCycle);
                 play(videoList);
             }
-        },2000);
+        }, 2000);
     }
 
     //插播资源停止
     @Override
-    public void stopInsert(){
+    public void stopInsert() {
         isCycle = true;
         isInsertPlaying = false;
         LogUtil.E("停止播放插播");
@@ -241,7 +246,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     }
 
     //-----常规方法----------------------------------------------------------------
-    private void stop(){
+    private void stop() {
         if (vtmVideo == null) {
             return;
         }
@@ -250,12 +255,12 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         state.setVisibility(View.VISIBLE);
     }
 
-    private void play(final List<String> videoList){
+    private void play(final List<String> videoList) {
         videoIndex = 0;
         playLists = videoList;
 
         state.setVisibility(View.INVISIBLE);
-        if(vtmVideo.isPlaying()){
+        if (vtmVideo.isPlaying()) {
             vtmVideo.stopPlayback();
         }
 
@@ -312,7 +317,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             if (videoIndex == playLists.size()) {
                 videoIndex = 0;
                 LogUtil.E("是否轮播");
-                if(!isCycle){
+                if (!isCycle) {
                     LogUtil.E("不轮播");
                     stopInsert();
                     return;
@@ -415,7 +420,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         }
     };
 
-    public boolean isVideoPlaying(){
+    public boolean isVideoPlaying() {
         return vtmVideo != null && vtmVideo.isPlaying();
     }
 
