@@ -248,15 +248,21 @@ public class VideoDataResolver {
                                 final List<String> videoList = new ArrayList<String>();
 
                                 for (int k = 0; k < res.length; k++) {
-                                    File video = new File(file, "resource/" + res[k]);
+
+                                    String videoStr = res[k];
+                                    //分割名称
+                                    String[] pathStr = videoStr.split("/");
+                                    String videoName = pathStr[pathStr.length - 1].trim().replace("\n", "");
+
+                                    File video = new File(file, "resource/" + videoStr);
                                     String index = k + 1 > 9 ? k + 1 + " " : k + 1 + "  ";
                                     if (!video.exists()) {
-                                        playList.add(index + res[k] + "(无)");
+                                        playList.add(index + videoStr + "(无)");
                                         continue;
                                     }
-                                    playList.add(index + res[k]);
+                                    playList.add(index + videoStr);
 
-                                    previewMap.put(DateUtil.yyyyMMdd_Format(new Date()) + res[k], video.getPath());
+                                    previewMap.put(/*DateUtil.yyyyMMdd_Format(new Date()) + res[k]*/videoName, video.getPath());
 //                                    if (videoPath.length() > 0)
 //                                        videoPath.append(",");
 //                                    videoPath.append(video.getPath());

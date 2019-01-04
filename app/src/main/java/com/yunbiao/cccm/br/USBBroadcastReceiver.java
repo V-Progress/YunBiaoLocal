@@ -78,6 +78,7 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
             public void run() {
                 MainController.getInstance().updateConsole("复制完成\n加载视频...");
                 MainController.getInstance().initPlayer();
+                MainController.getInstance().initPlayData(false);
             }
         });
     }

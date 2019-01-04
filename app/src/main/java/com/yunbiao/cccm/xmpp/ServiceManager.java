@@ -74,7 +74,7 @@ public final class ServiceManager {
                 xmppHost = ipAdress;
             }
         }else{
-            xmppHost = Const.DOMAIN;
+            xmppHost = Const.HOSTS;
         }
 
         xmppPort = Const.SERVER_PORT;

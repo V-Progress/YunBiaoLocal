@@ -352,7 +352,8 @@
                 app:layout_widthPercent="85%">
 
                 <Button
-                    android:id="@+id/btn_menu_setting"
+                    android:enabled="false"
+                    android:id="@+id/btn_menu_wechat"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/menu_pur_btn" />

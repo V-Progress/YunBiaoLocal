@@ -16,11 +16,11 @@ public class Const {
     private static final String SLASH = "/";//斜杠
     private static final String SUFFIX = "cccm/";//斜杠
 
-    public static final String DOMAIN = BuildConfig.DOMAIN;//基础IP地址
+    public static final String HOSTS = BuildConfig.HOSTS;//基础IP地址
 
-    public static final String BASE_URL = PREFIX + DOMAIN+":8080" + SLASH + SUFFIX;//URL地址
+//    public static final String BASE_URL = PREFIX + HOSTS + ":8080" + SLASH + SUFFIX;//URL地址
+    public static final String BASE_URL = PREFIX + HOSTS + SLASH;//URL地址
 
-//    public static final String BASE_URL = "http://192.168.1.101:8080/cccm/";//URL地址
     public static final String SERVER_PORT = BuildConfig.PORT;//端口号
 
     public static final int NET_TIME_OUT = 5;//网络超时时间，单位：分钟

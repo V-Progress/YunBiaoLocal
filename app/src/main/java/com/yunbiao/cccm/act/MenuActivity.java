@@ -1,21 +1,20 @@
 package com.yunbiao.cccm.act;
 
-import android.content.Intent;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.act.base.BaseActivity;
-import com.yunbiao.cccm.act.weichat.WeichatActivity;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
 import com.yunbiao.cccm.utils.TimerUtil;
@@ -51,8 +50,8 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     TextView tvMenuOfflineHints3;
     @BindView(R.id.tv_menu_offline)
     TextView tvMenuOffline;
-    @BindView(R.id.btn_menu_setting)
-    Button btnMenuSetting;
+    @BindView(R.id.btn_menu_wechat)
+    Button btnMenuWechat;
     @BindView(R.id.tv_menu_setting_hints)
     TextView tvMenuSettingHints;
     @BindView(R.id.tv_menu_setting_hints_2)
@@ -83,20 +82,40 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     protected void initView() {
         btnMenuStart.setOnFocusChangeListener(this);
         btnMenuOffline.setOnFocusChangeListener(this);
-        btnMenuSetting.setOnFocusChangeListener(this);
+        btnMenuWechat.setOnFocusChangeListener(this);
 
         tvMenuStartHints.setText(R.string.play);
         tvMenuStartHints2.setText(R.string.auto_play);
-        tvMenuOfflineHints.setText("本地资源");
         tvMenuOfflineHints2.setText(R.string.use_usb_play);
-        tvMenuOfflineHints2.setText("查看本地已保存的节目");
-        tvMenuSettingHints.setText("微信消息查看");
-        tvMenuSettingHints2.setText("微信上墙消息查看");
-        tvMenuOfflineHints3.setText("节目列表");
         tvMenuInfoPrompt.setText(R.string.hint_click_play);
 
-        tvShowOnscreenTime.setText(String.valueOf(Const.SYSTEM_CONFIG.MENU_STAY_DURATION));
+        tvMenuOfflineHints3.setText("节目列表");
+        tvMenuOfflineHints.setText("本地资源");
+        tvMenuOfflineHints2.setText("查看本地已保存的节目");
 
+//        tvMenuSettingHints.setText("微信消息查看");
+//        tvMenuSettingHints2.setText("微信上墙消息查看");
+        tvMenuSettingHints2.setText("即将开放");
+
+        tvShowOnscreenTime.setText(String.valueOf(Const.SYSTEM_CONFIG.MENU_STAY_DURATION));
+        btnSelect.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        int white = getResources().getColor(android.R.color.white);
+                        btnSelect.setTextColor(white);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        int yellow = getResources().getColor(R.color.menu_bottom_num);
+                        btnSelect.setTextColor(yellow);
+                        break;
+                }
+
+                return false;
+            }
+        });
         setConnInfo();
     }
 
@@ -133,7 +152,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         }
     };
 
-    @OnClick({R.id.btn_select_res_menu,R.id.btn_menu_start, R.id.btn_menu_playlist, R.id.btn_menu_setting})
+    @OnClick({R.id.btn_select_res_menu,R.id.btn_menu_start, R.id.btn_menu_playlist, R.id.btn_menu_wechat})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_menu_start:
@@ -146,8 +165,9 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                 fragmentTransaction.setCustomAnimations(R.anim.dialog_top_enter, R.anim.dialog_top_exit);
                 fragmentTransaction.add(R.id.prl_root, playListFragment).commit();
                 break;
-            case R.id.btn_menu_setting:
-                startActivity(new Intent(this, WeichatActivity.class));
+            case R.id.btn_menu_wechat:
+//                startActivity(new Intent(this, WeichatActivity.class));
+                Toast.makeText(this, "即将开放！", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.btn_select_res_menu:
                 MainController.getInstance().initPlayData(false);
