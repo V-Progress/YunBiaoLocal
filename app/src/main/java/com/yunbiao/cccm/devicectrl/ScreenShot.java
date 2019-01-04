@@ -81,13 +81,6 @@ public class ScreenShot {
                     LogUtil.E("旧的截屏删除:" + delete);
                 }
 
-                //当前是否有Dialog在显示
-                if(DialogUtil.isShowing()){
-                    Bitmap bitmap = DialogUtil.screenShot();
-                    writeToSd(filePath,bitmap);
-                    return;
-                }
-
                 //如果MainActivity不在前台就截Menu的图
                 if(!APP.getMainActivity().isForeground()){
                     screenShotNormal(filePath, APP.getMenuActivity());

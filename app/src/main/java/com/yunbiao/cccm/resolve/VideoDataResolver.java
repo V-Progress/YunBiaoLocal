@@ -1,19 +1,18 @@
 package com.yunbiao.cccm.resolve;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.yunbiao.cccm.APP;
+import com.yunbiao.cccm.act.MenuActivity;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.act.MainController;
 import com.yunbiao.cccm.utils.DateUtil;
+import com.yunbiao.cccm.utils.DialogUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.view.TipToast;
-
-import org.chromium.ui.widget.Toast;
 
 import java.io.File;
 import java.text.ParseException;
@@ -81,7 +80,6 @@ public class VideoDataResolver {
                             String[] times = rule.getDate().trim().split("-");
                             playList.add(playDate + "\t\t\t" + times[0] + "-" + times[1]);
 
-//                            final StringBuilder videoPath = new StringBuilder();
                             final List<String> videoList = new ArrayList<String>();
                             //分割单条
                             String[] ress = rule.getRes().split(",");
@@ -98,12 +96,8 @@ public class VideoDataResolver {
                                         continue;
                                     }
                                     playList.add(index + videoName);
-                                    // TODO: 2018/12/26 暂时只用文件名做主键
                                     previewMap.put(/*DateUtil.yyyyMMdd_Format(new Date()) + */videoName, video.getPath());
-//                                    if (videoPath.length() > 0) {
-//                                        videoPath.append(",");
-//                                    }
-//                                    videoPath.append(video.getPath());
+
                                     videoList.add(video.getPath());
                                 }
                             }
@@ -114,11 +108,7 @@ public class VideoDataResolver {
                             }
 
                             //没有可播的放视频时，不添加定时任务
-//                            if (videoPath.length() == 0) {
-//                                continue;
-//                            }
-
-                            if(videoList.size()<=0){
+                            if (videoList.size() <= 0) {
                                 continue;
                             }
 
@@ -175,9 +165,23 @@ public class VideoDataResolver {
 
     }
 
+    private void showProgress(){
+        MenuActivity menuActivity = APP.getMenuActivity();
+        if(menuActivity!=null && menuActivity.isForeground()){
+            DialogUtil.getInstance().showProgressDialog(menuActivity, "读取本地资源", "读取中...");
+        }
+    }
+
+    private void dissmissProgress(String msg){
+        MenuActivity menuActivity = APP.getMenuActivity();
+        if(menuActivity!=null && menuActivity.isForeground()){
+            DialogUtil.getInstance().dissmissProgress(APP.getMainActivity(), msg);
+        }
+    }
+
     // TODO: 2018/12/28 解析本地资源
     public void resolveLocalResource() {
-        Log.d("log", "播放设置");
+        showProgress();
         ThreadUtil.getInstance().runInCommonThread(new Runnable() {
             @Override
             public void run() {
@@ -185,16 +189,14 @@ public class VideoDataResolver {
 
                 //目录是否存在或可读
                 if (!yunbiao.exists() || !yunbiao.canRead()) {
-                    TipToast.showShortToast(APP.getContext(),yunbiao.getName() + "目录不存在或拒绝读取");
-                    LogUtil.E(yunbiao.getName() + "目录不存在或拒绝读取");
+                    dissmissProgress(yunbiao.getName() + "目录不存在或拒绝读取");
                     return;
                 }
 
                 //筛选yunbiao目录下所有20xx-20xx类的目录
                 File[] files = yunbiao.listFiles(new VideoDirectoryFilter());
                 if (files == null || files.length == 0) {
-                    TipToast.showShortToast(APP.getContext(),yunbiao.getName() + "目录没有资源");
-                    LogUtil.E(yunbiao.getName() + "目录没有资源");
+                    dissmissProgress(yunbiao.getName() + "目录没有资源");
                     return;
                 }
 
@@ -228,10 +230,11 @@ public class VideoDataResolver {
                 String[] timerString = null;
 
                 //解析播放列表
-                for (File file : files) {
-                    VideoDataModel videoDataModel = new XMLParse().parseVideoModel(file);
-                    List<VideoDataModel.Play> playlist = videoDataModel.getPlaylist();
-                    try {
+                try {
+                    for (File file : files) {
+                        VideoDataModel videoDataModel = new XMLParse().parseVideoModel(file);
+                        List<VideoDataModel.Play> playlist = videoDataModel.getPlaylist();
+
                         for (VideoDataModel.Play play : playlist) {
                             String playDay = play.getPlayday().trim();
                             List<VideoDataModel.Play.Rule> rules = play.getRules();
@@ -244,7 +247,7 @@ public class VideoDataResolver {
                                 playList.add(playDate + "\t\t\t" + times[0] + "-" + times[1]);
 
                                 String[] res = rule.getRes().trim().replace("，", ",").replaceAll("\\s*,\\s*", ",").split(",");
-//                                final StringBuilder videoPath = new StringBuilder();
+
                                 final List<String> videoList = new ArrayList<String>();
 
                                 for (int k = 0; k < res.length; k++) {
@@ -263,9 +266,7 @@ public class VideoDataResolver {
                                     playList.add(index + videoStr);
 
                                     previewMap.put(/*DateUtil.yyyyMMdd_Format(new Date()) + res[k]*/videoName, video.getPath());
-//                                    if (videoPath.length() > 0)
-//                                        videoPath.append(",");
-//                                    videoPath.append(video.getPath());
+
                                     videoList.add(video.getPath());
                                 }
 
@@ -275,9 +276,6 @@ public class VideoDataResolver {
                                 }
 
                                 //没有可播的放视频时，不添加定时任务
-//                                if (videoPath.length() == 0) {
-//                                    continue;
-//                                }
                                 if (videoList.size() == 0) {
                                     continue;
                                 }
@@ -313,7 +311,6 @@ public class VideoDataResolver {
                                 endTimer.schedule(new TimerTask() {
                                     @Override
                                     public void run() {
-                                        Log.d("log", "停止播放");
                                         ThreadUtil.getInstance().runInUIThread(new Runnable() {
                                             @Override
                                             public void run() {
@@ -329,19 +326,19 @@ public class VideoDataResolver {
                             }
                         }
 
-                    } catch (ParseException e) {
-                        e.printStackTrace();
+                        /*if (timerString != null && !TextUtils.isEmpty(timerString[0]) && !TextUtils.isEmpty(timerString[1])) {
+                            timer = "开机时间：" + timerString[0] + "\n关机时间：" + timerString[1];
+                        }
+                        //定时开关机
+                        if (timerString != null) {
+                            PowerOffTool.setPowerRunTime(timerString[0], timerString[1]);
+                        }*/
                     }
-
-
-                    /*if (timerString != null && !TextUtils.isEmpty(timerString[0]) && !TextUtils.isEmpty(timerString[1])) {
-                        timer = "开机时间：" + timerString[0] + "\n关机时间：" + timerString[1];
-                    }
-                    //定时开关机
-                    if (timerString != null) {
-                        PowerOffTool.setPowerRunTime(timerString[0], timerString[1]);
-                    }*/
+                    dissmissProgress("读取完毕，共有："+playList.size()+"条数据");
+                } catch (ParseException e) {
+                    e.printStackTrace();
                 }
+
             }
         });
     }
