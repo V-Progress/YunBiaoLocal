@@ -40,7 +40,7 @@ public class DialogUtil {
             @Override
             public void run() {
                 if((activity != null) && (!TextUtils.isEmpty(msg))){
-                    Toast.makeText(activity,msg,Toast.LENGTH_LONG).show();
+                    ToastUtil.showShort(activity,msg);
                 }
                 if(progressDialog != null){
                     progressDialog.dismiss();

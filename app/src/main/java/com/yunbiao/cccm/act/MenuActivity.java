@@ -10,7 +10,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
@@ -18,6 +17,7 @@ import com.yunbiao.cccm.act.base.BaseActivity;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
 import com.yunbiao.cccm.utils.TimerUtil;
+import com.yunbiao.cccm.utils.ToastUtil;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -152,27 +152,52 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         }
     };
 
-    @OnClick({R.id.btn_select_res_menu,R.id.btn_menu_start, R.id.btn_menu_playlist, R.id.btn_menu_wechat})
+    @OnClick({R.id.btn_select_res_menu, R.id.btn_menu_start, R.id.btn_menu_playlist, R.id.btn_menu_wechat})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_menu_start:
-                finish();
+                if (isFastClick()) {
+                    ToastUtil.showShort(this,"请不要重复点击");
+                } else {
+                    finish();
+                }
                 break;
             case R.id.btn_menu_playlist:
-                onPause();
-                playListFragment = new PlayListFragment();
-                FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-                fragmentTransaction.setCustomAnimations(R.anim.dialog_top_enter, R.anim.dialog_top_exit);
-                fragmentTransaction.add(R.id.prl_root, playListFragment).commit();
+                if (isFastClick()) {
+                    ToastUtil.showShort(this,"请不要重复点击");
+                } else {
+                    onPause();
+                    playListFragment = new PlayListFragment();
+                    FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+                    fragmentTransaction.setCustomAnimations(R.anim.dialog_top_enter, R.anim.dialog_top_exit);
+                    fragmentTransaction.add(R.id.prl_root, playListFragment).commit();
+                }
                 break;
             case R.id.btn_menu_wechat:
 //                startActivity(new Intent(this, WeichatActivity.class));
-                Toast.makeText(this, "即将开放！", Toast.LENGTH_SHORT).show();
+                ToastUtil.showShort(this,"即将开放");
                 break;
             case R.id.btn_select_res_menu:
-                MainController.getInstance().initPlayData(false);
+                if (isFastClick()) {
+                    ToastUtil.showShort(this,"请不要重复点击");
+                } else {
+                    MainController.getInstance().initPlayData(false);
+                }
                 break;
         }
+    }
+
+    private static final int MIN_DELAY_TIME = 3000;  // 两次点击间隔不能少于1000ms
+    private static long lastClickTime;
+
+    public static boolean isFastClick() {
+        boolean flag = true;
+        long currentClickTime = System.currentTimeMillis();
+        if ((currentClickTime - lastClickTime) >= MIN_DELAY_TIME) {
+            flag = false;
+        }
+        lastClickTime = currentClickTime;
+        return flag;
     }
 
     @Override
