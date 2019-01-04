@@ -7,7 +7,6 @@
 
     <!--头布局-->
     <android.support.percent.PercentRelativeLayout
-        android:id="@+id/ll_menu_above"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_heightPercent="10%">
@@ -41,7 +40,6 @@
         <TextClock
             android:format24Hour="yyyy-MM-dd"
             android:format12Hour="yyyy-MM-dd"
-            android:id="@+id/tv_menu_info_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
@@ -54,7 +52,6 @@
 
     <!--尾部局-->
     <android.support.percent.PercentRelativeLayout
-        android:id="@+id/ll_menu_bottom"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_alignParentBottom="true"
@@ -273,7 +270,6 @@
 
                 <!--2.1-->
                 <android.support.percent.PercentRelativeLayout
-                    android:id="@+id/perRe_position_02_1"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     app:layout_heightPercent="100%"
@@ -394,14 +390,12 @@
                     app:layout_widthPercent="90%">
 
                     <TextView
-                        android:id="@+id/tv_menu_ip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="#fff"
                         android:textSize="@dimen/menu1080_tv_25_dp" />
 
                     <ImageView
-                        android:id="@+id/iv_menu_is_network"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
                         android:layout_alignParentEnd="true"

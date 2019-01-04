@@ -88,7 +88,7 @@ public class ScreenShot {
                 }
 
                 //如果没有视频在播放就普通截图
-                if(!APP.getMainActivity().vtmVideo.isPlaying()){
+                if(!APP.getMainActivity().isVideoPlaying()){
                     screenShotNormal(filePath, APP.getMainActivity());
                     return;
                 }

@@ -252,6 +252,16 @@ public class InsertManager {
             }
 
             @Override
+            public void onStart(int currNum) {
+                LogUtil.E("开始下载");
+            }
+
+            @Override
+            public void onProgress(int progress) {
+                LogUtil.E("进度："+progress);
+            }
+
+            @Override
             public void onFinish() {
                 handleVideo(isCycle,playList, dateArray[0], dateArray[1]);
             }

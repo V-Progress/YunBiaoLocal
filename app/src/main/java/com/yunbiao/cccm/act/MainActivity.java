@@ -39,7 +39,7 @@ import io.vov.vitamio.widget.MediaController;
 
 public class MainActivity extends BaseActivity implements MainRefreshListener {
     @BindView(R.id.vtm_video)
-    public MainVideoView vtmVideo;
+    MainVideoView vtmVideo;
     @BindView(R.id.permission)
     TextView permission;
     @BindView(R.id.state)
@@ -120,7 +120,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         MediaController mediaController = new MediaController(this);
         mediaController.setInstantSeeking(false);
         vtmVideo.setMediaController(mediaController);
-        vtmVideo.setVideoQuality(MediaPlayer.VIDEOQUALITY_HIGH);//播放画质
+        vtmVideo.setVideoQuality(MediaPlayer.VIDEOQUALITY_MEDIUM);//播放画质
         vtmVideo.setOnPreparedListener(preparedListener);//准备完毕监听
         vtmVideo.setOnErrorListener(errorListener);//播放错误监听
         vtmVideo.setOnInfoListener(infoListener);//播放信息监听
@@ -414,6 +414,10 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
 
         }
     };
+
+    public boolean isVideoPlaying(){
+        return vtmVideo != null && vtmVideo.isPlaying();
+    }
 
     public Long getVideoCurrTime() {
         if (vtmVideo != null && vtmVideo.isPlaying()) {

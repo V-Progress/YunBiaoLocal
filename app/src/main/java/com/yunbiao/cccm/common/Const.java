@@ -18,8 +18,8 @@ public class Const {
 
     public static final String HOSTS = BuildConfig.HOSTS;//基础IP地址
 
-//    public static final String BASE_URL = PREFIX + HOSTS + ":8080" + SLASH + SUFFIX;//URL地址
-    public static final String BASE_URL = PREFIX + HOSTS + SLASH;//URL地址
+    public static final String BASE_URL = PREFIX + HOSTS + ":8080" + SLASH + SUFFIX;//URL地址
+//    public static final String BASE_URL = PREFIX + HOSTS + SLASH;//URL地址
 
     public static final String SERVER_PORT = BuildConfig.PORT;//端口号
 
