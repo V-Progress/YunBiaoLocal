@@ -237,6 +237,7 @@ public class SystemInfoUtil {
         NetUtil.getInstance().post(ResourceConst.REMOTE_RES.VERSION_URL, paramMap, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
+                LogUtil.E("检查更新ERROR: " + e.getMessage());
                 downloadUpdateListener.onError(e);
             }
 
@@ -245,6 +246,7 @@ public class SystemInfoUtil {
                 if (response.startsWith("\"")) {
                     response = response.substring(1, response.length() - 1);
                 }
+                LogUtil.E("检查更新RESPONSE: " + response);
                 judgeIsUpdate(response,downloadUpdateListener);
             }
         });

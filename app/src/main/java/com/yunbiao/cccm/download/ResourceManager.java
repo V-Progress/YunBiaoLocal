@@ -212,16 +212,13 @@ public class ResourceManager {
 
             @Override
             public void onStart(int currNum) {
-                MainController.getInstance().updateConsole("开始下载第" + currNum + 1 + "个文件");
+                MainController.getInstance().updateConsole("开始下载第" + (currNum + 1) + "个文件");
             }
 
             @Override
             public void onSuccess(int currFileNum) {
-                MainController.getInstance().updateProgress(currFileNum + 1);
+                MainController.getInstance().updateProgress((currFileNum + 1));
                 MainController.getInstance().updateConsole("下载完成");
-                if (isInit) {
-                    MainController.getInstance().initPlayData(true);
-                }
             }
 
             @Override
@@ -249,45 +246,6 @@ public class ResourceManager {
             }
         });
 
-    }
-
-    /***
-     * 初始化插播数据
-     */
-    public void initInsertData() {
-        ThreadUtil.getInstance().runInRemoteThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    String url = ResourceConst.REMOTE_RES.INSERT_CONTENT;
-                    Map<String, String> params = new HashMap<>();
-                    params.put("deviceNo", HeartBeatClient.getDeviceNo());
-                    Response response = NetUtil.getInstance().postSync(url, params);
-                    if (response == null) {
-                        throw new Exception("GET response is NULL : " + url);
-                    }
-                    String jsonStr = response.body().string();
-                    if (TextUtils.isEmpty(jsonStr)) {
-                        throw new Exception("Json String is NULL : " + url);
-                    }
-                    LogUtil.E("请求结果：" + jsonStr);
-                    InsertVideoModel insertVideo = new Gson().fromJson(jsonStr, InsertVideoModel.class);
-                    if (insertVideo == null) {
-                        throw new Exception("Resolve ConfigResponse failed");
-                    }
-
-                    if (insertVideo.getResult() != 1) {
-                        throw new Exception(insertVideo.getMessage());
-                    }
-
-                    InsertManager.getInstance(APP.getMainActivity()).insertPlay(insertVideo);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
     }
 
     public static abstract class FileDownloadListener implements MultiFileDownloadListener {

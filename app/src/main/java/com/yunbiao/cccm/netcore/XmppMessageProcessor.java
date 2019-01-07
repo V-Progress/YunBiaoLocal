@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.yunbiao.cccm.InsertManager;
+import com.yunbiao.cccm.act.MainController;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.devicectrl.ScreenShot;
@@ -81,7 +82,8 @@ public class XmppMessageProcessor {
                 break;
             case CONTENT_TYPE://布局更新
             case SET_CLEAR_LAYOUT://清除布局
-                ResourceManager.getInstance().initResData();
+                MainController.getInstance().stopPlay();//停止播放，清空播放列表
+                ResourceManager.getInstance().initResData();//重新初始化布局内容
                 break;
             case RUNSET_TYPE://设备自动开关机
                 ThreadUtil.getInstance().runInCommonThread(new Runnable() {
@@ -162,6 +164,7 @@ public class XmppMessageProcessor {
 
                 break;
             case PUSH_TO_UPDATE://检查更新
+                LogUtil.E("检查更新");
                 SystemInfoUtil.checkUpdateInfo();
                 break;
             case VOICE_TYPE://声音修改

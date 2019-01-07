@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.yunbiao.cccm.APP;
+import com.yunbiao.cccm.InsertManager;
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.act.base.BaseActivity;
 import com.yunbiao.cccm.br.USBBroadcastReceiver;
@@ -23,6 +24,7 @@ import com.yunbiao.cccm.download.ResourceManager;
 import com.yunbiao.cccm.netcore.OnXmppConnListener;
 import com.yunbiao.cccm.netcore.PnServerController;
 import com.yunbiao.cccm.resolve.VideoDataResolver;
+import com.yunbiao.cccm.utils.DeleteResUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.utils.SystemInfoUtil;
@@ -48,8 +50,12 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     TextView console;
     @BindView(R.id.progress)
     ProgressBar progress;
-    @BindView(R.id.pb_video)
-    ProgressBar pbVideo;
+    @BindView(R.id.ll_loading_main)
+    LinearLayout llLoadingMain;
+    @BindView(R.id.pb_loading_main)
+    ProgressBar pbLoadingMain;
+    @BindView(R.id.tv_loading_main)
+    TextView tvLoadingMain;
     @BindView(R.id.ll_console)
     LinearLayout llConsole;
     @BindView(R.id.pb_update)
@@ -114,17 +120,24 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
                 ResourceManager.getInstance().initResData();
 
                 //初始化广告插播，如果有未播完的广告则自动播放
-                ResourceManager.getInstance().initInsertData();
+                InsertManager.getInstance(MainActivity.this).initInsertData();
             }
         }, 3000);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                DeleteResUtil.removeExpireFile();
+            }
+        },10000);
     }
 
     //-------播放器控制----------------------------------------------------------------
     @Override
     public void initPlayer() {
-        MediaController mediaController = new MediaController(this);
-        mediaController.setInstantSeeking(false);
-        vtmVideo.setMediaController(mediaController);
+//        MediaController mediaController = new MediaController(this);
+//        mediaController.setInstantSeeking(false);
+//        vtmVideo.setMediaController(mediaController);
         vtmVideo.setVideoQuality(MediaPlayer.VIDEOQUALITY_MEDIUM);//播放画质
         vtmVideo.setOnPreparedListener(preparedListener);//准备完毕监听
         vtmVideo.setOnErrorListener(errorListener);//播放错误监听
@@ -165,6 +178,9 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         if (isInsertPlaying) {
             LogUtil.E("广告正在播放，不执行stopPlay");
             return;
+        }
+        if(playLists != null){
+            playLists.clear();
         }
         stop();
     }
@@ -245,6 +261,18 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         progress.setProgress(pg);
     }
 
+    @Override
+    public void openLoading(String loadingMsg){
+        tvLoadingMain.setText(loadingMsg);
+        pbLoadingMain.setInterpolator(new AccelerateDecelerateInterpolator());
+        llLoadingMain.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void closeLoading(){
+        llLoadingMain.setVisibility(View.GONE);
+    }
+
     //-----常规方法----------------------------------------------------------------
     private void stop() {
         if (vtmVideo == null) {
@@ -301,10 +329,9 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         @Override
         public boolean onInfo(MediaPlayer mp, int what, int extra) {
             if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
-                pbVideo.setVisibility(View.VISIBLE);
-                pbVideo.setInterpolator(new AccelerateDecelerateInterpolator());
+                openLoading("正在缓冲");//打开加载
             } else {
-                pbVideo.setVisibility(View.INVISIBLE);
+                closeLoading();//关闭加载
             }
             return true;
         }

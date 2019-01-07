@@ -136,4 +136,22 @@ public class MainController {
         });
 
     }
+
+    public void openLoading(final String loadingMsg){
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                mRefListener.openLoading(loadingMsg);
+            }
+        });
+    }
+
+    public void closeLoading(){
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                mRefListener.closeLoading();
+            }
+        });
+    }
 }
