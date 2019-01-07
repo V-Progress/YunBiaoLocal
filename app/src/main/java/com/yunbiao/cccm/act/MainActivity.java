@@ -158,6 +158,10 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         }
 
         if (videoDataResolve.getPlayList() == null || videoDataResolve.getPlayList().isEmpty()) {
+            if(isInsertPlaying){
+                LogUtil.E("广告正在播放，不显示state");
+                return;
+            }
             state.setVisibility(View.VISIBLE);
         }
     }

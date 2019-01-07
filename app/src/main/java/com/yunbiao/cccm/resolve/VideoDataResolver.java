@@ -33,10 +33,7 @@ public class VideoDataResolver {
     private List<Timer> timerList;
 
     public List<String> getPlayList() {
-        if (playList != null && playList.size() > 0) {
-            return playList;
-        }
-        return new ArrayList<>();
+        return playList;
     }
 
     public void resolvePlayLists() {
