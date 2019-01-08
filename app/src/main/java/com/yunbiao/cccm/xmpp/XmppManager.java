@@ -291,8 +291,8 @@ public class XmppManager {
             if (!xmppManager.isConnected()) {
                 // Create the configuration for this new connection
                 ConnectionConfiguration connConfig = new ConnectionConfiguration(xmppHost, xmppPort);
-                // connConfig.setSecurityMode(SecurityMode.disabled);
-                connConfig.setSecurityMode(SecurityMode.required);
+                 connConfig.setSecurityMode(SecurityMode.disabled);
+//                connConfig.setSecurityMode(SecurityMode.required);//不支持SASL认证，因此安全模式设为禁用
                 connConfig.setSASLAuthenticationEnabled(false);
                 connConfig.setCompressionEnabled(false);
 

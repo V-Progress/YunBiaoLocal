@@ -67,7 +67,7 @@ public class HeartBeatClient {
         NetUtil.getInstance().post(ResourceConst.REMOTE_RES.SER_NUMBER, paramMap, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-                LogUtil.E("获取设备编号.-----"+e.getMessage());
+                LogUtil.E(TAG,"获取设备编号.-----"+e.getMessage());
             }
 
             @Override
@@ -172,7 +172,7 @@ public class HeartBeatClient {
                 }
                 if (macAddress != null && macAddress.equals("02:00:00:00:00:00")) {//6.0及以上系统获取的mac错误
                     macAddress = CommonUtils.getSixOSMac();
-                    Log.e("mac","6.0wifi mac:"+macAddress);
+                    LogUtil.D(TAG,"6.0wifi mac:"+macAddress);
                 }
                 if (!TextUtils.isEmpty(macAddress)){
                     break;
@@ -188,10 +188,10 @@ public class HeartBeatClient {
                 }
             },300);
         }
-        Log.e("mac","wifi mac:"+macAddress);
+        LogUtil.D(TAG,"wifi mac:"+macAddress);
         if (TextUtils.isEmpty(macAddress)) {
             macAddress = CommonUtils.getLocalMacAddress();
-            Log.e("mac","local mac:"+macAddress);
+            LogUtil.D(TAG,"local mac:"+macAddress);
         }
 
         String mac = macAddress.toUpperCase();
@@ -200,7 +200,7 @@ public class HeartBeatClient {
             macS += mac.charAt(i);
         }
         UUID uuid2 = new UUID(macS.hashCode(), mac.hashCode());
-        Log.e("mac","uuid2:"+uuid2.toString());
+        LogUtil.D(TAG,"uuid2:"+uuid2.toString());
         return uuid2.toString();
     }
 

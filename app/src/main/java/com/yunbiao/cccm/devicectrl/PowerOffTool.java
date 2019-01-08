@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 import okhttp3.Call;
+import okhttp3.Response;
 
 /**
  * Created by Administrator on 2018/12/24.
@@ -45,6 +46,7 @@ import okhttp3.Call;
 
 public class PowerOffTool {
 
+    private String TAG = getClass().getSimpleName();
 
     private static PowerOffTool powerOffTool = null;
 
@@ -92,19 +94,63 @@ public class PowerOffTool {
 //        }
     }
 
+    StringCallback stringCallback;
+
     /**
      * 获取开关机时间
      *
      * @param uid 设备id
      */
     public void getPowerOffTime(final String uid) {
-        Map<String, String> params = new HashMap<>();
-        params.put("uid", uid);
+        try {
+            Map<String, String> params = new HashMap<>();
+            params.put("uid", uid);
 
-        NetUtil.getInstance().post(ResourceConst.REMOTE_RES.POWER_OFF_URL, params, new StringCallback() {
+            Response response = NetUtil.getInstance().postSync(ResourceConst.REMOTE_RES.POWER_OFF_URL, params);
+
+            if (response == null) {
+                LogUtil.E("获取定时开关机失败");
+                return;
+            }
+
+            String responseStr = response.body().string().replaceAll("\\\\", "");
+            if (responseStr.startsWith("\"")) {
+                responseStr = responseStr.substring(1, responseStr.length() - 1);
+            }
+
+            String runDate = "", listStr = "";
+            if (!TextUtils.isEmpty(responseStr) && !response.equals("null")) {
+                List<PowerTimesBean> timesBeanList = new ArrayList<>();
+                JSONObject jsonObject = new JSONObject(responseStr);
+                runDate = jsonObject.getString("runDate");
+                JSONArray runTimes = jsonObject.getJSONArray("runTimes");
+                int length = runTimes.length();
+                for (int i = 0; i < length; i++) {
+                    JSONObject timesObject = (JSONObject) runTimes.get(i);
+                    String closeTime = timesObject.getString("closeTime");
+                    String openTime = timesObject.getString("openTime");
+
+                    PowerTimesBean timesBean = new PowerTimesBean();
+                    timesBean.setCloseTime(closeTime);
+                    timesBean.setOpenTime(openTime);
+                    timesBeanList.add(timesBean);
+                }
+                listStr = new Gson().toJson(timesBeanList);
+            }
+            CacheManager.SP.put(TIMESRUNDATE, runDate);
+            CacheManager.SP.put(TIMESBEANLIST, listStr);
+            selectPowerOnOff();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        /*stringCallback = new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
                 Log.e(TAG, "获取定时开关机失败: " + e.getMessage());
+
+                NetUtil.getInstance().post(ResourceConst.REMOTE_RES.POWER_OFF_URL, params, stringCallback);
             }
 
             @Override
@@ -146,10 +192,9 @@ public class PowerOffTool {
                     e.printStackTrace();
                 }
             }
-        });
+        };
+        NetUtil.getInstance().post(ResourceConst.REMOTE_RES.POWER_OFF_URL, params, stringCallback);*/
     }
-
-    private String TAG = "123";
 
     /**
      * 在开关机时间集合中 选择符合当前策略的时间段
@@ -158,8 +203,8 @@ public class PowerOffTool {
     private void selectPowerOnOff() {
         String powerDate = CacheManager.SP.get(TIMESRUNDATE, "");
         String powerTimes = CacheManager.SP.get(TIMESBEANLIST, "");
-        LogUtil.D("powerDate: " + powerDate);
-        LogUtil.D("powerTimes: " + powerTimes);
+        LogUtil.D(TAG,"powerDate: " + powerDate);
+        LogUtil.D(TAG,"powerTimes: " + powerTimes);
         if (!TextUtils.isEmpty(powerDate) && !TextUtils.isEmpty(powerTimes)) {
             try {
                 SimpleDateFormat df = new SimpleDateFormat("HH:mm");
@@ -201,8 +246,8 @@ public class PowerOffTool {
                 // 1,2,3,4,5,6,7;08:00
                 String powerOff = powerDate + ";" + powerClose;
                 String powerOn = powerDate + ";" + poserOpen;
-                LogUtil.D("powerOff: " + powerOff);
-                LogUtil.D("powerOn: " + powerOn);
+                LogUtil.D(TAG,"powerOff: " + powerOff);
+                LogUtil.D(TAG,"powerOn: " + powerOn);
                 putPowerParam(POWER_OFF, powerOff);
                 putPowerParam(POWER_ON, powerOn);
 
@@ -252,10 +297,10 @@ public class PowerOffTool {
                 onh = offset / 60;
             }
             OnOffTool.setEnabled(onh.byteValue(), onm.byteValue(), offh.byteValue(), offm.byteValue());
-            LogUtil.D("time::::", "onh:" + onh + "======onm:" + onm + "========offh:" + offh + "======offm:" + offm);
+            LogUtil.D(TAG,"time:::: onh:" + onh + "======onm:" + onm + "========offh:" + offh + "======offm:" + offm);
             executefailedPowerDown();
         } else {
-            LogUtil.E("time "+"没有找到开关机时间");
+            LogUtil.E(TAG,"time " + "没有找到开关机时间");
             OnOffTool.setDisabled();
         }
     }

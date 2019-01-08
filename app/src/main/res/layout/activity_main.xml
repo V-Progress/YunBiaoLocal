@@ -6,6 +6,7 @@
     tools:context=".act.MainActivity">
 
     <com.yunbiao.cccm.view.MainVideoView
+        android:layout_gravity="center"
         android:id="@+id/vtm_video"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

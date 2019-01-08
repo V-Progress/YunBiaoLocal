@@ -12,7 +12,7 @@ import com.yunbiao.cccm.cache.CacheManager;
  */
 
 public class BDLocationListener extends BDAbstractLocationListener {
-    private boolean isSended = false;
+    private String TAG = this.getClass().getSimpleName();
     private final static double defaultVal = 4.9E-324;
     @Override
     public void onReceiveLocation(BDLocation bdLocation) {
@@ -55,10 +55,10 @@ public class BDLocationListener extends BDAbstractLocationListener {
             CacheManager.SP.putAltitude(String.valueOf(altitude));
         }
 
-        LogUtil.D("纬度："+latitude);
-        LogUtil.D("经度："+longitude);
-        LogUtil.D("城市："+city);
-        LogUtil.D("地址："+address);
-        LogUtil.D("海拔："+altitude);
+        LogUtil.D(TAG,"纬度："+latitude);
+        LogUtil.D(TAG,"经度："+longitude);
+        LogUtil.D(TAG,"城市："+city);
+        LogUtil.D(TAG,"地址："+address);
+        LogUtil.D(TAG,"海拔："+altitude);
     }
 }

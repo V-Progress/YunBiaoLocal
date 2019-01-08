@@ -12,19 +12,20 @@ import java.util.Date;
  */
 
 public class DeleteResUtil {
+    private static String TAG = "DeleteResUtil";
     public static void removeExpireFile(){
-        LogUtil.E("检查过期文件");
+        LogUtil.D(TAG,"检查过期文件");
 
         File resDir = new File(ResourceConst.LOCAL_RES.RES_SAVE_PATH);//yunbiao目录下
-        LogUtil.E("当前目录：" + resDir);
+        LogUtil.D(TAG,"当前目录：" + resDir);
         if (!resDir.exists()) {
-            LogUtil.E("不存在！" + resDir);
+            LogUtil.D(TAG,"不存在！" + resDir);
             return;
         }
 
         try {
             File[] resFiles = resDir.listFiles();
-            LogUtil.E("共有：" + resFiles.length +" 个文件");
+            LogUtil.D(TAG,"共有：" + resFiles.length +" 个文件");
 
             //获取今天的日期
             String tDateStr = DateUtil.yyyyMMdd_Format(new Date());
@@ -41,7 +42,7 @@ public class DeleteResUtil {
                 long day = (tDate.getTime() - modiDate.getTime()) / (24 * 60 * 60 * 1000);
                 if (day >= 14) {
                     boolean delete = file.delete();
-                    LogUtil.E("删除结果："+ delete);
+                    LogUtil.D("删除结果："+ delete);
                 }
             }
         } catch (ParseException e) {
@@ -55,9 +56,9 @@ public class DeleteResUtil {
      */
     public static void removeExpireResource() {
         File rootDir = new File(ResourceConst.LOCAL_RES.APP_MAIN_DIR);//yunbiao目录下
-        LogUtil.E("当前目录：" + rootDir);
+        LogUtil.D(TAG,"当前目录：" + rootDir);
         if (!rootDir.exists()) {
-            LogUtil.E("不存在！" + rootDir);
+            LogUtil.D(TAG,"不存在！" + rootDir);
             return;
         }
 
@@ -76,11 +77,11 @@ public class DeleteResUtil {
                 File resDir = resDirs[i];
 
                 Date yDate = DateUtil.yyyyMMdd_Parse(resDir.getName());
-                LogUtil.E("之前日期：" + DateUtil.yyyyMMdd_Format(yDate));
+                LogUtil.D(TAG,"之前日期：" + DateUtil.yyyyMMdd_Format(yDate));
                 long day = (tDate.getTime() - yDate.getTime()) / (24 * 60 * 60 * 1000);
                 if (day >= 14) {
                     boolean delete = resDir.delete();
-                    LogUtil.E("删除结果："+delete);
+                    LogUtil.D(TAG,"删除结果："+delete);
                     deleteFile(resDir);
                 }
             }

@@ -44,6 +44,7 @@ import okhttp3.Response;
 public class InsertManager {
     private static InsertManager insertManager;
     private static Activity mActivity;
+    private String TAG = this.getClass().getSimpleName();
 
     private SimpleDateFormat yyyyMMddHH_mm_ss = new SimpleDateFormat("yyyyMMddHH:mm:ss");
     private SimpleDateFormat yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
@@ -78,22 +79,24 @@ public class InsertManager {
      * 初始化插播数据
      */
     public void initInsertData() {
+
         ThreadUtil.getInstance().runInRemoteThread(new Runnable() {
             @Override
             public void run() {
                 try {
+                    LogUtil.D(TAG,"开始请求插播资源");
                     String url = ResourceConst.REMOTE_RES.INSERT_CONTENT;
                     Map<String, String> params = new HashMap<>();
                     params.put("deviceNo", HeartBeatClient.getDeviceNo());
                     Response response = NetUtil.getInstance().postSync(url, params);
                     if (response == null) {
-                        throw new Exception("GET response is NULL : " + url);
+                        throw new Exception("request Insert Data Error");
                     }
                     String jsonStr = response.body().string();
                     if (TextUtils.isEmpty(jsonStr)) {
                         throw new Exception("Json String is NULL : " + url);
                     }
-                    LogUtil.E("请求结果：" + jsonStr);
+                    LogUtil.D(TAG,"插播资源：" + jsonStr);
                     InsertVideoModel insertVideo = new Gson().fromJson(jsonStr, InsertVideoModel.class);
                     if (insertVideo == null) {
                         throw new Exception("Resolve ConfigResponse failed");
@@ -104,10 +107,8 @@ public class InsertManager {
                     }
 
                     InsertManager.getInstance(APP.getMainActivity()).insertPlay(insertVideo);
-                } catch (IOException e) {
-                    e.printStackTrace();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LogUtil.E(TAG,"处理插播资源出现异常："+e.getMessage());
                 }
             }
         });
@@ -324,17 +325,17 @@ public class InsertManager {
 
             @Override
             public void onStart(int currNum) {
-                LogUtil.E("开始下载");
+                LogUtil.D(TAG,"开始下载");
             }
 
             @Override
             public void onProgress(int progress) {
-                LogUtil.E("进度：" + progress);
+                LogUtil.D(TAG,"进度：" + progress);
             }
 
             @Override
             public void onError(Exception e) {
-                LogUtil.E("下载出错：" + e.getMessage());
+                LogUtil.D(TAG,"下载出错：" + e.getMessage());
             }
 
             @Override
@@ -383,13 +384,13 @@ public class InsertManager {
         timeExecute(startTime, new TimerTask() {
             @Override
             public void run() {
-                LogUtil.E("切换到HDMI信号");
+                LogUtil.E(TAG,"切换到HDMI信号");
 //                checkHDMI(true);
             }
         }, endTime, new TimerTask() {
             @Override
             public void run() {
-                LogUtil.E("结束HDMI信号");
+                LogUtil.E(TAG,"结束HDMI信号");
 //                checkHDMI(true);
             }
         });
@@ -443,8 +444,8 @@ public class InsertManager {
         Date start = yyyyMMddHH_mm_ss.parse(currDateStr + startTime);
         Date end = yyyyMMddHH_mm_ss.parse(currDateStr + endTime);
 
-        LogUtil.E(currDateStr + startTime);
-        LogUtil.E(currDateStr + endTime);
+        LogUtil.D(TAG,currDateStr + startTime);
+        LogUtil.D(TAG,currDateStr + endTime);
 
         return new Date[]{start, end};
     }
@@ -518,7 +519,7 @@ public class InsertManager {
             Date startDate = yyyyMMdd.parse(split[0]);
             Date endDate = yyyyMMdd.parse(split[1]);
             if (!(today.getTime() >= startDate.getTime() && today.getTime() <= endDate.getTime())) {
-                LogUtil.E("不在插播字幕时间内");
+                LogUtil.D(TAG,"不在插播字幕时间内");
                 return null;
             }
 

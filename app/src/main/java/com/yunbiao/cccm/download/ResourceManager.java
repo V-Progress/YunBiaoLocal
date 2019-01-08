@@ -93,28 +93,28 @@ public class ResourceManager {
             isInit = true;
         }
 
-        LogUtil.E("日期类型是：" + type);
+        LogUtil.D(TAG,"请求"+ (type == TYPE_TODAY?"今天":"明天") +"的数据");
         Map<String, String> map = new HashMap<>();
         map.put("deviceNo", HeartBeatClient.getDeviceNo());
         map.put("type", String.valueOf(type));
 
-        Response response = null;
         try {
             //请求获取config
-            response = NetUtil.getInstance().postSync(ResourceConst.REMOTE_RES.GET_RESOURCE, map);
+            Response response = NetUtil.getInstance().postSync(ResourceConst.REMOTE_RES.GET_RESOURCE, map);
             if (response == null) {
-                throw new IOException("response is null");
+                throw new IOException("request play Resource Error");
             }
             //取出响应
             String responseStr = response.body().string();
             if (TextUtils.isEmpty(responseStr)) {
                 throw new IOException("response's body is null");
             }
+            LogUtil.D(TAG,"播放资源："+responseStr);
 
             //转换成bean
             ConfigResponse configResponse = new Gson().fromJson(responseStr, ConfigResponse.class);
             if (TextUtils.equals(REQ_FAILED_TAG, configResponse.getResult())) {
-                LogUtil.E(TAG, configResponse.getMessage());
+                LogUtil.D(TAG, configResponse.getMessage());
                 if (isInit) {
                     requestConfigXML(TYPE_TOMMO);//请求明天时会将isInit置为false
                 }
@@ -154,10 +154,8 @@ public class ResourceManager {
             //开始下载
             download(urlList);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LogUtil.E(TAG,"处理播放资源出现异常："+e.getMessage());
         }
     }
 
@@ -213,6 +211,11 @@ public class ResourceManager {
             @Override
             public void onStart(int currNum) {
                 MainController.getInstance().updateConsole("开始下载第" + (currNum + 1) + "个文件");
+            }
+
+            @Override
+            public void onProgress(int progress) {
+                LogUtil.E("进度："+progress);
             }
 
             @Override

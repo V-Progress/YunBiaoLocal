@@ -18,9 +18,8 @@ public class Const {
 
     public static final String HOSTS = BuildConfig.HOSTS;//基础IP地址
 
-    public static final String BASE_URL = PREFIX + HOSTS + ":8080" + SLASH + SUFFIX;//URL地址
-//    public static final String BASE_URL = PREFIX + HOSTS + SLASH;//URL地址
-
+//    public static final String BASE_URL = PREFIX + HOSTS + ":8080" + SLASH + SUFFIX;//URL地址
+    public static final String BASE_URL = PREFIX + HOSTS + SLASH;//URL地址
     public static final String SERVER_PORT = BuildConfig.PORT;//端口号
 
     public static final int NET_TIME_OUT = 5;//网络超时时间，单位：分钟
@@ -35,10 +34,8 @@ public class Const {
     public static Map<Integer,String> typeMap = new HashMap<>();
 
     public interface URL {
-        String NET = "www.yunbiaowulian.com";
-        String PRO = "182.92.148.106";
-//        String TST = "sp.mediaorange.cn";//210.51.34.85
-        String TST = "210.51.34.85";
+//        String PRO = "210.51.34.85";
+        String PRO = "sp.mediaorange.cn";
         String DEV = "192.168.1.101";
     }
 

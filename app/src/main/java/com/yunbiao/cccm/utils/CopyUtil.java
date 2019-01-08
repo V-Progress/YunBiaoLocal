@@ -1,7 +1,9 @@
 package com.yunbiao.cccm.utils;
 
-import android.os.Environment;
 import android.util.Log;
+
+import com.yunbiao.cccm.common.ResourceConst;
+import com.yunbiao.cccm.resolve.VideoDirectoryFilter;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -27,7 +29,6 @@ public class CopyUtil {
     private final String YUNBIAO_DIR = "/yunbiao";
     private int fileCount;
     private int fileNum = 0;
-//    private CountDownLatch latch;
 
     public synchronized static CopyUtil getInstance() {
         if (copyUtil == null) {
@@ -61,7 +62,7 @@ public class CopyUtil {
                 if (!usbFile.canRead()) {
                     baseCopyListener.onNoFile();
                     baseCopyListener.onFinish();
-                    Log.e("123", "U盘中没有yunbiao目录 ");
+                    LogUtil.D("CopyUtil", "U盘中没有yunbiao目录 ");
                     return;
                 }
 
@@ -70,11 +71,10 @@ public class CopyUtil {
                 baseCopyListener.onFileCount(fileCount);
 
                 //初始化本地目录
-                String localFilePath = Environment.getExternalStorageDirectory().toString();
-                File localFile = new File(localFilePath);
+                File localFile = new File(ResourceConst.LOCAL_RES.EXTERNAL_ROOT_DIR);
 
                 //删除老文件
-                deleteOldFile(localFile);
+//                deleteOldFile(localFile);
 
                 //开始拷贝
                 copyFiles(usbFile, localFile);//复制文件
@@ -88,6 +88,57 @@ public class CopyUtil {
      * 复制文件
      */
     private void copyFiles(final File usbFile, final File localFile) {
+
+        LogUtil.E(usbFile.getAbsolutePath() + "----->"+localFile.getAbsolutePath());
+
+        if (usbFile.isDirectory()) {
+            File newFile = new File(localFile, usbFile.getName());
+            newFile.mkdirs();
+            File[] listFiles = usbFile.listFiles();
+            if (listFiles != null)
+                for (File file : listFiles)
+                    copyFiles(file, newFile);
+        } else if (usbFile.isFile()) {
+            BufferedInputStream bis = null;
+            BufferedOutputStream bos = null;
+            try {
+                bis = new BufferedInputStream(new FileInputStream(usbFile));
+                bos = new BufferedOutputStream(new FileOutputStream(new File(localFile, usbFile.getName())));
+                int i;
+                for (byte[] b = new byte[8192]; (i = bis.read(b)) != -1; ) {
+                    bos.write(b, 0, i);
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (bos != null)
+                    try {
+                        bos.flush();
+                        bos.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                if (bis != null)
+                    try {
+                        bis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                baseCopyListener.onCopying(++fileNum);
+                if (fileNum >= fileCount) {
+                    fileNum = 0;
+                    baseCopyListener.onCopyComplete();
+                }
+            }
+        }
+    }
+
+    /**
+     * 复制文件
+     */
+    private void copyFiles2(final File usbFile, final File localFile) {
         if (usbFile.isDirectory()) {
             File newFile = new File(localFile, usbFile.getName());
             newFile.mkdirs();
@@ -135,7 +186,7 @@ public class CopyUtil {
     private void deleteOldFile(final File localFile) {
         //删除文件
         Map<String, File> fileMap = new HashMap<>();
-        File[] files = new File(localFile, "yunbiao").listFiles();
+        File[] files = new File(localFile, "yunbiao").listFiles(new VideoDirectoryFilter());
         if(files == null || files.length <= 0){
             return;
         }

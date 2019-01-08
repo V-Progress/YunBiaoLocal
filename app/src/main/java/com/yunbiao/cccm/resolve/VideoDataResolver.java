@@ -12,7 +12,6 @@ import com.yunbiao.cccm.utils.DateUtil;
 import com.yunbiao.cccm.utils.DialogUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
-import com.yunbiao.cccm.view.TipToast;
 
 import java.io.File;
 import java.text.ParseException;
@@ -176,7 +175,7 @@ public class VideoDataResolver {
         }
     }
 
-    // TODO: 2018/12/28 解析本地资源
+    // 解析本地资源
     public void resolveLocalResource() {
         showProgress();
         ThreadUtil.getInstance().runInCommonThread(new Runnable() {
@@ -323,13 +322,13 @@ public class VideoDataResolver {
                             }
                         }
 
-                        /*if (timerString != null && !TextUtils.isEmpty(timerString[0]) && !TextUtils.isEmpty(timerString[1])) {
+                        if (timerString != null && !TextUtils.isEmpty(timerString[0]) && !TextUtils.isEmpty(timerString[1])) {
                             timer = "开机时间：" + timerString[0] + "\n关机时间：" + timerString[1];
                         }
-                        //定时开关机
-                        if (timerString != null) {
-                            PowerOffTool.setPowerRunTime(timerString[0], timerString[1]);
-                        }*/
+//                        //定时开关机
+//                        if (timerString != null) {
+//                            PowerOffTool.setPowerRunTime(timerString[0], timerString[1]);
+//                        }
                     }
                     dissmissProgress("读取完毕，共有："+playList.size()+"条数据");
                 } catch (ParseException e) {

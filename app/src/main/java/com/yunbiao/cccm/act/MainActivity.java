@@ -116,7 +116,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
                 //初始化自动开关机数据
                 PowerOffTool.getInstance().initPowerData();
 
-                //初始化数据下载
+                //初始化播放数据
                 ResourceManager.getInstance().initResData();
 
                 //初始化广告插播，如果有未播完的广告则自动播放

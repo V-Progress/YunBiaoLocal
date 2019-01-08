@@ -1,6 +1,5 @@
 package com.yunbiao.cccm.utils;
 
-import android.os.Environment;
 import android.os.SystemProperties;
 
 import com.yunbiao.cccm.APP;
@@ -52,10 +51,12 @@ public class NetUtil {
                 .execute(callback);
     }
 
-    public Response syncGet(String url) throws IOException {
-        return OkHttpUtils.get().url(url).tag(this).build().execute();
-    }
-
+    /***
+     * 异步POST请求
+     * @param url
+     * @param params
+     * @param stringCallback
+     */
     public void post(String url, Map<String, String> params, StringCallback stringCallback) {
         OkHttpUtils.post()
                 .url(url)
@@ -65,34 +66,47 @@ public class NetUtil {
                 .execute(stringCallback);
     }
 
-    public Response postSync(String url, Map<String, String> params) throws IOException {
-        return OkHttpUtils.post().url(url).params(params).tag(this).build().execute();
+    /***
+     * 同步POST请求
+     * @param url 地址
+     * @param params 参数
+     * @return
+     */
+    public Response postSync(String url, Map<String, String> params){
+        Response response = null;
+        try{
+            response = OkHttpUtils.post().url(url).params(params).tag(this).build().execute();
+        }catch (IOException e){
+            LogUtil.E(url + " 请求失败:"+ e.getMessage() + " ，重新请求");
+            try {
+                response = OkHttpUtils.post().url(url).params(params).tag(this).build().execute();
+            } catch (IOException e1) {
+                LogUtil.E(url + " 请求失败:"+ e1.getMessage());
+            }
+        }
+        return response;
     }
 
-    public void postScreenShoot(String imgUrl, StringCallback stringCallback) {
-        HashMap hashMap = new HashMap();
-        hashMap.put("sid", HeartBeatClient.getDeviceNo());
-        OkHttpUtils.post()
-                .url(ResourceConst.REMOTE_RES.SCREEN_UPLOAD_URL)
-                .params(hashMap)
-                .addFile("screenimage", imgUrl, new File(imgUrl))
-                .tag(this)
-                .build()
-                .execute(stringCallback);
-    }
-
-    private String lastCacheUrl;
-
-    public void downloadFile(final String url, final OnDownLoadListener onDownLoadListener) {
-        downloadFile(url, rootDir, onDownLoadListener);
-    }
-
+    /***
+     * 同步GET下载
+     * @param url 地址
+     * @return 返回文件内容
+     * @throws IOException
+     */
     public Response downloadSync(String url) throws IOException {
         return OkHttpUtils.get().url(url).tag(this).build().execute();
     }
 
+    /***
+     * 异步文件下载
+     * @param url
+     * @param onDownLoadListener
+     */
+    public void downloadFile(final String url, final OnDownLoadListener onDownLoadListener) {
+        downloadFile(url, rootDir, onDownLoadListener);
+    }
+
     public void downloadFile(final String url, String localPath, final OnDownLoadListener onDownLoadListener) {
-        lastCacheUrl = url;
         String fileName = url.substring(url.lastIndexOf("/") + 1);
         onDownLoadListener.onStart(fileName);
         OkHttpUtils.getInstance().cancelTag(this);
@@ -140,6 +154,23 @@ public class NetUtil {
             onDownLoadListener.onError(e);
         }
 
+    }
+
+    /***
+     * 截屏文件上传
+     * @param imgUrl
+     * @param stringCallback
+     */
+    public void postScreenShoot(String imgUrl, StringCallback stringCallback) {
+        HashMap hashMap = new HashMap();
+        hashMap.put("sid", HeartBeatClient.getDeviceNo());
+        OkHttpUtils.post()
+                .url(ResourceConst.REMOTE_RES.SCREEN_UPLOAD_URL)
+                .params(hashMap)
+                .addFile("screenimage", imgUrl, new File(imgUrl))
+                .tag(this)
+                .build()
+                .execute(stringCallback);
     }
 
     /**

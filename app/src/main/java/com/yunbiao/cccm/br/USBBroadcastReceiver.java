@@ -3,29 +3,38 @@ package com.yunbiao.cccm.br;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.yunbiao.cccm.APP;
-import com.yunbiao.cccm.act.MainActivity;
 import com.yunbiao.cccm.act.MainController;
 import com.yunbiao.cccm.utils.CopyUtil;
 import com.yunbiao.cccm.utils.copyFileListener;
 import com.yunbiao.cccm.utils.ThreadUtil;
 
 public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileListener {
-    private String dataString;
+//    private String dataString;
 
     public USBBroadcastReceiver() {
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        dataString = intent.getDataString().substring(7);
-        if (!dataString.matches("/mnt/usbhost\\d") && !dataString.matches("/storage/usbhost\\d")) {
-            Toast.makeText(context, "请插入SD卡或者U盘" + dataString, Toast.LENGTH_SHORT).show();
-            return;
+        if (intent.getAction().equals("android.intent.action.MEDIA_MOUNTED")) {//U盘插入
+            String path = intent.getDataString();
+            if(!TextUtils.isEmpty(path)){
+                String[] pathArr = path.split("file://");
+                if (pathArr.length == 2) {
+                    String pathString = pathArr[1];//U盘路径
+                    if (!TextUtils.isEmpty(pathString)) {
+                        Toast.makeText(context, "U盘已插入" + pathString, Toast.LENGTH_SHORT).show();
+
+                        CopyUtil.getInstance().USB2Local(pathString, this);
+                    }
+                }
+            }
+        } else if (intent.getAction().equals("android.intent.action.MEDIA_REMOVED")){ // 完全拔出
+            Toast.makeText(context, "U盘已拔除", Toast.LENGTH_SHORT).show();
         }
-        CopyUtil.getInstance().USB2Local(dataString, this);
     }
 
     @Override
