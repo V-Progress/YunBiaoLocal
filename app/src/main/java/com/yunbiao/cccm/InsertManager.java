@@ -216,7 +216,6 @@ public class InsertManager implements TextToSpeech.OnInitListener {
         Integer fontSize = textDetail.getFontSize();
         String text = insertTextModel.getText();
 
-
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (fontSize * 2.5));
         if (TextUtils.equals("0", textDetail.getLocation())) {//顶部
             layoutParams.gravity = Gravity.TOP;
@@ -267,17 +266,22 @@ public class InsertManager implements TextToSpeech.OnInitListener {
      * ==================================================================================
      * @param ivm
      */
-    public void insertPlay(InsertVideoModel ivm) throws ParseException {
+    public void insertPlay(InsertVideoModel ivm) {
         if (ivm == null) {
             return;
         }
 
-        playList.clear();
-        clearTimer();
-
         InsertVideoModel.InsertData dateJson = ivm.getDateJson();
         String ftpUrl = dateJson.getHsdresourceUrl();
         List<InsertVideoModel.Data> insertArray = dateJson.getInsertArray();
+
+        playList.clear();
+        clearTimer();
+        MainController.getInstance().stopInsert();
+
+        if(insertArray == null || insertArray.size()<=0){
+            return;
+        }
 
         Date today = null;
         try {
@@ -297,7 +301,11 @@ public class InsertManager implements TextToSpeech.OnInitListener {
             }
 
             Date[] dateArray = resolve(data.getStartTime(), data.getEndTime());
-            if (today.equals(dateArray[1]) || today.after(dateArray[1])) {
+            if(dateArray == null){
+                continue;
+            }
+
+            if (today.before(dateArray[0]) || today.after(dateArray[1])) {
                 continue;
             }
 
@@ -399,13 +407,13 @@ public class InsertManager implements TextToSpeech.OnInitListener {
             @Override
             public void run() {
                 LogUtil.E(TAG,"切换到HDMI信号");
-//                checkHDMI(true);
+                checkHDMI(true);
             }
         }, endTime, new TimerTask() {
             @Override
             public void run() {
                 LogUtil.E(TAG,"结束HDMI信号");
-//                checkHDMI(true);
+                checkHDMI(false);
             }
         });
     }
@@ -421,7 +429,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
             intent.setAction(isHdmi ? XBHActions.CHANGE_TO_HDMI : XBHActions.CHANGE_TO_VGA);
             APP.getContext().sendBroadcast(intent);
         } else {
-            TipToast.showLongToast(APP.getContext(), "暂不支持该功能");
+            TipToast.showLongToast(APP.getContext(), "本设备不支持该功能");
         }
     }
 
@@ -449,19 +457,24 @@ public class InsertManager implements TextToSpeech.OnInitListener {
     }
 
     //解析播放时间，没有date的情况下默认为当天
-    private Date[] resolve(String startStr, String endStr) throws ParseException {
-        String endTime = correctTime(endStr) + ":00";
-        String startTime = correctTime(startStr) + ":00";
+    private Date[] resolve(String startStr, String endStr){
+        try{
+            String endTime = correctTime(endStr) + ":00";
+            String startTime = correctTime(startStr) + ":00";
 
-        String currDateStr = yyyyMMdd.format(todayDate);
-        //转换成date格式
-        Date start = yyyyMMddHH_mm_ss.parse(currDateStr + startTime);
-        Date end = yyyyMMddHH_mm_ss.parse(currDateStr + endTime);
+            String currDateStr = yyyyMMdd.format(todayDate);
+            //转换成date格式
+            Date start = yyyyMMddHH_mm_ss.parse(currDateStr + startTime);
+            Date end = yyyyMMddHH_mm_ss.parse(currDateStr + endTime);
 
-        LogUtil.D(TAG,currDateStr + startTime);
-        LogUtil.D(TAG,currDateStr + endTime);
+            LogUtil.D(TAG,currDateStr + startTime);
+            LogUtil.D(TAG,currDateStr + endTime);
 
-        return new Date[]{start, end};
+            return new Date[]{start, end};
+        }catch (Exception e){
+            LogUtil.E(TAG,"解析插播时间出错："+e.getMessage());
+            return null;
+        }
     }
 
     //修正播放时间

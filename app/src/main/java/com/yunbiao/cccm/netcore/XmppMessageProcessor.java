@@ -56,6 +56,7 @@ public class XmppMessageProcessor {
     private final static int PUSH_MESSAGE = 14;//推送广告消息，快发字幕
     private final static int CHANNEL_TYPE = 16;//输入源选择
     private final static int VIDEO_PUSH = 22;//推送的视频
+    private final static int INSERT_CONTENT_TYPE = 24;//推送的视频
 
     /**
      * 消息分发
@@ -180,18 +181,8 @@ public class XmppMessageProcessor {
                     }
                 });
                 break;
-            case VIDEO_PUSH://插播视频
-                ThreadUtil.getInstance().runInCommonThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        InsertVideoModel insertVideoModel = new Gson().fromJson(content, InsertVideoModel.class);
-                        try {
-                            InsertManager.getInstance(APP.getMainActivity()).insertPlay(insertVideoModel);
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+            case INSERT_CONTENT_TYPE:
+                InsertManager.getInstance(APP.getMainActivity()).initInsertData();
                 break;
         }
     }

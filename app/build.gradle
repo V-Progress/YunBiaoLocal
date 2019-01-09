@@ -29,7 +29,7 @@ android {
             // 服务地址
             buildConfigField "String", "HOSTS", "com.yunbiao.cccm.common.Const.URL.PRO"
             // 服务端口
-            buildConfigField "Integer", "PORT", "com.yunbiao.cccm.common.Const.PORT.PRO"
+            buildConfigField "String", "PORT", "com.yunbiao.cccm.common.Const.PORT.PRO"
             // 是否打印日志到文件
             buildConfigField "boolean", "IS_LOG_TO_FILE", "false"
         }
