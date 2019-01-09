@@ -3,10 +3,12 @@ package com.yunbiao.cccm;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.speech.tts.TextToSpeech;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.yunbiao.cccm.act.MainController;
@@ -31,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -41,7 +44,7 @@ import okhttp3.Response;
  * Created by Administrator on 2018/12/29.
  */
 
-public class InsertManager {
+public class InsertManager implements TextToSpeech.OnInitListener {
     private static InsertManager insertManager;
     private static Activity mActivity;
     private String TAG = this.getClass().getSimpleName();
@@ -57,6 +60,8 @@ public class InsertManager {
     private final String CLEAR_TXT = "2"; //清除字幕
     private final Date todayDate;
 
+    private TextToSpeech tts;
+
     List<Timer> timerList = new ArrayList<>();
     List<Timer> txtTimerList = new ArrayList<>();
 
@@ -69,11 +74,11 @@ public class InsertManager {
     }
 
     public InsertManager() {
+        tts = new TextToSpeech(mActivity,this);
         //获取当年月日
         todayDate = new Date(System.currentTimeMillis());
         initTXT();
     }
-
 
     /***
      * 初始化插播数据
@@ -245,6 +250,15 @@ public class InsertManager {
             scrollText.setDirection(3);//向上滚动0,向左滚动3,向右滚动2,向上滚动1
         } else if (Integer.parseInt(textDetail.getPlayType()) == 1) {
             scrollText.setDirection(0);
+        }
+
+        if(isSupportChinese){
+            if(TextUtils.equals("-1",textDetail.getSpeechCount())){
+                return;
+            }
+            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+        }else{
+            Toast.makeText(mActivity, "暂不支持语音报读", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -528,6 +542,20 @@ public class InsertManager {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    private boolean isSupportChinese = false;
+    @Override
+    public void onInit(int status) {
+        if (status == TextToSpeech.SUCCESS) {
+            int result = tts.setLanguage(Locale.CHINA);
+            if (result == TextToSpeech.LANG_MISSING_DATA
+                    || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                isSupportChinese = false;
+                return;
+            }
+            isSupportChinese = true;
         }
     }
 }
