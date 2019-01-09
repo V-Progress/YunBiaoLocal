@@ -485,7 +485,7 @@ public class CommonUtils {
      * 获取线的MAC地址
      */
     public static String getLocalMacAddress() {
-        String mac = null;
+        String mac = "";
         try {
             Enumeration localEnumeration = NetworkInterface.getNetworkInterfaces();
 
