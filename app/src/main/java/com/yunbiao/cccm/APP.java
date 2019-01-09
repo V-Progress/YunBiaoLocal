@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import io.vov.vitamio.Vitamio;
 import okhttp3.OkHttpClient;
 
 /**
@@ -62,9 +61,6 @@ public class APP extends Application {
 
         //初始化定位
         initLocation();
-
-        //初始化VITAMIO
-        Vitamio.initialize(this);
 
         //初始化ImageLoader
         ImageLoaderConfiguration imageLoaderConfiguration = ImageLoaderConfiguration.createDefault(APP.getContext());

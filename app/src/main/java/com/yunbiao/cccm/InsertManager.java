@@ -16,6 +16,7 @@ import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.devicectrl.actions.XBHActions;
+import com.yunbiao.cccm.download.BPDownloadUtil;
 import com.yunbiao.cccm.download.ResourceManager;
 import com.yunbiao.cccm.utils.CommonUtils;
 import com.yunbiao.cccm.utils.LogUtil;
@@ -26,6 +27,7 @@ import com.yunbiao.cccm.view.TipToast;
 import com.yunbiao.cccm.view.model.InsertTextModel;
 import com.yunbiao.cccm.view.model.InsertVideoModel;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -37,6 +39,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
 
 import okhttp3.Response;
 
@@ -338,34 +341,51 @@ public class InsertManager implements TextToSpeech.OnInitListener {
     }
 
     /*=======视频处理流程================================================================*/
-    public void download(final boolean isCycle, List<String> urlList, final List<String> playList, final Date[] dateArray) {
-        ResourceManager.getInstance().download(urlList, new ResourceManager.FileDownloadListener() {
+    public void download(final boolean isCycle, final List<String> urlList, final List<String> playList, final Date[] dateArray) {
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
-            public void onBefore(int totalNum) {
-                MainController.getInstance().openLoading("正在下载");
-            }
+            public void run() {
+                        BPDownloadUtil.getInstance().breakPointDownload(urlList, new ResourceManager.FileDownloadListener() {
+                            @Override
+                            public void onBefore(int totalNum) {
+                                MainController.getInstance().openLoading("正在下载");
+                            }
 
-            @Override
-            public void onStart(int currNum) {
-                LogUtil.D(TAG,"开始下载");
-            }
+                            @Override
+                            public void onStart(int currNum) {
+                                LogUtil.D(TAG,"开始下载");
+                            }
 
-            @Override
-            public void onProgress(int progress) {
-                LogUtil.D(TAG,"进度：" + progress);
-            }
+                            @Override
+                            public void onProgress(int progress) {
+                                LogUtil.D(TAG,"进度：" + progress);
+                            }
 
-            @Override
-            public void onError(Exception e) {
-                LogUtil.D(TAG,"下载出错：" + e.getMessage());
-            }
+                            @Override
+                            public void onError(Exception e) {
+                                LogUtil.D(TAG,"下载出错：" + e.getMessage());
+                            }
 
-            @Override
-            public void onFinish() {
-                MainController.getInstance().closeLoading();
-                handleVideo(isCycle, playList, dateArray[0], dateArray[1]);
-            }
+                            @Override
+                            public void onFinish() {
+                                MainController.getInstance().closeLoading();
 
+                                // TODO: 2019/1/9 关注此处可能出现的问题
+                                for (int i = 0; i < playList.size(); i++) {
+                                    File file = new File(playList.get(i));
+                                    if(!file.exists()){
+                                        playList.remove(i);
+                                    }
+                                }
+
+                                if(playList.size() <= 0){
+                                    return;
+                                }
+                                handleVideo(isCycle, playList, dateArray[0], dateArray[1]);
+                            }
+
+                        });
+            }
         });
     }
 

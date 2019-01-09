@@ -1,6 +1,7 @@
 package com.yunbiao.cccm.act;
 
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
@@ -13,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.InsertManager;
@@ -28,7 +30,8 @@ import com.yunbiao.cccm.utils.DeleteResUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.utils.SystemInfoUtil;
-import com.yunbiao.cccm.view.MainVideoView;
+import com.yunbiao.cccm.utils.ThreadUtil;
+import com.yunbiao.cccm.utils.TimerExecutor;
 
 import java.io.File;
 import java.text.ParseException;
@@ -36,12 +39,11 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import butterknife.BindView;
-import io.vov.vitamio.MediaPlayer;
-import io.vov.vitamio.widget.MediaController;
+import android.media.MediaPlayer;
 
 public class MainActivity extends BaseActivity implements MainRefreshListener {
     @BindView(R.id.vtm_video)
-    MainVideoView vtmVideo;
+    VideoView vv;
     @BindView(R.id.permission)
     TextView permission;
     @BindView(R.id.state)
@@ -64,6 +66,8 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     LinearLayout llUpdateArea;
     @BindView(R.id.fl_root)
     FrameLayout flRoot;
+    @BindView(R.id.tv_progress)
+    TextView tvProgress;
 
     private USBBroadcastReceiver usbBroadcastReceiver;//USB监听广播
     private List<String> playLists;
@@ -129,20 +133,16 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             public void run() {
                 DeleteResUtil.removeExpireFile();
             }
-        },10000);
+        }, 10000);
     }
 
     //-------播放器控制----------------------------------------------------------------
     @Override
     public void initPlayer() {
-//        MediaController mediaController = new MediaController(this);
-//        mediaController.setInstantSeeking(false);
-//        vtmVideo.setMediaController(mediaController);
-        vtmVideo.setVideoQuality(MediaPlayer.VIDEOQUALITY_MEDIUM);//播放画质
-        vtmVideo.setOnPreparedListener(preparedListener);//准备完毕监听
-        vtmVideo.setOnErrorListener(errorListener);//播放错误监听
-        vtmVideo.setOnInfoListener(infoListener);//播放信息监听
-        vtmVideo.setOnCompletionListener(completionListener);
+//        vv.setOnPreparedListener(preparedListener);//准备完毕监听
+        vv.setOnErrorListener(errorListener);//播放错误监听
+        vv.setOnInfoListener(infoListener);//播放信息监听
+        vv.setOnCompletionListener(completionListener);
     }
 
     /*
@@ -158,7 +158,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         }
 
         if (videoDataResolve.getPlayList() == null || videoDataResolve.getPlayList().isEmpty()) {
-            if(isInsertPlaying){
+            if (isInsertPlaying) {
                 LogUtil.E("广告正在播放，不显示state");
                 return;
             }
@@ -183,7 +183,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             LogUtil.E("广告正在播放，不执行stopPlay");
             return;
         }
-        if(playLists != null){
+        if (playLists != null) {
             playLists.clear();
         }
         stop();
@@ -266,24 +266,41 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     }
 
     @Override
-    public void openLoading(String loadingMsg){
+    public void updateProgressStr(String progressStr) {
+        tvProgress.setText(progressStr);
+    }
+
+    @Override
+    public void openLoading(String loadingMsg) {
         tvLoadingMain.setText(loadingMsg);
         pbLoadingMain.setInterpolator(new AccelerateDecelerateInterpolator());
         llLoadingMain.setVisibility(View.VISIBLE);
     }
 
     @Override
-    public void closeLoading(){
+    public void closeLoading() {
         llLoadingMain.setVisibility(View.GONE);
     }
 
     //-----常规方法----------------------------------------------------------------
+
+    /***
+     * 获取可播放内容的总数
+     */
+    public int getPlayCount() {
+        int count = 0;
+        if (playLists != null && playLists.size() > 0) {
+            count = playLists.size();
+        }
+        return count;
+    }
+
     private void stop() {
-        if (vtmVideo == null) {
+        if (vv == null) {
             return;
         }
-        vtmVideo.stopPlayback();
-        vtmVideo.setVisibility(View.GONE);
+        vv.stopPlayback();
+        vv.setVisibility(View.GONE);
         state.setVisibility(View.VISIBLE);
     }
 
@@ -292,13 +309,13 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         playLists = videoList;
 
         state.setVisibility(View.INVISIBLE);
-        if (vtmVideo.isPlaying()) {
-            vtmVideo.stopPlayback();
+        if (vv.isPlaying()) {
+            vv.stopPlayback();
         }
 
-        vtmVideo.setVideoPath(playLists.get(videoIndex));
-        vtmVideo.setVisibility(View.VISIBLE);
-        vtmVideo.start();
+        vv.setVideoPath(playLists.get(videoIndex));
+        vv.setVisibility(View.VISIBLE);
+        vv.start();
     }
 
     public void removeView(View view) {
@@ -312,20 +329,30 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     /*===========播放器监听关=====================================================================
      * 初始化播放器
      */
-    private MediaPlayer.OnPreparedListener preparedListener = new MediaPlayer.OnPreparedListener() {
-        @Override
-        public void onPrepared(MediaPlayer mp) {
-            mp.setPlaybackSpeed(1.0f);
-        }
-    };
-
     private MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
         @Override
         public boolean onError(MediaPlayer mp, int what, int extra) {
-            vtmVideo.stopPlayback();
-            vtmVideo.resume();
-            vtmVideo.start();
-            return false;
+            LogUtil.E("当前错误代码：" + what + "-----" + extra);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            final AlertDialog alertDialog = builder.create();
+            alertDialog.setTitle("播放失败");
+            alertDialog.setMessage("播放地址解析失败\n\n错误代码:" + what + " - " + extra + "\n\n本窗口于10秒后关闭");
+            alertDialog.show();
+
+            TimerExecutor.getInstance().delayExecute(10000, new TimerExecutor.OnTimeOutListener() {
+                @Override
+                public void execute() {
+                    ThreadUtil.getInstance().runInUIThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            alertDialog.dismiss();
+                            stopInsert();
+                        }
+                    });
+                }
+            });
+            return true;
         }
     };
 
@@ -355,10 +382,9 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
                 }
             }
             try {
-                mp.setPlaybackSpeed(playSpeed);
-                vtmVideo.stopPlayback();
-                vtmVideo.setVideoPath(playLists.get(videoIndex));
-                vtmVideo.start();
+                vv.stopPlayback();
+                vv.setVideoPath(playLists.get(videoIndex));
+                vv.start();
             } catch (NullPointerException e) {
                 e.printStackTrace();
             }
@@ -384,14 +410,14 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     @Override
     protected void onResume() {
         super.onResume();
-        vtmVideo.resume();
-        vtmVideo.start();
+        vv.resume();
+        vv.start();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        vtmVideo.pause();
+        vv.pause();
     }
 
     @Override
@@ -414,7 +440,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
 
         @Override
         public void onProgress(int progress) {
-            updateProgress(progress);
+//            updateProgress(progress, progressStr); //// TODO: 2019/1/9
         }
 
         @Override
@@ -452,12 +478,12 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     };
 
     public boolean isVideoPlaying() {
-        return vtmVideo != null && vtmVideo.isPlaying();
+        return vv != null && vv.isPlaying();
     }
 
     public Long getVideoCurrTime() {
-        if (vtmVideo != null && vtmVideo.isPlaying()) {
-            return vtmVideo.getCurrentPosition();
+        if (vv != null && vv.isPlaying()) {
+            return Long.valueOf(vv.getCurrentPosition());
         }
         return 0L;
     }

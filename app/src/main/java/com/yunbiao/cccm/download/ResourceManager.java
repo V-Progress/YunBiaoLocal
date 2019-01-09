@@ -186,15 +186,6 @@ public class ResourceManager {
         return urlList;
     }
 
-    public void download(final List<String> urlList, final MultiFileDownloadListener listener) {
-        ThreadUtil.getInstance().runInRemoteThread(new Runnable() {
-            @Override
-            public void run() {
-                BPDownloadUtil.getInstance().breakPointDownload(urlList, listener);
-            }
-        });
-    }
-
     //开始多文件下载
     private void download(final List<String> urlList) {
         BPDownloadUtil.getInstance().breakPointDownload(urlList, new FileDownloadListener() {
@@ -202,6 +193,9 @@ public class ResourceManager {
             public void onBefore(int totalNum) {
                 if (isInit) {
                     //开启控制台
+                    if(totalNum <= 0){
+                        return;
+                    }
                     MainController.getInstance().openConsole();
                     MainController.getInstance().updateConsole("准备下载资源...共有：" + totalNum + "个文件");
                     MainController.getInstance().initProgress(totalNum);
@@ -215,7 +209,7 @@ public class ResourceManager {
 
             @Override
             public void onProgress(int progress) {
-                LogUtil.E("进度："+progress);
+                MainController.getInstance().updateProgressStr(progress+"%");
             }
 
             @Override
@@ -227,7 +221,6 @@ public class ResourceManager {
             @Override
             public void onError(Exception e) {
                 MainController.getInstance().updateConsole("下载错误:" + e.getMessage());
-                e.printStackTrace();
             }
 
             @Override

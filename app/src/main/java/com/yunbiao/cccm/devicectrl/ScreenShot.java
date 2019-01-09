@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.media.MediaMetadataRetriever;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -14,7 +15,6 @@ import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.utils.CommonUtils;
-import com.yunbiao.cccm.utils.DialogUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
@@ -36,7 +36,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.vov.vitamio.MediaMetadataRetriever;
 import okhttp3.Call;
 
 import static android.content.ContentValues.TAG;
@@ -107,7 +106,7 @@ public class ScreenShot {
         ThreadUtil.getInstance().runInCommonThread(new Runnable() {
             @Override
             public void run() {
-                MediaMetadataRetriever retriever = new MediaMetadataRetriever(APP.getContext());
+                MediaMetadataRetriever retriever = new MediaMetadataRetriever();
                 try {
                     long currentPosition = APP.getMainActivity().getVideoCurrTime();
                     String currPlayVideo = APP.getMainActivity().getCurrPlayVideo();
@@ -119,9 +118,7 @@ public class ScreenShot {
                     Bitmap frameAtTime = retriever.getFrameAtTime(currentPosition*1000);
 
                     writeToSd(fileUrl,frameAtTime);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }finally {
                     retriever.release();

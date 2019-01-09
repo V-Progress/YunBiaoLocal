@@ -81,7 +81,6 @@ dependencies {
     //百分比布局
     compile files('libs/gson-2.8.5.jar')
     compile files('libs/universal-image-loader-1.9.5.jar')
-    compile project(':vitamio')
     compile files('libs/smdt.jar')
     compile files('libs/BaiduLBS_Android.jar')
     compile 'com.android.support:appcompat-v7:26.0.0-alpha1'

@@ -5,7 +5,7 @@
     android:id="@+id/fl_root"
     tools:context=".act.MainActivity">
 
-    <com.yunbiao.cccm.view.MainVideoView
+    <VideoView
         android:layout_gravity="center"
         android:id="@+id/vtm_video"
         android:layout_width="match_parent"
@@ -71,15 +71,50 @@
             android:layout_height="6dp"
             android:layout_above="@+id/console" />
 
-        <TextView
-            android:id="@+id/console"
+        <LinearLayout
+            android:weightSum="10"
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="110dp"
-            android:layout_alignParentBottom="true"
-            android:background="#ee000000"
-            android:gravity="bottom"
-            android:paddingBottom="10dp"
-            android:paddingLeft="200dp" />
+            android:layout_height="110dp">
+            <LinearLayout
+                android:layout_weight="1"
+                android:weightSum="2"
+                android:gravity="center"
+                android:background="#ee000000"
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:id="@+id/tv_progress"
+                    android:textSize="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp" />
+
+                <TextView
+                    android:visibility="invisible"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:text="236kb/s"
+                    android:textSize="15dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp" />
+            </LinearLayout>
+            <TextView
+                android:layout_weight="9"
+                android:id="@+id/console"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentBottom="true"
+                android:background="#ee000000"
+                android:gravity="bottom"
+                android:paddingBottom="10dp"
+                android:paddingLeft="200dp" />
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout

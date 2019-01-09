@@ -187,7 +187,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         }
     }
 
-    private static final int MIN_DELAY_TIME = 3000;  // 两次点击间隔不能少于1000ms
+    private static final int MIN_DELAY_TIME = 1500;  // 两次点击间隔不能少于1000ms
     private static long lastClickTime;
 
     public static boolean isFastClick() {

@@ -134,7 +134,15 @@ public class MainController {
                 mRefListener.updateProgress(progress);
             }
         });
+    }
 
+    public void updateProgressStr(final String progressStr){
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                mRefListener.updateProgressStr(progressStr);
+            }
+        });
     }
 
     public void openLoading(final String loadingMsg){

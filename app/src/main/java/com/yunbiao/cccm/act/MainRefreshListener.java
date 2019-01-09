@@ -43,6 +43,8 @@ public interface MainRefreshListener {
     void initProgress(int max);
     //更新进度条
     void updateProgress(int progress);
+    //更新进度文字
+    void updateProgressStr(String progressStr);
 
     //打开加载框
     void openLoading(String loadingMsg);
