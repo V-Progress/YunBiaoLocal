@@ -1,13 +1,11 @@
 <resources>
 
     <!--张雄板子的屏幕适配 横竖屏会变 *0.7-->
-    <dimen name="menu1080_tv_20_dp">14dp</dimen>
     <dimen name="menu1080_tv_25_dp">17.5dp</dimen>
     <dimen name="menu1080_tv_27_dp">18.9dp</dimen>
     <dimen name="menu1080_tv_30_dp">21dp</dimen>
     <dimen name="menu1080_tv_35_dp">24.5dp</dimen>
     <dimen name="menu1080_tv_40_dp">28dp</dimen>
-    <dimen name="mar_50_dp">35dp</dimen>
     <dimen name="mar_20_dp">14dp</dimen>
     <dimen name="mar_10_dp">7dp</dimen>
 

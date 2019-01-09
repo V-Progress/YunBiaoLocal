@@ -1,13 +1,11 @@
 <resources>
 
     <!--贾东澎 韩中-->
-    <dimen name="menu1080_tv_20_dp">12dp</dimen>
     <dimen name="menu1080_tv_25_dp">13.5dp</dimen>
     <dimen name="menu1080_tv_27_dp">13.9dp</dimen>
     <dimen name="menu1080_tv_30_dp">15dp</dimen>
     <dimen name="menu1080_tv_35_dp">22.5dp</dimen>
     <dimen name="menu1080_tv_40_dp">26dp</dimen>
-    <dimen name="mar_50_dp">33dp</dimen>
     <dimen name="mar_20_dp">12dp</dimen>
     <dimen name="mar_10_dp">5dp</dimen>
 

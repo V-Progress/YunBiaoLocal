@@ -1,13 +1,11 @@
 <resources>
 
     <!--云标物联设置界面尺寸1920*1080-->
-    <dimen name="menu1080_tv_20_dp">20dp</dimen>
     <dimen name="menu1080_tv_25_dp">25dp</dimen>
     <dimen name="menu1080_tv_27_dp">27dp</dimen>
     <dimen name="menu1080_tv_30_dp">30dp</dimen>
     <dimen name="menu1080_tv_35_dp">35dp</dimen>
     <dimen name="menu1080_tv_40_dp">40dp</dimen>
-    <dimen name="mar_50_dp">50dp</dimen>
     <dimen name="mar_20_dp">20dp</dimen>
     <dimen name="mar_10_dp">10dp</dimen>
 

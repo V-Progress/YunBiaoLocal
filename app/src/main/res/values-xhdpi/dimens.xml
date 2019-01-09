@@ -1,13 +1,11 @@
 <resources>
 
     <!--云标物联设置界面尺寸1920*1080 *0.3 适配手机 大小-->
-    <dimen name="menu1080_tv_20_dp">6dp</dimen>
     <dimen name="menu1080_tv_25_dp">7.5dp</dimen>
     <dimen name="menu1080_tv_27_dp">8.1dp</dimen>
     <dimen name="menu1080_tv_30_dp">9dp</dimen>
     <dimen name="menu1080_tv_35_dp">10.5dp</dimen>
     <dimen name="menu1080_tv_40_dp">12dp</dimen>
-    <dimen name="mar_50_dp">15dp</dimen>
     <dimen name="mar_20_dp">6dp</dimen>
     <dimen name="mar_10_dp">3dp</dimen>
 
