@@ -26,8 +26,13 @@ public class DateUtil {
         return yyyyMMdd.format(d);
     }
 
-    public static Date yyyyMMdd_Parse(String s) throws ParseException {
-        return yyyyMMdd.parse(s);
+    public static Date yyyyMMdd_Parse(String s){
+        try {
+            return yyyyMMdd.parse(s);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static String yyyy_MM_dd_Format(Date d) {

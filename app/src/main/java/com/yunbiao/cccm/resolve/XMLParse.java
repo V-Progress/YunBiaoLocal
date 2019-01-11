@@ -185,6 +185,9 @@ public class XMLParse {
                 case ("end"):
                     videoDataModel.getConfig().setEnd(xmlPullParser.nextText());
                     break;
+                case ("playurl"):
+                    videoDataModel.getConfig().setPlayurl(xmlPullParser.nextText());
+                    break;
                 case ("isdelete"):
                     videoDataModel.getConfig().setIsdelete(xmlPullParser.nextText());
                     break;

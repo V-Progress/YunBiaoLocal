@@ -75,7 +75,7 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                MainController.getInstance().updateProgress(i);
+                MainController.getInstance().updateParentProgress(i);
             }
         });
     }

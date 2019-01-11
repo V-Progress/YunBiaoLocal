@@ -17,13 +17,12 @@ public class Const {
     private static final String SUFFIX = "cccm/";//斜杠
 
     public static final String HOSTS = BuildConfig.HOSTS;//基础IP地址
-
 //    public static final String BASE_URL = PREFIX + HOSTS + ":8080" + SLASH + SUFFIX;//URL地址
     public static final String BASE_URL = PREFIX + HOSTS + SLASH;//URL地址
+
     public static final String SERVER_PORT = BuildConfig.PORT;//端口号
 
     public static final int NET_TIME_OUT = 5;//网络超时时间，单位：分钟
-
     private static final int MESSAGE_DISTRIBUTE = 1; //信息发布
     private static final int QUEUE_BUSINESS = 2; //商家板排队叫号
     private static final int QUEUE = 3;//排队叫号
@@ -34,8 +33,10 @@ public class Const {
     public static Map<Integer,String> typeMap = new HashMap<>();
 
     public interface URL {
-//        String PRO = "210.51.34.85";
-        String PRO = "sp.mediaorange.cn";
+        String PRO = "210.51.34.85";
+//        String PRO = "192.168.1.101";
+//        String PRO = "sp.mediaorange.cn";
+//
         String DEV = "192.168.1.101";
     }
 

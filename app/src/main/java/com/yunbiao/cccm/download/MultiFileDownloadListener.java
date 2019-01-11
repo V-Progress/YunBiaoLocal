@@ -35,14 +35,17 @@ public interface MultiFileDownloadListener {
     /***
      * single file downloading success
      * @param currFileNum 当前下载数的索引
+     * @param downloadInfo
      */
-    void onSuccess(int currFileNum);
+    void onSuccess(int currFileNum, BPDownloadUtil.DownloadInfo downloadInfo);
 
     /***
      * single file downloaded error
+     * @param currFileNum
      * @param e 单个文件下载错误
+     * @param downloadInfo
      */
-    void onError(Exception e);
+    void onError(int currFileNum, Exception e, BPDownloadUtil.DownloadInfo downloadInfo);
 
     /***
      * downloading finish

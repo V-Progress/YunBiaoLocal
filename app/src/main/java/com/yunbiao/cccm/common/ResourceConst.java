@@ -49,9 +49,14 @@ public class ResourceConst {
         String SCREEN_UPLOAD_URL = Const.BASE_URL + "api/device/uploadScreenImg.html";
 
         /***
-         * 获取今天或明天的节目数据
+         * 获取主播放资源
          */
         String GET_RESOURCE = Const.BASE_URL + "api/layout/getlayoutconfig.html";
+
+        /***
+         * 资源下载进度上传
+         */
+        String RES_PROGRESS_UPLOAD = Const.BASE_URL + "api/layout/rsupdate.html";
 
         /***
          * 设备号
@@ -72,8 +77,6 @@ public class ResourceConst {
          * 版本检测
          **/
         String VERSION_URL = Const.BASE_URL + "api/device/getversion.html";
-
-
 
 
 

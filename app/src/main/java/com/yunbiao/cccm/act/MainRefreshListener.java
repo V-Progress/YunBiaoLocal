@@ -39,12 +39,9 @@ public interface MainRefreshListener {
     //更新控制台
     void updateConsole(String msg);
 
-    //初始化进度条
-    void initProgress(int max);
-    //更新进度条
-    void updateProgress(int progress);
-    //更新进度文字
-    void updateProgressStr(String progressStr);
+    void initProgress(int parentMax);
+    void updateChildProgress(int pg);
+    void updateParentProgress(int pg);
 
     //打开加载框
     void openLoading(String loadingMsg);

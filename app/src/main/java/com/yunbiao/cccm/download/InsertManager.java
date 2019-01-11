@@ -1,4 +1,4 @@
-package com.yunbiao.cccm;
+package com.yunbiao.cccm.download;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,13 +11,12 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.act.MainController;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.devicectrl.actions.XBHActions;
-import com.yunbiao.cccm.download.BPDownloadUtil;
-import com.yunbiao.cccm.download.ResourceManager;
 import com.yunbiao.cccm.utils.CommonUtils;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.NetUtil;
@@ -28,7 +27,6 @@ import com.yunbiao.cccm.view.model.InsertTextModel;
 import com.yunbiao.cccm.view.model.InsertVideoModel;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -39,7 +37,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Executors;
 
 import okhttp3.Response;
 
@@ -50,6 +47,7 @@ import okhttp3.Response;
 public class InsertManager implements TextToSpeech.OnInitListener {
     private static InsertManager insertManager;
     private static Activity mActivity;
+    private Object downloadTag = getClass();
     private String TAG = this.getClass().getSimpleName();
 
     private SimpleDateFormat yyyyMMddHH_mm_ss = new SimpleDateFormat("yyyyMMddHH:mm:ss");
@@ -67,6 +65,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
 
     List<Timer> timerList = new ArrayList<>();
     List<Timer> txtTimerList = new ArrayList<>();
+    private BPDownloadUtil bpDownloadUtil;
 
     public static InsertManager getInstance(Activity activity) {
         mActivity = activity;
@@ -77,7 +76,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
     }
 
     public InsertManager() {
-        tts = new TextToSpeech(mActivity,this);
+        tts = new TextToSpeech(mActivity, this);
         //获取当年月日
         todayDate = new Date(System.currentTimeMillis());
         initTXT();
@@ -92,7 +91,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
             @Override
             public void run() {
                 try {
-                    LogUtil.D(TAG,"开始请求插播资源");
+                    LogUtil.D(TAG, "开始请求插播资源");
                     String url = ResourceConst.REMOTE_RES.INSERT_CONTENT;
                     Map<String, String> params = new HashMap<>();
                     params.put("deviceNo", HeartBeatClient.getDeviceNo());
@@ -104,7 +103,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
                     if (TextUtils.isEmpty(jsonStr)) {
                         throw new Exception("Json String is NULL : " + url);
                     }
-                    LogUtil.D(TAG,"插播资源：" + jsonStr);
+                    LogUtil.D(TAG, "插播资源：" + jsonStr);
                     InsertVideoModel insertVideo = new Gson().fromJson(jsonStr, InsertVideoModel.class);
                     if (insertVideo == null) {
                         throw new Exception("Resolve ConfigResponse failed");
@@ -116,7 +115,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
 
                     InsertManager.getInstance(APP.getMainActivity()).insertPlay(insertVideo);
                 } catch (Exception e) {
-                    LogUtil.E(TAG,"处理插播资源出现异常："+e.getMessage());
+                    LogUtil.E(TAG, "处理插播资源出现异常：" + e.getMessage());
                 }
             }
         });
@@ -254,12 +253,12 @@ public class InsertManager implements TextToSpeech.OnInitListener {
             scrollText.setDirection(0);
         }
 
-        if(isSupportChinese){
-            if(TextUtils.equals("-1",textDetail.getSpeechCount())){
+        if (isSupportChinese) {
+            if (TextUtils.equals("-1", textDetail.getSpeechCount())) {
                 return;
             }
             tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
-        }else{
+        } else {
             Toast.makeText(mActivity, "暂不支持语音报读", Toast.LENGTH_SHORT).show();
         }
     }
@@ -282,7 +281,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
         clearTimer();
         MainController.getInstance().stopInsert();
 
-        if(insertArray == null || insertArray.size()<=0){
+        if (insertArray == null || insertArray.size() <= 0) {
             return;
         }
 
@@ -304,7 +303,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
             }
 
             Date[] dateArray = resolve(data.getStartTime(), data.getEndTime());
-            if(dateArray == null){
+            if (dateArray == null) {
                 continue;
             }
 
@@ -342,51 +341,50 @@ public class InsertManager implements TextToSpeech.OnInitListener {
 
     /*=======视频处理流程================================================================*/
     public void download(final boolean isCycle, final List<String> urlList, final List<String> playList, final Date[] dateArray) {
-        Executors.newSingleThreadExecutor().execute(new Runnable() {
+        if (bpDownloadUtil != null) {
+            bpDownloadUtil.cancel();
+        }
+        bpDownloadUtil = new BPDownloadUtil(getClass(),new FileDownloadListener() {
             @Override
-            public void run() {
-                        BPDownloadUtil.getInstance().breakPointDownload(urlList, new ResourceManager.FileDownloadListener() {
-                            @Override
-                            public void onBefore(int totalNum) {
-                                MainController.getInstance().openLoading("正在下载");
-                            }
-
-                            @Override
-                            public void onStart(int currNum) {
-                                LogUtil.D(TAG,"开始下载");
-                            }
-
-                            @Override
-                            public void onProgress(int progress) {
-                                LogUtil.D(TAG,"进度：" + progress);
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-                                LogUtil.D(TAG,"下载出错：" + e.getMessage());
-                            }
-
-                            @Override
-                            public void onFinish() {
-                                MainController.getInstance().closeLoading();
-
-                                // TODO: 2019/1/9 关注此处可能出现的问题
-                                for (int i = 0; i < playList.size(); i++) {
-                                    File file = new File(playList.get(i));
-                                    if(!file.exists()){
-                                        playList.remove(i);
-                                    }
-                                }
-
-                                if(playList.size() <= 0){
-                                    return;
-                                }
-                                handleVideo(isCycle, playList, dateArray[0], dateArray[1]);
-                            }
-
-                        });
+            public void onBefore(int totalNum) {
+                MainController.getInstance().openLoading("插播资源下载");
             }
+
+            @Override
+            public void onStart(int currNum) {
+                LogUtil.D(TAG, "开始下载");
+            }
+
+            @Override
+            public void onProgress(int progress) {
+                LogUtil.D(TAG, "进度：" + progress);
+            }
+
+            @Override
+            public void onError(int currFileNum, Exception e, BPDownloadUtil.DownloadInfo downloadInfo) {
+                LogUtil.D(TAG, "下载出错：" + e.getMessage());
+            }
+
+            @Override
+            public void onFinish() {
+                MainController.getInstance().closeLoading();
+
+                // TODO: 2019/1/9 关注此处可能出现的问题
+                for (int i = 0; i < playList.size(); i++) {
+                    File file = new File(playList.get(i));
+                    if (!file.exists()) {
+                        playList.remove(i);
+                    }
+                }
+
+                if (playList.size() <= 0) {
+                    return;
+                }
+                handleVideo(isCycle, playList, dateArray[0], dateArray[1]);
+            }
+
         });
+        bpDownloadUtil.breakPointDownload(urlList);
     }
 
     //处理视频
@@ -426,13 +424,13 @@ public class InsertManager implements TextToSpeech.OnInitListener {
         timeExecute(startTime, new TimerTask() {
             @Override
             public void run() {
-                LogUtil.E(TAG,"切换到HDMI信号");
+                LogUtil.E(TAG, "切换到HDMI信号");
                 checkHDMI(true);
             }
         }, endTime, new TimerTask() {
             @Override
             public void run() {
-                LogUtil.E(TAG,"结束HDMI信号");
+                LogUtil.E(TAG, "结束HDMI信号");
                 checkHDMI(false);
             }
         });
@@ -477,8 +475,8 @@ public class InsertManager implements TextToSpeech.OnInitListener {
     }
 
     //解析播放时间，没有date的情况下默认为当天
-    private Date[] resolve(String startStr, String endStr){
-        try{
+    private Date[] resolve(String startStr, String endStr) {
+        try {
             String endTime = correctTime(endStr) + ":00";
             String startTime = correctTime(startStr) + ":00";
 
@@ -487,12 +485,12 @@ public class InsertManager implements TextToSpeech.OnInitListener {
             Date start = yyyyMMddHH_mm_ss.parse(currDateStr + startTime);
             Date end = yyyyMMddHH_mm_ss.parse(currDateStr + endTime);
 
-            LogUtil.D(TAG,currDateStr + startTime);
-            LogUtil.D(TAG,currDateStr + endTime);
+            LogUtil.D(TAG, currDateStr + startTime);
+            LogUtil.D(TAG, currDateStr + endTime);
 
             return new Date[]{start, end};
-        }catch (Exception e){
-            LogUtil.E(TAG,"解析插播时间出错："+e.getMessage());
+        } catch (Exception e) {
+            LogUtil.E(TAG, "解析插播时间出错：" + e.getMessage());
             return null;
         }
     }
@@ -566,7 +564,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
             Date startDate = yyyyMMdd.parse(split[0]);
             Date endDate = yyyyMMdd.parse(split[1]);
             if (!(today.getTime() >= startDate.getTime() && today.getTime() <= endDate.getTime())) {
-                LogUtil.D(TAG,"不在插播字幕时间内");
+                LogUtil.D(TAG, "不在插播字幕时间内");
                 return null;
             }
 
@@ -579,6 +577,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
     }
 
     private boolean isSupportChinese = false;
+
     @Override
     public void onInit(int status) {
         if (status == TextToSpeech.SUCCESS) {

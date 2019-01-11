@@ -173,6 +173,26 @@ public class NetUtil {
                 .execute(stringCallback);
     }
 
+    public void uploadProgress(String playDate,String rsUpdate,String fileName,boolean isSucc){
+        Map<String,String> params = new HashMap<>();
+        params.put("sid",HeartBeatClient.getDeviceNo());
+        params.put("playDate",playDate);
+        params.put("rsUpdate",rsUpdate);
+        params.put("userFile",fileName);
+        params.put("status",isSucc ? "1" : "2");
+        post(ResourceConst.REMOTE_RES.RES_PROGRESS_UPLOAD, params, new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+                LogUtil.E("文件下载进度上传失败");
+            }
+
+            @Override
+            public void onResponse(String response, int id) {
+                LogUtil.E("文件下载进度上传结果："+response);
+            }
+        });
+    }
+
     /**
      * 上传设备信息
      */

@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.MediaPlayer;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -12,12 +13,13 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.yunbiao.cccm.APP;
-import com.yunbiao.cccm.InsertManager;
+import com.yunbiao.cccm.download.InsertManager;
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.act.base.BaseActivity;
 import com.yunbiao.cccm.br.USBBroadcastReceiver;
@@ -39,41 +41,52 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import butterknife.BindView;
-import android.media.MediaPlayer;
+import rjsv.circularview.CircleView;
 
 public class MainActivity extends BaseActivity implements MainRefreshListener {
-    @BindView(R.id.vtm_video)
+    /*视频播放----*/
+    @BindView(R.id.video_view)
     VideoView vv;
     @BindView(R.id.permission)
     TextView permission;
     @BindView(R.id.state)
     TextView state;
-    @BindView(R.id.console)
-    TextView console;
-    @BindView(R.id.progress)
-    ProgressBar progress;
-    @BindView(R.id.ll_loading_main)
+
+    /*加载框-----*/
+    @BindView(R.id.fl_loading_main)
     LinearLayout llLoadingMain;
     @BindView(R.id.pb_loading_main)
     ProgressBar pbLoadingMain;
     @BindView(R.id.tv_loading_main)
     TextView tvLoadingMain;
-    @BindView(R.id.ll_console)
-    LinearLayout llConsole;
-    @BindView(R.id.pb_update)
-    ProgressBar pbUpdate;
+
+    /*更新下载进度条---*/
     @BindView(R.id.ll_update_area)
     LinearLayout llUpdateArea;
     @BindView(R.id.fl_root)
     FrameLayout flRoot;
-    @BindView(R.id.tv_progress)
-    TextView tvProgress;
+    @BindView(R.id.pb_update)
+    ProgressBar pbUpdate;
+
+    /*资源下载进度条---*/
+    @BindView(R.id.tv_console_main)
+    TextView tvConsoleMain;
+    @BindView(R.id.sv_console_main)
+    ScrollView svConsoleMain;
+    @BindView(R.id.progress_child_main)
+    CircleView progressChildMain;
+    @BindView(R.id.progress_parent_main)
+    CircleView progressParentMain;
+    @BindView(R.id.tv_num_main)
+    TextView tvNumMain;
+    @BindView(R.id.tv_progress_main)
+    TextView tvProgressMain;
+    @BindView(R.id.ll_console_main)
+    LinearLayout llConsoleMain;
 
     private USBBroadcastReceiver usbBroadcastReceiver;//USB监听广播
     private List<String> playLists;
     private static int videoIndex;//当前视频在列表中处于的位置
-    private static int lineNumber = 0;
-    private float playSpeed = 1.0f;
     private boolean isInsertPlaying = false;
     private boolean isCycle = true;
 
@@ -214,13 +227,15 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         initPlayData(true);
     }
 
-    //------控制台-----------------------------------------------------------------
+
+
+    //------进度条控制----------------------------------------------------------------
     /*
-     * 打开控制台
-     */
+    * 打开控制台
+    */
     @Override
     public void openConsole() {
-        llConsole.setVisibility(View.VISIBLE);
+        llConsoleMain.setVisibility(View.VISIBLE);
     }
 
     /*
@@ -231,43 +246,46 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                llConsole.setVisibility(View.GONE);
-                progress.setProgress(0);
-                progress.setMax(0);
-                console.setText("");
+                llConsoleMain.setVisibility(View.GONE);
+                progressParentMain.setMaximumValue(0);
+                tvConsoleMain.setText("");
             }
         }, 3000);
     }
 
     @Override
     public void updateConsole(String msg) {
-        String text = console.getText().toString();
-        if (lineNumber < 5) {
-            lineNumber++;
-        } else {
-            text = text.substring(text.indexOf("\n") + 1);
+        String lastStr = tvConsoleMain.getText().toString();
+        tvConsoleMain.setText(lastStr + "\n" + msg);
+        svConsoleMain.fullScroll(ScrollView.FOCUS_DOWN);//滚动到底部
+    }
+
+    @Override
+    public void initProgress(int parentMax) {
+        tvNumMain.setText(0+"/"+parentMax);
+        progressParentMain.setMaximumValue(parentMax);
+        progressChildMain.setMaximumValue(100);
+    }
+
+    @Override
+    public void updateChildProgress(int pg) {
+        progressChildMain.setProgressValue(pg);
+        tvProgressMain.setText(pg+"%");
+    }
+
+    @Override
+    public void updateParentProgress(int pg) {
+        progressParentMain.setProgressValue(pg);
+
+        String num = tvNumMain.getText().toString();
+        if(TextUtils.isEmpty(num)){
+            return;
         }
-
-        if (lineNumber > 1) {
-            text += "\n";
+        String[] split = num.split("/");
+        if(split.length < 2){
+            return;
         }
-        console.setText(text + msg);
-    }
-
-    //------进度条控制----------------------------------------------------------------
-    @Override
-    public void initProgress(final int max) {
-        progress.setMax(max);
-    }
-
-    @Override
-    public void updateProgress(final int pg) {
-        progress.setProgress(pg);
-    }
-
-    @Override
-    public void updateProgressStr(String progressStr) {
-        tvProgress.setText(progressStr);
+        tvNumMain.setText( pg + "/" +split[1]);
     }
 
     @Override

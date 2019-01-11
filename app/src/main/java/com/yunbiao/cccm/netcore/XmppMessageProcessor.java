@@ -5,7 +5,7 @@ import android.content.Intent;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
-import com.yunbiao.cccm.InsertManager;
+import com.yunbiao.cccm.download.InsertManager;
 import com.yunbiao.cccm.act.MainController;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
@@ -28,9 +28,6 @@ import com.yunbiao.cccm.utils.SystemInfoUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.view.TipToast;
 import com.yunbiao.cccm.view.model.InsertTextModel;
-import com.yunbiao.cccm.view.model.InsertVideoModel;
-
-import java.text.ParseException;
 
 /**
  * 核心类：Xmpp消息处理

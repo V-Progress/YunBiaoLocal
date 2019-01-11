@@ -127,20 +127,20 @@ public class MainController {
 
     }
 
-    public void updateProgress(final int progress){
+    public void updateChildProgress(final int pg){
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mRefListener.updateProgress(progress);
+                mRefListener.updateChildProgress(pg);
             }
         });
     }
 
-    public void updateProgressStr(final String progressStr){
+    public void updateParentProgress(final int pg){
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mRefListener.updateProgressStr(progressStr);
+                mRefListener.updateParentProgress(pg);
             }
         });
     }

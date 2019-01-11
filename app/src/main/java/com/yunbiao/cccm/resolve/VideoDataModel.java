@@ -15,6 +15,15 @@ public class VideoDataModel {
         private String end;
         private String isdelete;
         private String start;
+        private String playurl;
+
+        public String getPlayurl() {
+            return playurl;
+        }
+
+        public void setPlayurl(String playurl) {
+            this.playurl = playurl;
+        }
 
         public String getEnd() {
             return end;
