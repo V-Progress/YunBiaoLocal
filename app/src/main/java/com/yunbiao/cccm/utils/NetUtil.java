@@ -180,17 +180,11 @@ public class NetUtil {
         params.put("rsUpdate",rsUpdate);
         params.put("userFile",fileName);
         params.put("status",isSucc ? "1" : "2");
-        post(ResourceConst.REMOTE_RES.RES_PROGRESS_UPLOAD, params, new StringCallback() {
-            @Override
-            public void onError(Call call, Exception e, int id) {
-                LogUtil.E("文件下载进度上传失败");
-            }
 
-            @Override
-            public void onResponse(String response, int id) {
-                LogUtil.E("文件下载进度上传结果："+response);
-            }
-        });
+        LogUtil.D("文件进度："+params.toString());
+        Response response = postSync(ResourceConst.REMOTE_RES.RES_PROGRESS_UPLOAD, params);
+        String resp = response.body().toString();
+        LogUtil.D("文件下载进度上传结果："+resp);
     }
 
     /**
@@ -208,7 +202,7 @@ public class NetUtil {
                 map.put("softwareVersion", CommonUtils.getAppVersion(APP.getContext()) + "_" + Const.VERSION_TYPE.TYPE);
 
                 String ori = SystemProperties.get("persist.sys.hwrotation");
-                LogUtil.E("当前屏幕方向：" + ori);
+                LogUtil.D("当前屏幕方向：" + ori);
                 map.put("screenRotate", ori);
                 map.put("deviceCpu", CommonUtils.getCpuName() + " " + CommonUtils.getNumCores() + "核" + CommonUtils
                         .getMaxCpuFreq() + "khz");
@@ -222,11 +216,12 @@ public class NetUtil {
                 map.put("mac", CommonUtils.getLocalMacAddress());//设备的本机MAC地址
                 map.put("camera", CommonUtils.checkCamera());
                 map.put("deviceIp", CommonUtils.getIpAddress());//当前设备IP地址
-                LogUtil.E("上传设备信息：" + map.toString());
+                LogUtil.D("上传设备信息：" + map.toString());
                 post(ResourceConst.REMOTE_RES.UPLOAD_DEVICE_INFO, map, new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
-                        LogUtil.E(e.getMessage());
+                        e.printStackTrace();
+                        LogUtil.D(e.getMessage());
                     }
 
                     @Override

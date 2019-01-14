@@ -17,8 +17,8 @@ public class Const {
     private static final String SUFFIX = "cccm/";//斜杠
 
     public static final String HOSTS = BuildConfig.HOSTS;//基础IP地址
-//    public static final String BASE_URL = PREFIX + HOSTS + ":8080" + SLASH + SUFFIX;//URL地址
-    public static final String BASE_URL = PREFIX + HOSTS + SLASH;//URL地址
+    public static final String BASE_URL = PREFIX + HOSTS + ":8080" + SLASH + SUFFIX;//URL地址
+//    public static final String BASE_URL = PREFIX + HOSTS + SLASH;//URL地址
 
     public static final String SERVER_PORT = BuildConfig.PORT;//端口号
 
@@ -33,10 +33,9 @@ public class Const {
     public static Map<Integer,String> typeMap = new HashMap<>();
 
     public interface URL {
-        String PRO = "210.51.34.85";
-//        String PRO = "192.168.1.101";
-//        String PRO = "sp.mediaorange.cn";
-//
+//        String PRO = "210.51.34.85";
+        String PRO = "192.168.1.101";
+
         String DEV = "192.168.1.101";
     }
 
@@ -65,6 +64,11 @@ public class Const {
          * 是否输出日志
          */
         boolean IS_LOG = true;
+
+        /***
+         *
+         */
+        boolean IS_LOG_TO_FILE = BuildConfig.IS_LOG_TO_FILE;
 
         /***
          * 菜单界面停留时长

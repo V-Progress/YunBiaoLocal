@@ -22,7 +22,7 @@ import okhttp3.Response;
 /**
  * 以队列形式实现
  * 先对文件进行比对,相同大小的视为下载完成,不同大小的保存信息,
- *
+ * <p>
  * Created by Wei.Zhang on 2018/12/21.
  */
 
@@ -53,15 +53,13 @@ public class BPDownloadUtil {
     private boolean cancel = false;
     //当前文件标识
     private int currFileNum = 1;
-    //重试次数标识
-    private int retryNum = 0;
 
-    private  MultiFileDownloadListener l;
+    private MultiFileDownloadListener l;
 
-    public BPDownloadUtil(Object tag,FileDownloadListener fileDownloadListener) {
-        if(fileDownloadListener == null){
+    public BPDownloadUtil(Object tag, FileDownloadListener fileDownloadListener) {
+        if (fileDownloadListener == null) {
             l = new FileDownloadListener() {};
-        }else{
+        } else {
             l = fileDownloadListener;
         }
 
@@ -81,7 +79,7 @@ public class BPDownloadUtil {
         downloadThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                breakPointDownload(directory,fileUrlList);
+                breakPointDownload(directory, fileUrlList);
             }
         });
         downloadThread.start();
@@ -90,13 +88,13 @@ public class BPDownloadUtil {
     /***
      * 取消当前下载
      */
-    public void cancel(){
+    public void cancel() {
         cancel = true;
-        cancelTag(okHttpClient,mTag);
+        cancelTag(okHttpClient, mTag);
 
     }
 
-    private void breakPointDownload(String localPath, final List<String> fileUrlList){
+    private void breakPointDownload(String localPath, final List<String> fileUrlList) {
         if (l == null) {
             l = new FileDownloadListener() {};
         }
@@ -114,7 +112,7 @@ public class BPDownloadUtil {
         //初始化一个队列，便于递归使用
         Queue<String> urlQueue = new LinkedList<>();
         urlQueue.addAll(fileUrlList);
-        LogUtil.E(TAG,urlQueue.toString());
+        LogUtil.E(TAG, urlQueue.toString());
 
         //下载之前先调用一下before
         l.onBefore(urlQueue.size());
@@ -133,7 +131,7 @@ public class BPDownloadUtil {
         }
 
         String downloadUrl = urlQueue.poll();
-        String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/"));
+        String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/")).substring(1);
 
         LogUtil.E(TAG, "下载地址：" + downloadUrl + "-----" + "文件名：" + fileName);
 
@@ -146,14 +144,6 @@ public class BPDownloadUtil {
 
         //获取要下载的文件的长度（因为要计算文件的进度，所以即使本地文件不存在也应该获取）
         long contentLength = getContentLength(downloadUrl);
-        //如果下载的文件长度为0并且重试次数未超
-        if (contentLength == 0 && retryNum < 2) {
-            retryNum++;
-            //下载失败时重试三次
-            urlQueue.offer(downloadUrl);
-            equalsFile(localPath, urlQueue, downloadInfos);
-            return;
-        }
 
         DownloadInfo downloadInfo = new DownloadInfo();
         downloadInfo.setUrl(downloadUrl);
@@ -162,8 +152,15 @@ public class BPDownloadUtil {
         downloadInfo.setLocalFile(localFile);
         downloadInfo.setFileName(fileName);
 
-        //重置重试次数
-        retryNum = 0;
+        //如果下载的文件长度为0并且重试次数未超
+        if (contentLength == 0) {
+            LogUtil.E(TAG, "获取文件大小失败，重试");
+
+            onError(new Exception(),downloadInfo);
+            equalsFile(localPath, urlQueue, downloadInfos);
+            return;
+        }
+
         //如果本地文件的长度和远程的相等，代表下载完成
         if (localFileLength == contentLength) {
             onSuccess(downloadInfo);
@@ -185,7 +182,7 @@ public class BPDownloadUtil {
             return;
         }
 
-        if(cancel){
+        if (cancel) {
             return;
         }
 
@@ -228,7 +225,7 @@ public class BPDownloadUtil {
                 while ((len = is.read(b)) != -1) {
                     l.onDownloadSpeed(len);
 
-                    if(cancel){
+                    if (cancel) {
                         return;
                     }
 
@@ -252,12 +249,12 @@ public class BPDownloadUtil {
                 if (localFile.length() != contentLength) {
                     boolean delete = localFile.delete();
                     downloadInfos.offer(downloadInfo);
-                }else{
+                } else {
                     onSuccess(downloadInfo);
                 }
             }
         } catch (final IOException e) {
-            l.onError(currFileNum,e,downloadInfo);
+            onError(e, downloadInfo);
         } finally {
             try {
                 if (is != null) {
@@ -267,7 +264,7 @@ public class BPDownloadUtil {
                     savedFile.close();
                 }
             } catch (final Exception e) {
-                l.onError(currFileNum, e, downloadInfo);
+                onError(e,downloadInfo);
             }
         }
         download(downloadInfos);
@@ -278,7 +275,13 @@ public class BPDownloadUtil {
      */
     private void onSuccess(DownloadInfo downloadInfo) {
         d("download onSuccess...");
-        l.onSuccess(currFileNum,downloadInfo);
+        l.onSuccess(currFileNum, downloadInfo);
+        currFileNum++;
+    }
+
+    private void onError(Exception e,DownloadInfo downloadInfo){
+        d("download onError...");
+        l.onError(currFileNum,e,downloadInfo);
         currFileNum++;
     }
 
@@ -309,7 +312,9 @@ public class BPDownloadUtil {
         }
     }
 
-    /** 根据Tag取消请求 */
+    /**
+     * 根据Tag取消请求
+     */
     private static void cancelTag(OkHttpClient client, Object tag) {
         if (client == null || tag == null) return;
         for (Call call : client.dispatcher().queuedCalls()) {

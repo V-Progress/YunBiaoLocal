@@ -70,36 +70,17 @@ public class ResourceManager {
         });
     }
 
-    /***
-     * 单项请求configXML，将isInit置为false，请求完毕后不会重复请求。
-     * @param type
-     */
-    public void requestConfigXML(final int type) {
-        if (type == TYPE_TOMMO) {
-            isInit = false;
-        }
-        ThreadUtil.getInstance().runInRemoteThread(new Runnable() {
-            @Override
-            public void run() {
-                requestRes(type);
-            }
-        });
-    }
-
     private void requestRes(final int type) {
         //判断当前请求的类型，如果是今天的，将初始化置为true，以便请求结束的时候
-        if (type == TYPE_TODAY) {
-            isInit = true;
-        }
+        isInit = type == TYPE_TODAY;
 
-        // TODO: 2019/1/11 细化下载流程，今天和明天的分开，具体到取哪一天的数据来下载
         LogUtil.D(TAG, "请求" + (type == TYPE_TODAY ? "今天" : "明天") + "的数据");
         Map<String, String> map = new HashMap<>();
         map.put("deviceNo", HeartBeatClient.getDeviceNo());
         map.put("type", String.valueOf(type));
 
         try {
-            //请求获取config
+            //请求获取资源
             Response response = NetUtil.getInstance().postSync(ResourceConst.REMOTE_RES.GET_RESOURCE, map);
             if (response == null) {
                 throw new IOException("request play Resource Error");
@@ -117,7 +98,7 @@ public class ResourceManager {
                 LogUtil.D(TAG, configResponse.getMessage());
                 //请求明天时会将isInit置为false
                 if (isInit) {
-                    requestConfigXML(TYPE_TOMMO);
+                    requestRes(TYPE_TOMMO);
                 }
                 return;
             }
@@ -142,7 +123,7 @@ public class ResourceManager {
             //转换成bean
             VideoDataModel videoDataModel = new XMLParse().parseVideoModel(configStr);
             String videoDataStr = new Gson().toJson(videoDataModel);
-            LogUtil.D(TAG, videoDataStr);
+            LogUtil.D(TAG, "Config：" + videoDataStr);
             //缓存
             if (type == TYPE_TODAY) {
                 //判断如果是今天的数据再进行缓存
@@ -156,6 +137,7 @@ public class ResourceManager {
             download(urlList);
 
         } catch (Exception e) {
+            e.printStackTrace();
             LogUtil.E(TAG, "处理播放资源出现异常：" + e.getMessage());
         }
     }
@@ -165,43 +147,47 @@ public class ResourceManager {
         List<VideoDataModel.Play> playlist = videoDataModel.getPlaylist();
         String playurl = videoDataModel.getConfig().getPlayurl();
 
-        String todayStr = DateUtil.yyyyMMdd_Format(new Date());
-        Date today = DateUtil.yyyyMMdd_Parse(todayStr);
+        String dayStr = DateUtil.yyyyMMdd_Format(new Date());
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(today);
-        int day = calendar.get(Calendar.DATE);
-        calendar.set(Calendar.DATE, day + 1);
-        Date time = calendar.getTime();
-        String tommStr = DateUtil.yyyyMMdd_Format(time);
+        if (!isInit) {//如果是明天的数据则取明天的时间
+            Date today = DateUtil.yyyyMMdd_Parse(dayStr);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(today);
+            int day = calendar.get(Calendar.DATE);
+            calendar.set(Calendar.DATE, day + 1);
+            Date time = calendar.getTime();
+            dayStr = DateUtil.yyyyMMdd_Format(time);
+        }
 
         for (VideoDataModel.Play play : playlist) {
             String playday = play.getPlayday();
 
             //不是今天也不是明天的数据
-            if (TextUtils.isEmpty(playday) || (!TextUtils.equals(playday, todayStr) && !TextUtils.equals(playday, tommStr))) {
+            if (TextUtils.isEmpty(playday)) {
                 continue;
             }
 
-            currDownloadPlayDay = playday;
+            if (TextUtils.equals(playday, dayStr)) {
 
-            LogUtil.D(TAG,"当前的日期："+ playday);
-            List<VideoDataModel.Play.Rule> rules = play.getRules();
-            for (VideoDataModel.Play.Rule rule : rules) {
-                String res = rule.getRes();
-                String[] resArray = res.split(",");
-                for (String resName : resArray) {
-                    resName = resName.replace("\n", "").trim().replace("%20", "");
-                    if (!TextUtils.isEmpty(resName)) {
-                        String resUrl = ftpServiceUrl + playurl + "/" + resName;
-                        if (!urlList.contains(resUrl)) {
-                            urlList.add(resUrl);
+                currDownloadPlayDay = playday;
+
+                List<VideoDataModel.Play.Rule> rules = play.getRules();
+                for (VideoDataModel.Play.Rule rule : rules) {
+                    String res = rule.getRes();
+                    String[] resArray = res.split(",");
+                    for (String resName : resArray) {
+                        resName = resName.replace("\n", "").trim().replace("%20", "");
+                        if (!TextUtils.isEmpty(resName)) {
+                            String resUrl = ftpServiceUrl + playurl + "/" + resName;
+                            if (!urlList.contains(resUrl)) {
+                                urlList.add(resUrl);
+                            }
                         }
                     }
                 }
             }
         }
-
+        LogUtil.D(TAG, "下载列表：" + urlList.toString());
         totalNum = urlList.size();
         return urlList;
     }
@@ -211,23 +197,21 @@ public class ResourceManager {
         if (downloadUtil != null) {
             downloadUtil.cancel();
         }
-        downloadUtil = new BPDownloadUtil(getClass(),fileDownloadListener);
+        downloadUtil = new BPDownloadUtil(getClass(), fileDownloadListener);
         downloadUtil.breakPointDownload(urlList);
     }
 
     FileDownloadListener fileDownloadListener = new FileDownloadListener() {
         @Override
         public void onBefore(int totalNum) {
-            LogUtil.D(TAG, "准备下载: " + totalNum);
             if (isInit) {
-                //开启控制台
-                if (totalNum <= 0) {
-                    return;
-                }
                 MainController.getInstance().openConsole();
-                MainController.getInstance().updateConsole("准备下载资源...共有：" + totalNum + "个文件");
                 MainController.getInstance().initProgress(totalNum);
             }
+
+            String msg = ("准备下载"+currDownloadPlayDay+"的资源...共有：" + totalNum + "个文件");
+            LogUtil.D(TAG, msg);
+            MainController.getInstance().updateConsole(msg);
         }
 
         @Override
@@ -248,33 +232,37 @@ public class ResourceManager {
             MainController.getInstance().updateParentProgress(currFileNum);
             MainController.getInstance().updateConsole("下载完成");
 
-            NetUtil.getInstance().uploadProgress(currDownloadPlayDay,currFileNum +"/" + totalNum,downloadInfo.getFileName(),true);
+            NetUtil.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, downloadInfo.getFileName(), true);
         }
 
         @Override
         public void onError(int currFileNum, Exception e, BPDownloadUtil.DownloadInfo downloadInfo) {
+            e.printStackTrace();
             LogUtil.D(TAG, "下载错误: " + e.getMessage());
             MainController.getInstance().updateConsole("下载错误:" + e.getMessage());
-            NetUtil.getInstance().uploadProgress(currDownloadPlayDay,currFileNum +"/" + totalNum,downloadInfo.getFileName(),true);
+            NetUtil.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, downloadInfo.getFileName(), false);
         }
 
         @Override
         public void onFinish() {
             LogUtil.D(TAG, "下载结束");
             urlList.clear();
+
+            MainController.getInstance().updateParentProgress(urlList.size());
+            MainController.getInstance().updateConsole(currDownloadPlayDay + "的资源下载完毕");
+
             if (isInit) {
                 MainController.getInstance().initPlayData(true);
-
-                MainController.getInstance().updateParentProgress(urlList.size());
+                requestRes(TYPE_TOMMO);//请求明天时会将isInit置为false
+            } else {
                 MainController.getInstance().updateConsole("已全部下载结束");
                 MainController.getInstance().closeConsole();
-                LogUtil.D("dataTag不为2，继续开始请求");
-                requestConfigXML(TYPE_TOMMO);//请求明天时会将isInit置为false
             }
         }
 
         @Override
         public void onFailed(Exception e) {
+            e.printStackTrace();
             LogUtil.D(TAG, "下载失败：" + e.getMessage());
             MainController.getInstance().updateConsole("下载失败，请检查网络或Config:" + e.getMessage());
         }

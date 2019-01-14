@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -156,6 +157,17 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         vv.setOnErrorListener(errorListener);//播放错误监听
         vv.setOnInfoListener(infoListener);//播放信息监听
         vv.setOnCompletionListener(completionListener);
+        svConsoleMain.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                svConsoleMain.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        svConsoleMain.fullScroll(View.FOCUS_DOWN);
+                    }
+                });
+            }
+        });
     }
 
     /*
@@ -257,7 +269,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     public void updateConsole(String msg) {
         String lastStr = tvConsoleMain.getText().toString();
         tvConsoleMain.setText(lastStr + "\n" + msg);
-        svConsoleMain.fullScroll(ScrollView.FOCUS_DOWN);//滚动到底部
     }
 
     @Override

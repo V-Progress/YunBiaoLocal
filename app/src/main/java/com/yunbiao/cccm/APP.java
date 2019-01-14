@@ -10,12 +10,18 @@ import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.umeng.commonsdk.UMConfigure;
+import com.umeng.commonsdk.debug.UMLog;
+import com.umeng.commonsdk.debug.UMLogCommon;
+import com.umeng.commonsdk.utils.UMUtils;
 import com.yunbiao.cccm.act.MainActivity;
 import com.yunbiao.cccm.act.MenuActivity;
 import com.yunbiao.cccm.common.Const;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.utils.CommonUtils;
 import com.yunbiao.cccm.utils.BDLocationListener;
+import com.yunbiao.cccm.utils.Log2FileUtil;
+import com.yunbiao.cccm.utils.LogUtil;
 import com.zhy.http.okhttp.OkHttpUtils;
 
 import java.util.ArrayList;
@@ -49,6 +55,12 @@ public class APP extends Application {
         actList = new ArrayList<>();
         smdt = SmdtManager.create(this);
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);// 安卓音频初始化
+
+//        UMConfigure.init(this,UMConfigure.DEVICE_TYPE_BOX,null);
+        UMConfigure.init(this,"5c3c2f2cf1f556d9c30013de","self",UMConfigure.DEVICE_TYPE_BOX,null);
+        UMConfigure.setLogEnabled(true);
+
+        Log2FileUtil.startLogcatManager(this);
 
         //初始化OKHTTPUTILS
         okHttpClient = new OkHttpClient()

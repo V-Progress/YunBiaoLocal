@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 
@@ -33,10 +34,19 @@ public class SystemInfoUtil {
     //返回的安装包url
     private static String apkUrl = "http://211.157.160.102/imgserver/hsd.apk";
 
+    public static String getSystemSDK(){
+        int sdkInt = Build.VERSION.SDK_INT;
+        return String.valueOf(sdkInt);
+    }
+
+    public static String getSystemVersion(){
+        return Build.VERSION.RELEASE;
+    }
+
     /**
      * 获取当前版本号
      */
-    private static String getVersionName() {
+    public static String getVersionName() {
         String version = "";
         try {
             PackageManager packageManager = APP.getContext().getPackageManager();
