@@ -23,7 +23,6 @@ import com.yunbiao.cccm.utils.TimerUtil;
 import com.yunbiao.cccm.utils.ToastUtil;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class MenuActivity extends BaseActivity implements View.OnFocusChangeListener {
@@ -80,13 +79,12 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     }
 
     protected void initData() {
+        timerUtil = TimerUtil.getInstance(onTimerListener);
         soundPool = new SoundPool(10, AudioManager.STREAM_RING, 5);//第一个参数为同时播放数据流的最大个数，第二数据流类型，第三为声音质量
         music = soundPool.load(this, R.raw.di, 1);
     }
 
     protected void initView() {
-        timerUtil = TimerUtil.getInstance(this).listen(onTimerListener);
-
         btnMenuStart.setOnFocusChangeListener(this);
         btnMenuOffline.setOnFocusChangeListener(this);
         btnMenuWechat.setOnFocusChangeListener(this);
@@ -124,20 +122,31 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         setConnInfo();
     }
 
+    private boolean isTimerRuning = false;
+
     @Override
     protected void onResume() {
         super.onResume();
-        if (timerUtil != null) {
-            timerUtil.start(60);//开始计时
-        }
-        updatePlayButton();
+        timerStart();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        timerPause();
+    }
+
+    protected void timerStart(){
+        if (timerUtil != null) {
+            timerUtil.start(60);//开始计时
+            isTimerRuning = true;
+        }
+    }
+
+    protected void timerPause(){
         if (timerUtil != null) {
             timerUtil.pause();//pause时停掉计时
+            isTimerRuning = false;
         }
     }
 
@@ -253,8 +262,8 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     public void updatePlayButton() {
         boolean isHasPlay = CacheManager.SP.getPlayTag();
         if (!isHasPlay) {
-            if (timerUtil != null) {
-                timerUtil.pause();
+            if(isTimerRuning){
+                timerPause();
             }
             btnMenuStart.setEnabled(false);
             Drawable drawable = getResources().getDrawable(R.mipmap.menu_nostart);
@@ -263,8 +272,8 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
             tvMenuStartHints.setText("");
             tvMenuStartHints2.setText("暂无播放资源");
         } else {
-            if (timerUtil != null) {
-                timerUtil.start(60);
+            if(!isTimerRuning){
+                timerStart();
             }
             btnMenuStart.setEnabled(true);
             Drawable drawable = getResources().getDrawable(R.mipmap.menu_start);

@@ -12,15 +12,14 @@ import java.util.TimerTask;
  */
 
 public class TimerUtil {
-    private static TimerUtil instance;
     private Timer mTimer;
     private int recLen = Const.SYSTEM_CONFIG.MENU_STAY_DURATION;
     private OnScreenTask onScreenTask;
-    private static Activity mActivity;
-    private OnTimerListener onTimerListener;
+    private static OnTimerListener onTimerListener;
+    private static TimerUtil instance;
 
-    public synchronized static TimerUtil getInstance(Activity activity){
-        mActivity = activity;
+    public synchronized static TimerUtil getInstance(OnTimerListener lis){
+        onTimerListener = lis;
         if(instance == null){
             instance = new TimerUtil();
         }
@@ -30,7 +29,7 @@ public class TimerUtil {
     private class OnScreenTask extends TimerTask {
         @Override
         public void run() {
-            mActivity.runOnUiThread(new Runnable() {//UI thread
+            ThreadUtil.getInstance().runInUIThread(new Runnable() {
                 @Override
                 public void run() {
                     recLen--;
@@ -60,11 +59,6 @@ public class TimerUtil {
         }
         onTimerListener.onTimeStart();
         mTimer.schedule(onScreenTask, 1000, 1000);
-    }
-
-    public TimerUtil listen(OnTimerListener onTimerListener){
-        this.onTimerListener = onTimerListener;
-        return instance;
     }
 
     public interface OnTimerListener{
