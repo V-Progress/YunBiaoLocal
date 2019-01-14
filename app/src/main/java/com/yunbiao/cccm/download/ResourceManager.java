@@ -83,11 +83,17 @@ public class ResourceManager {
             //请求获取资源
             Response response = NetUtil.getInstance().postSync(ResourceConst.REMOTE_RES.GET_RESOURCE, map);
             if (response == null) {
+                if(isInit){
+                    MainController.getInstance().updateMenu(false);
+                }
                 throw new IOException("request play Resource Error");
             }
             //取出响应
             String responseStr = response.body().string();
             if (TextUtils.isEmpty(responseStr)) {
+                if(isInit){
+                    MainController.getInstance().updateMenu(false);
+                }
                 throw new IOException("response's body is null");
             }
             LogUtil.D(TAG, "播放资源：" + responseStr);
@@ -98,6 +104,7 @@ public class ResourceManager {
                 LogUtil.D(TAG, configResponse.getMessage());
                 //请求明天时会将isInit置为false
                 if (isInit) {
+                    MainController.getInstance().updateMenu(false);
                     requestRes(TYPE_TOMMO);
                 }
                 return;
@@ -111,12 +118,18 @@ public class ResourceManager {
             //下载config文件
             Response configXml = NetUtil.getInstance().downloadSync(configUrl);
             if (configXml == null) {
+                if(isInit){
+                    MainController.getInstance().updateMenu(false);
+                }
                 throw new IOException("download response's body is null");
             }
 
             //取出config内容
             String configStr = configXml.body().string();
             if (TextUtils.isEmpty(configStr)) {
+                if(isInit){
+                    MainController.getInstance().updateMenu(false);
+                }
                 throw new IOException("config.xml is null");
             }
 
@@ -139,6 +152,7 @@ public class ResourceManager {
         } catch (Exception e) {
             e.printStackTrace();
             LogUtil.E(TAG, "处理播放资源出现异常：" + e.getMessage());
+
         }
     }
 
@@ -205,6 +219,11 @@ public class ResourceManager {
         @Override
         public void onBefore(int totalNum) {
             if (isInit) {
+                if(totalNum <= 0){
+                    MainController.getInstance().updateMenu(false);
+                }else{
+                    MainController.getInstance().updateMenu(true);
+                }
                 MainController.getInstance().openConsole();
                 MainController.getInstance().initProgress(totalNum);
             }
@@ -232,6 +251,9 @@ public class ResourceManager {
             MainController.getInstance().updateParentProgress(currFileNum);
             MainController.getInstance().updateConsole("下载完成");
 
+            if(isInit){
+                MainController.getInstance().initPlayData(true);
+            }
             NetUtil.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, downloadInfo.getFileName(), true);
         }
 

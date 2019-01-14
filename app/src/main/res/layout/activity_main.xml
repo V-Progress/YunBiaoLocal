@@ -113,6 +113,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <rjsv.circularview.CircleView
+                circleview:enabled="false"
                 circleview:textEnabled="false"
                 android:id="@+id/progress_child_main"
                 android:layout_gravity="center"
@@ -127,6 +128,7 @@
                 circleview:progressBarSquared="true"
                 circleview:textSize="36sp"/>
             <rjsv.circularview.CircleView
+                circleview:enabled="false"
                 circleview:textEnabled="false"
                 android:layout_gravity="center"
                 android:id="@+id/progress_parent_main"

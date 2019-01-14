@@ -56,8 +56,7 @@ public class APP extends Application {
         smdt = SmdtManager.create(this);
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);// 安卓音频初始化
 
-//        UMConfigure.init(this,UMConfigure.DEVICE_TYPE_BOX,null);
-        UMConfigure.init(this,"5c3c2f2cf1f556d9c30013de","self",UMConfigure.DEVICE_TYPE_BOX,null);
+        UMConfigure.init(this,UMConfigure.DEVICE_TYPE_BOX,null);
         UMConfigure.setLogEnabled(true);
 
         Log2FileUtil.startLogcatManager(this);

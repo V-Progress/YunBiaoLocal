@@ -1,7 +1,9 @@
 package com.yunbiao.cccm.act;
 
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.os.Bundle;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -9,6 +11,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.yunbiao.cccm.APP;
@@ -20,6 +23,7 @@ import com.yunbiao.cccm.utils.TimerUtil;
 import com.yunbiao.cccm.utils.ToastUtil;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class MenuActivity extends BaseActivity implements View.OnFocusChangeListener {
@@ -62,6 +66,8 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     PercentRelativeLayout prlRoot;
     @BindView(R.id.btn_select_res_menu)
     Button btnSelect;
+    @BindView(R.id.iv_menu_icon_start)
+    ImageView ivMenuIconStart;
 
     private SoundPool soundPool;//用来管理和播放音频文件
     private int music;
@@ -76,16 +82,15 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     protected void initData() {
         soundPool = new SoundPool(10, AudioManager.STREAM_RING, 5);//第一个参数为同时播放数据流的最大个数，第二数据流类型，第三为声音质量
         music = soundPool.load(this, R.raw.di, 1);
-        timerUtil = TimerUtil.getInstance(this).listen(onTimerListener);
     }
 
     protected void initView() {
+        timerUtil = TimerUtil.getInstance(this).listen(onTimerListener);
+
         btnMenuStart.setOnFocusChangeListener(this);
         btnMenuOffline.setOnFocusChangeListener(this);
         btnMenuWechat.setOnFocusChangeListener(this);
 
-        tvMenuStartHints.setText(R.string.play);
-        tvMenuStartHints2.setText(R.string.auto_play);
         tvMenuOfflineHints2.setText(R.string.use_usb_play);
         tvMenuInfoPrompt.setText(R.string.hint_click_play);
 
@@ -122,13 +127,18 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     @Override
     protected void onResume() {
         super.onResume();
-        timerUtil.start(60);//开始计时
+        if (timerUtil != null) {
+            timerUtil.start(60);//开始计时
+        }
+        updatePlayButton();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        timerUtil.pause();//pause时停掉计时
+        if (timerUtil != null) {
+            timerUtil.pause();//pause时停掉计时
+        }
     }
 
     /***
@@ -157,14 +167,14 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         switch (view.getId()) {
             case R.id.btn_menu_start:
                 if (isFastClick()) {
-                    ToastUtil.showShort(this,"请不要重复点击");
+                    ToastUtil.showShort(this, "请不要重复点击");
                 } else {
                     finish();
                 }
                 break;
             case R.id.btn_menu_playlist:
                 if (isFastClick()) {
-                    ToastUtil.showShort(this,"请不要重复点击");
+                    ToastUtil.showShort(this, "请不要重复点击");
                 } else {
                     onPause();
                     playListFragment = new PlayListFragment();
@@ -175,11 +185,11 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                 break;
             case R.id.btn_menu_wechat:
 //                startActivity(new Intent(this, WeichatActivity.class));
-                ToastUtil.showShort(this,"即将开放");
+                ToastUtil.showShort(this, "即将开放");
                 break;
             case R.id.btn_select_res_menu:
                 if (isFastClick()) {
-                    ToastUtil.showShort(this,"请不要重复点击");
+                    ToastUtil.showShort(this, "请不要重复点击");
                 } else {
                     MainController.getInstance().initPlayData(false);
                 }
@@ -233,8 +243,35 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         APP.setMenuActivity(null);
     }
 
+    //设置设备号和接入码
     private void setConnInfo() {
         tvMenuInfoEquipmentMum.setText(CacheManager.SP.getDeviceNum());
         tvMenuInfoAccessCode.setText(CacheManager.SP.getAccessCode());
+    }
+
+    //更新播放按钮
+    public void updatePlayButton() {
+        boolean isHasPlay = CacheManager.SP.getPlayTag();
+        if (!isHasPlay) {
+            if (timerUtil != null) {
+                timerUtil.pause();
+            }
+            btnMenuStart.setEnabled(false);
+            Drawable drawable = getResources().getDrawable(R.mipmap.menu_nostart);
+            drawable.setBounds(0,0,drawable.getMinimumWidth(),drawable.getMinimumHeight());
+            ivMenuIconStart.setImageDrawable(drawable);
+            tvMenuStartHints.setText("");
+            tvMenuStartHints2.setText("暂无播放资源");
+        } else {
+            if (timerUtil != null) {
+                timerUtil.start(60);
+            }
+            btnMenuStart.setEnabled(true);
+            Drawable drawable = getResources().getDrawable(R.mipmap.menu_start);
+            drawable.setBounds(0,0,drawable.getMinimumWidth(),drawable.getMinimumHeight());
+            ivMenuIconStart.setImageDrawable(drawable);
+            tvMenuStartHints.setText(R.string.play);
+            tvMenuStartHints2.setText(R.string.auto_play);
+        }
     }
 }

@@ -1,7 +1,10 @@
 package com.yunbiao.cccm.act;
 
+import android.content.Intent;
 import android.view.View;
 
+import com.yunbiao.cccm.APP;
+import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.view.model.InsertTextModel;
 import com.yunbiao.cccm.view.model.InsertVideoModel;
@@ -17,6 +20,28 @@ import java.util.List;
 public class MainController {
     private static MainController layoutRefresher;
     private MainRefreshListener mRefListener;
+
+    public void updateMenu(final boolean isHasPlay){
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                CacheManager.SP.putPlayTag(isHasPlay);
+
+                MainActivity mainActivity = APP.getMainActivity();
+                MenuActivity menuActivity = APP.getMenuActivity();
+
+                if(mainActivity == null){
+                    return;
+                }
+
+                if(mainActivity.isForeground()  && !isHasPlay){
+                    mainActivity.startActivity(new Intent(mainActivity,MenuActivity.class));
+                }else if(menuActivity != null && menuActivity.isForeground()){
+                    menuActivity.updatePlayButton();
+                }
+            }
+        });
+    }
 
     public static synchronized MainController getInstance() {
         if (layoutRefresher == null) {

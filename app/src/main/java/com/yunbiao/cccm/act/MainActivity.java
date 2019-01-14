@@ -126,7 +126,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
                 initPlayer();
 
                 //初始化播放数据
-                //initPlayData(true);// TODO: 2018/12/30 初始化本地数据
+//                initPlayData(true);// TODO: 2018/12/30 初始化本地数据
 
                 //连接XMPP
                 PnServerController.startXMPP(MainActivity.this);

@@ -27,13 +27,16 @@ public class OnOffTool {
      * @param enable 自动开关机状态  0：关     3：开
      * @return
      */
-    public static int setPowerOnOff(byte off_h, byte off_m, byte on_h, byte on_m, byte enable) {
-        int fd, ret;
-        //  byte buf[] = { 0, 3, 0, 3 };
-        fd = posix.open("/dev/McuCom", posix.O_RDWR, 0666);
-        ret = posix.poweronoff(off_h, off_m, on_h, on_m, enable, fd);
-        posix.close(fd);
-        return 0;
+    public static void setPowerOnOff(byte off_h, byte off_m, byte on_h, byte on_m, byte enable) {
+        try{
+            int fd, ret;
+            //  byte buf[] = { 0, 3, 0, 3 };
+            fd = posix.open("/dev/McuCom", posix.O_RDWR, 0666);
+            ret = posix.poweronoff(off_h, off_m, on_h, on_m, enable, fd);
+            posix.close(fd);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private static String getCurTime() {

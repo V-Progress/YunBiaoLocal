@@ -75,6 +75,14 @@ public class SPCache {
         return sp.getString(key, defValue);
     }
 
+    public static boolean saveBoolean(String key,boolean value){
+        return sp.edit().putBoolean(key,value).commit();
+    }
+
+    public static boolean getBoolean(String key){
+        return sp.getBoolean(key,false);
+    }
+
     public static void saveInt(Context context, String key, int value) {
         if (sp == null)
             sp = context.getSharedPreferences(SP_NAME, 0);

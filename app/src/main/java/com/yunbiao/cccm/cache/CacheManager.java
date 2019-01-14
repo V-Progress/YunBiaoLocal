@@ -47,6 +47,7 @@ public class CacheManager {
     private static final String TODAY_RES_DATA = "todayResData";//今天的资源数据
     private static final String TOMMOROW_RES_DATA = "todayResData";//明天的资源数据
 
+    private static final String PLAY_TAG = "isHasPlayData";
 
     private static final String SAVE_SOUND_MUSIC = "save_sound_music";
     private static final String ADSINFO_TEMP = "adsinfo_temp";//广告信息缓存
@@ -59,6 +60,13 @@ public class CacheManager {
 
         public static String get(String key, String defValue){
             return spCache.getString(key,defValue);
+        }
+
+        public static boolean putPlayTag(boolean tag){
+            return spCache.saveBoolean(PLAY_TAG,tag);
+        }
+        public static boolean getPlayTag(){
+            return spCache.getBoolean(PLAY_TAG);
         }
 
         public static boolean putLatitude(String la){

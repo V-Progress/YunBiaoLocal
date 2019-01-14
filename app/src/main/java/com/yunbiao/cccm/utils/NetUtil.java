@@ -183,6 +183,14 @@ public class NetUtil {
 
         LogUtil.D("文件进度："+params.toString());
         Response response = postSync(ResourceConst.REMOTE_RES.RES_PROGRESS_UPLOAD, params);
+        if(response == null){
+            LogUtil.D("文件下载进度上传结果：无响应");
+            return;
+        }
+        if(response.body() == null){
+            LogUtil.D("文件下载进度上传结果：无响应");
+            return;
+        }
         String resp = response.body().toString();
         LogUtil.D("文件下载进度上传结果："+resp);
     }
