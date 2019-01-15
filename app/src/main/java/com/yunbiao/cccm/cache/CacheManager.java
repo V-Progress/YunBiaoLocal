@@ -48,11 +48,9 @@ public class CacheManager {
     private static final String TOMMOROW_RES_DATA = "tommResData";//明天的资源数据
 
     private static final String PLAY_TAG = "isHasPlayData";
-    private static final String INSERT_TAG = "isHasInsertData";
 
     private static final String SAVE_SOUND_MUSIC = "save_sound_music";
     private static final String ADSINFO_TEMP = "adsinfo_temp";//广告信息缓存
-    public static final String INSERT_TYPE = "insert_type";
 
     public static class SP {
         public static boolean put(String key,String value){
