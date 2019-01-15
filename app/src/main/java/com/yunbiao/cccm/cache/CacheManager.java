@@ -45,9 +45,10 @@ public class CacheManager {
     //文件缓存----------------------------------------------------------
     //布局资源
     private static final String TODAY_RES_DATA = "todayResData";//今天的资源数据
-    private static final String TOMMOROW_RES_DATA = "todayResData";//明天的资源数据
+    private static final String TOMMOROW_RES_DATA = "tommResData";//明天的资源数据
 
     private static final String PLAY_TAG = "isHasPlayData";
+    private static final String INSERT_TAG = "isHasInsertData";
 
     private static final String SAVE_SOUND_MUSIC = "save_sound_music";
     private static final String ADSINFO_TEMP = "adsinfo_temp";//广告信息缓存
@@ -198,17 +199,25 @@ public class CacheManager {
         public static String getDeviceIP() {
             return spCache.getString(DEVICE_IP, "");
         }
+
     }
 
     public static class FILE {
         public static void putTodayResource(String dataJson){
             spCache.saveString(TODAY_RES_DATA,dataJson);
-//            fileCache.put(TODAY_RES_DATA,dataJson);
         }
 
         public static String getTodayResource(){
+
             return spCache.getString(TODAY_RES_DATA,"");
-//            return fileCache.getAsString(TODAY_RES_DATA);
+        }
+
+        public static void putTommResource(String dataJson){
+            spCache.saveString(TOMMOROW_RES_DATA,dataJson);
+        }
+
+        public static String getTommResource(){
+            return spCache.getString(TOMMOROW_RES_DATA,"");
         }
 
         public static boolean putTXTAds(InsertTextModel insertTextModel){

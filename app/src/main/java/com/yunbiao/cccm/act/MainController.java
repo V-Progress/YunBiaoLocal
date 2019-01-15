@@ -6,8 +6,6 @@ import android.view.View;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.utils.ThreadUtil;
-import com.yunbiao.cccm.view.model.InsertTextModel;
-import com.yunbiao.cccm.view.model.InsertVideoModel;
 
 import java.util.List;
 
@@ -21,7 +19,14 @@ public class MainController {
     private static MainController layoutRefresher;
     private MainRefreshListener mRefListener;
 
-    public void updateMenu(final boolean isHasPlay){
+    public void updateList() {
+        MenuActivity menuActivity = APP.getMenuActivity();
+        if (menuActivity != null) {
+            menuActivity.updatePlayList();
+        }
+    }
+
+    public void updateMenu(final boolean isHasPlay) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
@@ -30,13 +35,13 @@ public class MainController {
                 MainActivity mainActivity = APP.getMainActivity();
                 MenuActivity menuActivity = APP.getMenuActivity();
 
-                if(mainActivity == null){
+                if (mainActivity == null) {
                     return;
                 }
 
-                if(mainActivity.isForeground()  && !isHasPlay){
-                    mainActivity.startActivity(new Intent(mainActivity,MenuActivity.class));
-                }else if(menuActivity != null && menuActivity.isForeground()){
+                if (mainActivity.isForeground() && !isHasPlay ) {
+                    mainActivity.startActivity(new Intent(mainActivity, MenuActivity.class));
+                } else if (menuActivity != null && menuActivity.isForeground()) {
                     menuActivity.updatePlayButton();
                 }
             }
@@ -76,16 +81,16 @@ public class MainController {
         });
     }
 
-    public void startInsert(final boolean isCycle, final List<String> videoString){
+    public void startInsert(final boolean isCycle, final List<String> videoString) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mRefListener.startInsert(isCycle,videoString);
+                mRefListener.startInsert(isCycle, videoString);
             }
         });
     }
 
-    public void stopInsert(){
+    public void stopInsert() {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
@@ -142,7 +147,7 @@ public class MainController {
 
     }
 
-    public void initProgress(final int max){
+    public void initProgress(final int max) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
@@ -152,7 +157,7 @@ public class MainController {
 
     }
 
-    public void updateChildProgress(final int pg){
+    public void updateChildProgress(final int pg) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
@@ -161,7 +166,7 @@ public class MainController {
         });
     }
 
-    public void updateParentProgress(final int pg){
+    public void updateParentProgress(final int pg) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
@@ -170,7 +175,7 @@ public class MainController {
         });
     }
 
-    public void openLoading(final String loadingMsg){
+    public void openLoading(final String loadingMsg) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
@@ -179,7 +184,7 @@ public class MainController {
         });
     }
 
-    public void closeLoading(){
+    public void closeLoading() {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {

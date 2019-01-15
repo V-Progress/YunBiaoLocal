@@ -96,6 +96,9 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         tvMenuOfflineHints.setText("本地资源");
         tvMenuOfflineHints2.setText("查看本地已保存的节目");
 
+        tvMenuStartHints.setText(R.string.play);
+        tvMenuStartHints2.setText(R.string.auto_play);
+
 //        tvMenuSettingHints.setText("微信消息查看");
 //        tvMenuSettingHints2.setText("微信上墙消息查看");
         tvMenuSettingHints2.setText("即将开放");
@@ -127,7 +130,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     @Override
     protected void onResume() {
         super.onResume();
-        timerStart();
+        updatePlayButton();
     }
 
     @Override
@@ -281,6 +284,12 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
             ivMenuIconStart.setImageDrawable(drawable);
             tvMenuStartHints.setText(R.string.play);
             tvMenuStartHints2.setText(R.string.auto_play);
+        }
+    }
+
+    public void updatePlayList(){
+        if(playListFragment != null){
+            playListFragment.updateList();
         }
     }
 }

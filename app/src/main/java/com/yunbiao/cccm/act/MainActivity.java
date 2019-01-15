@@ -37,21 +37,18 @@ import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.utils.TimerExecutor;
 
 import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 import butterknife.BindView;
+import master.flame.danmaku.ui.widget.DanmakuView;
 import rjsv.circularview.CircleView;
 
 public class MainActivity extends BaseActivity implements MainRefreshListener {
     /*视频播放----*/
     @BindView(R.id.video_view)
     VideoView vv;
-    @BindView(R.id.permission)
-    TextView permission;
-    @BindView(R.id.state)
-    TextView state;
+    @BindView(R.id.dm_view)
+    DanmakuView dmView;
 
     /*加载框-----*/
     @BindView(R.id.fl_loading_main)
@@ -107,47 +104,43 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         intentFilter.addDataScheme("file");
         registerReceiver(usbBroadcastReceiver, intentFilter);
 
-        //是否授权
-        try {
-            long expire = new SimpleDateFormat("yyyyMMdd").parse("20250101").getTime();
-            if (expire < System.currentTimeMillis()) {
-                permission.setVisibility(View.VISIBLE);
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+//        DanmuUtil.getInstance(this).init(dmView);//初始化弹幕
     }
 
     protected void initData() {
+        //初始化播放器
+        initPlayer();
+        //初始化播放数据
+//      initPlayData(true);// TODO: 2018/12/30 初始化本地数据
+        //连接XMPP
+        PnServerController.startXMPP(MainActivity.this);
+
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                //初始化播放器
-                initPlayer();
-
-                //初始化播放数据
-//                initPlayData(true);// TODO: 2018/12/30 初始化本地数据
-
-                //连接XMPP
-                PnServerController.startXMPP(MainActivity.this);
-
-                //初始化自动开关机数据
-                PowerOffTool.getInstance().initPowerData();
-
                 //初始化播放数据
                 ResourceManager.getInstance().initResData();
+            }
+        }, 2000);
 
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
                 //初始化广告插播，如果有未播完的广告则自动播放
                 InsertManager.getInstance(MainActivity.this).initInsertData();
             }
-        }, 3000);
+        },5000);
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+                //初始化自动开关机数据
+                PowerOffTool.getInstance().initPowerData();
+
+                //删除过期文件
                 DeleteResUtil.removeExpireFile();
             }
-        }, 10000);
+        }, 7000);
     }
 
     //-------播放器控制----------------------------------------------------------------
@@ -175,19 +168,18 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
      */
     @Override
     public void initPlayData(boolean isRemote) {
-        VideoDataResolver videoDataResolve = new VideoDataResolver();
+        VideoDataResolver resolver = VideoDataResolver.getInstance();
         if (isRemote) {
-            videoDataResolve.resolvePlayLists();
+            resolver.initPlayList();
         } else {
-            videoDataResolve.resolveLocalResource();
+            resolver.resolveLocalResource();
         }
 
-        if (videoDataResolve.getPlayList() == null || videoDataResolve.getPlayList().isEmpty()) {
+        if (resolver.getPlayList() == null || resolver.getPlayList().isEmpty()) {
             if (isInsertPlaying) {
                 LogUtil.E("广告正在播放，不显示state");
                 return;
             }
-            state.setVisibility(View.VISIBLE);
         }
     }
 
@@ -330,14 +322,12 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         }
         vv.stopPlayback();
         vv.setVisibility(View.GONE);
-        state.setVisibility(View.VISIBLE);
     }
 
     private void play(final List<String> videoList) {
         videoIndex = 0;
         playLists = videoList;
 
-        state.setVisibility(View.INVISIBLE);
         if (vv.isPlaying()) {
             vv.stopPlayback();
         }

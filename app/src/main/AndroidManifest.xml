@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.DEVICE_POWER" />
 
     <permission android:name="android.permission.REBOOT" />
     <permission android:name="android.permission.SHUTDOWN" />
@@ -114,7 +116,6 @@
                 <action android:name="com.yunbiao.xmpp.NotificationService" />
             </intent-filter>
         </service>
-
 
         <activity
             android:name="com.yunbiao.cccm.act.MainActivity"

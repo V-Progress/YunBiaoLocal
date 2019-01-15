@@ -112,7 +112,6 @@ public class BPDownloadUtil {
         //初始化一个队列，便于递归使用
         Queue<String> urlQueue = new LinkedList<>();
         urlQueue.addAll(fileUrlList);
-        LogUtil.E(TAG, urlQueue.toString());
 
         //下载之前先调用一下before
         l.onBefore(urlQueue.size());
@@ -132,8 +131,6 @@ public class BPDownloadUtil {
 
         String downloadUrl = urlQueue.poll();
         String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/")).substring(1);
-
-        LogUtil.E(TAG, "下载地址：" + downloadUrl + "-----" + "文件名：" + fileName);
 
         //取出本地文件的大小
         long localFileLength = 0;
@@ -156,7 +153,7 @@ public class BPDownloadUtil {
         if (contentLength == 0) {
             LogUtil.E(TAG, "获取文件大小失败，重试");
 
-            onError(new Exception(),downloadInfo);
+            onError(new Exception("Get File's Length Error"),downloadInfo);
             equalsFile(localPath, urlQueue, downloadInfos);
             return;
         }

@@ -113,7 +113,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
                         throw new Exception(insertVideo.getMessage());
                     }
 
-                    InsertManager.getInstance(APP.getMainActivity()).insertPlay(insertVideo);
+                    insertPlay(insertVideo);
                 } catch (Exception e) {
                     LogUtil.E(TAG, "处理插播资源出现异常：" + e.getMessage());
                 }
@@ -121,6 +121,10 @@ public class InsertManager implements TextToSpeech.OnInitListener {
         });
     }
 
+    /***
+     * 插播字幕
+     * ========================================================================================
+     */
     public void initTXT() {
         InsertTextModel txtAds = CacheManager.FILE.getTXTAds();
         if (txtAds != null) {
@@ -128,11 +132,6 @@ public class InsertManager implements TextToSpeech.OnInitListener {
         }
     }
 
-    /***
-     * 插播字幕
-     * ========================================================================================
-     * @param itm
-     */
     public void insertTXT(final InsertTextModel itm) {
         if (itm == null) {
             return;

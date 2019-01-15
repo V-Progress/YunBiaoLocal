@@ -13,25 +13,6 @@
         android:layout_height="match_parent"
         android:layout_centerInParent="true" />
 
-    <TextView
-        android:id="@+id/permission"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:gravity="center"
-        android:text="未授权"
-        android:textSize="32sp"
-        android:visibility="invisible" />
-
-    <TextView
-        android:id="@+id/state"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_gravity="center"
-        android:text="没有视频"
-        android:textSize="18sp" />
-
     <LinearLayout
         android:visibility="gone"
         android:orientation="vertical"
@@ -163,5 +144,11 @@
             </LinearLayout>
         </FrameLayout>
     </LinearLayout>
+
+    <master.flame.danmaku.ui.widget.DanmakuView
+        android:id="@+id/dm_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
 
 </FrameLayout>

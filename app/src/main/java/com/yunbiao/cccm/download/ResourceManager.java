@@ -73,27 +73,22 @@ public class ResourceManager {
     private void requestRes(final int type) {
         //判断当前请求的类型，如果是今天的，将初始化置为true，以便请求结束的时候
         isInit = type == TYPE_TODAY;
-
-        LogUtil.D(TAG, "请求" + (type == TYPE_TODAY ? "今天" : "明天") + "的数据");
         Map<String, String> map = new HashMap<>();
         map.put("deviceNo", HeartBeatClient.getDeviceNo());
-        map.put("type", String.valueOf(type));
+        String date = isInit ? DateUtil.getToday_str() : DateUtil.getTomm_str();
+        LogUtil.D(TAG, "请求" + date + "的数据");
+        map.put("playDate", date);
+//        map.put("type",String.valueOf(isInit?TYPE_TODAY:TYPE_TOMMO));
 
         try {
             //请求获取资源
             Response response = NetUtil.getInstance().postSync(ResourceConst.REMOTE_RES.GET_RESOURCE, map);
             if (response == null) {
-                if(isInit){
-                    MainController.getInstance().updateMenu(false);
-                }
                 throw new IOException("request play Resource Error");
             }
             //取出响应
             String responseStr = response.body().string();
             if (TextUtils.isEmpty(responseStr)) {
-                if(isInit){
-                    MainController.getInstance().updateMenu(false);
-                }
                 throw new IOException("response's body is null");
             }
             LogUtil.D(TAG, "播放资源：" + responseStr);
@@ -102,12 +97,7 @@ public class ResourceManager {
             ConfigResponse configResponse = new Gson().fromJson(responseStr, ConfigResponse.class);
             if (TextUtils.equals(REQ_FAILED_TAG, configResponse.getResult())) {
                 LogUtil.D(TAG, configResponse.getMessage());
-                //请求明天时会将isInit置为false
-                if (isInit) {
-                    MainController.getInstance().updateMenu(false);
-                    requestRes(TYPE_TOMMO);
-                }
-                return;
+                throw new Exception(configResponse.getMessage());
             }
 
             //获取两种地址
@@ -118,18 +108,12 @@ public class ResourceManager {
             //下载config文件
             Response configXml = NetUtil.getInstance().downloadSync(configUrl);
             if (configXml == null) {
-                if(isInit){
-                    MainController.getInstance().updateMenu(false);
-                }
                 throw new IOException("download response's body is null");
             }
 
             //取出config内容
             String configStr = configXml.body().string();
             if (TextUtils.isEmpty(configStr)) {
-                if(isInit){
-                    MainController.getInstance().updateMenu(false);
-                }
                 throw new IOException("config.xml is null");
             }
 
@@ -137,10 +121,13 @@ public class ResourceManager {
             VideoDataModel videoDataModel = new XMLParse().parseVideoModel(configStr);
             String videoDataStr = new Gson().toJson(videoDataModel);
             LogUtil.D(TAG, "Config：" + videoDataStr);
+
             //缓存
-            if (type == TYPE_TODAY) {
+            if (isInit) {
                 //判断如果是今天的数据再进行缓存
                 CacheManager.FILE.putTodayResource(videoDataStr);
+            }else{
+                CacheManager.FILE.putTommResource(videoDataStr);
             }
 
             //解析下载地址列表
@@ -151,8 +138,14 @@ public class ResourceManager {
 
         } catch (Exception e) {
             e.printStackTrace();
+            //请求明天时会将isInit置为false
+            if(isInit){
+                requestRes(TYPE_TOMMO);
+                MainController.getInstance().updateMenu(false);
+            }else{
+                MainController.getInstance().closeConsole();
+            }
             LogUtil.E(TAG, "处理播放资源出现异常：" + e.getMessage());
-
         }
     }
 
@@ -164,13 +157,7 @@ public class ResourceManager {
         String dayStr = DateUtil.yyyyMMdd_Format(new Date());
 
         if (!isInit) {//如果是明天的数据则取明天的时间
-            Date today = DateUtil.yyyyMMdd_Parse(dayStr);
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(today);
-            int day = calendar.get(Calendar.DATE);
-            calendar.set(Calendar.DATE, day + 1);
-            Date time = calendar.getTime();
-            dayStr = DateUtil.yyyyMMdd_Format(time);
+            dayStr = DateUtil.getTommStr(dayStr);
         }
 
         for (VideoDataModel.Play play : playlist) {
@@ -201,7 +188,7 @@ public class ResourceManager {
                 }
             }
         }
-        LogUtil.D(TAG, "下载列表：" + urlList.toString());
+//        LogUtil.D(TAG, "下载列表：" + urlList.toString());
         totalNum = urlList.size();
         return urlList;
     }
@@ -218,15 +205,16 @@ public class ResourceManager {
     FileDownloadListener fileDownloadListener = new FileDownloadListener() {
         @Override
         public void onBefore(int totalNum) {
-            if (isInit) {
+            if(isInit){
                 if(totalNum <= 0){
                     MainController.getInstance().updateMenu(false);
                 }else{
                     MainController.getInstance().updateMenu(true);
                 }
-                MainController.getInstance().openConsole();
-                MainController.getInstance().initProgress(totalNum);
             }
+
+            MainController.getInstance().openConsole();
+            MainController.getInstance().initProgress(totalNum);
 
             String msg = ("准备下载"+currDownloadPlayDay+"的资源...共有：" + totalNum + "个文件");
             LogUtil.D(TAG, msg);
@@ -236,7 +224,11 @@ public class ResourceManager {
         @Override
         public void onStart(int currNum) {
             LogUtil.D(TAG, "开始下载: " + currNum);
+            if(isInit){
+                MainController.getInstance().initPlayData(true);
+            }
             MainController.getInstance().updateParentProgress(currNum);
+            MainController.getInstance().updateChildProgress(0);
             MainController.getInstance().updateConsole("开始下载第" + currNum + "个文件");
         }
 
@@ -250,11 +242,10 @@ public class ResourceManager {
             LogUtil.D(TAG, "下载成功: " + currFileNum);
             MainController.getInstance().updateParentProgress(currFileNum);
             MainController.getInstance().updateConsole("下载完成");
-
-            if(isInit){
-                MainController.getInstance().initPlayData(true);
-            }
             NetUtil.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, downloadInfo.getFileName(), true);
+            if(!isInit){
+                MainController.getInstance().updateList();
+            }
         }
 
         @Override
@@ -277,6 +268,7 @@ public class ResourceManager {
                 MainController.getInstance().initPlayData(true);
                 requestRes(TYPE_TOMMO);//请求明天时会将isInit置为false
             } else {
+                MainController.getInstance().updateList();
                 MainController.getInstance().updateConsole("已全部下载结束");
                 MainController.getInstance().closeConsole();
             }
