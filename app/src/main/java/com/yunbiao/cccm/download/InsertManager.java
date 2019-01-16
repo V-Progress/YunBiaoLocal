@@ -154,6 +154,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
             return;
         }
 
+        MainController.getInstance().updateMenu(true);
         CacheManager.FILE.putTXTAds(itm);
 
         //取出内部的数据
@@ -284,6 +285,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
             return;
         }
 
+        MainController.getInstance().updateMenu(true);
         Date today = null;
         try {
             today = yyyyMMddHH_mm_ss.parse(yyyyMMddHH_mm_ss.format(todayDate));
