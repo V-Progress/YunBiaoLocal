@@ -76,9 +76,8 @@ public class ResourceManager {
         Map<String, String> map = new HashMap<>();
         map.put("deviceNo", HeartBeatClient.getDeviceNo());
         String date = isInit ? DateUtil.getToday_str() : DateUtil.getTomm_str();
-        LogUtil.D(TAG, "请求" + date + "的数据");
         map.put("playDate", date);
-//        map.put("type",String.valueOf(isInit?TYPE_TODAY:TYPE_TOMMO));
+        LogUtil.D(TAG, "请求" + date + "的数据");
 
         try {
             //请求获取资源

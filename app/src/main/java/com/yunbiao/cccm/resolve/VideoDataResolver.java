@@ -339,7 +339,7 @@ public class VideoDataResolver {
         }
         timerList = new ArrayList<>();
 
-        for (PlayModel playModel : list) {
+        for (final PlayModel playModel : list) {
             Date startTime = playModel.getStartTime();
             Date endTime = playModel.getEndTime();
 
@@ -348,14 +348,14 @@ public class VideoDataResolver {
             startTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-
+                    MainController.getInstance().startPlay(playModel.getVideoList());
                 }
             }, startTime);
 
             endTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-
+                    MainController.getInstance().stopPlay();
                 }
             }, endTime.getTime() + 10000);
 
