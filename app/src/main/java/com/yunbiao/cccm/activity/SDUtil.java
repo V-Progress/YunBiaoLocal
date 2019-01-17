@@ -84,7 +84,7 @@ public class SDUtil {
     }
 
     public void reqSDPermi() {
-        String strUri = PreferenceManager.getDefaultSharedPreferences(mActivity).getString("pref_default_uri", null);
+        String strUri = PreferenceManager.getDefaultSharedPreferences(mActivity).getString(PREF_DEFAULT_URI, null);
         if (TextUtils.isEmpty(strUri)) {
             LogUtil.D(TAG, "uri为空，打开申请界面");
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
@@ -107,8 +107,6 @@ public class SDUtil {
                 DocumentFile documentFile = DocumentFile.fromTreeUri(context, uri);
                 LogUtil.D(TAG, "uri路径：" + documentFile.getUri() + "是否可读：" + documentFile.canRead() + " 是否可写：" + documentFile.canWrite());
                 mListener.sdCanUsed(isCanUsed(documentFile));
-
-//                createFile(context, documentFile);
             }
         }
     }
