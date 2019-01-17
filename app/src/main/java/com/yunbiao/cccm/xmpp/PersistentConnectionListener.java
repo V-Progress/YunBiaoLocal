@@ -18,7 +18,7 @@ package com.yunbiao.cccm.xmpp;
 import android.util.Log;
 
 import com.yunbiao.cccm.APP;
-import com.yunbiao.cccm.act.MainActivity;
+import com.yunbiao.cccm.activity.MainActivity;
 
 import org.jivesoftware.smack.ConnectionListener;
 

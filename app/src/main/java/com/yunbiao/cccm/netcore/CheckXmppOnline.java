@@ -6,7 +6,6 @@ import android.os.Message;
 
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.common.ResourceConst;
-import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.xmpp.XmppManager;
 import com.zhy.http.okhttp.callback.StringCallback;
@@ -73,7 +72,7 @@ public class CheckXmppOnline {
                 Map<String, String> map = new HashMap<>();
                 map.put("deviceNo", HeartBeatClient.getDeviceNo());
 
-                NetUtil.getInstance().post(ResourceConst.REMOTE_RES.DEVICE_ONLINE_STATUS, map, new StringCallback() {
+                NetClient.getInstance().post(ResourceConst.REMOTE_RES.DEVICE_ONLINE_STATUS, map, new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
 

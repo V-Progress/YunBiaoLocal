@@ -5,16 +5,16 @@ import android.content.Intent;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
-import com.yunbiao.cccm.download.InsertManager;
-import com.yunbiao.cccm.act.MainController;
+import com.yunbiao.cccm.resource.InsertManager;
+import com.yunbiao.cccm.activity.MainController;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
-import com.yunbiao.cccm.devicectrl.ScreenShot;
-import com.yunbiao.cccm.devicectrl.PowerOffTool;
-import com.yunbiao.cccm.devicectrl.actions.XBHActions;
+import com.yunbiao.cccm.control.ScreenShot;
+import com.yunbiao.cccm.control.PowerOffTool;
+import com.yunbiao.cccm.control.actions.XBHActions;
 import com.yunbiao.cccm.APP;
-import com.yunbiao.cccm.devicectrl.SoundControl;
-import com.yunbiao.cccm.download.ResourceManager;
+import com.yunbiao.cccm.control.SoundControl;
+import com.yunbiao.cccm.resource.ResourceManager;
 import com.yunbiao.cccm.netcore.bean.ChannelBean;
 import com.yunbiao.cccm.netcore.bean.DiskInfoBean;
 import com.yunbiao.cccm.netcore.bean.LoginModel;
@@ -23,7 +23,6 @@ import com.yunbiao.cccm.netcore.bean.SerNumBean;
 import com.yunbiao.cccm.netcore.bean.VoiceModel;
 import com.yunbiao.cccm.utils.CommonUtils;
 import com.yunbiao.cccm.utils.LogUtil;
-import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.utils.SystemInfoUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.view.TipToast;
@@ -65,7 +64,7 @@ public class XmppMessageProcessor {
 
         switch (Integer.valueOf(type)) {
             case ONLINE_TYPE://登录
-                NetUtil.getInstance().upLoadHardWareMessage();
+                NetClient.getInstance().upLoadHardWareMessage();
 
                 LoginModel loginModel = new Gson().fromJson(content, LoginModel.class);
                 CacheManager.SP.putDeviceName(loginModel.getDeviceName());//设备名称

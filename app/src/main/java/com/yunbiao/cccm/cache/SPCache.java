@@ -1,13 +1,19 @@
 package com.yunbiao.cccm.cache;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.SharedPreferences;
+import android.os.FileUtils;
 import android.util.Base64;
+
+import com.yunbiao.cccm.common.ResourceConst;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Field;
 import java.util.List;
 
 /**
@@ -17,49 +23,6 @@ public class SPCache {
 
     private static SharedPreferences sp;
     private static final String SP_NAME = "service";
-    public static final String TV_LOCATION = "location";
-    public static final String TV_FONTSIZE = "fontSize";
-    public static final String TV_BACKGROUD = "background";
-    public static final String TV_PLAYTYPE = "playType";
-    public static final String TV_FONTCOLOR = "fontColor";
-    public static final String TV_PLAYSPEED = "playSpeed";
-    public static final String TV_PLAYDATE = "playDate";
-    public static final String TV_PLAYTIME = "playTime";
-    public static final String TV_TEXT = "text";
-    public static final String TV_PLAYCURTIME = "playCurTime";
-    public static final String TV_TRANSPARENT = "transparent";
-    public static final String TV_SPEECHCOUNT = "speechCount";
-
-
-    public static final String LAYOUTTYPE = "layout_type";//布局类型
-    public static final String VIDEO_LOCAL = "video_local";//本地视频地址
-    public static final String IMAGE_LOCAL = "image_local";//本地图片地址
-    public static final String IMAGE_NET = "image_net";//网络图片地址
-
-    //wifi连接
-    public static final String WIFI_SSID = "wifi_ssid";//SSID
-    public static final String WIFI_PWD = "wifi_pwd";//pwd
-    public static final String WIFI_TYPE = "wifi_type";//type
-
-    public static final String CITY_NAME = "city_name";//定位城市
-    public static final String MENU_PWD = "menu_pwd";//用户访问密码
-
-    //联屏的本地地址
-    public static final String UNICOM_VIDEO_PATH = "unicom_video_path";//本地视频地址
-    public static final String UNICOM_IMG_PATH = "unicom_img_path";//本地图片地址
-    public static final String UNICOM_ROW = "unicom_row";//行
-    public static final String UNICOM_COL = "unicom_col";//列
-    public static final String UNICOM_ISSERVICER = "unicom_isservicer";//是否是主机
-    public static final String UNICOM_URL = "unicom_url";//联屏资源
-
-    //广告播放索引
-    public static final String ADVERT_INDEX="advert_index";
-    //设备类型
-    public static final String DEVICETYPE="deviceType";
-
-    //外部储存路径（记录上一次识别的U盘路径，防止U盘关机未拔掉）
-    public static final String OUTER_PATH="outer_path";
-    public static final String EXTSD_PATH="extsd_path";
 
     public SPCache(Context context) {
         if (sp == null){

@@ -1,10 +1,13 @@
 package com.yunbiao.cccm.utils;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.text.TextUtils;
 
 import android.widget.Toast;
+
+import com.yunbiao.cccm.activity.MainActivity;
 
 /**
  * Created by Administrator on 2018/12/3.
@@ -14,6 +17,7 @@ public class DialogUtil {
 
     private static DialogUtil instance;
     private ProgressDialog progressDialog;
+    private AlertDialog alertDialog;
 
     public static synchronized DialogUtil getInstance() {
         if (instance == null) {
@@ -45,6 +49,67 @@ public class DialogUtil {
                 if(progressDialog != null){
                     progressDialog.dismiss();
                 }
+            }
+        });
+    }
+
+    public void showError(Context context,String title,String msg){
+        showError(context,title,msg,0,null);
+    }
+
+    /***
+     * 显示错误窗口
+     * 注意：如果指定了delay参数，那么该窗口会在delay秒后关闭
+     * @param context
+     * @param title
+     * @param msg
+     * @param delay
+     * @param runnable
+     */
+    public void showError(final Context context, final String title, final String msg, int delay, final Runnable runnable){
+
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                if(alertDialog != null && alertDialog.isShowing()){
+                    alertDialog.dismiss();
+                }
+                alertDialog = builder.create();
+                alertDialog.setTitle(title);
+                alertDialog.setMessage(msg);
+                alertDialog.setCancelable(false);
+                alertDialog.show();
+            }
+        });
+
+        if(delay > 0){
+            TimerUtil.delayExecute(10000,new TimerUtil.OnTimerListener(){
+                @Override
+                public void onTimeFinish() {
+                    ThreadUtil.getInstance().runInUIThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(runnable != null){
+                                runnable.run();
+                            }
+                            dismissError();
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    public void dismissError(){
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+
+                if(alertDialog == null || !alertDialog.isShowing()){
+                    return;
+                }
+                alertDialog.dismiss();
             }
         });
     }

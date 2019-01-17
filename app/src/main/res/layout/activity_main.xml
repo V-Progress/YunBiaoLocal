@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:circleview="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fl_root"
-    tools:context=".act.MainActivity">
+    tools:context=".activity.MainActivity">
 
     <VideoView
         android:layout_gravity="center"

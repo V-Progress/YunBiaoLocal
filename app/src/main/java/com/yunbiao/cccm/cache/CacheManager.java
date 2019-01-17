@@ -51,9 +51,11 @@ public class CacheManager {
 
     private static final String SAVE_SOUND_MUSIC = "save_sound_music";
     private static final String ADSINFO_TEMP = "adsinfo_temp";//广告信息缓存
+    private static final String KEY_EXT_SD = "extSDPath";
 
     public static class SP {
-        public static boolean put(String key,String value){
+
+        public static boolean put(String key, String value){
             return spCache.saveString(key,value);
         }
 
@@ -198,6 +200,12 @@ public class CacheManager {
             return spCache.getString(DEVICE_IP, "");
         }
 
+        public static boolean putExtSDPath(String path) {
+            return spCache.saveString(KEY_EXT_SD,path);
+        }
+        public static String getExtSDPath(){
+            return spCache.getString(KEY_EXT_SD,"");
+        }
     }
 
     public static class FILE {

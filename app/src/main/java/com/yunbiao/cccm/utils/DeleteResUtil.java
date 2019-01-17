@@ -13,6 +13,7 @@ import java.util.Date;
 
 public class DeleteResUtil {
     private static String TAG = "DeleteResUtil";
+    private static final int DAY_TAG = 7;//代表删除多少天前的数据
 
     public static void removeExpireFile() {
         LogUtil.D(TAG, "检查过期文件");
@@ -40,7 +41,7 @@ public class DeleteResUtil {
             Date modiDate = DateUtil.yyyyMMdd_Parse(modifyTimeStr);
 
             long day = (tDate.getTime() - modiDate.getTime()) / (24 * 60 * 60 * 1000);
-            if (day >= 14) {
+            if (day >= DAY_TAG) {
                 boolean delete = file.delete();
                 LogUtil.D("删除结果：" + delete);
             }

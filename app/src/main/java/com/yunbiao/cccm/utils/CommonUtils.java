@@ -55,7 +55,7 @@ public class CommonUtils {
             }
             return isHas;
         } else {//其他主板
-            int camera = CameraTool.getCamera();
+            int camera = SystemInfoUtil.getCamera();
             if (camera != -1) {//有
                 isHas = "1";
             } else {
@@ -344,13 +344,15 @@ public class CommonUtils {
      * @return
      */
     public static String getXmppConnected() {
-        String connectStatus;
-        if (Constants.xmppManager != null && Constants.xmppManager.isConnected()) {
-            connectStatus = "在线";
-        } else {
-            connectStatus = "离线";
-        }
-        return connectStatus;
+//        String connectStatus;
+//        if (Constants.xmppManager != null && Constants.xmppManager.isConnected()) {
+//            connectStatus = "在线";
+//        } else {
+//            connectStatus = "离线";
+//        }
+//        return connectStatus;
+        // TODO: 2019/1/16 检测设备是否在线
+        return null;
     }
 
     /**

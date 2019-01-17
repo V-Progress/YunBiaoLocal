@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -14,6 +15,7 @@ import com.yunbiao.cccm.common.Const;
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.common.HeartBeatClient;
+import com.yunbiao.cccm.netcore.NetClient;
 import com.yunbiao.cccm.view.TipToast;
 import com.zhy.http.okhttp.callback.StringCallback;
 
@@ -68,7 +70,7 @@ public class SystemInfoUtil {
         paramMap.put("deviceNo", HeartBeatClient.getDeviceNo());
         paramMap.put("version", versionName);
         paramMap.put("type", Const.VERSION_TYPE.TYPE + "");
-        NetUtil.getInstance().post(ResourceConst.REMOTE_RES.UPLOAD_APP_VERSION_URL, paramMap, new StringCallback() {
+        NetClient.getInstance().post(ResourceConst.REMOTE_RES.UPLOAD_APP_VERSION_URL, paramMap, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
 
@@ -91,7 +93,7 @@ public class SystemInfoUtil {
         HashMap<String, String> paramMap = new HashMap<String, String>();
         paramMap.put("deviceNo", HeartBeatClient.getDeviceNo());
         paramMap.put("diskInfo", diskInfo);
-        NetUtil.getInstance().post(ResourceConst.REMOTE_RES.UPLOAD_DISK_URL, paramMap, new StringCallback() {
+        NetClient.getInstance().post(ResourceConst.REMOTE_RES.UPLOAD_DISK_URL, paramMap, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
 
@@ -239,12 +241,12 @@ public class SystemInfoUtil {
 
     //外部接口让主Activity调用
     public static void checkUpdateInfo() {
-        final NetUtil.OnDownLoadListener downloadUpdateListener = APP.getMainActivity().downloadUpdateListener;
+        final NetClient.OnDownLoadListener downloadUpdateListener = APP.getMainActivity().downloadUpdateListener;
         //判断是否需要更新
         HashMap<String, String> paramMap = new HashMap<String, String>();
         paramMap.put("clientVersion", getVersionName());
         paramMap.put("type", Const.VERSION_TYPE.TYPE + "");
-        NetUtil.getInstance().post(ResourceConst.REMOTE_RES.VERSION_URL, paramMap, new StringCallback() {
+        NetClient.getInstance().post(ResourceConst.REMOTE_RES.VERSION_URL, paramMap, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
                 LogUtil.E("检查更新ERROR: " + e.getMessage());
@@ -267,7 +269,7 @@ public class SystemInfoUtil {
      * @param isUpdate
      * @param onDownLoadListener
      */
-    private static void judgeIsUpdate(String isUpdate, NetUtil.OnDownLoadListener onDownLoadListener) {
+    private static void judgeIsUpdate(String isUpdate, NetClient.OnDownLoadListener onDownLoadListener) {
         //返回
         switch (isUpdate) {
             case "1": //不需要更新
@@ -288,8 +290,8 @@ public class SystemInfoUtil {
      * 下载更新
      * @param onDownLoadListener
      */
-    public static void downloadUpdate(NetUtil.OnDownLoadListener onDownLoadListener){
-        NetUtil.getInstance().downloadFile(apkUrl,onDownLoadListener);
+    public static void downloadUpdate(NetClient.OnDownLoadListener onDownLoadListener){
+        NetClient.getInstance().downloadFile(apkUrl,onDownLoadListener);
     }
 
     /**
@@ -308,4 +310,46 @@ public class SystemInfoUtil {
         intent.setDataAndType(Uri.fromFile(apkfile), "application/vnd.android.package-archive");
         context.startActivity(intent);
     }
+
+    /**
+     * 判断前后摄像头
+     */
+    private static boolean checkCameraFacing(final int facing) {
+        if (getSdkVersion() < Build.VERSION_CODES.GINGERBREAD) {
+            return false;
+        }
+        final int cameraCount = Camera.getNumberOfCameras();
+        Camera.CameraInfo info = new Camera.CameraInfo();
+        for (int i = 0; i < cameraCount; i++) {
+            Camera.getCameraInfo(i, info);
+            if (facing == info.facing) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasBackFacingCamera() {
+        final int CAMERA_FACING_BACK = 0;
+        return checkCameraFacing(CAMERA_FACING_BACK);
+    }
+
+    private static boolean hasFrontFacingCamera() {
+        final int CAMERA_FACING_BACK = 1;
+        return checkCameraFacing(CAMERA_FACING_BACK);
+    }
+
+    public static int getCamera() {
+        if (hasFrontFacingCamera()) {
+            return 1;
+        } else if (hasBackFacingCamera()) {
+            return 0;
+        }
+        return -1;
+    }
+
+    private static int getSdkVersion() {
+        return android.os.Build.VERSION.SDK_INT;
+    }
+
 }

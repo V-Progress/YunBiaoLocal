@@ -61,9 +61,28 @@ public class TimerUtil {
         mTimer.schedule(onScreenTask, 1000, 1000);
     }
 
-    public interface OnTimerListener{
-        void onTimeStart();//tvShowOnscreenTime.setVisibility(View.VISIBLE);
-        void onTiming(int recLen);//tvShowOnscreenTime.setText("" + recLen);
-        void onTimeFinish();//tvShowOnscreenTime.setVisibility(View.GONE);
+
+    public static void delayExecute(long delay, final OnTimerListener onTimerListener){
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                if(onTimerListener != null){
+                    onTimerListener.onTimeFinish();
+                }
+            }
+        };
+        new Timer().schedule(timerTask,delay);
+    }
+
+    public static class OnTimerListener{
+        public void onTimeStart(){
+
+        }//tvShowOnscreenTime.setVisibility(View.VISIBLE);
+        public void onTiming(int recLen){
+
+        }//tvShowOnscreenTime.setText("" + recLen);
+        public void onTimeFinish(){
+
+        }//tvShowOnscreenTime.setVisibility(View.GONE);
     }
 }

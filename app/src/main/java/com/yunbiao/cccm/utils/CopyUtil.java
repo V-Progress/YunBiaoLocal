@@ -49,7 +49,6 @@ public class CopyUtil {
                 }
                 baseCopyListener = listener;
                 String usbPath = usbFilePath + YUNBIAO_DIR;
-                baseCopyListener.onCopyStart(usbPath);
 
                 try {
                     Thread.sleep(500);
@@ -61,10 +60,11 @@ public class CopyUtil {
                 File usbFile = new File(usbPath);
                 if (!usbFile.canRead()) {
                     baseCopyListener.onNoFile();
-                    baseCopyListener.onFinish();
                     LogUtil.D("CopyUtil", "U盘中没有yunbiao目录 ");
                     return;
                 }
+
+                baseCopyListener.onCopyStart(usbPath);
 
                 //检查文件数量
                 fileCount = fileCount(usbFile);//文件数量
