@@ -37,6 +37,7 @@ public interface MainRefreshListener {
     void initProgress(int parentMax);
     void updateChildProgress(int pg);
     void updateParentProgress(int pg);
+    void updateDownloadSpeed(String speed);
 
     //打开加载框
     void openLoading(String loadingMsg);

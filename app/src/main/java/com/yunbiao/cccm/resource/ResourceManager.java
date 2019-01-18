@@ -21,6 +21,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import okhttp3.Response;
 
@@ -123,7 +125,7 @@ public class ResourceManager {
             if (isInit) {
                 //判断如果是今天的数据再进行缓存
                 CacheManager.FILE.putTodayResource(videoDataStr);
-            }else{
+            } else {
                 CacheManager.FILE.putTommResource(videoDataStr);
             }
 
@@ -136,10 +138,10 @@ public class ResourceManager {
         } catch (Exception e) {
             e.printStackTrace();
             //请求明天时会将isInit置为false
-            if(isInit){
+            if (isInit) {
                 requestRes(TYPE_TOMMO);
                 MainController.getInstance().updateMenu(false);
-            }else{
+            } else {
                 MainController.getInstance().closeConsole();
             }
             LogUtil.E(TAG, "处理播放资源出现异常：" + e.getMessage());
@@ -195,19 +197,25 @@ public class ResourceManager {
         downloadUtil.breakPointDownload(urlList);
     }
 
-    public void cancel(){
-        if(downloadUtil != null){
+    public void cancel() {
+        if (downloadUtil != null) {
             downloadUtil.cancel();
         }
     }
 
     FileDownloadListener fileDownloadListener = new FileDownloadListener() {
+
+        private Timer timer;//计算速度监听
+        private long realSpeed = 0;//实时下载速度
+        private boolean isRuning = false;//计算速度监听是否已开启
+        final double BYTES_PER_MIB = 1024 * 1024;//计算基数，M
+
         @Override
         public void onBefore(int totalNum) {
-            if(isInit){
-                if(totalNum <= 0){
+            if (isInit) {
+                if (totalNum <= 0) {
                     MainController.getInstance().updateMenu(false);
-                }else{
+                } else {
                     MainController.getInstance().updateMenu(true);
                 }
             }
@@ -215,15 +223,17 @@ public class ResourceManager {
             MainController.getInstance().openConsole();
             MainController.getInstance().initProgress(totalNum);
 
-            String msg = ("准备下载"+currDownloadPlayDay+"的资源...共有：" + totalNum + "个文件");
+            String msg = ("准备下载" + currDownloadPlayDay + "的资源...共有：" + totalNum + "个文件");
             LogUtil.D(TAG, msg);
             MainController.getInstance().updateConsole(msg);
+
+            startGetSpeed();//开始计算速度
         }
 
         @Override
         public void onStart(int currNum) {
             LogUtil.D(TAG, "开始下载: " + currNum);
-            if(isInit){
+            if (isInit) {
                 MainController.getInstance().initPlayData(true);
             }
             MainController.getInstance().updateList();
@@ -239,10 +249,15 @@ public class ResourceManager {
         }
 
         @Override
+        public void onDownloadSpeed(long speed) {
+            realSpeed += speed;
+        }
+
+        @Override
         public void onSuccess(int currFileNum, int totalNum, String fileName) {
             LogUtil.D(TAG, "下载成功: " + currFileNum);
             MainController.getInstance().updateParentProgress(currFileNum);
-            MainController.getInstance().updateConsole("第"+currFileNum+"个文件下载完成："+fileName);
+            MainController.getInstance().updateConsole("第" + currFileNum + "个文件下载完成：" + fileName);
             NetClient.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, fileName, true);
 
         }
@@ -251,13 +266,13 @@ public class ResourceManager {
         public void onError(Exception e, int currFileNum, int totalNum, String fileName) {
             e.printStackTrace();
             String errMsg;
-            if(!TextUtils.isEmpty(e.getMessage())){
+            if (!TextUtils.isEmpty(e.getMessage())) {
                 errMsg = e.getMessage();
-            }else{
+            } else {
                 errMsg = e.getClass().getSimpleName();
             }
             LogUtil.D(TAG, "下载错误: " + errMsg);
-            MainController.getInstance().updateConsole("第"+currFileNum+"个文件下载错误:" + errMsg);
+            MainController.getInstance().updateConsole("第" + currFileNum + "个文件下载错误:" + errMsg);
             NetClient.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, fileName, false);
 
         }
@@ -266,6 +281,7 @@ public class ResourceManager {
         public void onFinish() {
             LogUtil.D(TAG, "下载结束");
             urlList.clear();
+            cancelSpeedTimer();
 
             MainController.getInstance().updateParentProgress(urlList.size());
             MainController.getInstance().updateConsole(currDownloadPlayDay + "的资源下载完毕");
@@ -285,6 +301,39 @@ public class ResourceManager {
             e.printStackTrace();
             LogUtil.D(TAG, "下载失败：" + e.getMessage());
             MainController.getInstance().updateConsole("下载失败，请检查网络或Config:" + e.getMessage());
+        }
+
+        //开始计算速度
+        private void startGetSpeed() {
+            if (!isRuning) {
+                if (timer == null) {
+                    timer = new Timer();
+                }
+                isRuning = true;
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        double v = realSpeed / BYTES_PER_MIB;
+                        String speed;
+                        if (v < 1) {
+                            v = v * 1024;
+                            speed = String.format("%.1f", v) + "k/s";
+                        } else {
+                            speed = v + "m/s";
+                        }
+                        MainController.getInstance().updateSpeed(speed);
+                        realSpeed = 0;
+                    }
+                }, 1000, 1000);
+            }
+        }
+
+        //取消计算
+        private void cancelSpeedTimer(){
+            if(timer != null){
+                timer.cancel();
+            }
+            isRuning = false;
         }
     };
 }

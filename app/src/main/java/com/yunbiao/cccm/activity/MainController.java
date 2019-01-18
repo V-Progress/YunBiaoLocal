@@ -268,4 +268,13 @@ public class MainController {
             }
         });
     }
+
+    public void updateSpeed(final String speed) {
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                mRefListener.updateDownloadSpeed(speed);
+            }
+        });
+    }
 }

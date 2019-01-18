@@ -47,7 +47,7 @@ public class BPDownloadUtil {
     //请求超时单位
     private final TimeUnit TIMEOUT_UNIT = TimeUnit.SECONDS;
     //下载时缓冲区大小
-    private final int BUFFER_SIZE = 2048;
+    private final int BUFFER_SIZE = 4096;
 
     //下载标识
     private Object mTag;
@@ -357,6 +357,11 @@ public class BPDownloadUtil {
     class DownloadException extends Exception {
         private int errCode;
         private String errMsg;
+
+        @Override
+        public String getMessage() {
+            return errMsg;
+        }
 
         public DownloadException(int errCode, String errMsg) {
             this.errCode = errCode;

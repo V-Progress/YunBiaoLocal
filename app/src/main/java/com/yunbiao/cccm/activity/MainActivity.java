@@ -71,6 +71,8 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     FrameLayout flRoot;
     @BindView(R.id.pb_update)
     ProgressBar pbUpdate;
+    @BindView(R.id.tv_speed_main)
+    TextView tvSpeed;
 
     /*资源下载进度条---*/
     @BindView(R.id.tv_console_main)
@@ -356,6 +358,11 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             return;
         }
         tvNumMain.setText(pg + "/" + split[1]);
+    }
+
+    @Override
+    public void updateDownloadSpeed(String speed) {
+        tvSpeed.setText(speed);
     }
 
     @Override
