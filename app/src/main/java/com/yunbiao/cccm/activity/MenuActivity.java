@@ -1,5 +1,6 @@
 package com.yunbiao.cccm.activity;
 
+import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -74,6 +75,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
 
     protected int setLayout() {
         APP.setMenuActivity(this);
+        getWindow().setFormat(PixelFormat.TRANSLUCENT);
         return R.layout.activity_menu;
     }
 
@@ -121,7 +123,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                 return false;
             }
         });
-        setConnInfo();
+        updateDeviceNo();
     }
 
     private boolean isTimerRuning = false;
@@ -254,12 +256,6 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         APP.setMenuActivity(null);
     }
 
-    //设置设备号和接入码
-    private void setConnInfo() {
-        tvMenuInfoEquipmentMum.setText(CacheManager.SP.getDeviceNum());
-        tvMenuInfoAccessCode.setText(CacheManager.SP.getAccessCode());
-    }
-
     //更新播放按钮
     public void updatePlayButton() {
         boolean isHasPlay = CacheManager.SP.getPlayTag();
@@ -284,6 +280,11 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
             tvMenuStartHints.setText(R.string.play);
             tvMenuStartHints2.setText(R.string.auto_play);
         }
+    }
+
+    public void updateDeviceNo(){
+        tvMenuInfoEquipmentMum.setText(CacheManager.SP.getDeviceNum());
+        tvMenuInfoAccessCode.setText(CacheManager.SP.getAccessCode());
     }
 
     public void updatePlayList(){

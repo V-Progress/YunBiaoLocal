@@ -362,7 +362,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
             }
 
             @Override
-            public void onError(int currFileNum, Exception e, BPDownloadUtil.DownloadInfo downloadInfo) {
+            public void onError(Exception e, int currFileNum, int totalNum, String fileName) {
                 LogUtil.D(TAG, "下载出错：" + e.getMessage());
             }
 

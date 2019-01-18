@@ -100,13 +100,13 @@ public class PlayListFragment extends Fragment implements View.OnTouchListener {
                 if (!text.matches("^.+\\.\\S+$")) {
                     return;
                 }
-                if (videoView.isPlaying()) {
-                    videoView.stopPlayback();
-                }
                 String path = VideoDataResolver.previewMap.get(/*yyyyMMdd + */text.substring(3));
                 if (TextUtils.isEmpty(path)) {
                     Toast.makeText(mActivity, "没有视频", Toast.LENGTH_SHORT).show();
                     return;
+                }
+                if (videoView.isPlaying()) {
+                    videoView.stopPlayback();
                 }
                 videoView.setVideoPath(path);
                 videoView.start();

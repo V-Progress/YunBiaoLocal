@@ -18,6 +18,28 @@ public class MainController {
     private static MainController layoutRefresher;
     private MainRefreshListener mRefListener;
 
+    public static synchronized MainController getInstance() {
+        if (layoutRefresher == null) {
+            layoutRefresher = new MainController();
+        }
+        return layoutRefresher;
+    }
+
+    /***
+     * 注册监听到控制器，一般只能是MainActivity
+     * @param refListener
+     */
+    public void registerActivity(MainRefreshListener refListener) {
+        if (refListener == null) {
+            new Exception("onRefreshIner can not null!").printStackTrace();
+            return;
+        }
+        mRefListener = refListener;
+    }
+
+    /***
+     * 更新播放列表
+     */
     public void updateList() {
         MenuActivity menuActivity = APP.getMenuActivity();
         if (menuActivity != null) {
@@ -25,6 +47,10 @@ public class MainController {
         }
     }
 
+    /***
+     * 更新菜单界面的播放按钮
+     * @param isHasPlay
+     */
     public void updateMenu(final boolean isHasPlay) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
@@ -47,21 +73,25 @@ public class MainController {
         });
     }
 
-    public static synchronized MainController getInstance() {
-        if (layoutRefresher == null) {
-            layoutRefresher = new MainController();
-        }
-        return layoutRefresher;
+    /***
+     * 更新设备编号和接入码
+     */
+    public void updateDeviceNo() {
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                MenuActivity menuActivity = APP.getMenuActivity();
+                if(menuActivity != null && menuActivity.isForeground()){
+                    menuActivity.updateDeviceNo();
+                }
+            }
+        });
     }
 
-    public void registerActivity(MainRefreshListener refListener) {
-        if (refListener == null) {
-            new Exception("onRefreshIner can not null!").printStackTrace();
-            return;
-        }
-        mRefListener = refListener;
-    }
-
+    /***
+     * 开始播放普通资源
+     * @param videoString
+     */
     public void startPlay(final List<String> videoString) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
@@ -71,6 +101,9 @@ public class MainController {
         });
     }
 
+    /***
+     * 停止播放普通资源
+     */
     public void stopPlay() {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
@@ -80,6 +113,11 @@ public class MainController {
         });
     }
 
+    /***
+     * 开始播放插播
+     * @param isCycle
+     * @param videoString
+     */
     public void startInsert(final boolean isCycle, final List<String> videoString) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
@@ -89,6 +127,9 @@ public class MainController {
         });
     }
 
+    /***
+     * 停止插播
+     */
     public void stopInsert() {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
@@ -98,6 +139,10 @@ public class MainController {
         });
     }
 
+    /***
+     * 初始化播放数据
+     * @param isRemote
+     */
     public void initPlayData(final boolean isRemote) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
@@ -108,6 +153,9 @@ public class MainController {
 
     }
 
+    /***
+     * 初始化播放器
+     */
     public void initPlayer() {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
@@ -117,6 +165,9 @@ public class MainController {
         });
     }
 
+    /***
+     * 打开控制台进度条
+     */
     public void openConsole() {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
@@ -126,6 +177,9 @@ public class MainController {
         });
     }
 
+    /***
+     * 关闭控制台
+     */
     public void closeConsole() {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
@@ -136,6 +190,10 @@ public class MainController {
 
     }
 
+    /***
+     * 更新控制台文字
+     * @param msg
+     */
     public void updateConsole(final String msg) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
@@ -146,6 +204,10 @@ public class MainController {
 
     }
 
+    /***
+     * 初始化进度条
+     * @param max
+     */
     public void initProgress(final int max) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
@@ -156,6 +218,10 @@ public class MainController {
 
     }
 
+    /***
+     * 更新子进度条，用作进度展示，默认max值为100
+     * @param pg
+     */
     public void updateChildProgress(final int pg) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
@@ -165,6 +231,10 @@ public class MainController {
         });
     }
 
+    /***
+     * 更新父进度条，用作范围展示
+     * @param pg
+     */
     public void updateParentProgress(final int pg) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
@@ -174,6 +244,10 @@ public class MainController {
         });
     }
 
+    /***
+     * 打开加载框，下载Insert资源时会用
+     * @param loadingMsg
+     */
     public void openLoading(final String loadingMsg) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
@@ -183,6 +257,9 @@ public class MainController {
         });
     }
 
+    /***
+     * 关闭加载框
+     */
     public void closeLoading() {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override

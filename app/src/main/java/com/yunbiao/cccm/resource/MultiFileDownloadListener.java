@@ -37,7 +37,7 @@ public interface MultiFileDownloadListener {
      * @param currFileNum 当前下载数的索引
      * @param downloadInfo
      */
-    void onSuccess(int currFileNum, BPDownloadUtil.DownloadInfo downloadInfo);
+//    void onSuccess(int currFileNum, BPDownloadUtil.DownloadInfo downloadInfo);
 
     /***
      * single file downloaded error
@@ -45,7 +45,7 @@ public interface MultiFileDownloadListener {
      * @param e 单个文件下载错误
      * @param downloadInfo
      */
-    void onError(int currFileNum, Exception e, BPDownloadUtil.DownloadInfo downloadInfo);
+//    void onError(int currFileNum, Exception e, BPDownloadUtil.DownloadInfo downloadInfo);
 
     /***
      * downloading finish
@@ -57,4 +57,8 @@ public interface MultiFileDownloadListener {
      * @param e 无法处理的异常，会导致下载流程无法继续进行
      */
     void onFailed(Exception e);
+
+    void onError(Exception e, int currFileNum, int totalNum, String fileName);
+
+    void onSuccess(int currFileNum, int totalNum, String fileName);
 }

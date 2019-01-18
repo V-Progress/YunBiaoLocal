@@ -43,7 +43,6 @@ public class ResourceManager {
     private final List<String> urlList;
     private BPDownloadUtil downloadUtil;
     private String currDownloadPlayDay;
-    private int totalNum;
 
     public static synchronized ResourceManager getInstance() {
         if (instance == null) {
@@ -186,8 +185,6 @@ public class ResourceManager {
                 }
             }
         }
-//        LogUtil.D(TAG, "下载列表：" + urlList.toString());
-        totalNum = urlList.size();
         return urlList;
     }
 
@@ -229,6 +226,8 @@ public class ResourceManager {
             if(isInit){
                 MainController.getInstance().initPlayData(true);
             }
+            MainController.getInstance().updateList();
+
             MainController.getInstance().updateParentProgress(currNum);
             MainController.getInstance().updateChildProgress(0);
             MainController.getInstance().updateConsole("开始下载第" + currNum + "个文件");
@@ -240,18 +239,16 @@ public class ResourceManager {
         }
 
         @Override
-        public void onSuccess(int currFileNum, BPDownloadUtil.DownloadInfo downloadInfo) {
+        public void onSuccess(int currFileNum, int totalNum, String fileName) {
             LogUtil.D(TAG, "下载成功: " + currFileNum);
             MainController.getInstance().updateParentProgress(currFileNum);
             MainController.getInstance().updateConsole("下载完成");
-            NetClient.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, downloadInfo.getFileName(), true);
-            if(!isInit){
-                MainController.getInstance().updateList();
-            }
+            NetClient.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, fileName, true);
+
         }
 
         @Override
-        public void onError(int currFileNum, Exception e, BPDownloadUtil.DownloadInfo downloadInfo) {
+        public void onError(Exception e, int currFileNum, int totalNum, String fileName) {
             e.printStackTrace();
             String errMsg;
             if(!TextUtils.isEmpty(e.getMessage())){
@@ -261,7 +258,8 @@ public class ResourceManager {
             }
             LogUtil.D(TAG, "下载错误: " + errMsg);
             MainController.getInstance().updateConsole("下载错误:" + e.getMessage());
-            NetClient.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, downloadInfo.getFileName(), false);
+            NetClient.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, fileName, false);
+
         }
 
         @Override

@@ -74,6 +74,8 @@ public class XmppMessageProcessor {
                 CacheManager.SP.putStatus(loginModel.getStatus());
                 CacheManager.SP.putWechatTicket(loginModel.getTicket());
 
+                MainController.getInstance().updateDeviceNo();//登录完成后更新菜单界面的编号
+
                 //是否有密码
                 LogUtil.E(TAG, "*****" + loginModel.getPassword());
                 break;
