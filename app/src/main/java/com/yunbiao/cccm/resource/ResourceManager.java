@@ -242,7 +242,7 @@ public class ResourceManager {
         public void onSuccess(int currFileNum, int totalNum, String fileName) {
             LogUtil.D(TAG, "下载成功: " + currFileNum);
             MainController.getInstance().updateParentProgress(currFileNum);
-            MainController.getInstance().updateConsole("下载完成");
+            MainController.getInstance().updateConsole("第"+currFileNum+"个文件下载完成："+fileName);
             NetClient.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, fileName, true);
 
         }
@@ -257,7 +257,7 @@ public class ResourceManager {
                 errMsg = e.getClass().getSimpleName();
             }
             LogUtil.D(TAG, "下载错误: " + errMsg);
-            MainController.getInstance().updateConsole("下载错误:" + e.getMessage());
+            MainController.getInstance().updateConsole("第"+currFileNum+"个文件下载错误:" + e.getMessage());
             NetClient.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, fileName, false);
 
         }

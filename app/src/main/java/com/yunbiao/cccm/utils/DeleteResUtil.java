@@ -5,7 +5,9 @@ import com.yunbiao.cccm.common.ResourceConst;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Administrator on 2018/12/21.
@@ -13,7 +15,7 @@ import java.util.Date;
 
 public class DeleteResUtil {
     private static String TAG = "DeleteResUtil";
-    private static final int DAY_TAG = 7;//代表删除多少天前的数据
+    private static final int DAY_TAG = 5;//代表删除多少天前的数据
 
     public static void removeExpireFile() {
         LogUtil.D(TAG, "检查过期文件");
@@ -32,6 +34,8 @@ public class DeleteResUtil {
         String tDateStr = DateUtil.yyyyMMdd_Format(new Date());
         Date tDate = DateUtil.yyyyMMdd_Parse(tDateStr);
 
+        List<DeleteModel> deleteList = new ArrayList<>();
+
         for (int i = 0; i < resFiles.length; i++) {
             File file = resFiles[i];
 
@@ -43,10 +47,31 @@ public class DeleteResUtil {
             long day = (tDate.getTime() - modiDate.getTime()) / (24 * 60 * 60 * 1000);
             if (day >= DAY_TAG) {
                 boolean delete = file.delete();
-                LogUtil.D("删除结果：" + delete);
+
+                DeleteModel deleteModel = new DeleteModel();
+                deleteModel.name = file.getName();
+                deleteModel.modiDate = modifyTimeStr;
+                deleteModel.delete = delete;
+
+                deleteList.add(deleteModel);
             }
         }
+        LogUtil.D(TAG,"共有"+deleteList.size()+"个过期文件：删除情况"+deleteList.toString());
+    }
 
+    static class DeleteModel{
+        String name;
+        String modiDate;
+        boolean delete;
+
+        @Override
+        public String toString() {
+            return "DeleteModel{" +
+                    "name='" + name + '\'' +
+                    ", modiDate='" + modiDate + '\'' +
+                    ", delete=" + delete +
+                    '}';
+        }
     }
 
     /***

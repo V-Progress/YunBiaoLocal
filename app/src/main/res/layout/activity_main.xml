@@ -80,6 +80,7 @@
             android:layout_width="match_parent"
             android:layout_height="70dp">
             <TextView
+                android:lineSpacingExtra="3dp"
                 android:gravity="bottom"
                 android:paddingLeft="3dp"
                 android:textSize="12dp"
@@ -91,7 +92,7 @@
 
         <FrameLayout
             android:padding="5dp"
-            android:layout_gravity="center"
+            android:layout_gravity="left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <rjsv.circularview.CircleView

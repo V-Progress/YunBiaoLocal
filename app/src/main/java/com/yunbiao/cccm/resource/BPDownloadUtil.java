@@ -277,7 +277,6 @@ public class BPDownloadUtil {
                     urlQueue.offer(downloadUrl);
                     break;
             }
-            cacheDownload(localPath, urlQueue);
         } catch (final IOException e) {
             e.printStackTrace();
             onError(e, totalNum, fileName);
@@ -293,6 +292,7 @@ public class BPDownloadUtil {
                 onError(e, totalNum, fileName);
             }
         }
+        cacheDownload(localPath, urlQueue);
     }
 
     /***

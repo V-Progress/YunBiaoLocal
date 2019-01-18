@@ -1,11 +1,16 @@
 package com.yunbiao.cccm.activity;
 
+import android.Manifest;
 import android.app.ActivityManager;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -34,8 +39,8 @@ import com.yunbiao.cccm.utils.DeleteResUtil;
 import com.yunbiao.cccm.utils.DialogUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.SystemInfoUtil;
-import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.utils.TimerUtil;
+import com.yunbiao.cccm.utils.ToastUtil;
 
 import java.io.File;
 import java.util.List;
@@ -118,7 +123,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         //连接XMPP
         PnServerController.startXMPP(MainActivity.this);
 
-        TimerUtil.delayExecute(7000,new TimerUtil.OnTimerListener(){
+        TimerUtil.delayExecute(7000, new TimerUtil.OnTimerListener() {
             @Override
             public void onTimeFinish() {
                 //初始化自动开关机数据
@@ -126,7 +131,9 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             }
         });
 
-        startGetRes();
+        if(checkPermission()){
+            startGetRes();
+        }
 
         // TODO: 2019/1/17 暂时屏蔽SD卡检测模块
         //检测SD卡
@@ -152,8 +159,45 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         SDUtil.instance().onActivityResult(this,requestCode,resultCode,data);
     }*/
 
-    public void startGetRes(){
-        TimerUtil.delayExecute(3000,new TimerUtil.OnTimerListener(){
+    //自定义REQUEST_CODE
+    private int WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 101;
+
+    //检测权限
+    private boolean checkPermission() {
+        if (Build.VERSION.SDK_INT >= 21) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                LogUtil.D("123", "正在申请权限");
+                //申请WRITE_EXTERNAL_STORAGE权限
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        WRITE_EXTERNAL_STORAGE_REQUEST_CODE);
+                return false;
+            } else {
+                LogUtil.D("123","已有权限");
+                return true;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == WRITE_EXTERNAL_STORAGE_REQUEST_CODE) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                LogUtil.D("123", "已取得权限");
+                startGetRes();
+            } else {
+                LogUtil.D("123", "未取得权限");
+                ToastUtil.showLong(this,"请允许权限");
+            }
+        }
+    }
+
+    //开始请求获取资源
+    public void startGetRes() {
+        TimerUtil.delayExecute(3000, new TimerUtil.OnTimerListener() {
             @Override
             public void onTimeFinish() {
                 //初始化播放数据
@@ -256,7 +300,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     }
 
 
-
     //------进度条控制----------------------------------------------------------------
     /*
     * 打开控制台
@@ -289,7 +332,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
 
     @Override
     public void initProgress(int parentMax) {
-        tvNumMain.setText(0+"/"+parentMax);
+        tvNumMain.setText(0 + "/" + parentMax);
         progressParentMain.setMaximumValue(parentMax);
         progressChildMain.setMaximumValue(100);
     }
@@ -297,7 +340,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     @Override
     public void updateChildProgress(int pg) {
         progressChildMain.setProgressValue(pg);
-        tvProgressMain.setText(pg+"%");
+        tvProgressMain.setText(pg + "%");
     }
 
     @Override
@@ -305,14 +348,14 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         progressParentMain.setProgressValue(pg);
 
         String num = tvNumMain.getText().toString();
-        if(TextUtils.isEmpty(num)){
+        if (TextUtils.isEmpty(num)) {
             return;
         }
         String[] split = num.split("/");
-        if(split.length < 2){
+        if (split.length < 2) {
             return;
         }
-        tvNumMain.setText( pg + "/" +split[1]);
+        tvNumMain.setText(pg + "/" + split[1]);
     }
 
     @Override
