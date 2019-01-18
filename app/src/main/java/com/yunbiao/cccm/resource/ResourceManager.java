@@ -257,7 +257,7 @@ public class ResourceManager {
                 errMsg = e.getClass().getSimpleName();
             }
             LogUtil.D(TAG, "下载错误: " + errMsg);
-            MainController.getInstance().updateConsole("第"+currFileNum+"个文件下载错误:" + e.getMessage());
+            MainController.getInstance().updateConsole("第"+currFileNum+"个文件下载错误:" + errMsg);
             NetClient.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, fileName, false);
 
         }
