@@ -330,6 +330,7 @@ public class ResourceManager {
 
         //取消计算
         private void cancelSpeedTimer(){
+            MainController.getInstance().updateSpeed("0k/s");
             if(timer != null){
                 timer.cancel();
             }
