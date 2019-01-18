@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.activity;
+package com.yunbiao.cccm.common;
 
 import android.app.Activity;
 import android.content.Context;

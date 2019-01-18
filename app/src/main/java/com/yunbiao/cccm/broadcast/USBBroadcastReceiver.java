@@ -7,7 +7,7 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.yunbiao.cccm.APP;
-import com.yunbiao.cccm.activity.SDUtil;
+import com.yunbiao.cccm.common.SDUtil;
 import com.yunbiao.cccm.activity.MainController;
 import com.yunbiao.cccm.utils.CopyUtil;
 import com.yunbiao.cccm.utils.LogUtil;
