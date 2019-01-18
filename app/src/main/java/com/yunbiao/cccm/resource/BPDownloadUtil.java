@@ -190,7 +190,6 @@ public class BPDownloadUtil {
 
             //如果本地文件不存在，创建缓存文件
             File cacheFile = new File(localPath, "cache_" + fileName);
-            LogUtil.E(TAG, "本地缓存路径：" + cacheFile.getPath());
             //如果本地文件的长度和远程的相等，代表下载完成
             if (cacheFile.length() == contentLength) {
                 boolean b = cacheFile.renameTo(localFile);
@@ -243,7 +242,6 @@ public class BPDownloadUtil {
                     }
                     if (realProgress != progress) {
                         realProgress = progress;
-                        LogUtil.E(TAG, "进度：" + cacheFile.length() + "-----" + realProgress + "-----" + contentLength);
                         l.onProgress(realProgress);
                     }
                 }
@@ -265,7 +263,6 @@ public class BPDownloadUtil {
                 }
             }
         } catch (DownloadException e) {
-            LogUtil.E(TAG, "下载结果：" + e.errCode + "---" + e.errMsg);
             switch (e.errCode) {
                 case CODE_SUCCESS_DOWNLOAD:
                     onSuccess(totalNum, fileName);

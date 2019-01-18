@@ -78,45 +78,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
 
-        <!--<meta-data-->
-            <!--android:name="UMENG_APPKEY"-->
-            <!--android:value="${UMENG_APPKEY_VALUE}" />-->
-        <!--<meta-data-->
-            <!--android:name="UMENG_CHANNEL"-->
-            <!--android:value="${UMENG_CHANNEL_VALUE}" />-->
-        <meta-data
-            android:name="UMENG_APPKEY"
-            android:value="5c3c2f2cf1f556d9c30013de" />
-        <meta-data
-            android:name="UMENG_CHANNEL"
-            android:value="self" />
-
-        <meta-data
-            android:name="com.baidu.lbsapi.API_KEY"
-            android:value="NGpAA4gQyYdIc1OsKw4iejQqjycKyPpY" />
-
-        <receiver android:name="com.yunbiao.cccm.broadcast.BootBroadcastReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <!--<category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.HOME" />-->
-            </intent-filter>
-        </receiver>
-
-        <service
-            android:name="com.baidu.location.f"
-            android:enabled="true"
-            android:process=":remote" />
-
-        <service
-            android:name="com.yunbiao.cccm.xmpp.NotificationService"
-            android:enabled="true"
-            android:label="NotificationService">
-            <intent-filter>
-                <action android:name="com.yunbiao.xmpp.NotificationService" />
-            </intent-filter>
-        </service>
-
+        <!--主界面-->
         <activity
             android:name="com.yunbiao.cccm.activity.MainActivity"
             android:label="@string/app_name"
@@ -127,11 +89,56 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name="com.yunbiao.cccm.activity.MenuActivity"/>
 
         <receiver android:name="com.yunbiao.cccm.activity.weichat.WeiChatReceiver" />
 
         <activity android:name="com.yunbiao.cccm.activity.weichat.WeichatActivity" />
+
+        <!--开机启动广播监听-->
+        <receiver android:name="com.yunbiao.cccm.broadcast.BootBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <!--<category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.HOME" />-->
+            </intent-filter>
+        </receiver>
+
+        <!--百度定位服务-->
+        <service
+            android:name="com.baidu.location.f"
+            android:enabled="true"
+            android:process=":remote" />
+
+        <!--XMPP消息监听广播-->
+        <service
+            android:name="com.yunbiao.cccm.xmpp.NotificationService"
+            android:enabled="true"
+            android:label="NotificationService">
+            <intent-filter>
+                <action android:name="com.yunbiao.xmpp.NotificationService" />
+            </intent-filter>
+        </service>
+
+        <!--<meta-data-->
+            <!--android:name="UMENG_APPKEY"-->
+            <!--android:value="${UMENG_APPKEY_VALUE}" />-->
+        <!--<meta-data-->
+            <!--android:name="UMENG_CHANNEL"-->
+            <!--android:value="${UMENG_CHANNEL_VALUE}" />-->
+        <!--U盟配置-->
+        <meta-data
+            android:name="UMENG_APPKEY"
+            android:value="5c3c2f2cf1f556d9c30013de" />
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="self" />
+
+        <!--百度配置-->
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="NGpAA4gQyYdIc1OsKw4iejQqjycKyPpY" />
     </application>
 
 </manifest>
