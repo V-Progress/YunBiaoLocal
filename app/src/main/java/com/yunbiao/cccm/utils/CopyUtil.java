@@ -71,7 +71,7 @@ public class CopyUtil {
                 baseCopyListener.onFileCount(fileCount);
 
                 //初始化本地目录
-                File localFile = new File(ResourceConst.LOCAL_RES.EXTERNAL_ROOT_DIR);
+                File localFile = new File(ResourceConst.LOCAL_RES.getROOTDIR());
 
                 //删除老文件
 //                deleteOldFile(localFile);

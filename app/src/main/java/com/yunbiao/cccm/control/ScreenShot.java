@@ -69,11 +69,11 @@ public class ScreenShot {
             public void run() {
                 String dirPath = ResourceConst.LOCAL_RES.SCREEN_CACHE_PATH;
                 File dirFile = new File(dirPath);
-                if(!dirFile.exists()){
+                if (!dirFile.exists()) {
                     dirFile.mkdirs();
                 }
 
-                String filePath = ResourceConst.LOCAL_RES.SCREEN_CACHE_PATH + CUT_SCREEN_NAME;
+                String filePath = ResourceConst.LOCAL_RES.SCREEN_CACHE_PATH + "/" + CUT_SCREEN_NAME;
                 File ssfile = new File(filePath);
                 if (ssfile.exists() && ssfile.isFile()) {
                     boolean delete = ssfile.delete();
@@ -81,13 +81,13 @@ public class ScreenShot {
                 }
 
                 //如果MainActivity不在前台就截Menu的图
-                if(!APP.getMainActivity().isForeground()){
+                if (!APP.getMainActivity().isForeground()) {
                     screenShotNormal(filePath, APP.getMenuActivity());
                     return;
                 }
 
                 //如果没有视频在播放就普通截图
-                if(!APP.getMainActivity().isVideoPlaying()){
+                if (!APP.getMainActivity().isVideoPlaying()) {
                     screenShotNormal(filePath, APP.getMainActivity());
                     return;
                 }
@@ -115,12 +115,12 @@ public class ScreenShot {
                         return;
                     }
                     retriever.setDataSource(currPlayVideo);
-                    Bitmap frameAtTime = retriever.getFrameAtTime(currentPosition*1000);
+                    Bitmap frameAtTime = retriever.getFrameAtTime(currentPosition * 1000);
 
-                    writeToSd(fileUrl,frameAtTime);
+                    writeToSd(fileUrl, frameAtTime);
                 } catch (Exception e) {
                     e.printStackTrace();
-                }finally {
+                } finally {
                     retriever.release();
                 }
             }
@@ -142,7 +142,7 @@ public class ScreenShot {
         decorView.buildDrawingCache();
         Bitmap bitmap = Bitmap.createBitmap(decorView.getDrawingCache());
 
-        writeToSd(fileUrl,bitmap);
+        writeToSd(fileUrl, bitmap);
     }
 
     /***
@@ -151,7 +151,7 @@ public class ScreenShot {
      * @param bitmap
      * @return
      */
-    private boolean writeToSd(String filePath , Bitmap bitmap){
+    private boolean writeToSd(String filePath, Bitmap bitmap) {
         if (bitmap != null) {
             try {
                 FileOutputStream fileOutputStream = new FileOutputStream(filePath);
@@ -175,7 +175,7 @@ public class ScreenShot {
      * 上传截图
      * @param filePath
      */
-    private void commitScreen(String filePath){
+    private void commitScreen(String filePath) {
         Map<String, String> params = new HashMap<>();
         params.put("sid", HeartBeatClient.getDeviceNo());
         OkHttpUtils.post()
