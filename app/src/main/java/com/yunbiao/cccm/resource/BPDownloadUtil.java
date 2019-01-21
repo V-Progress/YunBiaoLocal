@@ -3,6 +3,7 @@ package com.yunbiao.cccm.resource;
 import android.content.Context;
 import android.net.Uri;
 import android.support.v4.provider.DocumentFile;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.yunbiao.cccm.common.ResourceConst;
@@ -110,7 +111,6 @@ public class BPDownloadUtil {
     public void cancel() {
         cancel = true;
         cancelTag(okHttpClient, mTag);
-
     }
 
     private void breakPointDownload(String localPath, final List<String> fileUrlList) {
@@ -275,7 +275,12 @@ public class BPDownloadUtil {
             }
         } catch (final IOException e) {
             e.printStackTrace();
+            // TODO: 2019/1/21 检测到EIO，表示找不到存储设备，停止所有请求
+            if(TextUtils.equals("EIO",e.getMessage())){
+                cancel();
+            }
             onError(e, totalNum, fileName);
+            return;
         } finally {
             try {
                 if (is != null) {
