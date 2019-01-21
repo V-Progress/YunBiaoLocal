@@ -47,30 +47,19 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
             if (SDUtil.isUSBDisk(path)) {
                 Toast.makeText(context, "U盘已插入" + path, Toast.LENGTH_SHORT).show();
                 CopyUtil.getInstance().USB2Local(path, this);
-            }
-
-            // TODO: 2019/1/17 暂时屏蔽SD卡检测模块
-            /*else if(SDUtil.isSDCard(path)){
-                CacheManager.SP.putExtSDPath(path);//缓存路径
-                ToastUtil.showShort(context, "SD卡已插入");
+            } else if(SDUtil.isSDCard(path)){
+                ToastUtil.showShort(context, "SD卡已插入"+path);
 
                 SDUtil.instance().checkSD();
-            }*/
+            }
 
         } else if(TextUtils.equals(Intent.ACTION_MEDIA_UNMOUNTED, action) || TextUtils.equals(Intent.ACTION_MEDIA_REMOVED, action)){//3288移除只发这个
             if (SDUtil.isUSBDisk(path)) {
                 ToastUtil.showShort(context, "U盘已移除");
-            }
-            // TODO: 2019/1/17 暂时屏蔽SD卡检测模块
-            /* else if (SDUtil.isSDCard(path)) {
+            } else if (SDUtil.isSDCard(path)) {
                 ToastUtil.showShort(context, "SD卡已移除");
                 SDUtil.instance().checkSD();
-
-                MenuActivity menuActivity = APP.getMenuActivity();
-                if(menuActivity != null && menuActivity.isForeground()){
-                    menuActivity.finish();
-                }
-            }*/
+            }
         }
     }
 

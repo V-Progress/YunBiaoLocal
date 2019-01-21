@@ -2,6 +2,7 @@ package com.yunbiao.cccm.utils;
 
 import android.content.Context;
 import android.os.Environment;
+import android.text.TextUtils;
 
 import com.yunbiao.cccm.common.Const;
 import com.yunbiao.cccm.common.HeartBeatClient;
@@ -94,7 +95,10 @@ public class Log2FileUtil {
     }
 
     private void start() {
-        setFolderPath(folderPath);
+        PATH_LOGCAT = setFolderPath(folderPath);
+        if(TextUtils.isEmpty(PATH_LOGCAT)){
+            return;
+        }
         checkFileNumb(folderPath);
         if (mLogDumper == null){
             mLogDumper = new LogDumper(String.valueOf(mPId), PATH_LOGCAT);
@@ -138,15 +142,16 @@ public class Log2FileUtil {
         }
     }
 
-    private void setFolderPath(String folderPath) {
+    private String setFolderPath(String folderPath) {
         File folder = new File(folderPath);
         if (!folder.exists()) {
             folder.mkdirs();
         }
         if (!folder.isDirectory()){
-            throw new IllegalArgumentException("The logcat folder path is not a directory: " + folderPath);
+            LogUtil.E("The logcat folder path is not a directory: " + folderPath);
+            return null;
         }
-        PATH_LOGCAT = folderPath.endsWith("/") ? folderPath : folderPath + "/";
+        return folderPath.endsWith("/") ? folderPath : folderPath + "/";
     }
 
     /**

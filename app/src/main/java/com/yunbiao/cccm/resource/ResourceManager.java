@@ -333,6 +333,7 @@ public class ResourceManager {
             MainController.getInstance().updateSpeed("0k/s");
             if(timer != null){
                 timer.cancel();
+                timer = null;
             }
             isRuning = false;
         }

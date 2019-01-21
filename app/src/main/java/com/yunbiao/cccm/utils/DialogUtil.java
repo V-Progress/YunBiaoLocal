@@ -5,9 +5,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.text.TextUtils;
 
-import android.widget.Toast;
-
-import com.yunbiao.cccm.activity.MainActivity;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by Administrator on 2018/12/3.
@@ -18,6 +17,7 @@ public class DialogUtil {
     private static DialogUtil instance;
     private ProgressDialog progressDialog;
     private AlertDialog alertDialog;
+    private Timer timer;
 
     public static synchronized DialogUtil getInstance() {
         if (instance == null) {
@@ -83,21 +83,22 @@ public class DialogUtil {
             }
         });
 
+
+        if(timer != null){
+            timer.cancel();
+            timer = null;
+        }
         if(delay > 0){
-            TimerUtil.delayExecute(10000,new TimerUtil.OnTimerListener(){
+            timer = new Timer();
+            timer.schedule(new TimerTask() {
                 @Override
-                public void onTimeFinish() {
-                    ThreadUtil.getInstance().runInUIThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if(runnable != null){
-                                runnable.run();
-                            }
-                            dismissError();
-                        }
-                    });
+                public void run() {
+                    if(runnable != null){
+                        ThreadUtil.getInstance().runInUIThread(runnable);
+                    }
+                    dismissError();
                 }
-            });
+            },10000);
         }
     }
 

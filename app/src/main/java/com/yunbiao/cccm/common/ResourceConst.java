@@ -1,44 +1,33 @@
 package com.yunbiao.cccm.common;
 
+import android.os.Build;
 import android.os.Environment;
-import android.text.TextUtils;
-
-import com.yunbiao.cccm.cache.CacheManager;
 
 public class ResourceConst {
 
     public static class LOCAL_RES {
         private static String EXTERNAL_ROOT_DIR = Environment.getExternalStorageDirectory().getAbsolutePath();//外存根目录
 
-        public static void updateROOT(String sdPath){
-            if(!TextUtils.isEmpty(sdPath)){
-                CacheManager.SP.putExtSDPath(sdPath);
-                EXTERNAL_ROOT_DIR = sdPath;
+        static {
+            if(Build.VERSION.SDK_INT >= 21){
+                // TODO: 2019/1/21 API21以上暂时未解决SD卡存储问题
+            }else{
+                EXTERNAL_ROOT_DIR = "/mnt/extsd";
             }
         }
 
-        public static String getROOTDIR(){
-            if(!TextUtils.isEmpty(EXTERNAL_ROOT_DIR)){
-                return EXTERNAL_ROOT_DIR;
-            }
-
-            String extSDPath = CacheManager.SP.getExtSDPath();
-            return extSDPath;
-        }
-
-
-        public static String APP_MAIN_DIR = getROOTDIR() + "/yunbiao";//APP资源主目录
+        public static String APP_MAIN_DIR = EXTERNAL_ROOT_DIR + "/yunbiao";//APP资源主目录
         //参数资源存储
-        public static String PROPERTY_CACHE_PATH = getROOTDIR() + "/property";
+        public static String PROPERTY_CACHE_PATH = APP_MAIN_DIR + "/property";
         //资源存储
-        public static String RES_SAVE_PATH = getROOTDIR() + "/resource";
+        public static String RES_SAVE_PATH = APP_MAIN_DIR + "/resource";
         //截屏存储
         public static String SCREEN_CACHE_PATH = APP_MAIN_DIR + "/screen";
         //图片资源存储
         public static String IMAGE_CACHE_PATH = APP_MAIN_DIR + "/img";
 
         //本地资源
-        public static String LOCAL_RES_SAVE_PATH = getROOTDIR() + "/local";
+        public static String LOCAL_RES_SAVE_PATH = APP_MAIN_DIR + "/local";
         //微信资源存储目录
         public static String WEI_CACHE_PATH = APP_MAIN_DIR + "/wei";
         //推送消息存储

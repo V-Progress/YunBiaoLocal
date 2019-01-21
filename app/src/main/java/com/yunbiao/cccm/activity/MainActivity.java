@@ -25,6 +25,7 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.yunbiao.cccm.APP;
+import com.yunbiao.cccm.common.SDUtil;
 import com.yunbiao.cccm.netcore.NetClient;
 import com.yunbiao.cccm.resource.InsertManager;
 import com.yunbiao.cccm.R;
@@ -37,6 +38,7 @@ import com.yunbiao.cccm.netcore.PnServerController;
 import com.yunbiao.cccm.resolve.VideoDataResolver;
 import com.yunbiao.cccm.utils.DeleteResUtil;
 import com.yunbiao.cccm.utils.DialogUtil;
+import com.yunbiao.cccm.utils.Log2FileUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.SystemInfoUtil;
 import com.yunbiao.cccm.utils.TimerUtil;
@@ -133,24 +135,28 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             }
         });
 
-        if(checkPermission()){
-            startGetRes();
-        }
-
-        // TODO: 2019/1/17 暂时屏蔽SD卡检测模块
         //检测SD卡
-        /*SDUtil.instance().init(this, new SDUtil.CheckSDListener() {
+        SDUtil.instance().init(this, new SDUtil.CheckSDListener() {
             @Override
             public void sdCanUsed(boolean isCanUsed) {
-                if(isCanUsed){
+                MenuActivity menuActivity = APP.getMenuActivity();
+                if (menuActivity != null && menuActivity.isForeground()) {
+                    menuActivity.finish();
+                }
+
+                if (isCanUsed) {
+                    Log2FileUtil.startLogcatManager(MainActivity.this);
                     DialogUtil.getInstance().dismissError();
                     startGetRes();
-                }else{
+                } else {
+                    stopInsert();
+                    stop();
+                    Log2FileUtil.stopLogcatManager();
                     ResourceManager.getInstance().cancel();
-                    DialogUtil.getInstance().showError(MainActivity.this,"读取错误","请插入SD卡\n并确保SD卡可正常使用");
+                    DialogUtil.getInstance().showError(MainActivity.this, "读取错误", "请插入SD卡\n并确保SD卡可正常使用");
                 }
             }
-        }).checkSD();*/
+        }).checkSD();
 
     }
 
@@ -162,7 +168,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     }*/
 
     //自定义REQUEST_CODE
-    private int WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 101;
+    /*private int WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 101;
 
     //检测权限
     private boolean checkPermission() {
@@ -174,7 +180,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
                         WRITE_EXTERNAL_STORAGE_REQUEST_CODE);
                 return false;
             } else {
-                LogUtil.D("123","已有权限");
+                LogUtil.D("123", "已有权限");
                 return true;
             }
         }
@@ -192,14 +198,14 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
                 startGetRes();
             } else {
                 LogUtil.D("123", "未取得权限");
-                ToastUtil.showLong(this,"请允许权限");
+                ToastUtil.showLong(this, "请允许权限");
             }
         }
-    }
+    }*/
 
     //开始请求获取资源
     public void startGetRes() {
-        TimerUtil.delayExecute(3000, new TimerUtil.OnTimerListener() {
+        TimerUtil.delayExecute(1000, new TimerUtil.OnTimerListener() {
             @Override
             public void onTimeFinish() {
                 //初始化播放数据
@@ -406,9 +412,14 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             vv.stopPlayback();
         }
 
-        vv.setVideoPath(playLists.get(videoIndex));
-        vv.setVisibility(View.VISIBLE);
-        vv.start();
+        try{
+            vv.setVideoPath(playLists.get(videoIndex));
+            vv.setVisibility(View.VISIBLE);
+            vv.start();
+        }catch (Exception e){
+            e.printStackTrace();
+            LogUtil.E(e.getMessage());
+        }
     }
 
     public void removeView(View view) {

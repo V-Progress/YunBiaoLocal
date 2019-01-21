@@ -139,14 +139,6 @@ public class BPDownloadUtil {
 
         //开始下载
         cacheDownload(localDir.getAbsolutePath(), urlQueue);
-
-        //下载地址队列
-//        Queue<DownloadInfo> downloadInfos = new LinkedList<>();
-//        equalsFile(localDir.getAbsolutePath(), urlQueue, downloadInfos);
-//
-//        //开始下载
-//        download(downloadInfos);
-
     }
 
     /***

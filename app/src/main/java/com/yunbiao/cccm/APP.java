@@ -55,8 +55,6 @@ public class APP extends Application {
         UMConfigure.init(this,UMConfigure.DEVICE_TYPE_BOX,null);
         UMConfigure.setLogEnabled(true);
 
-        Log2FileUtil.startLogcatManager(this);
-
         //初始化OKHTTPUTILS
         okHttpClient = new OkHttpClient()
                 .newBuilder()

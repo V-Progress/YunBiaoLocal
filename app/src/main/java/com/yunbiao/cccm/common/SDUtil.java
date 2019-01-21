@@ -11,9 +11,10 @@ import android.preference.PreferenceManager;
 import android.support.v4.provider.DocumentFile;
 import android.text.TextUtils;
 
+import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.utils.LogUtil;
-import com.yunbiao.cccm.utils.TimerUtil;
+import com.yunbiao.cccm.utils.ToastUtil;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -62,25 +63,22 @@ public class SDUtil {
      * @return
      */
     public void checkSD() {
-        TimerUtil.delayExecute(2000, new TimerUtil.OnTimerListener() {
-            @Override
-            public void onTimeFinish() {
-                if (Build.VERSION.SDK_INT >= 21) {
-                    LogUtil.D(TAG, "当前版本高于API21，申请SD卡读取权限");
-                    reqSDPermi();
-                } else {
-                    String appRootOfSdCardRemovable = getAppRootOfSdCardRemovable(mActivity);
-                    String extSDPath = CacheManager.SP.getExtSDPath();
-                    LogUtil.D(TAG, "当前版本低于API21" + "检测到目录：" + appRootOfSdCardRemovable + "---缓存目录：" + extSDPath);
-                    if (!TextUtils.isEmpty(extSDPath) && !TextUtils.equals(appRootOfSdCardRemovable, extSDPath)) {
-                        appRootOfSdCardRemovable = extSDPath;
-                    }
-                    boolean canUsed = isCanUsed(appRootOfSdCardRemovable);
-                    LogUtil.D(TAG, "是否可用：" + canUsed);
-                    mListener.sdCanUsed(canUsed);
-                }
+        if (Build.VERSION.SDK_INT >= 21) {
+//                    LogUtil.D(TAG, "当前版本高于API21，申请SD卡读取权限");
+//                    reqSDPermi();
+            // TODO: 2019/1/21 屏蔽5.0的SD卡存储模块
+            ToastUtil.showLong(APP.getMainActivity(), "Android 5.0版本以上暂不支持SD卡存储");
+        } else {
+            String appRootOfSdCardRemovable = getAppRootOfSdCardRemovable(mActivity);
+            String extSDPath = CacheManager.SP.getExtSDPath();
+            LogUtil.D(TAG, "当前版本低于API21" + "检测到目录：" + appRootOfSdCardRemovable + "---缓存目录：" + extSDPath);
+            if (!TextUtils.isEmpty(extSDPath) && !TextUtils.equals(appRootOfSdCardRemovable, extSDPath)) {
+                appRootOfSdCardRemovable = extSDPath;
             }
-        });
+            final boolean canUsed = isCanUsed(appRootOfSdCardRemovable);
+            LogUtil.D(TAG, "是否可用：" + canUsed);
+            mListener.sdCanUsed(canUsed);
+        }
     }
 
     public void reqSDPermi() {
@@ -128,12 +126,12 @@ public class SDUtil {
      * @param filePath 目录路径
      * @return
      */
-    public boolean isCanUsed(String filePath) {
+    public static boolean isCanUsed(String filePath) {
         File file = new File(filePath);
         return file.exists() && file.canRead() && file.canWrite();
     }
 
-    public boolean isCanUsed(DocumentFile file) {
+    public static boolean isCanUsed(DocumentFile file) {
         LogUtil.E(TAG, "SDCard目录：" + file.getUri() + "是否存在：" + file.exists() + "---是否可读：" + file.canRead() + "---是否可写：" + file.canWrite());
         return file.exists() && file.canRead() && file.canWrite();
     }
