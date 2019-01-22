@@ -582,13 +582,15 @@ public class InsertManager implements TextToSpeech.OnInitListener {
     @Override
     public void onInit(int status) {
         if (status == TextToSpeech.SUCCESS) {
-            int result = tts.setLanguage(Locale.CHINA);
-            if (result == TextToSpeech.LANG_MISSING_DATA
-                    || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                isSupportChinese = false;
-                return;
+            if(tts != null){
+                int result = tts.setLanguage(Locale.CHINA);
+                if (result == TextToSpeech.LANG_MISSING_DATA
+                        || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                    isSupportChinese = false;
+                    return;
+                }
+                isSupportChinese = true;
             }
-            isSupportChinese = true;
         }
     }
 }

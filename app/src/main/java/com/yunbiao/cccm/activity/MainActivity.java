@@ -145,13 +145,12 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
                 }
 
                 if (isCanUsed) {
-                    Log2FileUtil.startLogcatManager(MainActivity.this);
+
                     DialogUtil.getInstance().dismissError();
                     startGetRes();
                 } else {
                     stopInsert();
                     stop();
-                    Log2FileUtil.stopLogcatManager();
                     ResourceManager.getInstance().cancel();
                     DialogUtil.getInstance().showError(MainActivity.this, "读取错误", "请插入SD卡\n并确保SD卡可正常使用");
                 }

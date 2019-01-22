@@ -41,9 +41,14 @@ public class MainController {
      * 更新播放列表
      */
     public void updateList() {
-        MenuActivity menuActivity = APP.getMenuActivity();
+        final MenuActivity menuActivity = APP.getMenuActivity();
         if (menuActivity != null) {
-            menuActivity.updatePlayList();
+            ThreadUtil.getInstance().runInUIThread(new Runnable() {
+                @Override
+                public void run() {
+                    menuActivity.updatePlayList();
+                }
+            });
         }
     }
 

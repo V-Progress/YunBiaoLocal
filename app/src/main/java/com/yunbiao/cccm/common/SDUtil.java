@@ -66,8 +66,7 @@ public class SDUtil {
         if (Build.VERSION.SDK_INT >= 21) {
 //                    LogUtil.D(TAG, "当前版本高于API21，申请SD卡读取权限");
 //                    reqSDPermi();
-            // TODO: 2019/1/21 屏蔽5.0的SD卡存储模块
-            ToastUtil.showLong(APP.getMainActivity(), "Android 5.0版本以上暂不支持SD卡存储");
+            mListener.sdCanUsed(true);
         } else {
             String appRootOfSdCardRemovable = getAppRootOfSdCardRemovable(mActivity);
             String extSDPath = CacheManager.SP.getExtSDPath();

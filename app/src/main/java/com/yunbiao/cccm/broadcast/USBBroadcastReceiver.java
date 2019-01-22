@@ -3,6 +3,7 @@ package com.yunbiao.cccm.broadcast;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -49,7 +50,11 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
                 CopyUtil.getInstance().USB2Local(path, this);
             } else if(SDUtil.isSDCard(path)){
                 ToastUtil.showShort(context, "SD卡已插入"+path);
-
+                if(Build.VERSION.SDK_INT >= 21){
+                    // TODO: 2019/1/21 屏蔽5.0的SD卡存储模块
+                    ToastUtil.showLong(context, "Android 5.0版本以上暂不支持SD卡存储");
+                    return;
+                }
                 SDUtil.instance().checkSD();
             }
 
@@ -58,6 +63,12 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
                 ToastUtil.showShort(context, "U盘已移除");
             } else if (SDUtil.isSDCard(path)) {
                 ToastUtil.showShort(context, "SD卡已移除");
+
+                if(Build.VERSION.SDK_INT >= 21){
+                    // TODO: 2019/1/21 屏蔽5.0的SD卡存储模块
+                    ToastUtil.showLong(context, "Android 5.0版本以上暂不支持SD卡存储");
+                    return;
+                }
                 SDUtil.instance().checkSD();
             }
         }

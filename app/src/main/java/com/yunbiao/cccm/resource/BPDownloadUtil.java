@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.net.SocketTimeoutException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -278,9 +279,12 @@ public class BPDownloadUtil {
             // TODO: 2019/1/21 检测到EIO，表示找不到存储设备，停止所有请求
             if(TextUtils.equals("EIO",e.getMessage())){
                 cancel();
+                return;
+            }
+            if(e instanceof SocketTimeoutException){
+                urlQueue.offer(downloadUrl);
             }
             onError(e, totalNum, fileName);
-            return;
         } finally {
             try {
                 if (is != null) {

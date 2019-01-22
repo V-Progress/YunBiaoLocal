@@ -63,35 +63,14 @@ public class Log2FileUtil {
         if (Const.SYSTEM_CONFIG.IS_LOG_TO_FILE) {
             if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
                 // save in SD card first
-                folderPath = ResourceConst.LOCAL_RES.PROPERTY_CACHE_PATH + File.separator + "Log";
+                folderPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "yunbiao_Log";
             } else {
                 // If the SD card does not exist, save in the directory of application.
-                folderPath = ResourceConst.LOCAL_RES.PROPERTY_CACHE_PATH + File.separator + "Log";
+                folderPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "yunbiao_Log";
             }
-            Log2FileUtil.getInstance().start();
+
+            getInstance().start();
         }
-    }
-
-    public static void stopLogcatManager() {
-        if (Const.SYSTEM_CONFIG.IS_LOG_TO_FILE) {
-            Log2FileUtil.getInstance().stop();
-        }
-    }
-
-    public static File[] queryUploadFiles(){
-        FilenameFilter filter = new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String filename) {
-                return filename.endsWith(".log");
-            }
-        };
-        File file = new File(folderPath);
-        File[] files = file.listFiles(filter);
-        return files;
-    }
-
-    public static String getFolerPath() {
-        return folderPath;
     }
 
     private void start() {
@@ -104,6 +83,18 @@ public class Log2FileUtil {
             mLogDumper = new LogDumper(String.valueOf(mPId), PATH_LOGCAT);
         }
         mLogDumper.start();
+    }
+
+    private String setFolderPath(String folderPath) {
+        File folder = new File(folderPath);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        if (!folder.isDirectory()){
+            LogUtil.E("The logcat folder path is not a directory: " + folderPath);
+            return null;
+        }
+        return folderPath.endsWith("/") ? folderPath : folderPath + "/";
     }
 
     /**
@@ -133,25 +124,6 @@ public class Log2FileUtil {
                 LogUtil.D("删除日志文件失败:"+delFile.getName());
             }
         }
-    }
-
-    private void stop() {
-        if (mLogDumper != null) {
-            mLogDumper.stopLogs();
-            mLogDumper = null;
-        }
-    }
-
-    private String setFolderPath(String folderPath) {
-        File folder = new File(folderPath);
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-        if (!folder.isDirectory()){
-            LogUtil.E("The logcat folder path is not a directory: " + folderPath);
-            return null;
-        }
-        return folderPath.endsWith("/") ? folderPath : folderPath + "/";
     }
 
     /**
@@ -242,6 +214,35 @@ public class Log2FileUtil {
                 }
             }
         }
+    }
+
+    private void stop() {
+        if (mLogDumper != null) {
+            mLogDumper.stopLogs();
+            mLogDumper = null;
+        }
+    }
+
+    public static void stopLogcatManager() {
+        if (Const.SYSTEM_CONFIG.IS_LOG_TO_FILE) {
+            Log2FileUtil.getInstance().stop();
+        }
+    }
+
+    public static File[] queryUploadFiles(){
+        FilenameFilter filter = new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String filename) {
+                return filename.endsWith(".log");
+            }
+        };
+        File file = new File(folderPath);
+        File[] files = file.listFiles(filter);
+        return files;
+    }
+
+    public static String getFolerPath() {
+        return folderPath;
     }
 
 }
