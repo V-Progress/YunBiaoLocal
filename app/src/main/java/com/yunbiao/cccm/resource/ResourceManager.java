@@ -233,9 +233,10 @@ public class ResourceManager {
         @Override
         public void onStart(int currNum) {
             LogUtil.D(TAG, "开始下载: " + currNum);
-            if (isInit) {
-                MainController.getInstance().initPlayData(true);
-            }
+//            if (isInit) {
+            MainController.getInstance().initPlayData(true);
+//            }
+
             MainController.getInstance().updateList();
 
             MainController.getInstance().updateParentProgress(currNum);
@@ -329,9 +330,9 @@ public class ResourceManager {
         }
 
         //取消计算
-        private void cancelSpeedTimer(){
+        private void cancelSpeedTimer() {
             MainController.getInstance().updateSpeed("0k/s");
-            if(timer != null){
+            if (timer != null) {
                 timer.cancel();
                 timer = null;
             }
