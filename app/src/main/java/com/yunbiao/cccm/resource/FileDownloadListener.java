@@ -26,23 +26,8 @@ public abstract class FileDownloadListener implements MultiFileDownloadListener 
 
     }
 
-    /*@Override
-    public void onSuccess(int currFileNum, BPDownloadUtil.DownloadInfo downloadInfo) {
-
-    }
-
-    @Override
-    public void onError(int currFileNum, Exception e, BPDownloadUtil.DownloadInfo downloadInfo) {
-
-    }*/
-
     @Override
     public void onFinish() {
-
-    }
-
-    @Override
-    public void onFailed(Exception e) {
 
     }
 

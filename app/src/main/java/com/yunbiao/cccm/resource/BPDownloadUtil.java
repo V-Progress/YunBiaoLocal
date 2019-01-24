@@ -1,23 +1,17 @@
 package com.yunbiao.cccm.resource;
 
-import android.content.Context;
-import android.net.Uri;
-import android.support.v4.provider.DocumentFile;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.common.YunBiaoException;
 import com.yunbiao.cccm.utils.DateUtil;
-import com.yunbiao.cccm.utils.LogUtil;
 
+import java.io.Closeable;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.RandomAccessFile;
-import java.net.SocketTimeoutException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -115,16 +109,6 @@ public class BPDownloadUtil {
             };
         }
 
-        //获取本地目录
-        File localDir = new File(localPath);
-        if (!localDir.exists()) {
-            boolean mkdirs = localDir.mkdirs();
-            if (!mkdirs) {
-                l.onFailed(new YunBiaoException(YunBiaoException.ERROR_FILE_PERMISSION, null));//文件权限异常
-                return;
-            }
-        }
-
         //初始化一个队列，便于递归使用
         Queue<String> urlQueue = new LinkedList<>();
         urlQueue.addAll(fileUrlList);
@@ -132,6 +116,17 @@ public class BPDownloadUtil {
         //下载之前先调用一下before
         totalNum = urlQueue.size();
         l.onBefore(totalNum);
+
+        //获取本地目录
+        File localDir = new File(localPath);
+        if (!localDir.exists()) {
+            boolean mkdirs = localDir.mkdirs();
+            if (!mkdirs) {
+                // 文件权限
+                l.onError(new YunBiaoException(YunBiaoException.ERROR_FILE_PERMISSION, null),currFileNum,totalNum,"");
+                return;
+            }
+        }
 
         //开始下载
         cacheDownload(localDir.getAbsolutePath(), urlQueue);
@@ -240,7 +235,6 @@ public class BPDownloadUtil {
                 response.body().close();
 
                 //如果當前下載文件長度和遠程文件不相同，則刪除掉重新下載
-
                 if (cacheFile.length() != contentLength) {
                     cacheFile.delete();
                     throw new DownloadException(DownloadException.CODE_CACHE_DOWNLOADED_LENGTH_ERROR, "cacheFile download length error");
@@ -254,47 +248,49 @@ public class BPDownloadUtil {
                     }
                 }
             }
-        } catch (DownloadException e) {
-            switch (e.errCode) {
-                case DownloadException.CODE_SUCCESS_DOWNLOAD:
-                    onSuccess(totalNum, fileName);
-                    break;
-                case DownloadException.CODE_FAILED_CONTENT_LENGTH:
-                    onError(e, totalNum, fileName);
-                    break;
-                case DownloadException.CODE_CACHE_DOWNLOADED_LENGTH_ERROR:
-                case DownloadException.CODE_CACHE_DOWNLOADED_RENAME_FAILED:
-                case DownloadException.CODE_LOCAL_LENGTH_ERROR_DELETE:
-                case DownloadException.CODE_LOCAL_LENGTH_ERROR_DELETE_FAILED:
-                    urlQueue.offer(downloadUrl);
-                    break;
-            }
-        } catch (final IOException e) {
-//            e.printStackTrace();
-            LogUtil.E(e.getMessage());
-            // TODO: 2019/1/21 检测到EIO，表示找不到存储设备，停止所有请求
-            if (TextUtils.equals("EIO", e.getMessage())) {
-                l.onFailed(new YunBiaoException(YunBiaoException.ERROR_STORAGE,e));
+        } catch (Exception e) {
+            // 检测到EIO，表示找不到存储设备，停止所有请求
+            if (!TextUtils.isEmpty(e.getMessage()) && e.getMessage().contains("EIO")) {
+                l.onError(new YunBiaoException(YunBiaoException.ERROR_STORAGE, e),currFileNum,totalNum,fileName);
                 cancel();
                 return;
             }
-            if (e instanceof SocketTimeoutException) {
-                urlQueue.offer(downloadUrl);
+
+            //具体异常捕获
+            if (e instanceof IOException) {//不可预知的IO异常一律认为是网络异常
+                onError(new YunBiaoException(YunBiaoException.ERROR_DOWNLOAD_NET_EXCEPTION, e), totalNum, fileName);
+            } else if (e instanceof DownloadException) {//流程中异常
+                DownloadException downloadException = (DownloadException) e;
+                switch (downloadException.errCode) {
+                    case DownloadException.CODE_SUCCESS_DOWNLOAD:
+                        onSuccess(totalNum, fileName);
+                        break;
+                    case DownloadException.CODE_FAILED_CONTENT_LENGTH:
+                        onError(new YunBiaoException(YunBiaoException.FAILED_CONTENT_LENGTH, e), totalNum, fileName);
+                        break;
+                    case DownloadException.CODE_CACHE_DOWNLOADED_LENGTH_ERROR:
+                    case DownloadException.CODE_CACHE_DOWNLOADED_RENAME_FAILED:
+                    case DownloadException.CODE_LOCAL_LENGTH_ERROR_DELETE:
+                    case DownloadException.CODE_LOCAL_LENGTH_ERROR_DELETE_FAILED:
+                        urlQueue.offer(downloadUrl);
+                        break;
+                }
             }
-            onError(e, totalNum, fileName);
         } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                }
-                if (savedFile != null) {
-                    savedFile.close();
-                }
-            } catch (final Exception e) {
-                onError(e, totalNum, fileName);
-            }
+            close(is);
+            close(savedFile);
         }
         cacheDownload(localPath, urlQueue);
+    }
+
+    private void close(Closeable closeable) {
+        try {
+            if (closeable != null) {
+                closeable.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /***
@@ -356,14 +352,14 @@ public class BPDownloadUtil {
         }
     }
 
-    public static class DownloadException extends Exception {
+
+    private static class DownloadException extends Exception {
         public static final int CODE_FAILED_CONTENT_LENGTH = -1;//获取远程文件大小失败(无需重试)
         public static final int CODE_SUCCESS_DOWNLOAD = 0;//下载成功(无需重试)
         public static final int CODE_CACHE_DOWNLOADED_RENAME_FAILED = 1;//缓存文件下载完成，更名失败(重试)
         public static final int CODE_LOCAL_LENGTH_ERROR_DELETE_FAILED = 2;//存在但大小不正确，删除本地文件失败(重试)
         public static final int CODE_LOCAL_LENGTH_ERROR_DELETE = 3;//存在但大小不正确，删除本地文件成功(重试)
         public static final int CODE_CACHE_DOWNLOADED_LENGTH_ERROR = 4;//缓存下载完成后大小不一致，删除重新下载(重试)
-
 
         private int errCode;
         private String errMsg;

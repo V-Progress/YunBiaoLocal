@@ -75,16 +75,16 @@ public class NetClient {
      * @param params 参数
      * @return
      */
-    public Response postSync(String url, Map<String, String> params){
+    public Response postSync(String url, Map<String, String> params) {
         Response response = null;
-        try{
+        try {
             response = OkHttpUtils.post().url(url).params(params).tag(this).build().execute();
-        }catch (IOException e){
-            LogUtil.E(url + " 请求失败:"+ e.getMessage() + " ，重新请求");
+        } catch (IOException e) {
+            LogUtil.E(url + " 请求失败:" + e.getMessage() + " ，重新请求");
             try {
                 response = OkHttpUtils.post().url(url).params(params).tag(this).build().execute();
             } catch (IOException e1) {
-                LogUtil.E(url + " 请求失败:"+ e1.getMessage());
+                LogUtil.E(url + " 请求失败:" + e1.getMessage());
             }
         }
         return response;
@@ -176,26 +176,26 @@ public class NetClient {
                 .execute(stringCallback);
     }
 
-    public void uploadProgress(String playDate,String rsUpdate,String fileName,boolean isSucc){
-        Map<String,String> params = new HashMap<>();
-        params.put("sid",HeartBeatClient.getDeviceNo());
-        params.put("playDate",playDate);
-        params.put("rsUpdate",rsUpdate);
-        params.put("userFile",fileName);
-        params.put("status",isSucc ? "1" : "2");
+    public void uploadProgress(String playDate, String rsUpdate, String fileName, Integer status) {
+        Map<String, String> params = new HashMap<>();
+        params.put("sid", HeartBeatClient.getDeviceNo());
+        params.put("playDate", playDate);
+        params.put("rsUpdate", rsUpdate);
+        params.put("userFile", fileName);
+        params.put("status", String.valueOf(status));
 
-        LogUtil.D("文件进度："+params.toString());
-        Response response = postSync(ResourceConst.REMOTE_RES.RES_PROGRESS_UPLOAD, params);
-        if(response == null){
-            LogUtil.D("文件下载进度上传结果：无响应");
-            return;
-        }
-        if(response.body() == null){
-            LogUtil.D("文件下载进度上传结果：无响应");
-            return;
-        }
-        String resp = response.body().toString();
-        LogUtil.D("文件下载进度上传结果："+resp);
+        LogUtil.D("文件进度：" + params.toString());
+        post(ResourceConst.REMOTE_RES.RES_PROGRESS_UPLOAD, params, new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+                LogUtil.D("文件下载进度上传结果：" + e.getClass().getSimpleName() + "---" + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(String response, int id) {
+                LogUtil.D("文件下载进度上传结果：" + response);
+            }
+        });
     }
 
     /**

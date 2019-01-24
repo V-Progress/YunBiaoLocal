@@ -86,13 +86,13 @@ public class ResourceManager {
             //请求获取资源
             Response response = NetClient.getInstance().postSync(ResourceConst.REMOTE_RES.GET_RESOURCE, map);
             if (response == null) {
-                fileDownloadListener.onFailed(new YunBiaoException(YunBiaoException.FAILED_REQ_CONFIG,null));//上传比较方便
+                fileDownloadListener.onError(new YunBiaoException(YunBiaoException.FAILED_REQ_CONFIG,null),0,0,"");
                 throw new IOException("request play Resource Error");
             }
             //取出响应
             String responseStr = response.body().string();
             if (TextUtils.isEmpty(responseStr)) {
-                fileDownloadListener.onFailed(new YunBiaoException(YunBiaoException.FAILED_REQ_CONFIG,null));//上传比较方便
+                fileDownloadListener.onError(new YunBiaoException(YunBiaoException.FAILED_REQ_CONFIG,null),0,0,"");
                 throw new IOException("response's body is null");
             }
             LogUtil.D(TAG, "播放资源：" + responseStr);
@@ -101,7 +101,7 @@ public class ResourceManager {
             ConfigResponse configResponse = new Gson().fromJson(responseStr, ConfigResponse.class);
             if (TextUtils.equals(REQ_FAILED_TAG, configResponse.getResult())) {
                 LogUtil.D(TAG, configResponse.getMessage());
-                fileDownloadListener.onFailed(new YunBiaoException(YunBiaoException.FAILED_REQ_CONFIG,new Exception(configResponse.getMessage())));//上传比较方便
+                fileDownloadListener.onError(new YunBiaoException(YunBiaoException.FAILED_REQ_CONFIG,new Exception(configResponse.getMessage())),0,0,"");
                 throw new Exception(configResponse.getMessage());
             }
 
@@ -113,14 +113,14 @@ public class ResourceManager {
             //下载config文件
             Response configXml = NetClient.getInstance().downloadSync(configUrl);
             if (configXml == null) {
-                fileDownloadListener.onFailed(new YunBiaoException(YunBiaoException.FAILED_DOWNLOAD_CONFIG,null));
+                fileDownloadListener.onError(new YunBiaoException(YunBiaoException.FAILED_DOWNLOAD_CONFIG,null),0,0,"");
                 throw new IOException("download response's body is null");
             }
 
             //取出config内容
             String configStr = configXml.body().string();
             if (TextUtils.isEmpty(configStr)) {
-                fileDownloadListener.onFailed(new YunBiaoException(YunBiaoException.FAILED_DOWNLOAD_CONFIG,null));
+                fileDownloadListener.onError(new YunBiaoException(YunBiaoException.FAILED_DOWNLOAD_CONFIG,null),0,0,"");
                 throw new IOException("config.xml is null");
             }
 
@@ -147,7 +147,7 @@ public class ResourceManager {
             e.printStackTrace();
             //请求明天时会将isInit置为false
             if(e instanceof XmlPullParserException){
-                fileDownloadListener.onFailed(new YunBiaoException(YunBiaoException.FAILED_RESOLVE_CONFIG,e));
+                fileDownloadListener.onError(new YunBiaoException(YunBiaoException.FAILED_RESOLVE_CONFIG,e),0,0,"");
             }
             if (isInit) {
                 requestRes(TYPE_TOMMO);
@@ -270,13 +270,11 @@ public class ResourceManager {
             LogUtil.D(TAG, "下载成功: " + currFileNum);
             MainController.getInstance().updateParentProgress(currFileNum);
             MainController.getInstance().updateConsole("第" + currFileNum + "个文件下载完成：" + fileName);
-            NetClient.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, fileName, true);
-
+            NetClient.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, fileName, YunBiaoException.SUCCESS);
         }
 
         @Override
         public void onError(Exception e, int currFileNum, int totalNum, String fileName) {
-            e.printStackTrace();
             String errMsg;
             if (!TextUtils.isEmpty(e.getMessage())) {
                 errMsg = e.getMessage();
@@ -285,8 +283,11 @@ public class ResourceManager {
             }
             LogUtil.D(TAG, "下载错误: " + errMsg);
             MainController.getInstance().updateConsole("第" + currFileNum + "个文件下载错误:" + errMsg);
-            NetClient.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, fileName, false);
 
+            if(e instanceof YunBiaoException){
+                YunBiaoException ye = (YunBiaoException) e;
+                NetClient.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, fileName, ye.getErrCode());
+            }
         }
 
         @Override
@@ -306,13 +307,6 @@ public class ResourceManager {
                 MainController.getInstance().updateConsole("已全部下载结束");
                 MainController.getInstance().closeConsole();
             }
-        }
-
-        @Override
-        public void onFailed(Exception e) {
-            e.printStackTrace();
-            LogUtil.D(TAG, "下载失败：" + e.getMessage());
-            MainController.getInstance().updateConsole("下载失败，请检查网络或Config:" + e.getMessage());
         }
 
         //开始计算速度
