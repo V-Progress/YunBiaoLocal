@@ -7,6 +7,7 @@ import com.yunbiao.cccm.activity.MainController;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.common.ResourceConst;
+import com.yunbiao.cccm.common.YunBiaoException;
 import com.yunbiao.cccm.netcore.NetClient;
 import com.yunbiao.cccm.netcore.bean.ConfigResponse;
 import com.yunbiao.cccm.resolve.VideoDataModel;
@@ -14,6 +15,8 @@ import com.yunbiao.cccm.resolve.XMLParse;
 import com.yunbiao.cccm.utils.DateUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
+
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -83,11 +86,13 @@ public class ResourceManager {
             //请求获取资源
             Response response = NetClient.getInstance().postSync(ResourceConst.REMOTE_RES.GET_RESOURCE, map);
             if (response == null) {
+                fileDownloadListener.onFailed(new YunBiaoException(YunBiaoException.FAILED_REQ_CONFIG,null));//上传比较方便
                 throw new IOException("request play Resource Error");
             }
             //取出响应
             String responseStr = response.body().string();
             if (TextUtils.isEmpty(responseStr)) {
+                fileDownloadListener.onFailed(new YunBiaoException(YunBiaoException.FAILED_REQ_CONFIG,null));//上传比较方便
                 throw new IOException("response's body is null");
             }
             LogUtil.D(TAG, "播放资源：" + responseStr);
@@ -96,6 +101,7 @@ public class ResourceManager {
             ConfigResponse configResponse = new Gson().fromJson(responseStr, ConfigResponse.class);
             if (TextUtils.equals(REQ_FAILED_TAG, configResponse.getResult())) {
                 LogUtil.D(TAG, configResponse.getMessage());
+                fileDownloadListener.onFailed(new YunBiaoException(YunBiaoException.FAILED_REQ_CONFIG,new Exception(configResponse.getMessage())));//上传比较方便
                 throw new Exception(configResponse.getMessage());
             }
 
@@ -107,12 +113,14 @@ public class ResourceManager {
             //下载config文件
             Response configXml = NetClient.getInstance().downloadSync(configUrl);
             if (configXml == null) {
+                fileDownloadListener.onFailed(new YunBiaoException(YunBiaoException.FAILED_DOWNLOAD_CONFIG,null));
                 throw new IOException("download response's body is null");
             }
 
             //取出config内容
             String configStr = configXml.body().string();
             if (TextUtils.isEmpty(configStr)) {
+                fileDownloadListener.onFailed(new YunBiaoException(YunBiaoException.FAILED_DOWNLOAD_CONFIG,null));
                 throw new IOException("config.xml is null");
             }
 
@@ -138,6 +146,9 @@ public class ResourceManager {
         } catch (Exception e) {
             e.printStackTrace();
             //请求明天时会将isInit置为false
+            if(e instanceof XmlPullParserException){
+                fileDownloadListener.onFailed(new YunBiaoException(YunBiaoException.FAILED_RESOLVE_CONFIG,e));
+            }
             if (isInit) {
                 requestRes(TYPE_TOMMO);
                 MainController.getInstance().updateMenu(false);
@@ -169,7 +180,7 @@ public class ResourceManager {
 
             if (TextUtils.equals(playday, dayStr)) {
 
-                currDownloadPlayDay = playday;
+                currDownloadPlayDay = DateUtil.yyyy_MM_dd_Format(playday);
 
                 List<VideoDataModel.Play.Rule> rules = play.getRules();
                 for (VideoDataModel.Play.Rule rule : rules) {

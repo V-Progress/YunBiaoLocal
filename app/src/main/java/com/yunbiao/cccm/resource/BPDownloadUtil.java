@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.yunbiao.cccm.common.ResourceConst;
+import com.yunbiao.cccm.common.YunBiaoException;
 import com.yunbiao.cccm.utils.DateUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 
@@ -66,12 +67,6 @@ public class BPDownloadUtil {
     //多文件下载监听
     private MultiFileDownloadListener l;
 
-    private final int CODE_FAILED_CONTENT_LENGTH = -1;//获取远程文件大小失败(无需重试)
-    private final int CODE_SUCCESS_DOWNLOAD = 0;//下载成功(无需重试)
-    private final int CODE_CACHE_DOWNLOADED_RENAME_FAILED = 1;//缓存文件下载完成，更名失败(重试)
-    private final int CODE_LOCAL_LENGTH_ERROR_DELETE_FAILED = 2;//存在但大小不正确，删除本地文件失败(重试)
-    private final int CODE_LOCAL_LENGTH_ERROR_DELETE = 3;//存在但大小不正确，删除本地文件成功(重试)
-    private final int CODE_CACHE_DOWNLOADED_LENGTH_ERROR = 4;//缓存下载完成后大小不一致，删除重新下载(重试)
     private int totalNum;
 
 
@@ -125,7 +120,7 @@ public class BPDownloadUtil {
         if (!localDir.exists()) {
             boolean mkdirs = localDir.mkdirs();
             if (!mkdirs) {
-                l.onFailed(new Exception("create dir failed,please check permissions"));
+                l.onFailed(new YunBiaoException(YunBiaoException.ERROR_FILE_PERMISSION, null));//文件权限异常
                 return;
             }
         }
@@ -166,7 +161,7 @@ public class BPDownloadUtil {
             long contentLength = getContentLength(downloadUrl);
             //如果下载的文件长度为0并且重试次数未超
             if (contentLength == 0) {
-                throw new DownloadException(CODE_FAILED_CONTENT_LENGTH, "Get File's Length Error");
+                throw new DownloadException(DownloadException.CODE_FAILED_CONTENT_LENGTH, "Get File's Length Error");
             }
 
             //取出本地文件（确保本地文件存在即完整）
@@ -174,14 +169,14 @@ public class BPDownloadUtil {
             if (localFile.exists()) {
                 //如果本地文件存在，并且大小等于远程，则下载完成，跳转下一个
                 if (localFile.length() == contentLength) {
-                    throw new DownloadException(CODE_SUCCESS_DOWNLOAD, DateUtil.yyyy_MM_dd_HH_mm_Format(new Date()));
+                    throw new DownloadException(DownloadException.CODE_SUCCESS_DOWNLOAD, DateUtil.yyyy_MM_dd_HH_mm_Format(new Date()));
                 } else {//存在但大小不正确，删除，重新下载
                     boolean delete = localFile.delete();
                     if (!delete) {
-                        throw new DownloadException(CODE_LOCAL_LENGTH_ERROR_DELETE_FAILED, "local file's length error, delete failed");
+                        throw new DownloadException(DownloadException.CODE_LOCAL_LENGTH_ERROR_DELETE_FAILED, "local file's length error, delete failed");
                     }
 
-                    throw new DownloadException(CODE_LOCAL_LENGTH_ERROR_DELETE, "local file's length error, delete");
+                    throw new DownloadException(DownloadException.CODE_LOCAL_LENGTH_ERROR_DELETE, "local file's length error, delete");
                 }
             }
 
@@ -191,10 +186,10 @@ public class BPDownloadUtil {
             if (cacheFile.length() == contentLength) {
                 boolean b = cacheFile.renameTo(localFile);
                 if (!b) {//改名失败
-                    throw new DownloadException(CODE_CACHE_DOWNLOADED_RENAME_FAILED, "download success, rename cacheFile failed");
+                    throw new DownloadException(DownloadException.CODE_CACHE_DOWNLOADED_RENAME_FAILED, "download success, rename cacheFile failed");
                 }
 
-                throw new DownloadException(CODE_SUCCESS_DOWNLOAD, DateUtil.yyyy_MM_dd_HH_mm_Format(new Date()));
+                throw new DownloadException(DownloadException.CODE_SUCCESS_DOWNLOAD, DateUtil.yyyy_MM_dd_HH_mm_Format(new Date()));
             }
 
             d("start download...");
@@ -248,40 +243,42 @@ public class BPDownloadUtil {
 
                 if (cacheFile.length() != contentLength) {
                     cacheFile.delete();
-                    throw new DownloadException(CODE_CACHE_DOWNLOADED_LENGTH_ERROR, "cacheFile download length error");
+                    throw new DownloadException(DownloadException.CODE_CACHE_DOWNLOADED_LENGTH_ERROR, "cacheFile download length error");
                 } else {
                     boolean rename = cacheFile.renameTo(localFile);
                     if (rename) {//改名成功
-                        throw new DownloadException(CODE_SUCCESS_DOWNLOAD, DateUtil.yyyy_MM_dd_HH_mm_Format(new Date()));
+                        throw new DownloadException(DownloadException.CODE_SUCCESS_DOWNLOAD, DateUtil.yyyy_MM_dd_HH_mm_Format(new Date()));
                     } else {//改名失败
                         cacheFile.delete();//删除
-                        throw new DownloadException(CODE_CACHE_DOWNLOADED_RENAME_FAILED, "download success, rename cacheFile failed");
+                        throw new DownloadException(DownloadException.CODE_CACHE_DOWNLOADED_RENAME_FAILED, "download success, rename cacheFile failed");
                     }
                 }
             }
         } catch (DownloadException e) {
             switch (e.errCode) {
-                case CODE_SUCCESS_DOWNLOAD:
+                case DownloadException.CODE_SUCCESS_DOWNLOAD:
                     onSuccess(totalNum, fileName);
                     break;
-                case CODE_FAILED_CONTENT_LENGTH:
+                case DownloadException.CODE_FAILED_CONTENT_LENGTH:
                     onError(e, totalNum, fileName);
                     break;
-                case CODE_CACHE_DOWNLOADED_LENGTH_ERROR:
-                case CODE_CACHE_DOWNLOADED_RENAME_FAILED:
-                case CODE_LOCAL_LENGTH_ERROR_DELETE:
-                case CODE_LOCAL_LENGTH_ERROR_DELETE_FAILED:
+                case DownloadException.CODE_CACHE_DOWNLOADED_LENGTH_ERROR:
+                case DownloadException.CODE_CACHE_DOWNLOADED_RENAME_FAILED:
+                case DownloadException.CODE_LOCAL_LENGTH_ERROR_DELETE:
+                case DownloadException.CODE_LOCAL_LENGTH_ERROR_DELETE_FAILED:
                     urlQueue.offer(downloadUrl);
                     break;
             }
         } catch (final IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            LogUtil.E(e.getMessage());
             // TODO: 2019/1/21 检测到EIO，表示找不到存储设备，停止所有请求
-            if(TextUtils.equals("EIO",e.getMessage())){
+            if (TextUtils.equals("EIO", e.getMessage())) {
+                l.onFailed(new YunBiaoException(YunBiaoException.ERROR_STORAGE,e));
                 cancel();
                 return;
             }
-            if(e instanceof SocketTimeoutException){
+            if (e instanceof SocketTimeoutException) {
                 urlQueue.offer(downloadUrl);
             }
             onError(e, totalNum, fileName);
@@ -298,161 +295,6 @@ public class BPDownloadUtil {
             }
         }
         cacheDownload(localPath, urlQueue);
-    }
-
-
-    public void download(Context context, String sdPath, Queue<String> urlQueue, FileDownloadListener fileDownloadListener) {
-        if (urlQueue.size() <= 0) {
-            fileDownloadListener.onFinish();
-            return;
-        }
-
-        if (cancel) {
-            return;
-        }
-
-        //获取url
-        String downloadUrl = urlQueue.poll();
-        String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/")).substring(1);
-
-        InputStream is = null;
-        OutputStream os = null;
-        try {
-            long contentLength = getContentLength(downloadUrl);
-            //如果下载的文件长度为0并且重试次数未超
-            if (contentLength == 0) {
-                throw new DownloadException(CODE_FAILED_CONTENT_LENGTH, "Get File's Length Error");
-            }
-
-            //文件路径
-            Uri fileUri = Uri.parse(sdPath + "/" + fileName);
-
-            //判断uri是否符合标准
-            boolean documentUri = DocumentFile.isDocumentUri(context, fileUri);
-            if (documentUri) {
-                throw new DownloadException(7, "File Uri Error,Please Check:" + fileUri);
-            }
-
-            DocumentFile localFile = DocumentFile.fromTreeUri(context, fileUri);
-            //判断文件是否存在
-            if (localFile.exists()) {
-                if (localFile.length() == contentLength) {
-                    throw new DownloadException(CODE_SUCCESS_DOWNLOAD, DateUtil.yyyy_MM_dd_HH_mm_Format(new Date()));
-                } else {
-                    boolean delete = localFile.delete();
-                    if (!delete) {
-                        throw new DownloadException(CODE_LOCAL_LENGTH_ERROR_DELETE_FAILED, "local file's length error, delete failed");
-                    }
-                    throw new DownloadException(CODE_LOCAL_LENGTH_ERROR_DELETE, "local file's length error, delete");
-                }
-            }
-
-            //重新创建缓存文件的uri
-            fileUri = Uri.parse(sdPath + "/" + "cache_" + fileName);
-            DocumentFile cacheFile = DocumentFile.fromTreeUri(context, fileUri);
-            if (!cacheFile.exists()) {
-                cacheFile = cacheFile.createFile(cacheFile.getType(), cacheFile.getName());
-            }
-
-            if (cacheFile.length() == contentLength) {
-                boolean b = cacheFile.renameTo(localFile.getName());
-                if (!b) {//改名失败
-                    throw new DownloadException(CODE_CACHE_DOWNLOADED_RENAME_FAILED, "download success, rename cacheFile failed");
-                }
-
-                throw new DownloadException(CODE_SUCCESS_DOWNLOAD, DateUtil.yyyy_MM_dd_HH_mm_Format(new Date()));
-            }
-
-            /**
-             * HTTP请求是有一个Header的，里面有个Range属性是定义下载区域的，它接收的值是一个区间范围，
-             * 比如：Range:bytes=0-10000。这样我们就可以按照一定的规则，将一个大文件拆分为若干很小的部分，
-             * 然后分批次的下载，每个小块下载完成之后，再合并到文件中；这样即使下载中断了，重新下载时，
-             * 也可以通过文件的字节长度来判断下载的起始点，然后重启断点续传的过程，直到最后完成下载过程。
-             *
-             * HttpServletResponse respresp.setHeader("Content-Length", ""+file.length());
-             */
-            Request request = new Request.Builder()
-                    .addHeader("RANGE", "bytes=" + cacheFile.length() + "-")  //断点续传要用到的，指示下载的区间
-                    .url(downloadUrl)
-                    .tag(this)
-                    .build();
-            Response response = new OkHttpClient().newCall(request).execute();
-            if (response != null) {
-                is = response.body().byteStream();
-                os = context.getContentResolver().openOutputStream(cacheFile.getUri());
-
-                int realProgress = 0;
-
-                byte[] buffer = new byte[BUFFER_SIZE];
-                int len;
-                while ((len = is.read(buffer)) != -1) {
-                    l.onDownloadSpeed(len);
-                    if (cancel) {
-                        return;
-                    }
-                    os.write(buffer, 0, len);
-
-                    int progress = 0;
-                    if (contentLength != 0) {
-                        progress = (int) (cacheFile.length() * 100 / contentLength);
-                    }
-                    if (realProgress != progress) {
-                        realProgress = progress;
-                        l.onProgress(realProgress);
-                    }
-                }
-
-                response.body().close();
-
-                if (cacheFile.length() != contentLength) {
-                    cacheFile.delete();
-                    throw new DownloadException(CODE_CACHE_DOWNLOADED_LENGTH_ERROR, "cacheFile download length error");
-                } else {
-                    boolean rename = cacheFile.renameTo(localFile.getName());
-                    if (rename) {//改名成功
-                        throw new DownloadException(CODE_SUCCESS_DOWNLOAD, DateUtil.yyyy_MM_dd_HH_mm_Format(new Date()));
-                    } else {//改名失败
-                        cacheFile.delete();//删除
-                        throw new DownloadException(CODE_CACHE_DOWNLOADED_RENAME_FAILED, "download success, rename cacheFile failed");
-                    }
-                }
-            }
-
-        } catch (DownloadException e) {
-            switch (e.errCode) {
-                case CODE_SUCCESS_DOWNLOAD:
-                    onSuccess(totalNum, fileName);
-                    break;
-                case CODE_FAILED_CONTENT_LENGTH:
-                    onError(e, totalNum, fileName);
-                    break;
-                case CODE_CACHE_DOWNLOADED_LENGTH_ERROR:
-                case CODE_CACHE_DOWNLOADED_RENAME_FAILED:
-                case CODE_LOCAL_LENGTH_ERROR_DELETE:
-                case CODE_LOCAL_LENGTH_ERROR_DELETE_FAILED:
-                    urlQueue.offer(downloadUrl);
-                    break;
-                default:
-                    break;
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            onError(e, totalNum, fileName);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                }
-                if (os != null) {
-                    os.close();
-                }
-            } catch (final Exception e) {
-                onError(e, totalNum, fileName);
-            }
-        }
-        download(context, sdPath, urlQueue, fileDownloadListener);
     }
 
     /***
@@ -515,6 +357,14 @@ public class BPDownloadUtil {
     }
 
     public static class DownloadException extends Exception {
+        public static final int CODE_FAILED_CONTENT_LENGTH = -1;//获取远程文件大小失败(无需重试)
+        public static final int CODE_SUCCESS_DOWNLOAD = 0;//下载成功(无需重试)
+        public static final int CODE_CACHE_DOWNLOADED_RENAME_FAILED = 1;//缓存文件下载完成，更名失败(重试)
+        public static final int CODE_LOCAL_LENGTH_ERROR_DELETE_FAILED = 2;//存在但大小不正确，删除本地文件失败(重试)
+        public static final int CODE_LOCAL_LENGTH_ERROR_DELETE = 3;//存在但大小不正确，删除本地文件成功(重试)
+        public static final int CODE_CACHE_DOWNLOADED_LENGTH_ERROR = 4;//缓存下载完成后大小不一致，删除重新下载(重试)
+
+
         private int errCode;
         private String errMsg;
 
@@ -529,60 +379,9 @@ public class BPDownloadUtil {
         }
     }
 
-
-
-    /*private void equalsFile(String localPath, Queue<String> urlQueue, Queue<DownloadInfo> downloadInfos) {
+    /*public void download(Context context, String sdPath, Queue<String> urlQueue, FileDownloadListener fileDownloadListener) {
         if (urlQueue.size() <= 0) {
-            return;
-        }
-
-        String downloadUrl = urlQueue.poll();
-        String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/")).substring(1);
-
-        //取出本地文件的大小
-        long localFileLength = 0;
-        final File localFile = new File(localPath, fileName);
-        if (localFile.exists()) {
-            localFileLength = localFile.length();
-        }
-
-        //获取要下载的文件的长度（因为要计算文件的进度，所以即使本地文件不存在也应该获取）
-        long contentLength = getContentLength(downloadUrl);
-
-        DownloadInfo downloadInfo = new DownloadInfo();
-        downloadInfo.setUrl(downloadUrl);
-        downloadInfo.setContentLength(contentLength);
-        downloadInfo.setLocalFileLength(localFileLength);
-        downloadInfo.setLocalFile(localFile);
-        downloadInfo.setFileName(fileName);
-
-        //如果下载的文件长度为0并且重试次数未超
-        if (contentLength == 0) {
-            LogUtil.E(TAG, "获取文件大小失败，重试");
-
-            onError(new Exception("Get File's Length Error"), downloadInfo);
-            equalsFile(localPath, urlQueue, downloadInfos);
-            return;
-        }
-
-        //如果本地文件的长度和远程的相等，代表下载完成
-        if (localFileLength == contentLength) {
-            onSuccess(downloadInfo);
-            equalsFile(localPath, urlQueue, downloadInfos);
-            return;
-        }
-
-        downloadInfos.add(downloadInfo);
-        equalsFile(localPath, urlQueue, downloadInfos);
-    }
-
-    *//***
-     * 断点下载
-     * @param downloadInfos 下载地址的list
-     *//*
-    private void download(Queue<DownloadInfo> downloadInfos) {
-        if (downloadInfos.size() <= 0) {
-            l.onFinish();
+            fileDownloadListener.onFinish();
             return;
         }
 
@@ -590,18 +389,58 @@ public class BPDownloadUtil {
             return;
         }
 
-        DownloadInfo downloadInfo = downloadInfos.poll();
-        String downloadUrl = downloadInfo.getUrl();
-        long localFileLength = downloadInfo.getLocalFileLength();
-        long contentLength = downloadInfo.getContentLength();
-        File localFile = downloadInfo.getLocalFile();
-
-        d("start download...");
-        l.onStart(currFileNum);
+        //获取url
+        String downloadUrl = urlQueue.poll();
+        String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/")).substring(1);
 
         InputStream is = null;
-        RandomAccessFile savedFile = null;
+        OutputStream os = null;
         try {
+            long contentLength = getContentLength(downloadUrl);
+            //如果下载的文件长度为0并且重试次数未超
+            if (contentLength == 0) {
+                throw new DownloadException(DownloadException.CODE_FAILED_CONTENT_LENGTH, "Get File's Length Error");
+            }
+
+            //文件路径
+            Uri fileUri = Uri.parse(sdPath + "/" + fileName);
+
+            //判断uri是否符合标准
+            boolean documentUri = DocumentFile.isDocumentUri(context, fileUri);
+            if (documentUri) {
+                throw new DownloadException(7, "File Uri Error,Please Check:" + fileUri);
+            }
+
+            DocumentFile localFile = DocumentFile.fromTreeUri(context, fileUri);
+            //判断文件是否存在
+            if (localFile.exists()) {
+                if (localFile.length() == contentLength) {
+                    throw new DownloadException(DownloadException.CODE_SUCCESS_DOWNLOAD, DateUtil.yyyy_MM_dd_HH_mm_Format(new Date()));
+                } else {
+                    boolean delete = localFile.delete();
+                    if (!delete) {
+                        throw new DownloadException(DownloadException.CODE_LOCAL_LENGTH_ERROR_DELETE_FAILED, "local file's length error, delete failed");
+                    }
+                    throw new DownloadException(DownloadException.CODE_LOCAL_LENGTH_ERROR_DELETE, "local file's length error, delete");
+                }
+            }
+
+            //重新创建缓存文件的uri
+            fileUri = Uri.parse(sdPath + "/" + "cache_" + fileName);
+            DocumentFile cacheFile = DocumentFile.fromTreeUri(context, fileUri);
+            if (!cacheFile.exists()) {
+                cacheFile = cacheFile.createFile(cacheFile.getType(), cacheFile.getName());
+            }
+
+            if (cacheFile.length() == contentLength) {
+                boolean b = cacheFile.renameTo(localFile.getName());
+                if (!b) {//改名失败
+                    throw new DownloadException(DownloadException.CODE_CACHE_DOWNLOADED_RENAME_FAILED, "download success, rename cacheFile failed");
+                }
+
+                throw new DownloadException(DownloadException.CODE_SUCCESS_DOWNLOAD, DateUtil.yyyy_MM_dd_HH_mm_Format(new Date()));
+            }
+
             *//**
      * HTTP请求是有一个Header的，里面有个Range属性是定义下载区域的，它接收的值是一个区间范围，
      * 比如：Range:bytes=0-10000。这样我们就可以按照一定的规则，将一个大文件拆分为若干很小的部分，
@@ -611,130 +450,87 @@ public class BPDownloadUtil {
      * HttpServletResponse respresp.setHeader("Content-Length", ""+file.length());
      *//*
             Request request = new Request.Builder()
-                    .addHeader("RANGE", "bytes=" + localFileLength + "-")  //断点续传要用到的，指示下载的区间
+                    .addHeader("RANGE", "bytes=" + cacheFile.length() + "-")  //断点续传要用到的，指示下载的区间
                     .url(downloadUrl)
-                    .tag(mTag)
+                    .tag(this)
                     .build();
-            Response response = okHttpClient.newCall(request).execute();
+            Response response = new OkHttpClient().newCall(request).execute();
             if (response != null) {
                 is = response.body().byteStream();
-                savedFile = new RandomAccessFile(localFile, "rw");
-                savedFile.seek(localFileLength);//跳过已经下载的字节
+                os = context.getContentResolver().openOutputStream(cacheFile.getUri());
 
                 int realProgress = 0;
 
-                byte[] b = new byte[BUFFER_SIZE];
-                int total = 0;
+                byte[] buffer = new byte[BUFFER_SIZE];
                 int len;
-                while ((len = is.read(b)) != -1) {
+                while ((len = is.read(buffer)) != -1) {
                     l.onDownloadSpeed(len);
-
                     if (cancel) {
                         return;
                     }
+                    os.write(buffer, 0, len);
 
-                    total += len;
-                    savedFile.write(b, 0, len);
-
-                    //计算已经下载的百分比
                     int progress = 0;
                     if (contentLength != 0) {
-                        progress = (int) ((total + localFileLength) * 100 / contentLength);
+                        progress = (int) (cacheFile.length() * 100 / contentLength);
                     }
                     if (realProgress != progress) {
                         realProgress = progress;
                         l.onProgress(realProgress);
                     }
                 }
+
                 response.body().close();
 
-                //如果當前下載文件長度和遠程文件不相同，則刪除掉重新下載
-
-                if (localFile.length() != contentLength) {
-                    boolean delete = localFile.delete();
-                    downloadInfos.offer(downloadInfo);
+                if (cacheFile.length() != contentLength) {
+                    cacheFile.delete();
+                    throw new DownloadException(DownloadException.CODE_CACHE_DOWNLOADED_LENGTH_ERROR, "cacheFile download length error");
                 } else {
-                    onSuccess(downloadInfo);
+                    boolean rename = cacheFile.renameTo(localFile.getName());
+                    if (rename) {//改名成功
+                        throw new DownloadException(DownloadException.CODE_SUCCESS_DOWNLOAD, DateUtil.yyyy_MM_dd_HH_mm_Format(new Date()));
+                    } else {//改名失败
+                        cacheFile.delete();//删除
+                        throw new DownloadException(DownloadException.CODE_CACHE_DOWNLOADED_RENAME_FAILED, "download success, rename cacheFile failed");
+                    }
                 }
             }
-        } catch (final IOException e) {
-            onError(e, downloadInfo);
+
+        } catch (DownloadException e) {
+            switch (e.errCode) {
+                case DownloadException.CODE_SUCCESS_DOWNLOAD:
+                    onSuccess(totalNum, fileName);
+                    break;
+                case DownloadException.CODE_FAILED_CONTENT_LENGTH:
+                    onError(e, totalNum, fileName);
+                    break;
+                case DownloadException.CODE_CACHE_DOWNLOADED_LENGTH_ERROR:
+                case DownloadException.CODE_CACHE_DOWNLOADED_RENAME_FAILED:
+                case DownloadException.CODE_LOCAL_LENGTH_ERROR_DELETE:
+                case DownloadException.CODE_LOCAL_LENGTH_ERROR_DELETE_FAILED:
+                    urlQueue.offer(downloadUrl);
+                    break;
+                default:
+                    break;
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            onError(e, totalNum, fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
             try {
                 if (is != null) {
                     is.close();
                 }
-                if (savedFile != null) {
-                    savedFile.close();
+                if (os != null) {
+                    os.close();
                 }
             } catch (final Exception e) {
-                onError(e, downloadInfo);
+                onError(e, totalNum, fileName);
             }
         }
-        download(downloadInfos);
-    }
-
-    *//***
-     * 只有下载成功的时候才会增加文件索引
-     *//*
-    private void onSuccess(DownloadInfo downloadInfo) {
-        d("download onSuccess...");
-        l.onSuccess(currFileNum, downloadInfo);
-        currFileNum++;
-    }
-
-    private void onError(Exception e, DownloadInfo downloadInfo) {
-        d("download onError...");
-        l.onError(currFileNum, e, downloadInfo);
-        currFileNum++;
-    }*/
-
-    /*public class DownloadInfo {
-        private String url;
-        private long contentLength;
-        private long localFileLength;
-        private File localFile;
-        private String fileName;
-
-        public File getLocalFile() {
-            return localFile;
-        }
-
-        public void setLocalFile(File localFile) {
-            this.localFile = localFile;
-        }
-
-        public long getLocalFileLength() {
-            return localFileLength;
-        }
-
-        public void setLocalFileLength(long localFileLength) {
-            this.localFileLength = localFileLength;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public void setUrl(String url) {
-            this.url = url;
-        }
-
-        public long getContentLength() {
-            return contentLength;
-        }
-
-        public void setContentLength(long contentLength) {
-            this.contentLength = contentLength;
-        }
-
-        public void setFileName(String fileName) {
-            this.fileName = fileName;
-        }
-
-        public String getFileName() {
-            return fileName;
-        }
+        download(context, sdPath, urlQueue, fileDownloadListener);
     }*/
 
 }

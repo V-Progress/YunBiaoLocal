@@ -26,7 +26,7 @@ public class DateUtil {
         return yyyyMMdd.format(d);
     }
 
-    public static Date yyyyMMdd_Parse(String s){
+    public static Date yyyyMMdd_Parse(String s) {
         try {
             return yyyyMMdd.parse(s);
         } catch (ParseException e) {
@@ -35,31 +35,31 @@ public class DateUtil {
         return null;
     }
 
-    public static String getToday_str(){
+    public static String getToday_str() {
         return DateUtil.yyyy_MM_dd_Format(new Date());
     }
 
-    public static String getTomm_str(){
+    public static String getTomm_str() {
         return DateUtil.yyyy_MM_dd_Format(getTommDate(getTodayStr()));
     }
 
-    public static String getTodayStr(){
+    public static String getTodayStr() {
         return DateUtil.yyyyMMdd_Format(new Date());
     }
 
-    public static Date getTodayDate(){
+    public static Date getTodayDate() {
         return DateUtil.yyyyMMdd_Parse(getTodayStr());
     }
 
-    public static String getTommStr(){
+    public static String getTommStr() {
         return getTommStr(getTodayStr());
     }
 
-    public static String getTommStr(String todayStr){
+    public static String getTommStr(String todayStr) {
         return DateUtil.yyyyMMdd_Format(getTommDate(todayStr));
     }
 
-    public static Date getTommDate(String todayStr){
+    public static Date getTommDate(String todayStr) {
         Date today = DateUtil.yyyyMMdd_Parse(todayStr);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(today);
@@ -72,6 +72,11 @@ public class DateUtil {
         return yyyy_MM_dd.format(d);
     }
 
+    public static String yyyy_MM_dd_Format(String date) {
+        Date parse = yyyyMMdd_Parse(date);
+        return yyyy_MM_dd.format(parse);
+    }
+
     public static Date yyyy_MM_dd_Parse(String s) throws ParseException {
         return yyyy_MM_dd.parse(s);
     }
@@ -80,7 +85,7 @@ public class DateUtil {
         return yyyyMMddHH_mm.format(d);
     }
 
-    public static Date yyyyMMddHH_mm_Parse(String s){
+    public static Date yyyyMMddHH_mm_Parse(String s) {
         try {
             return yyyyMMddHH_mm.parse(s);
         } catch (ParseException e) {
