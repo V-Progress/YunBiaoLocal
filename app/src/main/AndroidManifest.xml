@@ -121,6 +121,8 @@
             </intent-filter>
         </service>
 
+        <service android:name=".activity.MyProtectService" />
+
         <!--<meta-data-->
             <!--android:name="UMENG_APPKEY"-->
             <!--android:value="${UMENG_APPKEY_VALUE}" />-->

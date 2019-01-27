@@ -9,8 +9,8 @@ android {
         applicationId "com.yunbiao.cccm"
         minSdkVersion 17
         targetSdkVersion 22
-        versionCode 104
-        versionName "1.0.4"
+        versionCode 105
+        versionName "1.0.5"
         multiDexEnabled true
     }
     buildTypes {
@@ -32,6 +32,8 @@ android {
             buildConfigField "String", "PORT", "com.yunbiao.cccm.common.Const.PORT.PRO"
             // 是否打印日志到文件
             buildConfigField "boolean", "IS_LOG_TO_FILE", "true"
+
+            buildConfigField "boolean", "IS_PRO", "true"
         }
         // 开发版本
         dev {
@@ -41,6 +43,8 @@ android {
             buildConfigField "String", "PORT", "com.yunbiao.cccm.common.Const.PORT.PRO"
             // 是否打印日志到文件
             buildConfigField "boolean", "IS_LOG_TO_FILE", "true"
+
+            buildConfigField "boolean", "IS_PRO", "false"
         }
     }
 
@@ -111,5 +115,5 @@ dependencies {
     compile  'com.umeng.umsdk:common:1.5.4'
     compile  'com.umeng.umsdk:utdid:1.1.5.3'
 
-    compile 'com.github.ctiao:dfm:0.4.2'
+    compile 'com.github.ctiao:DanmakuFlameMaster:0.9.25'
 }

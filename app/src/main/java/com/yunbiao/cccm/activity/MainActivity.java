@@ -1,16 +1,10 @@
 package com.yunbiao.cccm.activity;
 
-import android.Manifest;
 import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
-import android.os.Build;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -25,24 +19,24 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.yunbiao.cccm.APP;
-import com.yunbiao.cccm.common.SDUtil;
-import com.yunbiao.cccm.netcore.NetClient;
-import com.yunbiao.cccm.resource.InsertManager;
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.activity.base.BaseActivity;
 import com.yunbiao.cccm.broadcast.USBBroadcastReceiver;
+import com.yunbiao.cccm.common.Const;
+import com.yunbiao.cccm.common.DanmakuManager;
+import com.yunbiao.cccm.common.SDUtil;
 import com.yunbiao.cccm.control.PowerOffTool;
-import com.yunbiao.cccm.resource.ResourceManager;
+import com.yunbiao.cccm.netcore.NetClient;
 import com.yunbiao.cccm.netcore.OnXmppConnListener;
 import com.yunbiao.cccm.netcore.PnServerController;
 import com.yunbiao.cccm.resolve.VideoDataResolver;
+import com.yunbiao.cccm.resource.InsertManager;
+import com.yunbiao.cccm.resource.ResourceManager;
 import com.yunbiao.cccm.utils.DeleteResUtil;
 import com.yunbiao.cccm.utils.DialogUtil;
-import com.yunbiao.cccm.utils.Log2FileUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.SystemInfoUtil;
 import com.yunbiao.cccm.utils.TimerUtil;
-import com.yunbiao.cccm.utils.ToastUtil;
 
 import java.io.File;
 import java.util.List;
@@ -55,8 +49,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     /*视频播放----*/
     @BindView(R.id.video_view)
     VideoView vv;
-    @BindView(R.id.dm_view)
-    DanmakuView dmView;
 
     /*加载框-----*/
     @BindView(R.id.fl_loading_main)
@@ -92,6 +84,9 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     @BindView(R.id.ll_console_main)
     LinearLayout llConsoleMain;
 
+    @BindView(R.id.danmaku_view)
+    DanmakuView danmakuView;
+
     private USBBroadcastReceiver usbBroadcastReceiver;//USB监听广播
     private List<String> playLists;
     private static int videoIndex;//当前视频在列表中处于的位置
@@ -116,17 +111,17 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         intentFilter.addDataScheme("file");
         registerReceiver(usbBroadcastReceiver, intentFilter);
 
-//        DanmuUtil.getInstance(this).init(dmView);//初始化弹幕
+        //开启软件守护服务
+        startService(new Intent(this, MyProtectService.class));
     }
 
     protected void initData() {
         //初始化播放器
         initPlayer();
-        //初始化播放数据
-//      initPlayData(true);// TODO: 2018/12/30 初始化本地数据
         //连接XMPP
         PnServerController.startXMPP(MainActivity.this);
 
+        //延迟请求开关机数据
         TimerUtil.delayExecute(7000, new TimerUtil.OnTimerListener() {
             @Override
             public void onTimeFinish() {
@@ -145,7 +140,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
                 }
 
                 if (isCanUsed) {
-
                     DialogUtil.getInstance().dismissError();
                     startGetRes();
                 } else {
@@ -157,6 +151,15 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             }
         }).checkSD();
 
+        // TODO: 2019/1/27 弹幕测试
+        if(!Const.SYSTEM_CONFIG.IS_PRO){
+            DanmakuManager.getInstance().init(this, danmakuView, new DanmakuManager.DanmakuReadyListener() {
+                @Override
+                public void Ready() {
+                    DanmakuManager.getInstance().generateSomeDanmaku();
+                }
+            });
+        }
     }
 
     /*@Override
@@ -313,7 +316,10 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     */
     @Override
     public void openConsole() {
-        llConsoleMain.setVisibility(View.VISIBLE);
+        //如果是正式环境，则不开启控制台和进度条
+        if(!Const.SYSTEM_CONFIG.IS_PRO){
+            llConsoleMain.setVisibility(View.VISIBLE);
+        }
     }
 
     /*
@@ -411,11 +417,11 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             vv.stopPlayback();
         }
 
-        try{
+        try {
             vv.setVideoPath(playLists.get(videoIndex));
             vv.setVisibility(View.VISIBLE);
             vv.start();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             LogUtil.E(e.getMessage());
         }

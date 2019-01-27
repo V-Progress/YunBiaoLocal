@@ -61,7 +61,12 @@ public class Const {
         /***
          * 是否输出日志
          */
-        boolean IS_LOG = true;
+        boolean IS_LOG = !BuildConfig.IS_PRO;
+
+        /***
+         * 是否是正式
+         */
+        boolean IS_PRO = BuildConfig.IS_PRO;
 
         /***
          *

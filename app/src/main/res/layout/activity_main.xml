@@ -15,31 +15,6 @@
 
     <LinearLayout
         android:visibility="gone"
-        android:orientation="vertical"
-        android:padding="5dp"
-        android:background="#77000000"
-        android:id="@+id/fl_loading_main"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <ProgressBar
-            android:id="@+id/pb_loading_main"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center"/>
-
-        <TextView
-            android:layout_marginTop="5dp"
-            android:textSize="11dp"
-            android:layout_gravity="center"
-            android:id="@+id/tv_loading_main"
-            android:text="正在加载"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:visibility="gone"
         android:id="@+id/ll_update_area"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
@@ -64,6 +39,31 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:text="正在下载更新" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:visibility="gone"
+        android:orientation="vertical"
+        android:padding="5dp"
+        android:background="#77000000"
+        android:id="@+id/fl_loading_main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ProgressBar
+            android:id="@+id/pb_loading_main"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"/>
+
+        <TextView
+            android:layout_marginTop="5dp"
+            android:textSize="11dp"
+            android:layout_gravity="center"
+            android:id="@+id/tv_loading_main"
+            android:text="正在加载"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -151,13 +151,11 @@
             android:id="@+id/tv_speed_main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-
     </LinearLayout>
 
     <master.flame.danmaku.ui.widget.DanmakuView
-        android:id="@+id/dm_view"
+        android:id="@+id/danmaku_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
 
 </FrameLayout>

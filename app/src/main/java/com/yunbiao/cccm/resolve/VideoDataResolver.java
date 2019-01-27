@@ -226,33 +226,34 @@ public class VideoDataResolver {
         });
     }
 
+    /***
+     * 新的初始化播放列表的方法
+     */
     public void initPlayList() {
         playList.clear();
         previewMap.clear();
         playModelList.clear();
 
         String todayResource = CacheManager.FILE.getTodayResource();
-        String tommResource = CacheManager.FILE.getTommResource();
         VideoDataModel todayData = null;
-        VideoDataModel tommData = null;
-
         if (!TextUtils.isEmpty(todayResource)) {
             todayData = new Gson().fromJson(todayResource, VideoDataModel.class);
         }
-
-        if (!TextUtils.isEmpty(tommResource)) {
-            tommData = new Gson().fromJson(tommResource, VideoDataModel.class);
-        }
-
         if (todayData != null) {
             resolvePlayLists(todayData, todayStr);
+
+            createTimer(playModelList);
+        }
+
+        String tommResource = CacheManager.FILE.getTommResource();
+        VideoDataModel tommData = null;
+        if (!TextUtils.isEmpty(tommResource)) {
+            tommData = new Gson().fromJson(tommResource, VideoDataModel.class);
         }
 
         if (tommData != null) {
             resolvePlayLists(tommData, tommStr);
         }
-
-        createTimer(playModelList);
     }
 
     private void resolvePlayLists(VideoDataModel videoDataModel, String date) {
@@ -331,6 +332,10 @@ public class VideoDataResolver {
     }
 
     private void createTimer(List<PlayModel> list) {
+        if(playModelList == null && playModelList.size() <= 0){
+            return;
+        }
+
         //关闭所有定时播放任务
         if (timerList != null) {
             for (Timer timer : timerList) {
@@ -357,7 +362,7 @@ public class VideoDataResolver {
                 public void run() {
                     MainController.getInstance().stopPlay();
                 }
-            }, endTime.getTime() + 10000);
+            }, endTime);
 
             timerList.add(startTimer);
             timerList.add(endTimer);
