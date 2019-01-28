@@ -8,15 +8,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.net.URLConnection;
-
-import master.flame.danmaku.danmaku.util.IOUtils;
 
 /**
  * 图片处理工具类
@@ -179,19 +179,10 @@ public class ImageUtil {
      * 根据url获取布局背景的对象
      */
     public static Drawable getDrawable(String urlpath){
-        Drawable drawable = null;
-        InputStream is = null;
-        try {
-            URL url = new URL(urlpath);
-            URLConnection conn = url.openConnection();
-            conn.connect();
-            is = conn.getInputStream();
-            drawable = Drawable.createFromStream(is, "background.jpg");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            IOUtils.closeQuietly(is);
-        }
-        return drawable;
+        SoftReference<Drawable> softReference = null;
+        Bitmap bitmap = ImageLoader.getInstance().loadImageSync(urlpath);
+        Drawable drawable = new BitmapDrawable(bitmap);
+        softReference = new SoftReference<>(drawable);
+        return softReference.get();
     }
 }

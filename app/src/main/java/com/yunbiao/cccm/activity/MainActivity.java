@@ -3,6 +3,7 @@ package com.yunbiao.cccm.activity;
 import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -509,8 +510,15 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        DanmakuManager.getInstance().configurationChanged(newConfig);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        DanmakuManager.getInstance().resume();
         vv.resume();
         vv.start();
     }
@@ -518,6 +526,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     @Override
     protected void onPause() {
         super.onPause();
+        DanmakuManager.getInstance().pause();
         vv.pause();
     }
 
@@ -525,6 +534,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(usbBroadcastReceiver);
+        DanmakuManager.getInstance().destroy();
         NetClient.getInstance().stop();
         PnServerController.stopXMPP();
         APP.exit();

@@ -121,7 +121,12 @@
             </intent-filter>
         </service>
 
-        <service android:name=".activity.MyProtectService" />
+        <!-- 为了消去加上android:priority="1000"后出现的警告信息，
+        可以设置android:exported属性，
+        指示该服务是否能够被其他应用程序组件调用或跟它交互 -->
+        <service android:name=".activity.MyProtectService" android:exported="true">
+            <!--<intent-filter android:priority="1000"/>-->
+        </service>
 
         <!--<meta-data-->
             <!--android:name="UMENG_APPKEY"-->

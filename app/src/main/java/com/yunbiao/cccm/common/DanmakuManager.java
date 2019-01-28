@@ -10,9 +10,9 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.util.Log;
-
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.utils.ImageUtil;
+import com.yunbiao.cccm.utils.ThreadUtil;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -217,22 +217,35 @@ public class DanmakuManager {
         }
     }
 
+    /***
+     * 发送纯文字弹幕
+     * @param text
+     */
     public void addDanmaku(String text){
         Drawable drawable = null;
         addDanmaku(text,drawable);
     }
 
+    /***
+     * 发送图文弹幕
+     * @param text
+     * @param imgUrl
+     */
     public void addDanmaku(final String text, final String imgUrl){
-        new Thread(new Runnable() {
+        ThreadUtil.getInstance().runInCommonThread(new Runnable() {
             @Override
             public void run() {
                 Drawable drawable = ImageUtil.getDrawable(imgUrl);
                 addDanmaku(text,drawable);
             }
-        }).run();
-
+        });
     }
 
+    /***
+     * 发送图文弹幕
+     * @param text
+     * @param drawable
+     */
     public void addDanmaku(String text, Drawable drawable){
         if(danmakuView == null || !danmakuView.isPrepared()){
             return;
@@ -278,6 +291,10 @@ public class DanmakuManager {
         return spannableStringBuilder;
     }
 
+    /**
+     * 生命周期
+     * @param newConfig
+     */
     public void configurationChanged(Configuration newConfig) {
         if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             danmakuView.getConfig().setDanmakuMargin(20);
@@ -286,18 +303,27 @@ public class DanmakuManager {
         }
     }
 
+    /**
+     * 生命周期
+     */
     public void resume() {
         if (danmakuView != null) {
             danmakuView.resume();
         }
     }
 
+    /**
+     * 生命周期
+     */
     public void pause() {
         if (danmakuView != null && danmakuView.isPrepared()) {
             danmakuView.pause();
         }
     }
 
+    /**
+     * 生命周期
+     */
     public void destroy() {
         if (danmakuView != null) {
             danmakuView.release();
@@ -313,7 +339,9 @@ public class DanmakuManager {
         return (int) (spValue * fontScale + 0.5f);
     }
 
-
+    /**
+     * 生命周期
+     */
     public void generateSomeDanmaku() {
         final Drawable drawable = mActivity.getResources().getDrawable(R.mipmap.ic_launcher);
         final String imgUrl = "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1548592736401&di=b9d8a4ea1dd9b89927f6ba022da147c4&imgtype=0&src=http%3A%2F%2Fimg.bimg.126.net%2Fphoto%2FZZ5EGyuUCp9hBPk6_s4Ehg%3D%3D%2F5727171351132208489.jpg";
