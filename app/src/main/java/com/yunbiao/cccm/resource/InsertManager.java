@@ -154,7 +154,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
             return;
         }
 
-        MainController.getInstance().updateMenu(true);
+        MainController.getInstance().setHasInsert(true);
         CacheManager.FILE.putTXTAds(itm);
 
         //取出内部的数据
@@ -282,10 +282,10 @@ public class InsertManager implements TextToSpeech.OnInitListener {
         MainController.getInstance().stopInsert();
 
         if (insertArray == null || insertArray.size() <= 0) {
+            MainController.getInstance().setHasInsert(false);
             return;
         }
 
-        MainController.getInstance().updateMenu(true);
         Date today = null;
         try {
             today = yyyyMMddHH_mm_ss.parse(yyyyMMddHH_mm_ss.format(todayDate));
@@ -308,7 +308,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
                 continue;
             }
 
-            if (today.before(dateArray[0]) || today.after(dateArray[1])) {
+            if (today.after(dateArray[1])) {
                 continue;
             }
 
@@ -393,6 +393,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
         timeExecute(startTime, new TimerTask() {
             @Override
             public void run() {
+                MainController.getInstance().setHasInsert(true);
                 MainController.getInstance().startInsert(isCycle, playList);
             }
         }, endTime, new TimerTask() {
@@ -408,8 +409,9 @@ public class InsertManager implements TextToSpeech.OnInitListener {
         timeExecute(startTime, new TimerTask() {
             @Override
             public void run() {
-                List<String> list = new ArrayList<String>();
+                List<String> list = new ArrayList<>();
                 list.add(liveUrl);
+                MainController.getInstance().setHasInsert(true);
                 MainController.getInstance().startInsert(isCycle, list);
             }
         }, endTime, new TimerTask() {
@@ -426,6 +428,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
             @Override
             public void run() {
                 LogUtil.E(TAG, "切换到HDMI信号");
+                MainController.getInstance().setHasInsert(true);
                 checkHDMI(true);
             }
         }, endTime, new TimerTask() {

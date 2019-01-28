@@ -151,7 +151,7 @@ public class ResourceManager {
             }
             if (isInit) {
                 requestRes(TYPE_TOMMO);
-                MainController.getInstance().updateMenu(false);
+                MainController.getInstance().setHasConfig(false);
             } else {
                 MainController.getInstance().closeConsole();
             }
@@ -225,9 +225,9 @@ public class ResourceManager {
         public void onBefore(int totalNum) {
             if (isInit) {
                 if (totalNum <= 0) {
-                    MainController.getInstance().updateMenu(false);
+                    MainController.getInstance().setHasConfig(false);
                 } else {
-                    MainController.getInstance().updateMenu(true);
+                    MainController.getInstance().setHasConfig(true);
                 }
             }
 

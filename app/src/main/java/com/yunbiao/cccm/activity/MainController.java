@@ -1,9 +1,11 @@
 package com.yunbiao.cccm.activity;
 
 import android.content.Intent;
+import android.util.Log;
 
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.cache.CacheManager;
+import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 
 import java.util.List;
@@ -17,6 +19,19 @@ import java.util.List;
 public class MainController {
     private static MainController layoutRefresher;
     private MainRefreshListener mRefListener;
+
+    private boolean hasInsert = false;
+    private boolean hasConfig = false;
+
+    public void setHasInsert(boolean hasInsert) {
+        this.hasInsert = hasInsert;
+        updateMenu(hasConfig || hasInsert);
+    }
+
+    public void setHasConfig(boolean hasConfig) {
+        this.hasConfig = hasConfig;
+        updateMenu(hasConfig || hasInsert);
+    }
 
     public static synchronized MainController getInstance() {
         if (layoutRefresher == null) {
@@ -56,10 +71,11 @@ public class MainController {
      * 更新菜单界面的播放按钮
      * @param isHasPlay
      */
-    public void updateMenu(final boolean isHasPlay) {
+    private void updateMenu(final boolean isHasPlay) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
+
                 CacheManager.SP.putPlayTag(isHasPlay);
 
                 MainActivity mainActivity = APP.getMainActivity();
@@ -68,6 +84,8 @@ public class MainController {
                 if (mainActivity == null) {
                     return;
                 }
+
+                LogUtil.E("123","更新菜单："+isHasPlay +"---"+hasInsert +"---"+hasConfig);
 
                 if (mainActivity.isForeground() && !isHasPlay ) {
                     mainActivity.startActivity(new Intent(mainActivity, MenuActivity.class));
@@ -156,6 +174,15 @@ public class MainController {
             }
         });
 
+    }
+
+    public void updateLayerType(final Integer layerType){
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                mRefListener.updateLayerType(layerType);
+            }
+        });
     }
 
     /***

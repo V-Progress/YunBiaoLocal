@@ -26,6 +26,8 @@ public interface MainRefreshListener {
     void initPlayData(boolean isRemote);
     //初始化播放器
     void initPlayer();
+    //刷新layerType
+    void updateLayerType(Integer layerType);
 
     //打开控制台
     void openConsole();

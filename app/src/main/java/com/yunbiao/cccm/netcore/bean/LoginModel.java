@@ -12,6 +12,15 @@ public class LoginModel {
     private String serNum;
     private String status;
     private String ticket;
+    private Integer layerType;
+
+    public Integer getLayerType() {
+        return layerType;
+    }
+
+    public void setLayerType(Integer layerType) {
+        this.layerType = layerType;
+    }
 
     public String getDeviceName() {
         return deviceName;

@@ -37,6 +37,7 @@ import com.yunbiao.cccm.utils.DeleteResUtil;
 import com.yunbiao.cccm.utils.DialogUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.SystemInfoUtil;
+import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.utils.TimerUtil;
 
 import java.io.File;
@@ -89,10 +90,14 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     DanmakuView danmakuView;
 
     private USBBroadcastReceiver usbBroadcastReceiver;//USB监听广播
-    private List<String> playLists;
+
+    public boolean isInsertPlaying = false;//是否有insert正在播放
+    public boolean isConfigPlaying = false;//是否有config正在播放
+    private boolean isCycle = true;//是否轮播
+    private boolean priority_flag = false;//true:config优先，false:insert优先
+
+    private List<String> playLists;//当前播放列表
     private static int videoIndex;//当前视频在列表中处于的位置
-    private boolean isInsertPlaying = false;
-    private boolean isCycle = true;
 
     protected int setLayout() {
         return R.layout.activity_main;
@@ -152,7 +157,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             }
         }).checkSD();
 
-        // TODO: 2019/1/27 弹幕测试
+        /*// TODO: 2019/1/27 弹幕测试
         if(!Const.SYSTEM_CONFIG.IS_PRO){
             DanmakuManager.getInstance().init(this, danmakuView, new DanmakuManager.DanmakuReadyListener() {
                 @Override
@@ -160,7 +165,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
                     DanmakuManager.getInstance().generateSomeDanmaku();
                 }
             });
-        }
+        }*/
     }
 
     /*@Override
@@ -253,48 +258,58 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         } else {
             resolver.resolveLocalResource();
         }
+    }
 
-        if (resolver.getPlayList() == null || resolver.getPlayList().isEmpty()) {
-            if (isInsertPlaying) {
-                LogUtil.E("广告正在播放，不显示state");
-                return;
-            }
-        }
+    @Override
+    public void updateLayerType(Integer layerType) {
+        LogUtil.E("123","更新LayerType："+layerType);
+        // 1:Insert优先，2:Config优先
+        priority_flag = layerType == 2;
+
+        startGetRes();
     }
 
     //常规资源播放
     @Override
     public void startPlay(List<String> videoList) {
-        if (isInsertPlaying) {
-            LogUtil.E("广告正在播放，不执行startPlay");
+        LogUtil.E("123","startPlay");
+        if (!priority_flag && isInsertPlaying) {
+            LogUtil.E("123","广告正在播放，不执行startPlay");
             return;
         }
+        isConfigPlaying = true;
         play(videoList);
     }
 
     //常规资源停止
     @Override
     public void stopPlay() {
-        if (isInsertPlaying) {
-            LogUtil.E("广告正在播放，不执行stopPlay");
+        LogUtil.E("123","stopPlay");
+        isConfigPlaying = false;
+        if (!priority_flag && isInsertPlaying) {
+            LogUtil.E("123","广告正在播放，不执行stopPlay");
             return;
         }
         if (playLists != null) {
             playLists.clear();
         }
         stop();
+        InsertManager.getInstance(this).initInsertData();
     }
 
     //插播资源播放
     @Override
-    public void startInsert(final boolean isCycle, final List<String> videoList) {
+    public void startInsert(final boolean cycle, final List<String> videoList) {
+        LogUtil.E("123","startInsert");
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                MainActivity.this.isInsertPlaying = true;
-                MainActivity.this.isCycle = isCycle;
-                LogUtil.E("开始播放插播：" + videoList.toString());
-                LogUtil.E("是否轮播：" + MainActivity.this.isCycle);
+                if (priority_flag && isConfigPlaying) {
+                    LogUtil.E("123","config正在播放，不执行startInsert");
+                    return;
+                }
+                isInsertPlaying = true;
+                isCycle = cycle;
                 play(videoList);
             }
         }, 2000);
@@ -303,9 +318,16 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     //插播资源停止
     @Override
     public void stopInsert() {
-        isCycle = true;
+        LogUtil.E("123","stopInsert");
         isInsertPlaying = false;
-        LogUtil.E("停止播放插播");
+        if (priority_flag && isConfigPlaying) {
+            LogUtil.E("123","config正在播放，不执行stopInsert");
+            return;
+        }
+        if (playLists != null) {
+            playLists.clear();
+        }
+        isCycle = true;
         stop();
         initPlayData(true);
     }

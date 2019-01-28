@@ -53,6 +53,7 @@ public class XmppMessageProcessor {
     private final static int CHANNEL_TYPE = 16;//输入源选择
     private final static int VIDEO_PUSH = 22;//推送的视频
     private final static int INSERT_CONTENT_TYPE = 24;//推送的视频
+    private final static int UPDATE_LAYER = 25;//推送的视频
 
     /**
      * 消息分发
@@ -73,6 +74,9 @@ public class XmppMessageProcessor {
                 CacheManager.SP.putDeviceNum(loginModel.getSerNum());//设备编号
                 CacheManager.SP.putStatus(loginModel.getStatus());
                 CacheManager.SP.putWechatTicket(loginModel.getTicket());
+
+                CacheManager.SP.putLayerType(loginModel.getLayerType());
+                MainController.getInstance().updateLayerType(loginModel.getLayerType());
 
                 MainController.getInstance().updateDeviceNo();//登录完成后更新菜单界面的编号
 
@@ -181,6 +185,12 @@ public class XmppMessageProcessor {
                 break;
             case INSERT_CONTENT_TYPE:
                 InsertManager.getInstance(APP.getMainActivity()).initInsertData();
+                break;
+            case UPDATE_LAYER:
+                JSONObject layerModel = JSON.parseObject(content);
+                Integer layerType = layerModel.getInteger("layerType");
+                CacheManager.SP.putLayerType(layerType);
+                MainController.getInstance().updateLayerType(layerType);
                 break;
         }
     }

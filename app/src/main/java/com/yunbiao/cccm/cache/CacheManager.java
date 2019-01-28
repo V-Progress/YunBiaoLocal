@@ -52,6 +52,7 @@ public class CacheManager {
     private static final String SAVE_SOUND_MUSIC = "save_sound_music";
     private static final String ADSINFO_TEMP = "adsinfo_temp";//广告信息缓存
     private static final String KEY_EXT_SD = "extSDPath";
+    private static final String KEY_LAYER_TYPE = "layerType";
 
     public static class SP {
 
@@ -61,6 +62,14 @@ public class CacheManager {
 
         public static String get(String key, String defValue){
             return spCache.getString(key,defValue);
+        }
+
+        public static boolean putLayerType(Integer layerType){
+            return spCache.saveInt(KEY_LAYER_TYPE,layerType);
+        }
+
+        public static int getLaterType(){
+            return spCache.getInt(KEY_LAYER_TYPE,1);
         }
 
         public static boolean putPlayTag(boolean tag){
