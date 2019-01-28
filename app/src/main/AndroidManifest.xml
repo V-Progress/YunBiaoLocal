@@ -76,6 +76,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:persistent="true"
         android:theme="@style/AppTheme">
 
         <!--主界面-->
@@ -125,7 +126,6 @@
         可以设置android:exported属性，
         指示该服务是否能够被其他应用程序组件调用或跟它交互 -->
         <service android:name=".activity.MyProtectService" android:exported="true">
-            <!--<intent-filter android:priority="1000"/>-->
         </service>
 
         <!--<meta-data-->

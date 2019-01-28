@@ -198,6 +198,7 @@ public class DanmakuManager {
             }
         });
         danmakuView.prepare(parser, danmakuContext);
+//        danmakuView.showFPS(true);
         danmakuView.enableDanmakuDrawingCache(DANMAKU_DRAWING_CACHE);
     }
 
@@ -344,20 +345,28 @@ public class DanmakuManager {
      */
     public void generateSomeDanmaku() {
         final Drawable drawable = mActivity.getResources().getDrawable(R.mipmap.ic_launcher);
+
         final String imgUrl = "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1548592736401&di=b9d8a4ea1dd9b89927f6ba022da147c4&imgtype=0&src=http%3A%2F%2Fimg.bimg.126.net%2Fphoto%2FZZ5EGyuUCp9hBPk6_s4Ehg%3D%3D%2F5727171351132208489.jpg";
+        final String imgUrl1 = "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1549249406&di=b911a14b216a30c86b3d716b874723b6&imgtype=jpg&er=1&src=http%3A%2F%2F5b0988e595225.cdn.sohucs.com%2Fimages%2F20180903%2Fd4b6378b81ab43569fc0048b62b6fedc.jpeg";
+        final String imgUrl3 = "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1549249423&di=b8fbd63a78bb6d1c1fb2c3b68624ff04&imgtype=jpg&er=1&src=http%3A%2F%2Fd.ifengimg.com%2Fw600%2Fp0.ifengimg.com%2Fpmop%2F2018%2F0731%2FC3F50D7D9CFC4BE1A511C3655B3D1CF240263640_size49_w640_h400.jpeg";
+        final String imgUrl5 = "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1548654718075&di=c074f2045ca72cc24b921b1fb7f9db77&imgtype=0&src=http%3A%2F%2Fimg.xiami.net%2Fimages%2Fappv5%2Fcommon%2F16302%2F5a4735ee81c6e_tSb7_1514616302.jpg";
+        final String imgUrl7 = "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3438269454,3376038619&fm=26&gp=0.jpg";
+        final String imgUrl9 = "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1549249763&di=0c3be64cb97d07e1ef5ba38569023081&imgtype=jpg&er=1&src=http%3A%2F%2Fimg01.vgtime.com%2Fgame%2Fcover%2F2017%2F11%2F08%2F171108181503200.jpg";
+        final String[] imgArray = {imgUrl,imgUrl1,imgUrl3,imgUrl5,imgUrl7,imgUrl9};
+
         new Thread(new Runnable() {
             @Override
             public void run() {
                 while (true) {
-                    int time = new Random().nextInt(3000);
-                    String content = "" + time + time;
-                    if(time %2 == 0){
-                        DanmakuManager.getInstance().addDanmaku(content);
+                    int time = new Random().nextInt(20);
+                    String content = "" + (time + time) * 135;
+                    if(time>=0 && time <= 5){
+                        DanmakuManager.getInstance().addDanmaku(content,imgArray[time]);
                     }else{
-                        DanmakuManager.getInstance().addDanmaku(content,imgUrl);
+                        DanmakuManager.getInstance().addDanmaku(content);
                     }
                     try {
-                        Thread.sleep(time);
+                        Thread.sleep(time*100);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
