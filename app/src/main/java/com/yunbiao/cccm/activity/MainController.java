@@ -23,16 +23,6 @@ public class MainController {
     private boolean hasInsert = false;
     private boolean hasConfig = false;
 
-    public void setHasInsert(boolean hasInsert) {
-        this.hasInsert = hasInsert;
-        updateMenu(hasConfig || hasInsert);
-    }
-
-    public void setHasConfig(boolean hasConfig) {
-        this.hasConfig = hasConfig;
-        updateMenu(hasConfig || hasInsert);
-    }
-
     public static synchronized MainController getInstance() {
         if (layoutRefresher == null) {
             layoutRefresher = new MainController();
@@ -53,18 +43,21 @@ public class MainController {
     }
 
     /***
-     * 更新播放列表
+     * 设置是否有Insert资源的标签
+     * @param hasInsert
      */
-    public void updateList() {
-        final MenuActivity menuActivity = APP.getMenuActivity();
-        if (menuActivity != null) {
-            ThreadUtil.getInstance().runInUIThread(new Runnable() {
-                @Override
-                public void run() {
-                    menuActivity.updatePlayList();
-                }
-            });
-        }
+    public void setHasInsert(boolean hasInsert) {
+        this.hasInsert = hasInsert;
+        updateMenu(hasConfig || hasInsert);
+    }
+
+    /***
+     * 设置是否有config资源的标签
+     * @param hasConfig
+     */
+    public void setHasConfig(boolean hasConfig) {
+        this.hasConfig = hasConfig;
+        updateMenu(hasConfig || hasInsert);
     }
 
     /***
@@ -94,6 +87,21 @@ public class MainController {
                 }
             }
         });
+    }
+
+    /***
+     * 更新播放列表
+     */
+    public void updateList() {
+        final MenuActivity menuActivity = APP.getMenuActivity();
+        if (menuActivity != null) {
+            ThreadUtil.getInstance().runInUIThread(new Runnable() {
+                @Override
+                public void run() {
+                    menuActivity.updatePlayList();
+                }
+            });
+        }
     }
 
     /***

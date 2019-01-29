@@ -260,11 +260,17 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         }
     }
 
+    //更新优先级标签
     @Override
     public void updateLayerType(Integer layerType) {
         LogUtil.E("123","更新LayerType："+layerType);
         // 1:Insert优先，2:Config优先
-        priority_flag = layerType == 2;
+        boolean priority = layerType == 2;//优先级
+        if(priority_flag == priority){
+            LogUtil.E("LayerType无变化，不重新请求");
+            return;
+        }
+        priority_flag = priority;
 
         startGetRes();
     }
