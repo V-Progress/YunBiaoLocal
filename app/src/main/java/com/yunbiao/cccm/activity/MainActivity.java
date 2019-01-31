@@ -117,8 +117,10 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         intentFilter.addDataScheme("file");
         registerReceiver(usbBroadcastReceiver, intentFilter);
 
-        //开启软件守护服务
-        startService(new Intent(this, MyProtectService.class));
+        if(Const.SYSTEM_CONFIG.IS_PRO){
+            //开启软件守护服务
+            startService(new Intent(this, MyProtectService.class));
+        }
     }
 
     protected void initData() {
