@@ -20,7 +20,7 @@ public class MyProtectService extends Service {
     private String packageName = "com.yunbiao.cccm";
     private String packageClassName = "com.yunbiao.cccm.activity.MainActivity";
 
-    private final static int DELAY_TIME = 15 * 1000;//15s轮询一次
+    private final static int DELAY_TIME = 150 * 1000;//150s轮询一次
     private final static int CHECK_APP = 0x3211;
 
     @Override

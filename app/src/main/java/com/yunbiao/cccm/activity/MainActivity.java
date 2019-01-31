@@ -23,6 +23,7 @@ import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.activity.base.BaseActivity;
 import com.yunbiao.cccm.broadcast.USBBroadcastReceiver;
+import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
 import com.yunbiao.cccm.common.DanmakuManager;
 import com.yunbiao.cccm.common.SDUtil;
@@ -117,13 +118,14 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         intentFilter.addDataScheme("file");
         registerReceiver(usbBroadcastReceiver, intentFilter);
 
-        if(Const.SYSTEM_CONFIG.IS_PRO){
-            //开启软件守护服务
-            startService(new Intent(this, MyProtectService.class));
-        }
     }
 
     protected void initData() {
+        priority_flag = (CacheManager.SP.getLaterType()==2);
+
+        //开启软件守护服务
+        startService(new Intent(this, MyProtectService.class));
+
         //初始化播放器
         initPlayer();
         //连接XMPP
@@ -268,7 +270,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         LogUtil.E("123","更新LayerType："+layerType);
         // 1:Insert优先，2:Config优先
         boolean priority = layerType == 2;//优先级
-        if(priority_flag == priority){
+        if(priority_flag && priority){
             LogUtil.E("LayerType无变化，不重新请求");
             return;
         }
