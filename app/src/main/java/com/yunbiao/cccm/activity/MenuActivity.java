@@ -4,14 +4,16 @@ import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.support.annotation.IdRes;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.yunbiao.cccm.APP;
@@ -19,6 +21,7 @@ import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.activity.base.BaseActivity;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
+import com.yunbiao.cccm.utils.DialogUtil;
 import com.yunbiao.cccm.utils.TimerUtil;
 import com.yunbiao.cccm.utils.ToastUtil;
 
@@ -63,10 +66,15 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     TextView tvMenuSetting;
     @BindView(R.id.prl_root)
     PercentRelativeLayout prlRoot;
-    @BindView(R.id.btn_select_res_menu)
-    Button btnSelect;
     @BindView(R.id.iv_menu_icon_start)
     ImageView ivMenuIconStart;
+
+    @BindView(R.id.rg_mode_select)
+    RadioGroup rgModeSelect;
+    @BindView(R.id.rb_mode_net)
+    RadioButton rbModeNet;
+    @BindView(R.id.rb_mode_local)
+    RadioButton rbModeLocal;
 
     private SoundPool soundPool;//用来管理和播放音频文件
     private int music;
@@ -105,22 +113,24 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         tvMenuSettingHints2.setText("即将开放");
 
         tvShowOnscreenTime.setText(String.valueOf(Const.SYSTEM_CONFIG.MENU_STAY_DURATION));
-        btnSelect.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
 
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        int white = getResources().getColor(android.R.color.white);
-                        btnSelect.setTextColor(white);
+        rgModeSelect.check(CacheManager.SP.getMode() == 0?R.id.rb_mode_net : R.id.rb_mode_local);
+        rgModeSelect.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, @IdRes final int checkedId) {
+                switch (checkedId) {
+                    case R.id.rb_mode_net:
+                        CacheManager.SP.putMode(0);
+                        DialogUtil.getInstance().showError(MenuActivity.this,"提示","正在切换至 网络模式\n本窗口3秒后自动关闭",3,null);
+                        // TODO: 2019/2/13 初始化网络数据
+//                        MainController.getInstance().initPlayData(false);
                         break;
-                    case MotionEvent.ACTION_UP:
-                        int yellow = getResources().getColor(R.color.menu_bottom_num);
-                        btnSelect.setTextColor(yellow);
+                    case R.id.rb_mode_local:
+                        CacheManager.SP.putMode(1);
+                        DialogUtil.getInstance().showError(MenuActivity.this,"提示","正在切换至 本地模式\n本窗口3秒后自动关闭",3,null);
+                        // TODO: 2019/2/13 初始化本地数据
                         break;
                 }
-
-                return false;
             }
         });
         updateDeviceNo();
@@ -175,7 +185,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         }
     };
 
-    @OnClick({R.id.btn_select_res_menu, R.id.btn_menu_start, R.id.btn_menu_playlist, R.id.btn_menu_wechat})
+    @OnClick({R.id.btn_menu_start, R.id.btn_menu_playlist, R.id.btn_menu_wechat})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_menu_start:
@@ -197,15 +207,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                 }
                 break;
             case R.id.btn_menu_wechat:
-//                startActivity(new Intent(this, WeichatActivity.class));
                 ToastUtil.showShort(this, "即将开放");
-                break;
-            case R.id.btn_select_res_menu:
-                if (isFastClick()) {
-                    ToastUtil.showShort(this, "请不要重复点击");
-                } else {
-                    MainController.getInstance().initPlayData(false);
-                }
                 break;
         }
     }

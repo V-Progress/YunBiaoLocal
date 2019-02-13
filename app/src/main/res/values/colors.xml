@@ -4,5 +4,6 @@
     <color name="menu_bottom_num">#DB8400</color>
     <color name="black">#000000</color>
     <color name="trans_gray">#aa7b7b7b</color>
+    <color name="light_gray">#b7acacac</color>
     <color name="gold">#DDB874</color>
 </resources>

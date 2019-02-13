@@ -77,36 +77,35 @@
             android:textSize="@dimen/menu1080_tv_35_dp"
             app:layout_marginLeftPercent="1%" />
 
-        <Button
+        <RadioGroup
+            android:id="@+id/rg_mode_select"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            app:layout_heightPercent="100%"
+            app:layout_widthPercent="16%"
             android:gravity="center"
-            android:id="@+id/btn_select_res_menu"
-            android:button="@null"
-            android:padding="10dp"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
-            android:background="@drawable/is_service_btn"
-            android:text="切换到本地资源"
-            android:textColor="@color/menu_bottom_num"
-            android:textSize="20dp"
-            app:layout_heightPercent="70%"
-            app:layout_widthPercent="12%"
-            />
-
-        <!--<Button-->
-            <!--android:padding="10dp"-->
-            <!--android:id="@+id/btn_select_resource_menu"-->
-            <!--android:layout_width="0dp"-->
-            <!--android:layout_height="0dp"-->
-            <!--android:layout_centerVertical="true"-->
-            <!--android:layout_centerHorizontal="true"-->
-            <!--android:background="@drawable/is_service_btn"-->
-            <!--android:text="切换到本地资源"-->
-            <!--android:textColor="@color/menu_bottom_num"-->
-            <!--android:textSize="20dp"-->
-            <!--app:layout_heightPercent="70%"-->
-            <!--app:layout_widthPercent="12%" />-->
+            android:layout_centerInParent="true">
+            <RadioButton
+                android:id="@+id/rb_mode_net"
+                android:gravity="center"
+                android:button="@null"
+                android:text="网络模式"
+                android:padding="10dp"
+                android:background="@drawable/bg_mode_left"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" />
+            <RadioButton
+                android:id="@+id/rb_mode_local"
+                android:gravity="center"
+                android:button="@null"
+                android:padding="10dp"
+                android:text="本地模式"
+                android:background="@drawable/bg_mode_right"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" />
+        </RadioGroup>
 
         <Button
             android:id="@+id/menu_info_ellipse_btn"

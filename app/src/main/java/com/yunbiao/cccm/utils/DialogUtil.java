@@ -4,6 +4,11 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.text.TextUtils;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.yunbiao.cccm.R;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -98,7 +103,7 @@ public class DialogUtil {
                     }
                     dismissError();
                 }
-            },10000);
+            },delay*1000);
         }
     }
 
@@ -109,6 +114,36 @@ public class DialogUtil {
 
                 if(alertDialog == null || !alertDialog.isShowing()){
                     return;
+                }
+                alertDialog.dismiss();
+            }
+        });
+    }
+
+    public void showCustomAlert(Context context, String message, final View.OnClickListener confirm, final View.OnClickListener cancel){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        final AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+        alertDialog.setContentView(R.layout.layout_mode_alert);
+        alertDialog.setCancelable(true);
+        TextView msg = alertDialog.findViewById(R.id.tv_mode_alert_msg);
+        Button btnCancel = alertDialog.findViewById(R.id.btn_mode_alert_cancel);
+        Button btnConfirm = alertDialog.findViewById(R.id.btn_mode_alert_confirm);
+        msg.setText(message);
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(cancel != null){
+                    cancel.onClick(v);
+                }
+                alertDialog.dismiss();
+            }
+        });
+        btnConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(confirm != null){
+                    confirm.onClick(v);
                 }
                 alertDialog.dismiss();
             }

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:padding="5dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:gravity="center"
+        android:padding="5dp"
+        android:text="提示"
+        android:textSize="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <View
+        android:background="@color/trans_gray"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"/>
+    <TextView
+        android:id="@+id/tv_mode_alert_msg"
+        android:padding="20dp"
+        android:textSize="18dp"
+        android:text="121311312"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <View
+        android:background="@color/trans_gray"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"/>
+    <LinearLayout
+        android:weightSum="2"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btn_mode_alert_cancel"
+            android:textSize="15dp"
+            android:padding="10dp"
+            android:text="取消"
+            android:textColor="@color/black"
+            android:background="@color/white"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+        <View
+            android:background="@color/trans_gray"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"/>
+        <Button
+            android:id="@+id/btn_mode_alert_confirm"
+            android:textSize="15dp"
+            android:padding="10dp"
+            android:text="确定"
+            android:textColor="@color/black"
+            android:background="@color/white"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -53,6 +53,7 @@ public class CacheManager {
     private static final String ADSINFO_TEMP = "adsinfo_temp";//广告信息缓存
     private static final String KEY_EXT_SD = "extSDPath";
     private static final String KEY_LAYER_TYPE = "layerType";
+    private static final String KEY_APP_MODE = "appMode";
 
     public static class SP {
 
@@ -214,6 +215,14 @@ public class CacheManager {
         }
         public static String getExtSDPath(){
             return spCache.getString(KEY_EXT_SD,"");
+        }
+
+        public static boolean putMode(int mode) {
+            return spCache.saveInt(KEY_APP_MODE,mode);
+        }
+
+        public static int getMode(){
+            return spCache.getInt(KEY_APP_MODE,0);
         }
     }
 

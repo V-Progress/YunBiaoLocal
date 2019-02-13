@@ -479,7 +479,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             DialogUtil.getInstance().showError(MainActivity.this
                     , "播放失败"
                     , "播放地址解析失败\n\n错误代码:" + what + " - " + extra + "\n\n本窗口于10秒后关闭"
-                    , 10000
+                    , 10
                     , new Runnable() {
                         @Override
                         public void run() {
