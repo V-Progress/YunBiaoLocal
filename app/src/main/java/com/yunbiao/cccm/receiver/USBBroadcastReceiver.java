@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.broadcast;
+package com.yunbiao.cccm.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,12 +8,12 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.yunbiao.cccm.APP;
-import com.yunbiao.cccm.common.SDUtil;
+import com.yunbiao.cccm.utils.SDUtil;
 import com.yunbiao.cccm.activity.MainController;
 import com.yunbiao.cccm.utils.CopyUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.ToastUtil;
-import com.yunbiao.cccm.utils.copyFileListener;
+import com.yunbiao.cccm.listener.copyFileListener;
 
 public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileListener {
     private String tempAction;

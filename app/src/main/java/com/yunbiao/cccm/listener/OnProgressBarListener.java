@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.view;
+package com.yunbiao.cccm.listener;
 
 
 public interface OnProgressBarListener {

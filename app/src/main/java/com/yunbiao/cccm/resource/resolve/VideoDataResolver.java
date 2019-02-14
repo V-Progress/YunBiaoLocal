@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.resolve;
+package com.yunbiao.cccm.resource.resolve;
 
 import android.text.TextUtils;
 
@@ -26,10 +26,12 @@ import java.util.TimerTask;
 public class VideoDataResolver {
     private static VideoDataResolver instance;
     private final String RES_DIR = ResourceConst.LOCAL_RES.RES_SAVE_PATH;
+
     //播放列表和预览列表
     public static List<String> playList = new ArrayList<>();
     public static Map<String, String> previewMap = new HashMap<>();
-    public static List<PlayModel> playModelList = new ArrayList<>();
+
+    private static List<PlayModel> playModelList = new ArrayList<>();
     private List<Timer> timerList;
 
     private final String todayStr;

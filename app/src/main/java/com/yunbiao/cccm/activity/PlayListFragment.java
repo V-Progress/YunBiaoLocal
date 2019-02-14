@@ -19,7 +19,7 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.yunbiao.cccm.R;
-import com.yunbiao.cccm.resolve.VideoDataResolver;
+import com.yunbiao.cccm.resource.resolve.VideoDataResolver;
 import com.yunbiao.cccm.utils.LogUtil;
 
 import java.util.ArrayList;

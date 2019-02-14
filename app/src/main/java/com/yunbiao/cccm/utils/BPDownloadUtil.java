@@ -1,11 +1,12 @@
-package com.yunbiao.cccm.resource;
+package com.yunbiao.cccm.utils;
 
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.common.YunBiaoException;
-import com.yunbiao.cccm.utils.DateUtil;
+import com.yunbiao.cccm.listener.FileDownloadListener;
+import com.yunbiao.cccm.listener.MultiFileDownloadListener;
 
 import java.io.Closeable;
 import java.io.File;

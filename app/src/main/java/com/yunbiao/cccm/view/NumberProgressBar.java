@@ -12,6 +12,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.yunbiao.cccm.R;
+import com.yunbiao.cccm.listener.OnProgressBarListener;
 
 public class NumberProgressBar extends View {
 

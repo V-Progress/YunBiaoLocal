@@ -98,7 +98,7 @@
         <activity android:name="com.yunbiao.cccm.activity.weichat.WeichatActivity" />
 
         <!--开机启动广播监听-->
-        <receiver android:name="com.yunbiao.cccm.broadcast.BootBroadcastReceiver">
+        <receiver android:name="com.yunbiao.cccm.receiver.BootBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <!--<category android:name="android.intent.category.LAUNCHER" />

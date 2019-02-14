@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.resource;
+package com.yunbiao.cccm.listener;
 
 /**
  * Created by Administrator on 2019/1/11.

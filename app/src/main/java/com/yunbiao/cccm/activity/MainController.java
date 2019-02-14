@@ -1,10 +1,10 @@
 package com.yunbiao.cccm.activity;
 
 import android.content.Intent;
-import android.util.Log;
 
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.cache.CacheManager;
+import com.yunbiao.cccm.listener.MainRefreshListener;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 

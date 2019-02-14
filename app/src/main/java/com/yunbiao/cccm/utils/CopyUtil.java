@@ -1,9 +1,8 @@
 package com.yunbiao.cccm.utils;
 
-import android.util.Log;
-
 import com.yunbiao.cccm.common.ResourceConst;
-import com.yunbiao.cccm.resolve.VideoDirectoryFilter;
+import com.yunbiao.cccm.listener.copyFileListener;
+import com.yunbiao.cccm.resource.resolve.VideoDirectoryFilter;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

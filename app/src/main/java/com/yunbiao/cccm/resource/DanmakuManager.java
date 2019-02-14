@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.common;
+package com.yunbiao.cccm.resource;
 
 import android.app.Activity;
 import android.content.res.Configuration;

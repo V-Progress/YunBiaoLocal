@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.common;
+package com.yunbiao.cccm.utils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,10 +11,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.provider.DocumentFile;
 import android.text.TextUtils;
 
-import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.cache.CacheManager;
-import com.yunbiao.cccm.utils.LogUtil;
-import com.yunbiao.cccm.utils.ToastUtil;
 
 import java.io.File;
 import java.io.OutputStream;

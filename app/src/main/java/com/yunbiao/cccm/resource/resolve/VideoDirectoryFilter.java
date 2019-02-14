@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.resolve;
+package com.yunbiao.cccm.resource.resolve;
 
 import java.io.File;
 import java.io.FilenameFilter;

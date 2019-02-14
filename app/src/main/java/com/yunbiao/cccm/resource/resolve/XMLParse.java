@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.resolve;
+package com.yunbiao.cccm.resource.resolve;
 
 import android.util.Log;
 import android.util.Xml;
@@ -8,7 +8,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlSerializer;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
