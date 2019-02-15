@@ -31,7 +31,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.common.utils.LogUtil;
 
 /**
  * Service that continues to run in background and respond to the push

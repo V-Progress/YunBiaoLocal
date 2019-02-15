@@ -24,11 +24,6 @@ public class Const {
 
     public static final int NET_TIME_OUT = 5;//网络超时时间，单位：分钟
     private static final int MESSAGE_DISTRIBUTE = 1; //信息发布
-    private static final int QUEUE_BUSINESS = 2; //商家板排队叫号
-    private static final int QUEUE = 3;//排队叫号
-    private static final int WEI_PRINT = 4;//微信打印
-    private static final int WEI_METTING = 5;//微信会议
-    private static final int YUNBIAO_PAD = 6;//云标画板
 
     public interface URL {
         String PRO = "210.51.34.85";

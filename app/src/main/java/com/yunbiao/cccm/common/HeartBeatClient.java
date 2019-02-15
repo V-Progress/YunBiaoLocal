@@ -14,10 +14,10 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.yunbiao.cccm.APP;
-import com.yunbiao.cccm.cache.CacheManager;
-import com.yunbiao.cccm.utils.CommonUtils;
-import com.yunbiao.cccm.utils.LogUtil;
-import com.yunbiao.cccm.netcore.NetClient;
+import com.yunbiao.cccm.common.cache.CacheManager;
+import com.yunbiao.cccm.common.utils.CommonUtils;
+import com.yunbiao.cccm.common.utils.LogUtil;
+import com.yunbiao.cccm.net.netcore.NetClient;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.util.HashMap;

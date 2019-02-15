@@ -22,7 +22,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.yunbiao.cccm.common.HeartBeatClient;
-import com.yunbiao.cccm.netcore.CheckXmppOnline;
+import com.yunbiao.cccm.net.netcore.CheckXmppOnline;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;

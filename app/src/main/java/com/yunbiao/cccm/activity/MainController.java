@@ -3,10 +3,10 @@ package com.yunbiao.cccm.activity;
 import android.content.Intent;
 
 import com.yunbiao.cccm.APP;
-import com.yunbiao.cccm.cache.CacheManager;
-import com.yunbiao.cccm.listener.MainRefreshListener;
-import com.yunbiao.cccm.utils.LogUtil;
-import com.yunbiao.cccm.utils.ThreadUtil;
+import com.yunbiao.cccm.common.cache.CacheManager;
+import com.yunbiao.cccm.net.listener.MainRefreshListener;
+import com.yunbiao.cccm.common.utils.LogUtil;
+import com.yunbiao.cccm.common.utils.ThreadUtil;
 
 import java.util.List;
 
@@ -172,13 +172,12 @@ public class MainController {
 
     /***
      * 初始化播放数据
-     * @param isRemote
      */
-    public void initPlayData(final boolean isRemote) {
+    public void initPlayData() {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mRefListener.initPlayData(isRemote);
+                mRefListener.initPlayData();
             }
         });
 

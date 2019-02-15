@@ -20,7 +20,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.yunbiao.cccm.netcore.XmppMessageProcessor;
+import com.yunbiao.cccm.net.netcore.XmppMessageProcessor;
 
 /**
  * This class is to notify the user of messages with NotificationManager.

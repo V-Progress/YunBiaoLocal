@@ -22,24 +22,24 @@ import android.widget.VideoView;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.activity.base.BaseActivity;
-import com.yunbiao.cccm.broadcast.USBBroadcastReceiver;
-import com.yunbiao.cccm.cache.CacheManager;
+import com.yunbiao.cccm.net.listener.MainRefreshListener;
+import com.yunbiao.cccm.local.USBBroadcastReceiver;
+import com.yunbiao.cccm.common.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
-import com.yunbiao.cccm.common.DanmakuManager;
-import com.yunbiao.cccm.common.SDUtil;
-import com.yunbiao.cccm.control.PowerOffTool;
-import com.yunbiao.cccm.netcore.NetClient;
-import com.yunbiao.cccm.netcore.OnXmppConnListener;
-import com.yunbiao.cccm.netcore.PnServerController;
-import com.yunbiao.cccm.resolve.VideoDataResolver;
-import com.yunbiao.cccm.resource.InsertManager;
-import com.yunbiao.cccm.resource.ResourceManager;
-import com.yunbiao.cccm.utils.DeleteResUtil;
-import com.yunbiao.cccm.utils.DialogUtil;
-import com.yunbiao.cccm.utils.LogUtil;
-import com.yunbiao.cccm.utils.SystemInfoUtil;
-import com.yunbiao.cccm.utils.ThreadUtil;
-import com.yunbiao.cccm.utils.TimerUtil;
+import com.yunbiao.cccm.net.resource.DanmakuManager;
+import com.yunbiao.cccm.local.LocalManager;
+import com.yunbiao.cccm.common.utils.SDUtil;
+import com.yunbiao.cccm.net.control.PowerOffTool;
+import com.yunbiao.cccm.net.netcore.NetClient;
+import com.yunbiao.cccm.net.listener.OnXmppConnListener;
+import com.yunbiao.cccm.net.netcore.PnServerController;
+import com.yunbiao.cccm.net.resource.InsertManager;
+import com.yunbiao.cccm.net.resource.ResourceManager;
+import com.yunbiao.cccm.common.utils.DeleteResUtil;
+import com.yunbiao.cccm.common.utils.DialogUtil;
+import com.yunbiao.cccm.common.utils.LogUtil;
+import com.yunbiao.cccm.common.utils.SystemInfoUtil;
+import com.yunbiao.cccm.common.utils.TimerUtil;
 
 import java.io.File;
 import java.util.List;
@@ -144,76 +144,31 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         SDUtil.instance().init(this, new SDUtil.CheckSDListener() {
             @Override
             public void sdCanUsed(boolean isCanUsed) {
+                //不论SD卡是否可用，如果当前是菜单界面，都关掉
                 MenuActivity menuActivity = APP.getMenuActivity();
                 if (menuActivity != null && menuActivity.isForeground()) {
                     menuActivity.finish();
                 }
-
-                if (isCanUsed) {
-                    DialogUtil.getInstance().dismissError();
-                    startGetRes();
-                } else {
+                //SD卡不可用，停止一切操作并显示Alert
+                if (!isCanUsed) {
                     stopInsert();
                     stop();
                     ResourceManager.getInstance().cancel();
                     DialogUtil.getInstance().showError(MainActivity.this, "读取错误", "请插入SD卡\n并确保SD卡可正常使用");
+                    return;
+                }
+
+                //关闭Alert
+                DialogUtil.getInstance().dismissError();
+
+                if(CacheManager.SP.getMode() == 0){
+                    startGetRes();
+                }else{
+                    LocalManager.getInstance().initData();
                 }
             }
         }).checkSD();
-
-        /*// TODO: 2019/1/27 弹幕测试
-        if(!Const.SYSTEM_CONFIG.IS_PRO){
-            DanmakuManager.getInstance().init(this, danmakuView, new DanmakuManager.DanmakuReadyListener() {
-                @Override
-                public void Ready() {
-                    DanmakuManager.getInstance().generateSomeDanmaku();
-                }
-            });
-        }*/
     }
-
-    /*@Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        //获得SD权限的监听
-        SDUtil.instance().onActivityResult(this,requestCode,resultCode,data);
-    }*/
-
-    //自定义REQUEST_CODE
-    /*private int WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 101;
-
-    //检测权限
-    private boolean checkPermission() {
-        if (Build.VERSION.SDK_INT >= 21) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                LogUtil.D("123", "正在申请权限");
-                //申请WRITE_EXTERNAL_STORAGE权限
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        WRITE_EXTERNAL_STORAGE_REQUEST_CODE);
-                return false;
-            } else {
-                LogUtil.D("123", "已有权限");
-                return true;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == WRITE_EXTERNAL_STORAGE_REQUEST_CODE) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                LogUtil.D("123", "已取得权限");
-                startGetRes();
-            } else {
-                LogUtil.D("123", "未取得权限");
-                ToastUtil.showLong(this, "请允许权限");
-            }
-        }
-    }*/
 
     //开始请求获取资源
     public void startGetRes() {
@@ -221,10 +176,10 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             @Override
             public void onTimeFinish() {
                 //初始化播放数据
-                ResourceManager.getInstance().initResData();
+                ResourceManager.getInstance().initNetData();
 
                 //初始化广告插播，如果有未播完的广告则自动播放
-                InsertManager.getInstance(MainActivity.this).initInsertData();
+                InsertManager.getInstance(MainActivity.this).initData();
 
                 //删除过期文件
                 DeleteResUtil.removeExpireFile();
@@ -255,28 +210,39 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
      * 初始化播放数据
      */
     @Override
-    public void initPlayData(boolean isRemote) {
-        VideoDataResolver resolver = VideoDataResolver.getInstance();
-        if (isRemote) {
-            resolver.initPlayList();
-        } else {
-            resolver.resolveLocalResource();
+    public void initPlayData() {
+        if(CacheManager.SP.getMode() == 0){
+            ResourceManager.getInstance().loadNetData();
+        }else{
+            LocalManager.getInstance().initData();
+        }
+    }
+
+    /*
+    * 初始化插播数据
+    * */
+    public void initInsertData(){
+        if(CacheManager.SP.getMode() == 0){
+            InsertManager.getInstance(this).initData();
+        }else{
+            LocalManager.getInstance().initData();
         }
     }
 
     //更新优先级标签
     @Override
     public void updateLayerType(Integer layerType) {
-        LogUtil.E("123","更新LayerType："+layerType);
         // 1:Insert优先，2:Config优先
         boolean priority = layerType == 2;//优先级
         if(priority_flag && priority){
-            LogUtil.E("LayerType无变化，不重新请求");
             return;
         }
         priority_flag = priority;
 
-        startGetRes();
+        if(CacheManager.SP.getMode() == 0){
+            //更新层次类型后再初始化一次播放资源
+            startGetRes();
+        }
     }
 
     //常规资源播放
@@ -304,7 +270,8 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             playLists.clear();
         }
         stop();
-        InsertManager.getInstance(this).initInsertData();
+        //普通资源结束后解析插播资源
+        initInsertData();
     }
 
     //插播资源播放
@@ -339,7 +306,8 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         }
         isCycle = true;
         stop();
-        initPlayData(true);
+        //插播资源结束后解析普通资源
+        initPlayData();
     }
 
 
@@ -422,18 +390,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     }
 
     //-----常规方法----------------------------------------------------------------
-
-    /***
-     * 获取可播放内容的总数
-     */
-    public int getPlayCount() {
-        int count = 0;
-        if (playLists != null && playLists.size() > 0) {
-            count = playLists.size();
-        }
-        return count;
-    }
-
     private void stop() {
         if (vv == null) {
             return;
@@ -655,4 +611,59 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     }
 
     public OnXmppConnListener xmppConnListener = null;
+
+
+    /*// TODO: 2019/1/27 弹幕测试
+    if(!Const.SYSTEM_CONFIG.IS_PRO){
+        DanmakuManager.getInstance().init(this, danmakuView, new DanmakuManager.DanmakuReadyListener() {
+            @Override
+            public void Ready() {
+                DanmakuManager.getInstance().generateSomeDanmaku();
+            }
+        });
+    }*/
+
+    /*@Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        //获得SD权限的监听
+        SDUtil.instance().onActivityResult(this,requestCode,resultCode,data);
+    }*/
+
+    //自定义REQUEST_CODE
+    /*private int WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 101;
+
+    //检测权限
+    private boolean checkPermission() {
+        if (Build.VERSION.SDK_INT >= 21) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                LogUtil.D("123", "正在申请权限");
+                //申请WRITE_EXTERNAL_STORAGE权限
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        WRITE_EXTERNAL_STORAGE_REQUEST_CODE);
+                return false;
+            } else {
+                LogUtil.D("123", "已有权限");
+                return true;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == WRITE_EXTERNAL_STORAGE_REQUEST_CODE) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                LogUtil.D("123", "已取得权限");
+                startGetRes();
+            } else {
+                LogUtil.D("123", "未取得权限");
+                ToastUtil.showLong(this, "请允许权限");
+            }
+        }
+    }*/
+
 }

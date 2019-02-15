@@ -20,9 +20,9 @@ import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.activity.base.BaseActivity;
 import com.yunbiao.cccm.activity.weichat.bean.WeiMessage;
-import com.yunbiao.cccm.cache.CacheManager;
+import com.yunbiao.cccm.common.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
-import com.yunbiao.cccm.view.NumberProgressBar;
+import com.yunbiao.cccm.net.view.NumberProgressBar;
 import com.yunbiao.cccm.xmpp.Constants;
 
 import java.util.ArrayList;

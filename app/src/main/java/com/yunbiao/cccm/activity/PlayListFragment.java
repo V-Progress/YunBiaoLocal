@@ -19,8 +19,9 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.yunbiao.cccm.R;
-import com.yunbiao.cccm.resource.resolve.VideoDataResolver;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.common.ResourceConst;
+import com.yunbiao.cccm.net.resource.resolve.VideoDataResolver;
+import com.yunbiao.cccm.common.utils.LogUtil;
 
 import java.util.ArrayList;
 
@@ -67,9 +68,7 @@ public class PlayListFragment extends Fragment implements View.OnTouchListener {
     @Override
     public void onStart() {
         super.onStart();
-        arrayAdapter = new ArrayAdapter<String>(mActivity, android.R.layout.simple_list_item_1, VideoDataResolver.playList == null
-                ? new ArrayList<String>()
-                : VideoDataResolver.playList) {
+        arrayAdapter = new ArrayAdapter<String>(mActivity, android.R.layout.simple_list_item_1, ResourceConst.getPlayList()) {
             @Override
             public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
                 convertView = LayoutInflater.from(mActivity).inflate(android.R.layout.simple_list_item_1, null);
@@ -100,7 +99,8 @@ public class PlayListFragment extends Fragment implements View.OnTouchListener {
                 if (!text.matches("^.+\\.\\S+$")) {
                     return;
                 }
-                String path = VideoDataResolver.previewMap.get(/*yyyyMMdd + */text.substring(3));
+
+                String path = ResourceConst.getPreviewMap().get(/*yyyyMMdd + */text.substring(3));
                 if (TextUtils.isEmpty(path)) {
                     Toast.makeText(mActivity, "没有视频", Toast.LENGTH_SHORT).show();
                     return;

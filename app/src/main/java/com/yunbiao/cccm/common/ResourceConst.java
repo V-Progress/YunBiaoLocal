@@ -3,7 +3,49 @@ package com.yunbiao.cccm.common;
 import android.os.Build;
 import android.os.Environment;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class ResourceConst {
+
+    //播放列表和预览列表
+    private static List<String> playList = new ArrayList<>();
+    private static Map<String, String> previewMap = new HashMap<>();
+
+    public static List<String> getPlayList() {
+        return playList;
+    }
+
+    public static Map<String, String> getPreviewMap() {
+        return previewMap;
+    }
+
+    /***
+     * 清空播放列表和预览列表
+     */
+    public static void clearPalyList(){
+        playList.clear();
+        previewMap.clear();
+    }
+
+    /***
+     * 添加播放列表条目
+     * @param item
+     */
+    public static void addPlayItem(String item){
+        playList.add(item);
+    }
+
+    /***
+     * 添加预览条目
+     * @param key
+     * @param value
+     */
+    public static void addPreviewItem(String key,String value){
+        previewMap.put(key,value);
+    }
 
     public static class LOCAL_RES {
         private static String EXTERNAL_ROOT_DIR = Environment.getExternalStorageDirectory().getAbsolutePath();//外存根目录

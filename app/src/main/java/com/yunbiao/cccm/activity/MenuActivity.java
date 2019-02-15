@@ -19,11 +19,15 @@ import android.widget.TextView;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.activity.base.BaseActivity;
-import com.yunbiao.cccm.cache.CacheManager;
+import com.yunbiao.cccm.common.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
-import com.yunbiao.cccm.utils.DialogUtil;
-import com.yunbiao.cccm.utils.TimerUtil;
-import com.yunbiao.cccm.utils.ToastUtil;
+import com.yunbiao.cccm.common.utils.DeleteResUtil;
+import com.yunbiao.cccm.common.utils.DialogUtil;
+import com.yunbiao.cccm.common.utils.TimerUtil;
+import com.yunbiao.cccm.common.utils.ToastUtil;
+import com.yunbiao.cccm.local.LocalManager;
+import com.yunbiao.cccm.net.resource.InsertManager;
+import com.yunbiao.cccm.net.resource.ResourceManager;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -122,13 +126,12 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                     case R.id.rb_mode_net:
                         CacheManager.SP.putMode(0);
                         DialogUtil.getInstance().showError(MenuActivity.this,"提示","正在切换至 网络模式\n本窗口3秒后自动关闭",3,null);
-                        // TODO: 2019/2/13 初始化网络数据
-//                        MainController.getInstance().initPlayData(false);
+                        APP.getMainActivity().startGetRes();
                         break;
                     case R.id.rb_mode_local:
                         CacheManager.SP.putMode(1);
                         DialogUtil.getInstance().showError(MenuActivity.this,"提示","正在切换至 本地模式\n本窗口3秒后自动关闭",3,null);
-                        // TODO: 2019/2/13 初始化本地数据
+                        LocalManager.getInstance().initData();
                         break;
                 }
             }
