@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.local;
+package com.yunbiao.cccm.common.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
