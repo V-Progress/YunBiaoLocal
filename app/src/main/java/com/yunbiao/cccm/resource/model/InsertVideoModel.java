@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.view.model;
+package com.yunbiao.cccm.resource.model;
 
 import java.io.Serializable;
 import java.util.List;

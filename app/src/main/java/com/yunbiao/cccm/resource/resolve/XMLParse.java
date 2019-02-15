@@ -1,11 +1,7 @@
 package com.yunbiao.cccm.resource.resolve;
 
-import android.util.Log;
 import android.util.Xml;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -19,152 +15,13 @@ import java.util.List;
 
 public class XMLParse {
 
-
-    /**
-     * XML解析
+    /***
+     * 直接解析XML内容（解析网络XML数据）
+     * @param configXML
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
      */
-    public JSONObject parseXML(File file) {
-        JSONObject configuration = new JSONObject();
-        FileInputStream fileInputStream = null;
-        try {
-            if (!file.isFile()) {
-                file = new File(file, "config.xml");
-            }
-            fileInputStream = new FileInputStream(file);
-            XmlPullParser xmlPullParser = Xml.newPullParser();
-            xmlPullParser.setInput(fileInputStream, "utf-8");
-            for (int eventType = xmlPullParser.getEventType(); eventType != XmlPullParser.END_DOCUMENT; eventType = xmlPullParser.next()) {
-                if (eventType != XmlPullParser.START_TAG)
-                    continue;
-                switch (xmlPullParser.getName()) {
-                    case ("start"):
-                        configuration.put("start", xmlPullParser.nextText());
-                        break;
-                    case ("end"):
-                        configuration.put("end", xmlPullParser.nextText());
-                        break;
-                    case ("isdelete"):
-                        configuration.put("isdelete", xmlPullParser.nextText());
-                        break;
-                    case ("playlist"):
-                        configuration.put("playlist", new JSONArray());
-                        break;
-                    case ("play"):
-                        configuration.getJSONArray("playlist").put(new JSONObject());
-                        break;
-                    case ("playday"):
-                        JSONArray play1 = configuration.getJSONArray("playlist");
-                        play1.getJSONObject(play1.length() - 1).put("playday", xmlPullParser.nextText());
-                        break;
-                    case ("rules"):
-                        JSONArray play2 = configuration.getJSONArray("playlist");
-                        play2.getJSONObject(play2.length() - 1).put("rules", new JSONArray());
-                        break;
-                    case ("rule"):
-                        xmlPullParser.nextTag();
-                        JSONObject rule = new JSONObject();
-                        if ("date".equals(xmlPullParser.getName()))
-                            rule.put("date", xmlPullParser.nextText());
-                        else if ("res".equals(xmlPullParser.getName()))
-                            rule.put("res", xmlPullParser.nextText());
-                        xmlPullParser.nextTag();
-                        if ("date".equals(xmlPullParser.getName()))
-                            rule.put("date", xmlPullParser.nextText());
-                        else if ("res".equals(xmlPullParser.getName()))
-                            rule.put("res", xmlPullParser.nextText());
-                        JSONArray play3 = configuration.getJSONArray("playlist");
-                        JSONArray rules = play3.getJSONObject(play3.length() - 1).getJSONArray("rules");
-                        rules.put(rule);
-                }
-            }
-            Log.d("XMLConfiguration", configuration.toString());
-        } catch (XmlPullParserException | IOException | JSONException e) {
-            e.printStackTrace();
-        } finally {
-            if (fileInputStream != null)
-                try {
-                    fileInputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-        }
-        return configuration;
-    }
-
-//    public VideoDataModel parseVideoModle(String configXML){
-//        VideoDataModel videoDataModel = new VideoDataModel();
-//        FileInputStream fileInputStream = null;
-//        try {
-//            if(!file.isFile()){
-//                file = new File(file, "config.xml");
-//            }
-//            fileInputStream = new FileInputStream(file);
-//
-//            XmlPullParser xmlPullParser = Xml.newPullParser();
-//            xmlPullParser.setInput(fileInputStream, "utf-8");
-//            for (int eventType = xmlPullParser.getEventType(); eventType != XmlPullParser.END_DOCUMENT; eventType = xmlPullParser.next()) {
-//                if (eventType != XmlPullParser.START_TAG)
-//                    continue;
-//                switch (xmlPullParser.getName()) {
-//                    case ("start"):
-//                        videoDataModel.setStart(xmlPullParser.nextText());
-//                        break;
-//                    case ("end"):
-//                        videoDataModel.setEnd(xmlPullParser.nextText());
-//                        break;
-//                    case ("isdelete"):
-//                        videoDataModel.setIsdelete(xmlPullParser.nextText());
-//                        break;
-//                    case ("playlist"):
-//                        List<VideoDataModel.Play> playList = new ArrayList<>();
-//                        videoDataModel.setPlaylist(playList);
-//                        break;
-//                    case ("play"):
-//                        videoDataModel.getPlaylist().add(new VideoDataModel.Play());
-//                        break;
-//                    case ("playday"):
-//                        List<VideoDataModel.Play> playList1 = videoDataModel.getPlaylist();
-//                        playList1.get(playList1.size() - 1).setPlayday(xmlPullParser.nextText());
-//                        break;
-//                    case ("rules"):
-//                        List<VideoDataModel.Play> playList2 = videoDataModel.getPlaylist();
-//                        playList2.get(playList2.size() - 1).setRules(new ArrayList<VideoDataModel.Play.Rule>());
-//                        break;
-//                    case ("rule"):
-//                        xmlPullParser.nextTag();
-//                        VideoDataModel.Play.Rule rule = new VideoDataModel.Play.Rule();
-//
-//                        if ("date".equals(xmlPullParser.getName())) {
-//                            rule.setDate(xmlPullParser.nextText());
-//                        } else if ("res".equals(xmlPullParser.getName())) {
-//                            rule.setRes(xmlPullParser.nextText());
-//                        }
-//
-//                        xmlPullParser.nextTag();
-//                        if ("date".equals(xmlPullParser.getName())) {
-//                            rule.setDate(xmlPullParser.nextText());
-//                        } else if ("res".equals(xmlPullParser.getName())) {
-//                            rule.setRes(xmlPullParser.nextText());
-//                        }
-//
-//                        List<VideoDataModel.Play> playList3 = videoDataModel.getPlaylist();
-//                        List<VideoDataModel.Play.Rule> rules = playList3.get(playList3.size() - 1).getRules();
-//                        rules.add(rule);
-//                }
-//            }
-//        } catch (XmlPullParserException | IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            if (fileInputStream != null)
-//                try {
-//                    fileInputStream.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//        }
-//        return videoDataModel;
-//    }
-
     public VideoDataModel parseVideoModel(String configXML) throws XmlPullParserException, IOException {
         InputStream inputStream = new ByteArrayInputStream(configXML.getBytes());
         VideoDataModel videoDataModel = new VideoDataModel();
@@ -230,6 +87,11 @@ public class XMLParse {
         return videoDataModel;
     }
 
+    /***
+     * 解析File格式的XML
+     * @param file
+     * @return
+     */
     public VideoDataModel parseVideoModel(File file) {
         VideoDataModel videoDataModel = new VideoDataModel();
         FileInputStream fileInputStream = null;
@@ -305,5 +167,91 @@ public class XMLParse {
                 }
         }
         return videoDataModel;
+    }
+
+    /***
+     * 解析insert.xml
+     * @param insertFile
+     * @return
+     */
+    public InsertDataModel parseInsertModel(File insertFile){
+        InsertDataModel insertDataModel = new InsertDataModel();
+        FileInputStream fileInputStream = null;
+        try {
+            fileInputStream = new FileInputStream(insertFile);
+            XmlPullParser xmlPullParser = Xml.newPullParser();
+            xmlPullParser.setInput(fileInputStream, "utf-8");
+            for (int eventType = xmlPullParser.getEventType(); eventType != XmlPullParser.END_DOCUMENT; eventType = xmlPullParser.next()) {
+                if (eventType != XmlPullParser.START_TAG)
+                    continue;
+                switch (xmlPullParser.getName()) {
+                    case ("config"):
+                        InsertDataModel.Config config = new InsertDataModel.Config();
+                        insertDataModel.setConfig(config);
+                        break;
+                    case ("start"):
+                        insertDataModel.getConfig().setStart(xmlPullParser.nextText());
+                        break;
+                    case ("end"):
+                        insertDataModel.getConfig().setEnd(xmlPullParser.nextText());
+                        break;
+                    case ("isdelete"):
+                        insertDataModel.getConfig().setIsdelete(xmlPullParser.nextText());
+                        break;
+                    case ("layerType"):
+                        insertDataModel.getConfig().setLayerType(xmlPullParser.nextText());
+                        break;
+                    case ("playlist"):
+                        List<InsertDataModel.Play> playList = new ArrayList<>();
+                        insertDataModel.setPlaylist(playList);
+                        break;
+                    case ("play"):
+                        insertDataModel.getPlaylist().add(new InsertDataModel.Play());
+                        break;
+                    case ("playday"):
+                        List<InsertDataModel.Play> playList1 = insertDataModel.getPlaylist();
+                        playList1.get(playList1.size() - 1).setPlayday(xmlPullParser.nextText());
+                        break;
+                    case ("rules"):
+                        List<InsertDataModel.Play> playList2 = insertDataModel.getPlaylist();
+                        playList2.get(playList2.size() - 1).setRules(new ArrayList<InsertDataModel.Play.Rule>());
+                        break;
+                    case ("rule"):
+                        xmlPullParser.nextTag();
+                        InsertDataModel.Play.Rule rule = new InsertDataModel.Play.Rule();
+
+                        if ("date".equals(xmlPullParser.getName())) {
+                            rule.setDate(xmlPullParser.nextText());
+                        } else if ("isCycle".equals(xmlPullParser.getName())) {
+                            rule.setIsCycle(xmlPullParser.nextText());
+                        } else if ("res".equals(xmlPullParser.getName())) {
+                            rule.setRes(xmlPullParser.nextText());
+                        }
+
+                        xmlPullParser.nextTag();
+                        if ("date".equals(xmlPullParser.getName())) {
+                            rule.setDate(xmlPullParser.nextText());
+                        } else if ("isCycle".equals(xmlPullParser.getName())) {
+                            rule.setIsCycle(xmlPullParser.nextText());
+                        } else if ("res".equals(xmlPullParser.getName())) {
+                            rule.setRes(xmlPullParser.nextText());
+                        }
+
+                        List<InsertDataModel.Play> playList3 = insertDataModel.getPlaylist();
+                        List<InsertDataModel.Play.Rule> rules = playList3.get(playList3.size() - 1).getRules();
+                        rules.add(rule);
+                }
+            }
+        } catch (XmlPullParserException | IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fileInputStream != null)
+                try {
+                    fileInputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+        }
+        return insertDataModel;
     }
 }

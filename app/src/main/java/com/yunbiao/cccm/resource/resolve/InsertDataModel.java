@@ -6,7 +6,7 @@ import java.util.List;
  * Created by Administrator on 2018/12/6.
  */
 
-public class VideoDataModel {
+public class InsertDataModel {
 
     private Config config;
     private List<Play> playlist;
@@ -16,6 +16,15 @@ public class VideoDataModel {
         private String isdelete;
         private String start;
         private String playurl;
+        private String layerType;
+
+        public String getLayerType() {
+            return layerType;
+        }
+
+        public void setLayerType(String layerType) {
+            this.layerType = layerType;
+        }
 
         public String getPlayurl() {
             return playurl;
@@ -56,6 +65,7 @@ public class VideoDataModel {
                     ", isdelete='" + isdelete + '\'' +
                     ", start='" + start + '\'' +
                     ", playurl='" + playurl + '\'' +
+                    ", layerType='" + layerType + '\'' +
                     '}';
         }
     }
@@ -66,7 +76,16 @@ public class VideoDataModel {
 
         public static class Rule{
             private String date;
+            private String isCycle;
             private String res;
+
+            public String getIsCycle() {
+                return isCycle;
+            }
+
+            public void setIsCycle(String isCycle) {
+                this.isCycle = isCycle;
+            }
 
             public String getDate() {
                 return date;
@@ -88,6 +107,7 @@ public class VideoDataModel {
             public String toString() {
                 return "Rule{" +
                         "date='" + date + '\'' +
+                        ", isCycle='" + isCycle + '\'' +
                         ", res='" + res + '\'' +
                         '}';
             }
@@ -136,7 +156,7 @@ public class VideoDataModel {
 
     @Override
     public String toString() {
-        return "VideoDataModel{" +
+        return "InsertDataModel{" +
                 "config=" + config +
                 ", playlist=" + playlist +
                 '}';

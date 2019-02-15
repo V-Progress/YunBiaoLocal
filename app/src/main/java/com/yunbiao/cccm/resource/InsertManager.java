@@ -25,8 +25,8 @@ import com.yunbiao.cccm.netcore.NetClient;
 import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.view.MyScrollTextView;
 import com.yunbiao.cccm.view.TipToast;
-import com.yunbiao.cccm.view.model.InsertTextModel;
-import com.yunbiao.cccm.view.model.InsertVideoModel;
+import com.yunbiao.cccm.resource.model.InsertTextModel;
+import com.yunbiao.cccm.resource.model.InsertVideoModel;
 
 import java.io.File;
 import java.text.ParseException;

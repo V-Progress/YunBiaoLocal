@@ -5,7 +5,7 @@ import android.text.TextUtils;
 import com.google.gson.Gson;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.common.ResourceConst;
-import com.yunbiao.cccm.view.model.InsertTextModel;
+import com.yunbiao.cccm.resource.model.InsertTextModel;
 
 import java.io.File;
 
