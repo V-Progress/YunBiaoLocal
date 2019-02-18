@@ -12,10 +12,6 @@ public class InsertDataModel {
     private List<Play> playlist;
 
     public static class Config{
-        private String end;
-        private String isdelete;
-        private String start;
-        private String playurl;
         private String layerType;
 
         public String getLayerType() {
@@ -26,45 +22,9 @@ public class InsertDataModel {
             this.layerType = layerType;
         }
 
-        public String getPlayurl() {
-            return playurl;
-        }
-
-        public void setPlayurl(String playurl) {
-            this.playurl = playurl;
-        }
-
-        public String getEnd() {
-            return end;
-        }
-
-        public void setEnd(String end) {
-            this.end = end;
-        }
-
-        public String getIsdelete() {
-            return isdelete;
-        }
-
-        public void setIsdelete(String isdelete) {
-            this.isdelete = isdelete;
-        }
-
-        public String getStart() {
-            return start;
-        }
-
-        public void setStart(String start) {
-            this.start = start;
-        }
-
         @Override
         public String toString() {
             return "Config{" +
-                    "end='" + end + '\'' +
-                    ", isdelete='" + isdelete + '\'' +
-                    ", start='" + start + '\'' +
-                    ", playurl='" + playurl + '\'' +
                     ", layerType='" + layerType + '\'' +
                     '}';
         }

@@ -1,5 +1,7 @@
 package com.yunbiao.cccm.local;
 
+import android.text.TextUtils;
+
 import com.yunbiao.cccm.activity.MainController;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.local.control.PowerTool;
@@ -96,7 +98,11 @@ public class LocalManager {
 
                         InsertDataModel insertDataModel = new XMLParse().parseInsertModel(insertFile);
 
-                        MainController.getInstance().updateLayerType(Integer.valueOf(insertDataModel.getConfig().getLayerType()));
+                        int layerType = 1;
+                        if(!TextUtils.isEmpty(insertDataModel.getConfig().getLayerType())){
+                            layerType = Integer.valueOf(insertDataModel.getConfig().getLayerType());
+                        }
+                        MainController.getInstance().updateLayerType(layerType);
 
                         parseInsert(file,insertDataModel);
                     }

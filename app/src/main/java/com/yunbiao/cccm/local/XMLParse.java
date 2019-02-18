@@ -115,12 +115,6 @@ public class XMLParse {
                         InsertDataModel.Config config = new InsertDataModel.Config();
                         insertDataModel.setConfig(config);
                         break;
-                    case ("start"):
-                        insertDataModel.getConfig().setStart(xmlPullParser.nextText());
-                        break;
-                    case ("end"):
-                        insertDataModel.getConfig().setEnd(xmlPullParser.nextText());
-                        break;
                     case ("layerType"):
                         insertDataModel.getConfig().setLayerType(xmlPullParser.nextText());
                         break;
