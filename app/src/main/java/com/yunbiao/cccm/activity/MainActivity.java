@@ -229,6 +229,13 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         }
     }
 
+    @Override
+    public void clearPlayData(){
+        videoIndex = 0;
+        stop();
+        playLists.clear();
+    }
+
     //更新优先级标签
     @Override
     public void updateLayerType(Integer layerType) {

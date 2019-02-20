@@ -125,13 +125,15 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                 switch (checkedId) {
                     case R.id.rb_mode_net:
                         CacheManager.SP.putMode(0);
-                        DialogUtil.getInstance().showError(MenuActivity.this,"提示","正在切换至 网络模式\n本窗口3秒后自动关闭",3,null);
+                        MainController.getInstance().clearPlayData();
                         APP.getMainActivity().startGetRes();
+                        DialogUtil.getInstance().showError(MenuActivity.this,"提示","正在切换至 网络模式\n本窗口3秒后自动关闭",3,null);
                         break;
                     case R.id.rb_mode_local:
                         CacheManager.SP.putMode(1);
-                        DialogUtil.getInstance().showError(MenuActivity.this,"提示","正在切换至 本地模式\n本窗口3秒后自动关闭",3,null);
+                        MainController.getInstance().clearPlayData();
                         LocalManager.getInstance().initData();
+                        DialogUtil.getInstance().showError(MenuActivity.this,"提示","正在切换至 本地模式\n本窗口3秒后自动关闭",3,null);
                         break;
                 }
             }

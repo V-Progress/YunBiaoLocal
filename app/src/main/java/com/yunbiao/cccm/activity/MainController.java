@@ -145,6 +145,18 @@ public class MainController {
     }
 
     /***
+     * 完全清除播放内容
+     */
+    public void clearPlayData(){
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                mRefListener.clearPlayData();
+            }
+        });
+    }
+
+    /***
      * 开始播放插播
      * @param isCycle
      * @param videoString

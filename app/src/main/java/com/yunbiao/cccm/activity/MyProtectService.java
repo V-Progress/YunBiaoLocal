@@ -5,13 +5,15 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.yunbiao.cccm.common.utils.LogUtil;
+
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MyProtectService extends Service {
     private static final String TAG = "MyProtectService";
@@ -20,13 +22,24 @@ public class MyProtectService extends Service {
     private String packageName = "com.yunbiao.cccm";
     private String packageClassName = "com.yunbiao.cccm.activity.MainActivity";
 
-    private final static int DELAY_TIME = 150 * 1000;//150s轮询一次
-    private final static int CHECK_APP = 0x3211;
+    private final static int DELAY_TIME = 120 * 1000;//120s轮询一次
+    private final static Timer timer = new Timer();
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mHandler.sendEmptyMessage(CHECK_APP);
         Log.e(TAG, "onStartCommand");
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                LogUtil.E(TAG,"轮询检测");
+                if (!isMyAppRunning(MyProtectService.this, packageName)) {
+                    LogUtil.E(TAG,"APP未运行，准备运行");
+                    startTargetActivity(packageName, packageClassName);
+                    Log.e(TAG, "startTargetActivity");
+                }
+            }
+        },DELAY_TIME,DELAY_TIME);
+
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -35,20 +48,6 @@ public class MyProtectService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
-
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            if (msg.what == CHECK_APP) {
-                if (!isMyAppRunning(MyProtectService.this, packageName)) {
-                    startTargetActivity(packageName, packageClassName);
-                    Log.e(TAG, "startTargetActivity");
-                }
-                mHandler.sendEmptyMessageDelayed(CHECK_APP, DELAY_TIME);
-            }
-        }
-    };
 
     /**
      * 根据报名判断app是否运行

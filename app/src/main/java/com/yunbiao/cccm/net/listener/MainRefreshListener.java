@@ -24,6 +24,8 @@ public interface MainRefreshListener {
 
     //初始化数据
     void initPlayData();
+    //清除播放数据
+    void clearPlayData();
     //初始化播放器
     void initPlayer();
     //刷新layerType
