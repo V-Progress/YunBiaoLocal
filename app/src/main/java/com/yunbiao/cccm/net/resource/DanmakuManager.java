@@ -11,8 +11,8 @@ import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.util.Log;
 import com.yunbiao.cccm.R;
-import com.yunbiao.cccm.common.utils.ImageUtil;
-import com.yunbiao.cccm.common.utils.ThreadUtil;
+import com.yunbiao.cccm.utils.ImageUtil;
+import com.yunbiao.cccm.utils.ThreadUtil;
 
 import java.util.HashMap;
 import java.util.Random;

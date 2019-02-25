@@ -24,7 +24,7 @@ import org.jivesoftware.smack.packet.Packet;
 
 import android.util.Log;
 
-import com.yunbiao.cccm.xmpp.XmppManager;
+import com.yunbiao.cccm.xmpp.core.XmppManager;
 
 import java.io.IOException;
 import java.io.Writer;

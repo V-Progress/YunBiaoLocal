@@ -15,9 +15,9 @@ import android.util.Log;
 
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.common.cache.CacheManager;
-import com.yunbiao.cccm.common.utils.CommonUtils;
-import com.yunbiao.cccm.common.utils.LogUtil;
-import com.yunbiao.cccm.net.netcore.NetClient;
+import com.yunbiao.cccm.utils.CommonUtils;
+import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.utils.NetUtil;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.util.HashMap;
@@ -64,7 +64,7 @@ public class HeartBeatClient {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put("deviceNo", tmPhone);
 
-        NetClient.getInstance().post(ResourceConst.REMOTE_RES.SER_NUMBER, paramMap, new StringCallback() {
+        NetUtil.getInstance().post(ResourceConst.REMOTE_RES.SER_NUMBER, paramMap, new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
                 LogUtil.E(TAG,"获取设备编号.-----"+e.getMessage());

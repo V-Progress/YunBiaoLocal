@@ -13,12 +13,12 @@ import com.yunbiao.cccm.net.control.actions.XBHActions;
 import com.yunbiao.cccm.net.control.power.JYDBroadControl;
 import com.yunbiao.cccm.net.control.power.OnOffTool;
 import com.yunbiao.cccm.net.control.power.PowerTimesBean;
-import com.yunbiao.cccm.common.utils.CommonUtils;
-import com.yunbiao.cccm.common.utils.DialogUtil;
-import com.yunbiao.cccm.common.utils.LogUtil;
-import com.yunbiao.cccm.net.netcore.NetClient;
-import com.yunbiao.cccm.common.utils.ThreadUtil;
-import com.yunbiao.cccm.common.utils.TimerUtil;
+import com.yunbiao.cccm.utils.CommonUtils;
+import com.yunbiao.cccm.utils.DialogUtil;
+import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.utils.NetUtil;
+import com.yunbiao.cccm.utils.ThreadUtil;
+import com.yunbiao.cccm.utils.TimerUtil;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import org.json.JSONArray;
@@ -104,7 +104,7 @@ public class PowerOffTool {
             Map<String, String> params = new HashMap<>();
             params.put("uid", uid);
 
-            Response response = NetClient.getInstance().postSync(ResourceConst.REMOTE_RES.POWER_OFF_URL, params);
+            Response response = NetUtil.getInstance().postSync(ResourceConst.REMOTE_RES.POWER_OFF_URL, params);
 
             if (response == null) {
                 LogUtil.E("获取定时开关机失败");
@@ -148,7 +148,7 @@ public class PowerOffTool {
             public void onError(Call call, Exception e, int id) {
                 Log.e(TAG, "获取定时开关机失败: " + e.getMessage());
 
-                NetClient.getInstance().post(ResourceConst.REMOTE_RES.POWER_OFF_URL, params, stringCallback);
+                NetUtil.getInstance().post(ResourceConst.REMOTE_RES.POWER_OFF_URL, params, stringCallback);
             }
 
             @Override
@@ -191,7 +191,7 @@ public class PowerOffTool {
                 }
             }
         };
-        NetClient.getInstance().post(ResourceConst.REMOTE_RES.POWER_OFF_URL, params, stringCallback);*/
+        NetUtil.getInstance().post(ResourceConst.REMOTE_RES.POWER_OFF_URL, params, stringCallback);*/
     }
 
     /**

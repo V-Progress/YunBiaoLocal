@@ -10,7 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.yunbiao.cccm.R;
-import com.yunbiao.cccm.common.utils.ThreadUtil;
+import com.yunbiao.cccm.utils.ThreadUtil;
 
 /**
  * Created by Administrator on 2018/12/4.

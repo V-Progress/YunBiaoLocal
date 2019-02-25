@@ -23,7 +23,7 @@ import com.yunbiao.cccm.activity.weichat.bean.WeiMessage;
 import com.yunbiao.cccm.common.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
 import com.yunbiao.cccm.net.view.NumberProgressBar;
-import com.yunbiao.cccm.xmpp.Constants;
+import com.yunbiao.cccm.xmpp.core.Constants;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -21,13 +21,10 @@ import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.activity.base.BaseActivity;
 import com.yunbiao.cccm.common.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
-import com.yunbiao.cccm.common.utils.DeleteResUtil;
-import com.yunbiao.cccm.common.utils.DialogUtil;
-import com.yunbiao.cccm.common.utils.TimerUtil;
-import com.yunbiao.cccm.common.utils.ToastUtil;
+import com.yunbiao.cccm.utils.DialogUtil;
+import com.yunbiao.cccm.utils.TimerUtil;
+import com.yunbiao.cccm.utils.ToastUtil;
 import com.yunbiao.cccm.local.LocalManager;
-import com.yunbiao.cccm.net.resource.InsertManager;
-import com.yunbiao.cccm.net.resource.ResourceManager;
 
 import butterknife.BindView;
 import butterknife.OnClick;

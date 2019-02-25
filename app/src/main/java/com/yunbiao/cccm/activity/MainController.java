@@ -5,8 +5,8 @@ import android.content.Intent;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.common.cache.CacheManager;
 import com.yunbiao.cccm.net.listener.MainRefreshListener;
-import com.yunbiao.cccm.common.utils.LogUtil;
-import com.yunbiao.cccm.common.utils.ThreadUtil;
+import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.utils.ThreadUtil;
 
 import java.util.List;
 
@@ -120,7 +120,7 @@ public class MainController {
     }
 
     /***
-     * 开始播放普通资源
+     * 开始播放普通资源（）
      * @param videoString
      */
     public void startPlay(final List<String> videoString) {
@@ -131,6 +131,10 @@ public class MainController {
             }
         });
     }
+
+    /***
+     *
+     */
 
     /***
      * 停止播放普通资源
@@ -189,6 +193,7 @@ public class MainController {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
+                LogUtil.E("初始化播放数据2222");
                 mRefListener.initPlayData();
             }
         });
@@ -196,6 +201,9 @@ public class MainController {
     }
 
     public void updateLayerType(final Integer layerType){
+        if(mRefListener == null){
+            return;
+        }
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {

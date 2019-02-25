@@ -5,8 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 
-import com.yunbiao.cccm.common.utils.LogUtil;
-import com.yunbiao.cccm.xmpp.Constants;
+import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.xmpp.core.Constants;
 
 import org.json.JSONObject;
 

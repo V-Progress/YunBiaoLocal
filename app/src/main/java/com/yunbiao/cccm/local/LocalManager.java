@@ -7,9 +7,9 @@ import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.local.control.PowerTool;
 import com.yunbiao.cccm.local.model.InsertDataModel;
 import com.yunbiao.cccm.local.model.VideoDataModel;
-import com.yunbiao.cccm.common.utils.DateUtil;
-import com.yunbiao.cccm.common.utils.LogUtil;
-import com.yunbiao.cccm.common.utils.ThreadUtil;
+import com.yunbiao.cccm.utils.DateUtil;
+import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.utils.ThreadUtil;
 
 import java.io.File;
 import java.util.ArrayList;

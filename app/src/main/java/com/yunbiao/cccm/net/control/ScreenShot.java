@@ -14,10 +14,10 @@ import android.view.View;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.common.HeartBeatClient;
-import com.yunbiao.cccm.net.netcore.NetClient;
-import com.yunbiao.cccm.common.utils.CommonUtils;
-import com.yunbiao.cccm.common.utils.LogUtil;
-import com.yunbiao.cccm.common.utils.ThreadUtil;
+import com.yunbiao.cccm.utils.NetUtil;
+import com.yunbiao.cccm.utils.CommonUtils;
+import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.utils.ThreadUtil;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
@@ -215,7 +215,7 @@ public class ScreenShot {
                 }
             }
         }
-        NetClient.getInstance().postScreenShoot(imgFile.getAbsolutePath(), new StringCallback() {
+        NetUtil.getInstance().postScreenShoot(imgFile.getAbsolutePath(), new StringCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
 

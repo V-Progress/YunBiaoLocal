@@ -15,9 +15,9 @@ import com.yunbiao.cccm.activity.MainActivity;
 import com.yunbiao.cccm.activity.MenuActivity;
 import com.yunbiao.cccm.common.Const;
 import com.yunbiao.cccm.common.HeartBeatClient;
-import com.yunbiao.cccm.common.utils.CommonUtils;
+import com.yunbiao.cccm.utils.CommonUtils;
 import com.yunbiao.cccm.net.listener.BDLocationListener;
-import com.yunbiao.cccm.common.utils.Log2FileUtil;
+import com.yunbiao.cccm.utils.Log2FileUtil;
 import com.zhy.http.okhttp.OkHttpUtils;
 
 import java.util.ArrayList;

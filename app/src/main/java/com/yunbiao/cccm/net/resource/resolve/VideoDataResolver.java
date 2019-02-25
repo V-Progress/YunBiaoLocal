@@ -1,5 +1,8 @@
 package com.yunbiao.cccm.net.resource.resolve;
 
+import android.net.Uri;
+import android.os.Build;
+import android.support.v4.provider.DocumentFile;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
@@ -8,30 +11,22 @@ import com.yunbiao.cccm.activity.MenuActivity;
 import com.yunbiao.cccm.common.cache.CacheManager;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.activity.MainController;
-import com.yunbiao.cccm.local.VideoDirectoryFilter;
 import com.yunbiao.cccm.net.resource.model.VideoDataModel;
-import com.yunbiao.cccm.common.utils.DateUtil;
-import com.yunbiao.cccm.common.utils.DialogUtil;
-import com.yunbiao.cccm.common.utils.LogUtil;
-import com.yunbiao.cccm.common.utils.ThreadUtil;
+import com.yunbiao.cccm.sdOperator.LowVerSDOperator;
+import com.yunbiao.cccm.utils.DateUtil;
+import com.yunbiao.cccm.utils.DialogUtil;
+import com.yunbiao.cccm.sdOperator.HighVerSDOperator;
+import com.yunbiao.cccm.utils.LogUtil;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class VideoDataResolver {
     private static VideoDataResolver instance;
-    private final String RES_DIR = ResourceConst.LOCAL_RES.RES_SAVE_PATH;
-
-//    //播放列表和预览列表
-//    public static List<String> playList = new ArrayList<>();
-//    public static Map<String, String> previewMap = new HashMap<>();
 
     private static List<PlayModel> playModelList = new ArrayList<>();
     private List<Timer> timerList;
@@ -134,16 +129,32 @@ public class VideoDataResolver {
                     //生成播放列表的index
                     String index = ind + 1 > 9 ? ind + 1 + " " : ind + 1 + "  ";
 
-                    //生成File
-                    File videoFile = new File(RES_DIR, videoName);
-                    if (!videoFile.exists()) {
-                        ResourceConst.addPlayItem(index + videoName + "(无)");
-                        continue;
-                    }
+                    LogUtil.E("121212","-----"+videoName);
 
-                    videoList.add(videoFile.getPath());
-                    ResourceConst.addPlayItem(index + videoName);
-                    ResourceConst.addPreviewItem(videoName, videoFile.getPath());
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                        //生成File
+                        File videoFile = LowVerSDOperator.instance().findResource(videoName);
+                        LogUtil.E("121212","-----"+videoFile);
+                        if (!videoFile.exists()) {
+                            ResourceConst.addPlayItem(index + videoName + "(无)");
+                            continue;
+                        }
+                        videoList.add(Uri.fromFile(videoFile).toString());
+                        ResourceConst.addPlayItem(index + videoName);
+                        ResourceConst.addPreviewItem(videoName, Uri.fromFile(videoFile).toString());
+                    } else {
+
+                        // TODO: 2019/2/22 高版本下
+                        DocumentFile resource = HighVerSDOperator.instance().findResource(videoName);
+                        if (resource == null || (!resource.exists())) {
+                            ResourceConst.addPlayItem(index + videoName + "(无)");
+                            continue;
+                        }
+
+                        videoList.add(resource.getUri().toString());
+                        ResourceConst.addPlayItem(index + videoName);
+                        ResourceConst.addPreviewItem(videoName, resource.getUri().toString());
+                    }
                 }
 
                 //没有可播的放视频时，不添加定时任务
@@ -173,7 +184,7 @@ public class VideoDataResolver {
     }
 
     private void createTimer(List<PlayModel> list) {
-        if(playModelList == null && playModelList.size() <= 0){
+        if (playModelList == null && playModelList.size() <= 0) {
             return;
         }
 

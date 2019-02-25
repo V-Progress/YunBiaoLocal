@@ -5,7 +5,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -16,7 +19,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.yunbiao.cccm.APP;
@@ -26,22 +28,20 @@ import com.yunbiao.cccm.net.listener.MainRefreshListener;
 import com.yunbiao.cccm.common.receiver.USBBroadcastReceiver;
 import com.yunbiao.cccm.common.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
+import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.net.resource.DanmakuManager;
 import com.yunbiao.cccm.local.LocalManager;
-import com.yunbiao.cccm.common.utils.SDUtil;
+import com.yunbiao.cccm.utils.SDUtil;
 import com.yunbiao.cccm.net.control.PowerOffTool;
-import com.yunbiao.cccm.net.netcore.NetClient;
 import com.yunbiao.cccm.net.listener.OnXmppConnListener;
-import com.yunbiao.cccm.net.netcore.PnServerController;
+import com.yunbiao.cccm.xmpp.PnServerController;
 import com.yunbiao.cccm.net.resource.InsertManager;
 import com.yunbiao.cccm.net.resource.ResourceManager;
-import com.yunbiao.cccm.common.utils.DeleteResUtil;
-import com.yunbiao.cccm.common.utils.DialogUtil;
-import com.yunbiao.cccm.common.utils.LogUtil;
-import com.yunbiao.cccm.common.utils.SystemInfoUtil;
-import com.yunbiao.cccm.common.utils.TimerUtil;
+import com.yunbiao.cccm.utils.DeleteResUtil;
+import com.yunbiao.cccm.utils.DialogUtil;
+import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.utils.TimerUtil;
 
-import java.io.File;
 import java.util.List;
 
 import butterknife.BindView;
@@ -121,7 +121,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     }
 
     protected void initData() {
-        priority_flag = (CacheManager.SP.getLaterType()==2);
+        priority_flag = (CacheManager.SP.getLaterType() == 2);
 
         //开启软件守护服务
         startService(new Intent(this, MyProtectService.class));
@@ -158,16 +158,29 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
                     return;
                 }
 
+                LogUtil.E("SD卡可用");
                 //关闭Alert
                 DialogUtil.getInstance().dismissError();
 
-                if(CacheManager.SP.getMode() == 0){
+                if (CacheManager.SP.getMode() == 0) {
                     startGetRes();
-                }else{
+                } else {
                     LocalManager.getInstance().initData();
                 }
             }
         }).checkSD();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        SDUtil.instance().onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        SDUtil.instance().onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     //开始请求获取资源
@@ -182,7 +195,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
                 InsertManager.getInstance(MainActivity.this).initData();
 
                 //删除过期文件
-                DeleteResUtil.removeExpireFile();
+                DeleteResUtil.checkExpireFile();
             }
         });
     }
@@ -211,26 +224,31 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
      */
     @Override
     public void initPlayData() {
-        if(CacheManager.SP.getMode() == 0){
-            ResourceManager.getInstance().loadNetData();
-        }else{
-            LocalManager.getInstance().initData();
+        if (SDUtil.isCanUsedHighVer() || SDUtil.isCanUsedLowVer()) {
+            if (CacheManager.SP.getMode() == 0) {
+                ResourceManager.getInstance().loadNetData();
+            } else {
+                LocalManager.getInstance().initData();
+            }
         }
     }
 
     /*
     * 初始化插播数据
     * */
-    public void initInsertData(){
-        if(CacheManager.SP.getMode() == 0){
+    public void initInsertData() {
+        if (!SDUtil.isCanUsedHighVer()) {
+            return;
+        }
+        if (CacheManager.SP.getMode() == 0) {
             InsertManager.getInstance(this).initData();
-        }else{
+        } else {
             LocalManager.getInstance().initData();
         }
     }
 
     @Override
-    public void clearPlayData(){
+    public void clearPlayData() {
         videoIndex = 0;
         stop();
         playLists.clear();
@@ -241,12 +259,12 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     public void updateLayerType(Integer layerType) {
         // 1:Insert优先，2:Config优先
         boolean priority = layerType == 2;//优先级
-        if(priority_flag && priority){
+        if (priority_flag && priority) {
             return;
         }
         priority_flag = priority;
 
-        if(CacheManager.SP.getMode() == 0){
+        if (CacheManager.SP.getMode() == 0) {
             //更新层次类型后再初始化一次播放资源
             startGetRes();
         }
@@ -255,22 +273,23 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     //常规资源播放
     @Override
     public void startPlay(List<String> videoList) {
-        LogUtil.E("123","startPlay");
+        LogUtil.E("123", "startPlay");
         if (!priority_flag && isInsertPlaying) {
-            LogUtil.E("123","广告正在播放，不执行startPlay");
+            LogUtil.E("123", "广告正在播放，不执行startPlay");
             return;
         }
         isConfigPlaying = true;
         play(videoList);
     }
 
+
     //常规资源停止
     @Override
     public void stopPlay() {
-        LogUtil.E("123","stopPlay");
+        LogUtil.E("123", "stopPlay");
         isConfigPlaying = false;
         if (!priority_flag && isInsertPlaying) {
-            LogUtil.E("123","广告正在播放，不执行stopPlay");
+            LogUtil.E("123", "广告正在播放，不执行stopPlay");
             return;
         }
         if (playLists != null) {
@@ -284,12 +303,12 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     //插播资源播放
     @Override
     public void startInsert(final boolean cycle, final List<String> videoList) {
-        LogUtil.E("123","startInsert");
+        LogUtil.E("123", "startInsert");
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (priority_flag && isConfigPlaying) {
-                    LogUtil.E("123","config正在播放，不执行startInsert");
+                    LogUtil.E("123", "config正在播放，不执行startInsert");
                     return;
                 }
                 isInsertPlaying = true;
@@ -302,10 +321,10 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     //插播资源停止
     @Override
     public void stopInsert() {
-        LogUtil.E("123","stopInsert");
+        LogUtil.E("123", "stopInsert");
         isInsertPlaying = false;
         if (priority_flag && isConfigPlaying) {
-            LogUtil.E("123","config正在播放，不执行stopInsert");
+            LogUtil.E("123", "config正在播放，不执行stopInsert");
             return;
         }
         if (playLists != null) {
@@ -325,7 +344,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     @Override
     public void openConsole() {
         //如果是正式环境，则不开启控制台和进度条
-        if(!Const.SYSTEM_CONFIG.IS_PRO){
+        if (!Const.SYSTEM_CONFIG.IS_PRO) {
             llConsoleMain.setVisibility(View.VISIBLE);
         }
     }
@@ -414,7 +433,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         }
 
         try {
-            vv.setVideoPath(playLists.get(videoIndex));
+            vv.setVideoURI(Uri.parse(playLists.get(videoIndex)));
             vv.setVisibility(View.VISIBLE);
             vv.start();
         } catch (Exception e) {
@@ -452,7 +471,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             return true;
         }
     };
-
+    //播放器信息监听
     private MediaPlayer.OnInfoListener infoListener = new MediaPlayer.OnInfoListener() {
         @Override
         public boolean onInfo(MediaPlayer mp, int what, int extra) {
@@ -464,12 +483,12 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             return true;
         }
     };
-
+    //播放完毕监听
     private MediaPlayer.OnCompletionListener completionListener = new MediaPlayer.OnCompletionListener() {
         @Override
         public void onCompletion(MediaPlayer mp) {
             videoIndex++;
-            if (videoIndex == playLists.size()) {
+            if (videoIndex > playLists.size() - 1) {
                 videoIndex = 0;
                 LogUtil.E("是否轮播");
                 if (!isCycle) {
@@ -480,7 +499,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             }
             try {
                 vv.stopPlayback();
-                vv.setVideoPath(playLists.get(videoIndex));
+                vv.setVideoURI(Uri.parse(playLists.get(videoIndex)));
                 vv.start();
             } catch (NullPointerException e) {
                 e.printStackTrace();
@@ -530,58 +549,10 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         super.onDestroy();
         unregisterReceiver(usbBroadcastReceiver);
         DanmakuManager.getInstance().destroy();
-        NetClient.getInstance().stop();
+        NetUtil.getInstance().stop();
         PnServerController.stopXMPP();
         APP.exit();
     }
-
-    //下载更新的监听，外部静态调用
-    public NetClient.OnDownLoadListener downloadUpdateListener = new NetClient.OnDownLoadListener() {
-        @Override
-        public void onStart(String fileName) {
-            openConsole();
-            updateConsole("开始下载更新...");
-            initProgress(100);
-        }
-
-        @Override
-        public void onProgress(int progress) {
-//            updateProgress(progress, progressStr); //// TODO: 2019/1/9
-        }
-
-        @Override
-        public void onComplete(File response) {
-            SystemInfoUtil.installApk(MainActivity.this, response);
-        }
-
-        @Override
-        public void onFinish() {
-            closeConsole();
-        }
-
-        @Override
-        public void onError(Exception e) {
-            String message = e.getMessage();
-            if (TextUtils.isEmpty(message)) {
-                return;
-            }
-
-            switch (message) {
-                case "1":
-                    Toast.makeText(APP.getContext(), "当前版本为最新版本", Toast.LENGTH_SHORT).show();
-                    closeConsole();
-                    break;
-                case "fail":
-                    Toast.makeText(APP.getContext(), "网络连接失败，请检查网络", Toast.LENGTH_SHORT).show();
-                    closeConsole();
-                    break;
-                default:
-                    Toast.makeText(APP.getContext(), message, Toast.LENGTH_SHORT).show();
-                    break;
-            }
-
-        }
-    };
 
     public boolean isVideoPlaying() {
         return vv != null && vv.isPlaying();
@@ -629,48 +600,4 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
             }
         });
     }*/
-
-    /*@Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        //获得SD权限的监听
-        SDUtil.instance().onActivityResult(this,requestCode,resultCode,data);
-    }*/
-
-    //自定义REQUEST_CODE
-    /*private int WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 101;
-
-    //检测权限
-    private boolean checkPermission() {
-        if (Build.VERSION.SDK_INT >= 21) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                LogUtil.D("123", "正在申请权限");
-                //申请WRITE_EXTERNAL_STORAGE权限
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        WRITE_EXTERNAL_STORAGE_REQUEST_CODE);
-                return false;
-            } else {
-                LogUtil.D("123", "已有权限");
-                return true;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == WRITE_EXTERNAL_STORAGE_REQUEST_CODE) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                LogUtil.D("123", "已取得权限");
-                startGetRes();
-            } else {
-                LogUtil.D("123", "未取得权限");
-                ToastUtil.showLong(this, "请允许权限");
-            }
-        }
-    }*/
-
 }

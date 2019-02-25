@@ -8,16 +8,16 @@ import com.yunbiao.cccm.common.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.common.YunBiaoException;
-import com.yunbiao.cccm.net.netcore.NetClient;
-import com.yunbiao.cccm.net.netcore.bean.ConfigResponse;
+import com.yunbiao.cccm.utils.NetUtil;
+import com.yunbiao.cccm.net.bean.ConfigResponse;
 import com.yunbiao.cccm.net.resource.model.VideoDataModel;
 import com.yunbiao.cccm.net.resource.resolve.VideoDataResolver;
 import com.yunbiao.cccm.net.resource.resolve.XMLParse;
 import com.yunbiao.cccm.net.listener.FileDownloadListener;
-import com.yunbiao.cccm.common.utils.BPDownloadUtil;
-import com.yunbiao.cccm.common.utils.DateUtil;
-import com.yunbiao.cccm.common.utils.LogUtil;
-import com.yunbiao.cccm.common.utils.ThreadUtil;
+import com.yunbiao.cccm.utils.DateUtil;
+import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.utils.ThreadUtil;
+import com.yunbiao.cccm.net.download.BPDownloadManager;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -49,8 +49,8 @@ public class ResourceManager {
 
     private static ResourceManager instance;
     private final List<String> urlList;
-    private BPDownloadUtil downloadUtil;
     private String currDownloadPlayDay;
+    private BPDownloadManager downloadManager;
 
     public static synchronized ResourceManager getInstance() {
         if (instance == null) {
@@ -94,7 +94,7 @@ public class ResourceManager {
 
         try {
             //请求获取资源
-            Response response = NetClient.getInstance().postSync(ResourceConst.REMOTE_RES.GET_RESOURCE, map);
+            Response response = NetUtil.getInstance().postSync(ResourceConst.REMOTE_RES.GET_RESOURCE, map);
             if (response == null) {
                 fileDownloadListener.onError(new YunBiaoException(YunBiaoException.FAILED_REQ_CONFIG, null), 0, 0, "");
                 throw new IOException("request play Resource Error");
@@ -121,7 +121,7 @@ public class ResourceManager {
             String configUrl = dataJson.getConfigUrl();
 
             //下载config文件
-            Response configXml = NetClient.getInstance().downloadSync(configUrl);
+            Response configXml = NetUtil.getInstance().downloadSync(configUrl);
             if (configXml == null) {
                 fileDownloadListener.onError(new YunBiaoException(YunBiaoException.FAILED_DOWNLOAD_CONFIG, null), 0, 0, "");
                 throw new IOException("download response's body is null");
@@ -214,13 +214,13 @@ public class ResourceManager {
     //开始多文件下载
     private void download(final List<String> urlList) {
         cancel();
-        downloadUtil = new BPDownloadUtil(getClass(), fileDownloadListener);
-        downloadUtil.breakPointDownload(urlList);
+        downloadManager = new BPDownloadManager(getClass(),fileDownloadListener);
+        downloadManager.startDownload(urlList);
     }
 
     public void cancel() {
-        if (downloadUtil != null) {
-            downloadUtil.cancel();
+        if(downloadManager != null){
+            downloadManager.cancel();
         }
     }
 
@@ -255,6 +255,7 @@ public class ResourceManager {
         public void onStart(int currNum) {
             LogUtil.D(TAG, "开始下载: " + currNum);
             if (isInit) {
+                LogUtil.E(TAG,"初始化数据111");
                 MainController.getInstance().initPlayData();
             }
 
@@ -280,7 +281,7 @@ public class ResourceManager {
             LogUtil.D(TAG, "下载成功: " + currFileNum);
             MainController.getInstance().updateParentProgress(currFileNum);
             MainController.getInstance().updateConsole("第" + currFileNum + "个文件下载完成：" + fileName);
-            NetClient.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, fileName, YunBiaoException.SUCCESS);
+            NetUtil.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, fileName, YunBiaoException.SUCCESS);
         }
 
         @Override
@@ -296,7 +297,7 @@ public class ResourceManager {
 
             if (e instanceof YunBiaoException) {
                 YunBiaoException ye = (YunBiaoException) e;
-                NetClient.getInstance().uploadProgress(currDownloadPlayDay, currFileNum + "/" + totalNum, fileName, ye.getErrCode());
+                NetUtil.getInstance().uploadProgress(TextUtils.isEmpty(currDownloadPlayDay)?"":currDownloadPlayDay, currFileNum + "/" + totalNum, fileName, ye.getErrCode());
             }
         }
 

@@ -9,11 +9,13 @@ import android.widget.Toast;
 
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.common.cache.CacheManager;
-import com.yunbiao.cccm.common.utils.SDUtil;
+import com.yunbiao.cccm.utils.SDUtil;
 import com.yunbiao.cccm.activity.MainController;
-import com.yunbiao.cccm.common.utils.CopyUtil;
-import com.yunbiao.cccm.common.utils.LogUtil;
-import com.yunbiao.cccm.common.utils.ToastUtil;
+import com.yunbiao.cccm.utils.CopyUtil;
+import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.utils.ThreadUtil;
+import com.yunbiao.cccm.utils.TimerUtil;
+import com.yunbiao.cccm.utils.ToastUtil;
 import com.yunbiao.cccm.net.listener.copyFileListener;
 
 public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileListener {
@@ -26,8 +28,8 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         String path = intent.getDataString();
-        LogUtil.E("SDUtil","hahaha---"+action+"---"+path);
-        if(TextUtils.equals(action, tempAction)){
+        LogUtil.E("SDUtil", "hahaha---" + action + "---" + path);
+        if (TextUtils.equals(action, tempAction)) {
             return;
         }
         tempAction = action;
@@ -38,39 +40,34 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
                 return;
             }
 
-            if(path.contains("file://")){
-                path = path.replace("file://","");
+            if (path.contains("file://")) {
+                path = path.replace("file://", "");
             }
 
             //检测是U盘/SD卡
             if (SDUtil.isUSBDisk(path)) {
-                if(CacheManager.SP.getMode() == 0){
+                if (CacheManager.SP.getMode() == 0) {
                     LogUtil.E("网络模式下不响应U盘拷贝");
                     return;
                 }
                 Toast.makeText(context, "U盘已插入" + path, Toast.LENGTH_SHORT).show();
                 CopyUtil.getInstance().USB2Local(path, this);
-            } else if(SDUtil.isSDCard(path)){
-                ToastUtil.showShort(context, "SD卡已插入"+path);
-                if(Build.VERSION.SDK_INT >= 21){
-                    // TODO: 2019/1/21 屏蔽5.0的SD卡存储模块
-                    ToastUtil.showLong(context, "Android 5.0版本以上暂不支持SD卡存储");
-                    return;
-                }
-                SDUtil.instance().checkSD();
+            } else if (SDUtil.isSDCard(path)) {
+                ToastUtil.showShort(context, "SD卡已插入" + path);
+                TimerUtil.delayExecute(3000, new TimerUtil.OnTimerListener() {
+                    @Override
+                    public void onTimeFinish() {
+                        SDUtil.instance().checkSD();
+                    }
+                });
             }
 
-        } else if(TextUtils.equals(Intent.ACTION_MEDIA_UNMOUNTED, action) || TextUtils.equals(Intent.ACTION_MEDIA_REMOVED, action)){//3288移除只发这个
+        } else if (TextUtils.equals(Intent.ACTION_MEDIA_UNMOUNTED, action) || TextUtils.equals(Intent.ACTION_MEDIA_REMOVED, action)) {//3288移除只发这个
             if (SDUtil.isUSBDisk(path)) {
                 ToastUtil.showShort(context, "U盘已移除");
             } else if (SDUtil.isSDCard(path)) {
                 ToastUtil.showShort(context, "SD卡已移除");
 
-                if(Build.VERSION.SDK_INT >= 21){
-                    // TODO: 2019/1/21 屏蔽5.0的SD卡存储模块
-                    ToastUtil.showLong(context, "Android 5.0版本以上暂不支持SD卡存储");
-                    return;
-                }
                 SDUtil.instance().checkSD();
             }
         }

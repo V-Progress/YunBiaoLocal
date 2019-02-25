@@ -114,7 +114,7 @@
 
         <!--XMPP消息监听广播-->
         <service
-            android:name="com.yunbiao.cccm.xmpp.NotificationService"
+            android:name="com.yunbiao.cccm.xmpp.core.NotificationService"
             android:enabled="true"
             android:label="NotificationService">
             <intent-filter>

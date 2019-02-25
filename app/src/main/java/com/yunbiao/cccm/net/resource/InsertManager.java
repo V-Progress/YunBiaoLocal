@@ -3,7 +3,10 @@ package com.yunbiao.cccm.net.resource;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.provider.DocumentFile;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.ViewGroup;
@@ -18,15 +21,16 @@ import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.net.control.actions.XBHActions;
 import com.yunbiao.cccm.net.listener.FileDownloadListener;
-import com.yunbiao.cccm.common.utils.BPDownloadUtil;
-import com.yunbiao.cccm.common.utils.CommonUtils;
-import com.yunbiao.cccm.common.utils.LogUtil;
-import com.yunbiao.cccm.net.netcore.NetClient;
-import com.yunbiao.cccm.common.utils.ThreadUtil;
+import com.yunbiao.cccm.sdOperator.HighVerSDOperator;
+import com.yunbiao.cccm.utils.CommonUtils;
+import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.utils.NetUtil;
+import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.net.view.MyScrollTextView;
 import com.yunbiao.cccm.net.view.TipToast;
 import com.yunbiao.cccm.net.resource.model.InsertTextModel;
 import com.yunbiao.cccm.net.resource.model.InsertVideoModel;
+import com.yunbiao.cccm.net.download.BPDownloadManager;
 
 import java.io.File;
 import java.text.ParseException;
@@ -66,7 +70,8 @@ public class InsertManager implements TextToSpeech.OnInitListener {
 
     List<Timer> timerList = new ArrayList<>();
     List<Timer> txtTimerList = new ArrayList<>();
-    private BPDownloadUtil bpDownloadUtil;
+    private BPDownloadManager bpDownloadManager;
+    //    private BPDownloadUtil bpDownloadUtil;
 
     public static InsertManager getInstance(Activity activity) {
         mActivity = activity;
@@ -96,7 +101,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
                     String url = ResourceConst.REMOTE_RES.INSERT_CONTENT;
                     Map<String, String> params = new HashMap<>();
                     params.put("deviceNo", HeartBeatClient.getDeviceNo());
-                    Response response = NetClient.getInstance().postSync(url, params);
+                    Response response = NetUtil.getInstance().postSync(url, params);
                     if (response == null) {
                         throw new Exception("request Insert Data Error");
                     }
@@ -228,18 +233,6 @@ public class InsertManager implements TextToSpeech.OnInitListener {
         int backColor = Color.parseColor(textDetail.getBackground());
         scrollText = new MyScrollTextView(mActivity);
 
-        /*String transparent = textDetail.getTransparent();
-        if (TextUtils.equals("1", transparent)) {
-            String background = textDetail.getBackground();
-            String substring = background.substring(1);
-            substring = "#77" + substring;
-            scrollText.setAlpha(0.5f);
-
-            LogUtil.E("当前背景色："+substring);
-            backColor = Color.parseColor(substring);
-            scrollText.setBackgroundColor(backColor);
-        }*/
-
         scrollText.setLayoutParams(layoutParams);
         scrollText.setTextSize(fontSize);//字号
         scrollText.setTextColor(Color.parseColor(textDetail.getFontColor()));//字体颜色
@@ -325,7 +318,10 @@ public class InsertManager implements TextToSpeech.OnInitListener {
                     //拼装播放列表
                     for (String s : playArray) {
                         String[] split = s.split("/");
-                        playList.add(ResourceConst.LOCAL_RES.RES_SAVE_PATH + "/" + split[split.length - 1]);
+                        // TODO: 2019/2/25
+//                        File insertVideo = LowVerSDOperator.instance().findResource(split[split.length - 1]);
+//                        playList.add(insertVideo.getPath());
+                        playList.add(split[split.length - 1]);
                         urlList.add(ftpUrl + s);
                     }
                     download(isCycle, urlList, playList, dateArray);
@@ -343,10 +339,10 @@ public class InsertManager implements TextToSpeech.OnInitListener {
 
     /*=======视频处理流程================================================================*/
     public void download(final boolean isCycle, final List<String> urlList, final List<String> playList, final Date[] dateArray) {
-        if (bpDownloadUtil != null) {
-            bpDownloadUtil.cancel();
+        if(bpDownloadManager != null){
+            bpDownloadManager.cancel();
         }
-        bpDownloadUtil = new BPDownloadUtil(getClass(),new FileDownloadListener() {
+        bpDownloadManager = new BPDownloadManager(getClass(),new FileDownloadListener() {
             @Override
             public void onBefore(int totalNum) {
                 MainController.getInstance().openLoading("插播资源下载");
@@ -371,22 +367,32 @@ public class InsertManager implements TextToSpeech.OnInitListener {
             public void onFinish() {
                 MainController.getInstance().closeLoading();
 
-                // TODO: 2019/1/9 关注此处可能出现的问题
+                List<String> uriList = new ArrayList<>();
+
                 for (int i = 0; i < playList.size(); i++) {
-                    File file = new File(playList.get(i));
-                    if (!file.exists()) {
-                        playList.remove(i);
+                    String playName = playList.get(i);
+
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+                        DocumentFile insertResource = HighVerSDOperator.instance().findResource(playName);
+                        if(insertResource != null && insertResource.exists()){
+                            uriList.add(insertResource.getUri().toString());
+                        }
+                    } else {
+                        File file = new File(playList.get(i));
+                        if(file.exists()){
+                            uriList.add(Uri.fromFile(file).toString());
+                        }
                     }
                 }
 
-                if (playList.size() <= 0) {
+                if (uriList.size() <= 0) {
                     return;
                 }
-                handleVideo(isCycle, playList, dateArray[0], dateArray[1]);
+                handleVideo(isCycle, uriList, dateArray[0], dateArray[1]);
             }
 
         });
-        bpDownloadUtil.breakPointDownload(urlList);
+        bpDownloadManager.startDownload(urlList);
     }
 
     //处理视频

@@ -9,7 +9,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.yunbiao.cccm.common.utils.LogUtil;
+import com.yunbiao.cccm.utils.LogUtil;
 
 import java.util.List;
 import java.util.Timer;

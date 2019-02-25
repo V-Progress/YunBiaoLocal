@@ -20,10 +20,7 @@ import android.widget.VideoView;
 
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.common.ResourceConst;
-import com.yunbiao.cccm.net.resource.resolve.VideoDataResolver;
-import com.yunbiao.cccm.common.utils.LogUtil;
-
-import java.util.ArrayList;
+import com.yunbiao.cccm.utils.LogUtil;
 
 /**
  * Created by Administrator on 2018/12/27.
