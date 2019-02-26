@@ -93,6 +93,9 @@ public class HighVerSDOperator implements SDOperator{
      */
     @Override
     public DocumentFile findResource(String fileName) {
+        if(appResourceDir == null){
+            return null;
+        }
         return appResourceDir.findFile(fileName);
     }
 
@@ -102,6 +105,9 @@ public class HighVerSDOperator implements SDOperator{
      * @return
      */
     public DocumentFile createVideoRes(String fileName) {
+        if(appResourceDir == null){
+            return null;
+        }
         return appResourceDir.createFile(videoType, fileName);
     }
 

@@ -27,6 +27,8 @@ import com.yunbiao.cccm.net.listener.MainRefreshListener;
 import com.yunbiao.cccm.receiver.USBBroadcastReceiver;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
+import com.yunbiao.cccm.sdOperator.HighVerSDOperator;
+import com.yunbiao.cccm.sdOperator.LowVerSDOperator;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.net.resource.DanmakuManager;
 import com.yunbiao.cccm.local.LocalManager;
@@ -268,7 +270,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
         }
         priority_flag = priority;
 
-        if (CacheManager.SP.getMode() == 0) {
+        if (CacheManager.SP.getMode() == 0 && (HighVerSDOperator.instance().isSDCanUsed() || LowVerSDOperator.instance().isSDCanUsed())) {
             LogUtil.E("layerType","更新优先级标签---请求数据");
             //更新层次类型后再初始化一次播放资源
             startGetRes();
