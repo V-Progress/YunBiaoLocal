@@ -229,7 +229,7 @@ public class NetUtil {
                     @Override
                     public void onError(Call call, Exception e, int id) {
                         e.printStackTrace();
-                        LogUtil.D(e.getMessage());
+                        LogUtil.D("上传设备信息错误：" + e.getMessage());
                     }
 
                     @Override

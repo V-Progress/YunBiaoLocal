@@ -19,28 +19,28 @@ public class LogUtil {
         if(!ISLOG){
             return;
         }
-        Log.e(TAG, log);
+        E(null,log);
     }
 
     public static void E(String tag, String log) {
         if(!ISLOG){
             return;
         }
-        Log.e(TextUtils.isEmpty(tag) ? TAG : tag, log);
+        Log.e(TextUtils.isEmpty(tag) ? TAG : tag, "---"+log);
     }
 
     public static void D(String log) {
         if(!ISLOG){
             return;
         }
-        Log.d(TAG, log);
+        D(null,log);
     }
 
     public static void D(String tag, String log) {
         if(!ISLOG){
             return;
         }
-        Log.d(TextUtils.isEmpty(tag) ? TAG : tag, log);
+        Log.d(TextUtils.isEmpty(tag) ? TAG : tag, "---"+log);
     }
 
     public static void I(String log) {
