@@ -27,5 +27,7 @@ public interface SDOperator {
 
     <T> T getAppResourceDir();
 
+    <T> T getAppRootDir();
+
     <T> T getListFiles();
 }

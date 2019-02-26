@@ -60,6 +60,7 @@ public class BPDownloadManager {
      * 取消当前下载
      */
     public void cancel() {
+        l.onCancel();
         if(bpDownload != null){
             bpDownload.cancel();
         }

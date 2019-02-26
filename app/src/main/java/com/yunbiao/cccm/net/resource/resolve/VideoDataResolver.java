@@ -129,12 +129,9 @@ public class VideoDataResolver {
                     //生成播放列表的index
                     String index = ind + 1 > 9 ? ind + 1 + " " : ind + 1 + "  ";
 
-                    LogUtil.E("121212","-----"+videoName);
-
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                         //生成File
                         File videoFile = LowVerSDOperator.instance().findResource(videoName);
-                        LogUtil.E("121212","-----"+videoFile);
                         if (!videoFile.exists()) {
                             ResourceConst.addPlayItem(index + videoName + "(无)");
                             continue;
@@ -143,8 +140,6 @@ public class VideoDataResolver {
                         ResourceConst.addPlayItem(index + videoName);
                         ResourceConst.addPreviewItem(videoName, Uri.fromFile(videoFile).toString());
                     } else {
-
-                        // TODO: 2019/2/22 高版本下
                         DocumentFile resource = HighVerSDOperator.instance().findResource(videoName);
                         if (resource == null || (!resource.exists())) {
                             ResourceConst.addPlayItem(index + videoName + "(无)");

@@ -21,7 +21,9 @@ import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.activity.base.BaseActivity;
 import com.yunbiao.cccm.common.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
+import com.yunbiao.cccm.net.resource.ResourceManager;
 import com.yunbiao.cccm.utils.DialogUtil;
+import com.yunbiao.cccm.utils.SDUtil;
 import com.yunbiao.cccm.utils.TimerUtil;
 import com.yunbiao.cccm.utils.ToastUtil;
 import com.yunbiao.cccm.local.LocalManager;
@@ -123,14 +125,23 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                     case R.id.rb_mode_net:
                         CacheManager.SP.putMode(0);
                         MainController.getInstance().clearPlayData();
-                        APP.getMainActivity().startGetRes();
-                        DialogUtil.getInstance().showError(MenuActivity.this,"提示","正在切换至 网络模式\n本窗口3秒后自动关闭",3,null);
+                        DialogUtil.getInstance().showError(MenuActivity.this, "提示", "正在切换至 网络模式\n本窗口3秒后自动关闭", 3, new Runnable() {
+                            @Override
+                            public void run() {
+                                SDUtil.instance().checkSD();
+                            }
+                        });
                         break;
                     case R.id.rb_mode_local:
+                        ResourceManager.getInstance().cancel();
                         CacheManager.SP.putMode(1);
                         MainController.getInstance().clearPlayData();
-                        LocalManager.getInstance().initData();
-                        DialogUtil.getInstance().showError(MenuActivity.this,"提示","正在切换至 本地模式\n本窗口3秒后自动关闭",3,null);
+                        DialogUtil.getInstance().showError(MenuActivity.this, "提示", "正在切换至 本地模式\n本窗口3秒后自动关闭", 3, new Runnable() {
+                            @Override
+                            public void run() {
+                                SDUtil.instance().checkSD();
+                            }
+                        });
                         break;
                 }
             }

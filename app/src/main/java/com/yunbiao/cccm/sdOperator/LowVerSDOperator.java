@@ -17,7 +17,7 @@ public class LowVerSDOperator implements SDOperator{
     private static LowVerSDOperator instance;
 
     private File sdRootFile;
-    private File appRootFile;
+    private File appRootDir;
     private File appResourceDir;
 
     public static synchronized LowVerSDOperator instance() {
@@ -42,18 +42,26 @@ public class LowVerSDOperator implements SDOperator{
         }
 
         //云标目录
-        appRootFile = new File(sdRootDir,appRootDirName);
-        if(!appRootFile.exists()){
-            appRootFile.mkdirs();
+        appRootDir = new File(sdRootDir,appRootDirName);
+        if(!appRootDir.exists()){
+            appRootDir.mkdirs();
         }
-        LogUtil.D(TAG, "根目录：" + appRootFile.getPath());
+        LogUtil.D(TAG, "根目录：" + appRootDir.getPath());
 
         //资源目录
-        appResourceDir = new File(appRootFile,appResourceDirName);
+        appResourceDir = new File(appRootDir,appResourceDirName);
         if(!appResourceDir.exists()){
             appResourceDir.mkdirs();
         }
         LogUtil.D(TAG, "资源目录：" + appResourceDir.getPath());
+    }
+
+    @Override
+    public <T> T getAppRootDir() {
+        if(appRootDir == null){
+            appRootDir = new File(sdRootFile,appRootDirName);
+        }
+        return (T) appRootDir;
     }
 
     public File getAppResourceDir(){
@@ -78,14 +86,14 @@ public class LowVerSDOperator implements SDOperator{
             }
 
             //云标目录
-            appRootFile = new File(sdRootDir,appRootDirName);
-            if(!appRootFile.exists()){
-                appRootFile.mkdirs();
+            appRootDir = new File(sdRootDir,appRootDirName);
+            if(!appRootDir.exists()){
+                appRootDir.mkdirs();
             }
-            LogUtil.D(TAG, "根目录：" + appRootFile.getPath());
+            LogUtil.D(TAG, "根目录：" + appRootDir.getPath());
 
             //资源目录
-            appResourceDir = new File(appRootFile,appResourceDirName);
+            appResourceDir = new File(appRootDir,appResourceDirName);
             if(!appResourceDir.exists()){
                 appResourceDir.mkdirs();
             }

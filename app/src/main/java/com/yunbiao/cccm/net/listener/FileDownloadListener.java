@@ -40,4 +40,9 @@ public abstract class FileDownloadListener implements MultiFileDownloadListener 
     public void onSuccess(int currFileNum, int totalNum, String fileName) {
 
     }
+
+    @Override
+    public void onCancel() {
+
+    }
 }

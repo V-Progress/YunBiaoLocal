@@ -251,7 +251,9 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     public void clearPlayData() {
         videoIndex = 0;
         stop();
-        playLists.clear();
+        if(playLists != null){
+            playLists.clear();
+        }
     }
 
     //更新优先级标签

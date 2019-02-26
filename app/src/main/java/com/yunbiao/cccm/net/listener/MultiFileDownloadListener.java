@@ -40,4 +40,6 @@ public interface MultiFileDownloadListener {
     void onError(Exception e, int currFileNum, int totalNum, String fileName);
 
     void onSuccess(int currFileNum, int totalNum, String fileName);
+
+    void onCancel();
 }

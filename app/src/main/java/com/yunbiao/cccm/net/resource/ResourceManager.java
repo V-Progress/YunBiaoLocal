@@ -320,6 +320,12 @@ public class ResourceManager {
             }
         }
 
+        @Override
+        public void onCancel() {
+            MainController.getInstance().updateConsole("已取消下载");
+            MainController.getInstance().closeConsole();
+        }
+
         //开始计算速度
         private void startGetSpeed() {
             if (!isRuning) {

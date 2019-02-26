@@ -364,6 +364,11 @@ public class InsertManager implements TextToSpeech.OnInitListener {
             }
 
             @Override
+            public void onCancel() {
+                MainController.getInstance().closeLoading();
+            }
+
+            @Override
             public void onFinish() {
                 MainController.getInstance().closeLoading();
 

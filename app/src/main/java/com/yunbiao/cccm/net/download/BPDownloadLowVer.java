@@ -114,34 +114,6 @@ public class BPDownloadLowVer extends BPDownload {
                 throw new DownloadException(DownloadException.CODE_SUCCESS_DOWNLOAD, DateUtil.yyyy_MM_dd_HH_mm_Format(new Date()));
             }
 
-            /*//取出本地文件（确保本地文件存在即完整）
-            final File localFile = new File(resourceDir, fileName);
-            if (localFile.exists()) {
-                //如果本地文件存在，并且大小等于远程，则下载完成，跳转下一个
-                if (localFile.length() == contentLength) {
-                    throw new DownloadException(DownloadException.CODE_SUCCESS_DOWNLOAD, DateUtil.yyyy_MM_dd_HH_mm_Format(new Date()));
-                } else {//存在但大小不正确，删除，重新下载
-                    boolean delete = localFile.delete();
-                    if (!delete) {
-                        throw new DownloadException(DownloadException.CODE_LOCAL_LENGTH_ERROR_DELETE_FAILED, "local file's length error, delete failed");
-                    }
-
-                    throw new DownloadException(DownloadException.CODE_LOCAL_LENGTH_ERROR_DELETE, "local file's length error, delete");
-                }
-            }
-
-            //如果本地文件不存在，创建缓存文件
-            File cacheFile = new File(resourceDir, cacheFileName);
-            //如果本地文件的长度和远程的相等，代表下载完成
-            if (cacheFile.length() == contentLength) {
-                boolean b = cacheFile.renameTo(localFile);
-                if (!b) {//改名失败
-                    throw new DownloadException(DownloadException.CODE_CACHE_DOWNLOADED_RENAME_FAILED, "download success, rename cacheFile failed");
-                }
-
-                throw new DownloadException(DownloadException.CODE_SUCCESS_DOWNLOAD, DateUtil.yyyy_MM_dd_HH_mm_Format(new Date()));
-            }*/
-
             d("start download...");
             mListener.onStart(currFileNum);
 

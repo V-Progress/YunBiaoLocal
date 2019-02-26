@@ -7,6 +7,7 @@ import android.support.v4.provider.DocumentFile;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.utils.LogUtil;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
 
@@ -117,6 +118,11 @@ public class HighVerSDOperator implements SDOperator{
         }
         new Exception("参数类型错误").printStackTrace();
         return null;
+    }
+
+    @Override
+    public <T> T getAppRootDir() {
+        return (T) appRootDocument;
     }
 
     @Override
