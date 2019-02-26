@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.common.cache;
+package com.yunbiao.cccm.cache;
 
 import android.util.Log;
 

@@ -16,7 +16,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.activity.MainController;
-import com.yunbiao.cccm.common.cache.CacheManager;
+import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.net.control.actions.XBHActions;

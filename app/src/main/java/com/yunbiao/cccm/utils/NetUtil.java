@@ -3,7 +3,7 @@ package com.yunbiao.cccm.utils;
 import android.os.SystemProperties;
 
 import com.yunbiao.cccm.APP;
-import com.yunbiao.cccm.common.cache.CacheManager;
+import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.common.HeartBeatClient;

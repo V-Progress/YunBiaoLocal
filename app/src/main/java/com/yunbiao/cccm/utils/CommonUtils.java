@@ -18,7 +18,7 @@ import android.view.WindowManager;
 
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
-import com.yunbiao.cccm.common.cache.CacheManager;
+import com.yunbiao.cccm.cache.CacheManager;
 
 import java.io.BufferedReader;
 import java.io.File;

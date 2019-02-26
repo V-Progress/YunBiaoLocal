@@ -23,7 +23,7 @@ import android.content.SharedPreferences.Editor;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.yunbiao.cccm.common.cache.CacheManager;
+import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
 import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.utils.LogUtil;

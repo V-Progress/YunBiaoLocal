@@ -14,7 +14,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.yunbiao.cccm.APP;
-import com.yunbiao.cccm.common.cache.CacheManager;
+import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.utils.CommonUtils;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.NetUtil;

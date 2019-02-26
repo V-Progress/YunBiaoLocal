@@ -5,7 +5,7 @@ import android.text.TextUtils;
 import com.baidu.location.Address;
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
-import com.yunbiao.cccm.common.cache.CacheManager;
+import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.utils.LogUtil;
 
 /**

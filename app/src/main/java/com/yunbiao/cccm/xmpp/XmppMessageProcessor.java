@@ -8,7 +8,7 @@ import com.google.gson.Gson;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.net.resource.InsertManager;
 import com.yunbiao.cccm.activity.MainController;
-import com.yunbiao.cccm.common.cache.CacheManager;
+import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.net.control.ScreenShot;
 import com.yunbiao.cccm.net.control.PowerOffTool;

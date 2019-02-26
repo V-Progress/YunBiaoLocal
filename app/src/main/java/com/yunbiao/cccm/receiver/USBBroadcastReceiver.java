@@ -1,19 +1,17 @@
-package com.yunbiao.cccm.common.receiver;
+package com.yunbiao.cccm.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.yunbiao.cccm.APP;
-import com.yunbiao.cccm.common.cache.CacheManager;
+import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.utils.SDUtil;
 import com.yunbiao.cccm.activity.MainController;
 import com.yunbiao.cccm.utils.CopyUtil;
 import com.yunbiao.cccm.utils.LogUtil;
-import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.utils.TimerUtil;
 import com.yunbiao.cccm.utils.ToastUtil;
 import com.yunbiao.cccm.net.listener.copyFileListener;

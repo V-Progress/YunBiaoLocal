@@ -8,7 +8,7 @@ import android.text.TextUtils;
 import com.google.gson.Gson;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.activity.MenuActivity;
-import com.yunbiao.cccm.common.cache.CacheManager;
+import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.activity.MainController;
 import com.yunbiao.cccm.net.resource.model.VideoDataModel;
@@ -16,7 +16,6 @@ import com.yunbiao.cccm.sdOperator.LowVerSDOperator;
 import com.yunbiao.cccm.utils.DateUtil;
 import com.yunbiao.cccm.utils.DialogUtil;
 import com.yunbiao.cccm.sdOperator.HighVerSDOperator;
-import com.yunbiao.cccm.utils.LogUtil;
 
 import java.io.File;
 import java.util.ArrayList;
