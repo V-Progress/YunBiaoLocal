@@ -3,6 +3,7 @@ package com.yunbiao.cccm.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -26,7 +27,6 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         String path = intent.getDataString();
-        LogUtil.E("SDUtil", "hahaha---" + action + "---" + path);
         if (TextUtils.equals(action, tempAction)) {
             return;
         }
@@ -44,11 +44,17 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
 
             //检测是U盘/SD卡
             if (SDUtil.isUSBDisk(path)) {
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+                    ToastUtil.showShort(context,"Android 5.0或以上版本暂不支持U盘拷贝");
+                    return;
+                }
+
                 if (CacheManager.SP.getMode() == 0) {
                     LogUtil.E("网络模式下不响应U盘拷贝");
                     return;
                 }
-                Toast.makeText(context, "U盘已插入" + path, Toast.LENGTH_SHORT).show();
+
+                ToastUtil.showShort(context,"U盘已插入" + path);
                 CopyUtil.getInstance().USB2Local(path, this);
             } else if (SDUtil.isSDCard(path)) {
                 ToastUtil.showShort(context, "SD卡已插入" + path);

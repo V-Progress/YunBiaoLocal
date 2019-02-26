@@ -1,8 +1,9 @@
 package com.yunbiao.cccm.utils;
 
-import com.yunbiao.cccm.common.ResourceConst;
+import android.os.Build;
 import com.yunbiao.cccm.net.listener.copyFileListener;
 import com.yunbiao.cccm.local.VideoDirectoryFilter;
+import com.yunbiao.cccm.sdOperator.LowVerSDOperator;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -70,13 +71,22 @@ public class CopyUtil {
                 baseCopyListener.onFileCount(fileCount);
 
                 //初始化本地目录
-                File localFile = new File(ResourceConst.LOCAL_RES.APP_MAIN_DIR);
+                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
+                    File appRootDir = LowVerSDOperator.instance().getAppRootDir();
+                    //开始拷贝
+                    copyFiles(usbFile, appRootDir);//复制文件
+                } else {
+//                    DocumentFile appRootDir = HighVerSDOperator.instance().getAppRootDir();
+//                    //开始拷贝
+//                    copyFiles(usbFile, appRootDir);//复制文件
+                }
+//                File localFile = new File(ResourceConst.LOCAL_RES.APP_MAIN_DIR);
 
                 //删除老文件
 //                deleteOldFile(localFile);
 
                 //开始拷贝
-                copyFiles(usbFile, localFile);//复制文件
+//                copyFiles(usbFile, localFile);//复制文件
 
                 baseCopyListener.onFinish();
             }
