@@ -90,7 +90,7 @@ public class ResourceManager {
         map.put("deviceNo", HeartBeatClient.getDeviceNo());
         String date = isInit ? DateUtil.getToday_str() : DateUtil.getTomm_str();
         map.put("playDate", date);
-        LogUtil.D(TAG, "请求" + date + "的数据");
+        LogUtil.D(TAG, "请求" + date + "的数据："+map.toString());
 
         try {
             //请求获取资源

@@ -120,7 +120,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     }
 
     protected void initData() {
-        priority_flag = (CacheManager.SP.getLaterType() == 2);
 
         //开启软件守护服务
         startService(new Intent(this, MyProtectService.class));
@@ -162,6 +161,8 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
                 DialogUtil.getInstance().dismissError();
 
                 if (CacheManager.SP.getMode() == 0) {
+                    priority_flag = CacheManager.SP.getLaterType() == 2;
+                    LogUtil.E("layerType","初始化层级标签："+priority_flag);
                     startGetRes();
                 } else {
                     LocalManager.getInstance().initData();
@@ -258,14 +259,17 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     //更新优先级标签
     @Override
     public void updateLayerType(Integer layerType) {
+        LogUtil.E("layerType","更新层级标签："+priority_flag);
+
         // 1:Insert优先，2:Config优先
         boolean priority = layerType == 2;//优先级
-        if (priority_flag && priority) {
+        if (priority_flag == priority) {
             return;
         }
         priority_flag = priority;
 
         if (CacheManager.SP.getMode() == 0) {
+            LogUtil.E("layerType","更新优先级标签---请求数据");
             //更新层次类型后再初始化一次播放资源
             startGetRes();
         }
@@ -274,9 +278,8 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     //常规资源播放
     @Override
     public void startPlay(List<String> videoList) {
-        LogUtil.E("123", "startPlay");
+        LogUtil.E("layerType","播放时层级标签："+priority_flag);
         if (!priority_flag && isInsertPlaying) {
-            LogUtil.E("123", "广告正在播放，不执行startPlay");
             return;
         }
         isConfigPlaying = true;
@@ -287,10 +290,9 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     //常规资源停止
     @Override
     public void stopPlay() {
-        LogUtil.E("123", "stopPlay");
+        LogUtil.E("layerType","停播时层级标签："+priority_flag);
         isConfigPlaying = false;
         if (!priority_flag && isInsertPlaying) {
-            LogUtil.E("123", "广告正在播放，不执行stopPlay");
             return;
         }
         if (playLists != null) {
@@ -304,12 +306,11 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     //插播资源播放
     @Override
     public void startInsert(final boolean cycle, final List<String> videoList) {
-        LogUtil.E("123", "startInsert");
+        LogUtil.E("layerType","插播时层级标签："+priority_flag);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (priority_flag && isConfigPlaying) {
-                    LogUtil.E("123", "config正在播放，不执行startInsert");
                     return;
                 }
                 isInsertPlaying = true;
@@ -322,10 +323,9 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     //插播资源停止
     @Override
     public void stopInsert() {
-        LogUtil.E("123", "stopInsert");
+        LogUtil.E("layerType","停插时层级标签："+priority_flag);
         isInsertPlaying = false;
         if (priority_flag && isConfigPlaying) {
-            LogUtil.E("123", "config正在播放，不执行stopInsert");
             return;
         }
         if (playLists != null) {
@@ -457,7 +457,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener {
     private MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
         @Override
         public boolean onError(MediaPlayer mp, int what, int extra) {
-            LogUtil.E("当前错误代码：" + what + "-----" + extra);
+            LogUtil.E("播放错误代码：" + what + "-----" + extra);
 
             DialogUtil.getInstance().showError(MainActivity.this
                     , "播放失败"
