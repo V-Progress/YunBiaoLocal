@@ -22,7 +22,11 @@ public class LowVerSDOperator implements SDOperator{
 
     public static synchronized LowVerSDOperator instance() {
         if (instance == null) {
-            instance = new LowVerSDOperator();
+            synchronized (LowVerSDOperator.class){
+                if(instance == null){
+                    instance = new LowVerSDOperator();
+                }
+            }
         }
         return instance;
     }

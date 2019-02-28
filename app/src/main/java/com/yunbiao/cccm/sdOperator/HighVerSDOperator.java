@@ -27,7 +27,11 @@ public class HighVerSDOperator implements SDOperator{
 
     public static synchronized HighVerSDOperator instance() {
         if (instance == null) {
-            instance = new HighVerSDOperator();
+            synchronized (HighVerSDOperator.class){
+                if(instance == null){
+                    instance = new HighVerSDOperator();
+                }
+            }
         }
         return instance;
     }
