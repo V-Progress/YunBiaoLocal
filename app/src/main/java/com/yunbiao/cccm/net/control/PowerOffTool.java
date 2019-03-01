@@ -66,33 +66,23 @@ public class PowerOffTool {
      * 机器开机时候，初始化开关机数据
      */
     public void initPowerData() {
-//        Long[] powerOn = getPowerTime(POWER_ON);
-//        Long[] powerOff = getPowerTime(POWER_OFF);
-//        // 如果开关机时间没有设置，就进行网络获取
-//        if (powerOn != null && powerOff != null) {
-//            setPowerRestartTime();
-//        } else {
-//            //开关机时间为空，则去网络下载
-//            getPowerOffTime(HeartBeatClient.getDeviceNo());
-//        }
-
-//        String timesrundate = SpUtils.getString(APP.getContext(), SpUtils.TIMESRUNDATE, "");
-//        String timesbeanlist = SpUtils.getString(APP.getContext(), SpUtils.TIMESBEANLIST, "");
-//        // 如果开关机时间没有设置，就进行网络获取
-//        if (!TextUtils.isEmpty(timesrundate) && !TextUtils.isEmpty(timesbeanlist)) {
-//            selectPowerOnOff();
-//        } else {
-        //开关机时间为空，则去网络下载
-        ThreadUtil.getInstance().runInRemoteThread(new Runnable() {
+        //延迟请求开关机数据
+        TimerUtil.delayExecute(7000, new TimerUtil.OnTimerListener() {
             @Override
-            public void run() {
-                getPowerOffTime(HeartBeatClient.getDeviceNo());
+            public void onTimeFinish() {
+                //初始化自动开关机数据
+                //开关机时间为空，则去网络下载
+                ThreadUtil.getInstance().runInRemoteThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getPowerOffTime(HeartBeatClient.getDeviceNo());
+                    }
+                });
             }
         });
+
 //        }
     }
-
-    StringCallback stringCallback;
 
     /**
      * 获取开关机时间
@@ -141,57 +131,6 @@ public class PowerOffTool {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
-        /*stringCallback = new StringCallback() {
-            @Override
-            public void onError(Call call, Exception e, int id) {
-                Log.e(TAG, "获取定时开关机失败: " + e.getMessage());
-
-                NetUtil.getInstance().post(ResourceConst.REMOTE_RES.POWER_OFF_URL, params, stringCallback);
-            }
-
-            @Override
-            public void onResponse(String response, int id) {
-                response = response.replaceAll("\\\\", "");
-                if (response.startsWith("\"")) {
-                    response = response.substring(1, response.length() - 1);
-                }
-
-                try {
-                    String runDate = "", listStr = "";
-                    if (!TextUtils.isEmpty(response) && !response.equals("null")) {
-                        List<PowerTimesBean> timesBeanList = new ArrayList<>();
-                        JSONObject jsonObject = new JSONObject(response);
-                        runDate = jsonObject.getString("runDate");
-                        JSONArray runTimes = jsonObject.getJSONArray("runTimes");
-                        int length = runTimes.length();
-                        for (int i = 0; i < length; i++) {
-                            JSONObject timesObject = (JSONObject) runTimes.get(i);
-                            String closeTime = timesObject.getString("closeTime");
-                            String openTime = timesObject.getString("openTime");
-
-                            PowerTimesBean timesBean = new PowerTimesBean();
-                            timesBean.setCloseTime(closeTime);
-                            timesBean.setOpenTime(openTime);
-                            timesBeanList.add(timesBean);
-                        }
-                        listStr = new Gson().toJson(timesBeanList);
-                    }
-//                    else {
-//                        runDate = "1,2,3,4,5,6,7";
-//                        listStr = "[{\"closeTime\":\"14:00\",\"openTime\":\"17:10\"},"
-//                                + "{\"closeTime\":\"20:40\",\"openTime\":\"9:30\"}]";
-//                    }
-                    CacheManager.SP.put(TIMESRUNDATE, runDate);
-                    CacheManager.SP.put(TIMESBEANLIST, listStr);
-                    selectPowerOnOff();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        NetUtil.getInstance().post(ResourceConst.REMOTE_RES.POWER_OFF_URL, params, stringCallback);*/
     }
 
     /**

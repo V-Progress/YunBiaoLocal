@@ -106,6 +106,18 @@
             </intent-filter>
         </receiver>
 
+        <!-- 内部类广播（本地广播）BroadcastReceiver的静态注册（AndroidManifest.xml） -->
+        <receiver android:name=".receiver.USBBroadcastReceiver">
+            <!-- 注意是$符号，表示内部类 -->
+            <intent-filter android:priority="1000">
+                <!-- 有序广播设置优先级：priority表示优先级（0-1000），默认是500 ,1000的优先级最高-->
+                <action android:name="android.intent.action.MEDIA_MOUNTED" />
+                <action android:name="android.intent.action.MEDIA_REMOVED" />
+                <action android:name="android.intent.action.MEDIA_UNMOUNTED" />
+                <data android:scheme="file"/>
+            </intent-filter>
+        </receiver>
+
         <!--百度定位服务-->
         <service
             android:name="com.baidu.location.f"

@@ -50,28 +50,21 @@ import okhttp3.Response;
  * Created by Administrator on 2018/12/29.
  */
 
-public class InsertManager implements TextToSpeech.OnInitListener {
-    private static InsertManager insertManager;
-    private static Activity mActivity;
+public class InsertManager {
     private String TAG = this.getClass().getSimpleName();
 
+    private static InsertManager insertManager;
+    private static Activity mActivity;
     private SimpleDateFormat yyyyMMddHH_mm_ss = new SimpleDateFormat("yyyyMMddHH:mm:ss");
-    private SimpleDateFormat yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
+    private BPDownloadManager bpDownloadManager;
 
     private final int TYPE_VIDEO = 1;
     private final int TYPE_LIVE = 2;
     private final int TYPE_INPUT = 3;
-    private List<String> playList = new ArrayList<>();
-    private MyScrollTextView scrollText;
-    private final String CLEAR_TXT = "2"; //清除字幕
     private final Date todayDate;
 
-    private TextToSpeech tts;
-
-    List<Timer> timerList = new ArrayList<>();
-    List<Timer> txtTimerList = new ArrayList<>();
-    private BPDownloadManager bpDownloadManager;
-    //    private BPDownloadUtil bpDownloadUtil;
+    private List<String> playList = new ArrayList<>();
+    private List<Timer> timerList = new ArrayList<>();
 
     public static InsertManager getInstance(Activity activity) {
         mActivity = activity;
@@ -82,10 +75,8 @@ public class InsertManager implements TextToSpeech.OnInitListener {
     }
 
     public InsertManager() {
-        tts = new TextToSpeech(mActivity, this);
         //获取当年月日
         todayDate = new Date(System.currentTimeMillis());
-        initTXT();
     }
 
     /***
@@ -128,136 +119,6 @@ public class InsertManager implements TextToSpeech.OnInitListener {
     }
 
     /***
-     * 插播字幕
-     * ========================================================================================
-     */
-    public void initTXT() {
-        InsertTextModel txtAds = CacheManager.FILE.getTXTAds();
-        if (txtAds != null) {
-            insertTXT(txtAds);
-        }
-    }
-
-    public void insertTXT(final InsertTextModel itm) {
-        if (itm == null) {
-            return;
-        }
-
-        for (Timer timer : txtTimerList) {
-            timer.cancel();
-        }
-        txtTimerList.clear();
-
-        ThreadUtil.getInstance().runInUIThread(new Runnable() {
-            @Override
-            public void run() {
-                APP.getMainActivity().removeView(scrollText);
-            }
-        });
-
-        if (TextUtils.equals(CLEAR_TXT, itm.getPlayType())) {
-            CacheManager.FILE.putTXTAds(null);
-            return;
-        }
-
-        MainController.getInstance().setHasInsert(true);
-        CacheManager.FILE.putTXTAds(itm);
-
-        //取出内部的数据
-        String playDate = itm.getContent().getPlayDate();
-        String playCurTime = itm.getContent().getPlayCurTime();
-        String playTime = itm.getContent().getPlayTime();
-
-        Date[] dates;
-        //判断是播放时长还是播放时间段
-        if (!TextUtils.isEmpty(playTime) && !TextUtils.equals("0", playTime)) {
-            dates = resolveTimeLong(playDate, playTime);
-        } else {
-            dates = resolveTime(playDate, playCurTime);
-        }
-
-        if (dates == null) {
-            return;
-        }
-
-        if (dates != null && dates.length > 0) {
-            Timer startTimer = new Timer();
-            Timer endTimer = new Timer();
-
-            startTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    ThreadUtil.getInstance().runInUIThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            setTXT(itm);
-                            APP.getMainActivity().addView(scrollText);
-                        }
-                    });
-                }
-            }, dates[0]);
-
-            endTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    ThreadUtil.getInstance().runInUIThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            APP.getMainActivity().removeView(scrollText);
-                        }
-                    });
-                }
-            }, dates[1]);
-
-            txtTimerList.add(startTimer);
-            txtTimerList.add(endTimer);
-        }
-    }
-
-
-    /***
-     * 显示滚动文字
-     * @param insertTextModel
-     */
-    private void setTXT(final InsertTextModel insertTextModel) {
-        InsertTextModel.Content textDetail = insertTextModel.getContent();
-        Integer fontSize = textDetail.getFontSize();
-        String text = insertTextModel.getText();
-
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (fontSize * 2.5));
-        if (TextUtils.equals("0", textDetail.getLocation())) {//顶部
-            layoutParams.gravity = Gravity.TOP;
-        } else {
-            layoutParams.gravity = Gravity.BOTTOM;
-        }
-        int backColor = Color.parseColor(textDetail.getBackground());
-        scrollText = new MyScrollTextView(mActivity);
-
-        scrollText.setLayoutParams(layoutParams);
-        scrollText.setTextSize(fontSize);//字号
-        scrollText.setTextColor(Color.parseColor(textDetail.getFontColor()));//字体颜色
-        scrollText.setScrollSpeed(textDetail.getPlaySpeed());
-        scrollText.setDirection(Integer.valueOf(textDetail.getPlayType()));
-        scrollText.setBackColor(backColor);//背景色
-        scrollText.setText(text);//内容
-
-        if (Integer.parseInt(textDetail.getPlayType()) == 0) {
-            scrollText.setDirection(3);//向上滚动0,向左滚动3,向右滚动2,向上滚动1
-        } else if (Integer.parseInt(textDetail.getPlayType()) == 1) {
-            scrollText.setDirection(0);
-        }
-
-        if (isSupportChinese) {
-            if (TextUtils.equals("-1", textDetail.getSpeechCount())) {
-                return;
-            }
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
-        } else {
-            Toast.makeText(mActivity, "暂不支持语音报读", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /***
      * 插播类
      * ==================================================================================
      * @param ivm
@@ -297,7 +158,7 @@ public class InsertManager implements TextToSpeech.OnInitListener {
                 continue;
             }
 
-            Date[] dateArray = resolve(data.getStartTime(), data.getEndTime());
+            Date[] dateArray = TimeResolver.resolve(data.getStartTime(), data.getEndTime());
             if (dateArray == null) {
                 continue;
             }
@@ -487,125 +348,6 @@ public class InsertManager implements TextToSpeech.OnInitListener {
                 timer.cancel();
             }
             timerList.clear();
-        }
-    }
-
-    //解析播放时间，没有date的情况下默认为当天
-    private Date[] resolve(String startStr, String endStr) {
-        try {
-            String endTime = correctTime(endStr) + ":00";
-            String startTime = correctTime(startStr) + ":00";
-
-            String currDateStr = yyyyMMdd.format(todayDate);
-            //转换成date格式
-            Date start = yyyyMMddHH_mm_ss.parse(currDateStr + startTime);
-            Date end = yyyyMMddHH_mm_ss.parse(currDateStr + endTime);
-
-            LogUtil.D(TAG, currDateStr + startTime);
-            LogUtil.D(TAG, currDateStr + endTime);
-
-            return new Date[]{start, end};
-        } catch (Exception e) {
-            LogUtil.E(TAG, "解析插播时间出错：" + e.getMessage());
-            return null;
-        }
-    }
-
-    //修正播放时间
-    private String correctTime(String time) {
-        String[] beginTimes = time.split(":");
-        for (int i = 0; i < beginTimes.length; i++) {
-            String temp = beginTimes[i];
-            if (temp.length() <= 1) {
-                temp = "0" + temp;
-            }
-            beginTimes[i] = temp;
-        }
-        return beginTimes[0] + ":" + beginTimes[1];
-    }
-
-    //解析播放时间
-    private Date[] resolveTime(String playDate, String playTime) {
-        try {
-            if (!playDate.contains("-")) {
-                throw new Exception("playDate formal error!");
-            }
-            if (!playTime.contains("-")) {
-                throw new Exception("playTime formal error!");
-            }
-            //切割开始结束时间
-            String[] dates = playDate.split("-");
-            String[] times = playTime.split("-");
-            //获取当年月日
-            Date currDateTime = new Date(System.currentTimeMillis());
-            String currDateStr = yyyyMMdd.format(currDateTime);
-            //转换成date格式
-            Date currDate = yyyyMMdd.parse(currDateStr);
-            Date beginDate = yyyyMMdd.parse(dates[0]);
-            Date endDate = yyyyMMdd.parse(dates[1]);
-            //对比
-            if (currDate.getTime() < beginDate.getTime() || currDate.getTime() > endDate.getTime()) {
-                return null;
-            }
-
-            //修正时间字符串
-            String sTime = currDateStr + correctTime(times[0]) + ":00";
-            String eTime = currDateStr + correctTime(times[1]) + ":00";
-            //转换成date格式
-            final Date beginTime = yyyyMMddHH_mm_ss.parse(sTime);
-            final Date endTime = yyyyMMddHH_mm_ss.parse(eTime);
-
-            if (endTime.getTime() < yyyyMMddHH_mm_ss.parse(yyyyMMddHH_mm_ss.format(currDateTime)).getTime()) {
-                return null;
-            }
-
-            return new Date[]{beginTime, endTime};
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    //解析播放时长
-    private Date[] resolveTimeLong(String playDate, String playTime) {
-        try {
-            //当前时间
-            long currTime = System.currentTimeMillis();
-            //开始时间
-            Date start = new Date(currTime);
-            String todayStr = yyyyMMdd.format(start);
-            Date today = yyyyMMdd.parse(todayStr);
-
-            String[] split = playDate.split("-");
-            Date startDate = yyyyMMdd.parse(split[0]);
-            Date endDate = yyyyMMdd.parse(split[1]);
-            if (!(today.getTime() >= startDate.getTime() && today.getTime() <= endDate.getTime())) {
-                LogUtil.D(TAG, "不在插播字幕时间内");
-                return null;
-            }
-
-            Date end = new Date(currTime + (Integer.valueOf(playTime) * 1000));
-            return new Date[]{start, end};
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private boolean isSupportChinese = false;
-
-    @Override
-    public void onInit(int status) {
-        if (status == TextToSpeech.SUCCESS) {
-            if(tts != null){
-                int result = tts.setLanguage(Locale.CHINA);
-                if (result == TextToSpeech.LANG_MISSING_DATA
-                        || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                    isSupportChinese = false;
-                    return;
-                }
-                isSupportChinese = true;
-            }
         }
     }
 }

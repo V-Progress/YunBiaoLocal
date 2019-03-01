@@ -1,157 +1,20 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fl_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:circleview="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/fl_root"
     tools:context=".activity.MainActivity">
 
     <VideoView
-        android:layout_gravity="center"
         android:id="@+id/video_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_centerInParent="true" />
+        android:layout_centerInParent="true"
+        android:layout_gravity="center" />
 
-    <LinearLayout
-        android:visibility="gone"
-        android:id="@+id/ll_update_area"
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:background="#77000000"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingBottom="10dp"
-        android:paddingLeft="50dp"
-        android:paddingRight="50dp"
-        android:paddingTop="10dp">
+    <include layout="@layout/layout_console_main" />
 
-        <ProgressBar
-            android:id="@+id/pb_update"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="6dp"
-            android:layout_weight="1" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="正在下载更新" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:visibility="gone"
-        android:orientation="vertical"
-        android:padding="5dp"
-        android:background="#77000000"
-        android:id="@+id/fl_loading_main"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <ProgressBar
-            android:id="@+id/pb_loading_main"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center"/>
-
-        <TextView
-            android:layout_marginTop="5dp"
-            android:textSize="11dp"
-            android:layout_gravity="center"
-            android:id="@+id/tv_loading_main"
-            android:text="正在加载"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:visibility="gone"
-        android:id="@+id/ll_console_main"
-        android:orientation="vertical"
-        android:background="#77000000"
-        android:layout_gravity="bottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-        <ScrollView
-            android:id="@+id/sv_console_main"
-            android:layout_width="match_parent"
-            android:layout_height="70dp">
-            <TextView
-                android:lineSpacingExtra="3dp"
-                android:gravity="bottom"
-                android:paddingLeft="3dp"
-                android:textSize="12dp"
-                android:id="@+id/tv_console_main"
-                android:textColor="@color/white"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </ScrollView>
-
-        <FrameLayout
-            android:padding="5dp"
-            android:layout_gravity="left"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-            <rjsv.circularview.CircleView
-                circleview:enabled="false"
-                circleview:textEnabled="false"
-                android:id="@+id/progress_child_main"
-                android:layout_gravity="center"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                circleview:arcBorderColor="@color/white"
-                circleview:arcHasBorder="true"
-                circleview:arcWidth="3dp"
-                circleview:arcColor="@color/white"
-                circleview:progressColor="@android:color/holo_blue_dark"
-                circleview:progressWidth="5dp"
-                circleview:progressBarSquared="true"
-                circleview:textSize="36sp"/>
-            <rjsv.circularview.CircleView
-                circleview:enabled="false"
-                circleview:textEnabled="false"
-                android:layout_gravity="center"
-                android:id="@+id/progress_parent_main"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                circleview:arcBorderColor="@color/white"
-                circleview:arcHasBorder="true"
-                circleview:arcWidth="3dp"
-                circleview:arcColor="@color/white"
-                circleview:progressColor="@android:color/holo_blue_dark"
-                circleview:progressWidth="5dp"
-                circleview:progressBarSquared="true"
-                circleview:textSize="36sp"/>
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:id="@+id/tv_num_main"
-                    android:textSize="13dp"
-                    android:textColor="@color/white"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:id="@+id/tv_progress_main"
-                    android:textSize="13dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-        </FrameLayout>
-
-        <TextView
-            android:gravity="center_horizontal"
-            android:textSize="12dp"
-            android:id="@+id/tv_speed_main"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
+    <include layout="@layout/layout_progress_video" />
 
     <master.flame.danmaku.ui.widget.DanmakuView
         android:id="@+id/danmaku_view"

@@ -1,5 +1,7 @@
 package com.yunbiao.cccm.net.listener;
 
+import android.view.View;
+
 import java.util.List;
 
 /**
@@ -12,39 +14,24 @@ import java.util.List;
 public interface MainRefreshListener {
 
     //开始播放
-    void startPlay(List<String> videoString);
+    void startConfigPlay(List<String> videoString);
     //停止播放
-    void stopPlay();
+    void stopConfigPlay();
 
     //开始播放插播
     void startInsert(boolean isCycle, List<String> videoString);
-
     //停止播放插播
     void stopInsert();
+
+    //插入View
+    void addView(View view);
+    //删除View
+    void removeView(View view);
 
     //初始化数据
     void initPlayData();
     //清除播放数据
     void clearPlayData();
-    //初始化播放器
-    void initPlayer();
     //刷新layerType
-    void updateLayerType(Integer layerType);
-
-    //打开控制台
-    void openConsole();
-    //关闭控制台
-    void closeConsole();
-    //更新控制台
-    void updateConsole(String msg);
-
-    void initProgress(int parentMax);
-    void updateChildProgress(int pg);
-    void updateParentProgress(int pg);
-    void updateDownloadSpeed(String speed);
-
-    //打开加载框
-    void openLoading(String loadingMsg);
-    //关闭加载框
-    void closeLoading();
+    void updateLayerType(boolean isConfigOnTop);
 }

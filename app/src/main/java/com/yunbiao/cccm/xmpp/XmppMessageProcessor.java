@@ -5,6 +5,7 @@ import android.content.Intent;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
+import com.yunbiao.cccm.net.resource.InsertTextManager;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.net.resource.InsertManager;
 import com.yunbiao.cccm.activity.MainController;
@@ -117,7 +118,7 @@ public class XmppMessageProcessor {
                     TipToast.showLongToast(APP.getMainActivity(), "设备编号：" + CacheManager.SP.getDeviceNum());
                 }
                 break;
-            case CUTSCREN_TYPE:
+            case CUTSCREN_TYPE://截屏
                 ThreadUtil.getInstance().runInCommonThread(new Runnable() {
                     @Override
                     public void run() {
@@ -183,16 +184,16 @@ public class XmppMessageProcessor {
                     @Override
                     public void run() {
                         InsertTextModel insertTextModel = new Gson().fromJson(content, InsertTextModel.class);
-                        InsertManager.getInstance(APP.getMainActivity()).insertTXT(insertTextModel);
+                        InsertTextManager.instance(APP.getMainActivity()).insertTXT(insertTextModel);
                     }
                 });
                 break;
-            case INSERT_CONTENT_TYPE:
+            case INSERT_CONTENT_TYPE://插播视频
                 if(mode == 0){
                     InsertManager.getInstance(APP.getMainActivity()).initData();
                 }
                 break;
-            case UPDATE_LAYER:
+            case UPDATE_LAYER://更新层级标签
                 JSONObject layerModel = JSON.parseObject(content);
                 Integer layerType = layerModel.getInteger("layerType");
                 CacheManager.SP.putLayerType(layerType);

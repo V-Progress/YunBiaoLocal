@@ -1,10 +1,12 @@
 package com.yunbiao.cccm.activity;
 
 import android.content.Intent;
+import android.view.View;
 
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.net.listener.MainRefreshListener;
+import com.yunbiao.cccm.utils.ConsoleUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 
@@ -127,7 +129,7 @@ public class MainController {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mRefListener.startPlay(videoString);
+                mRefListener.startConfigPlay(videoString);
             }
         });
     }
@@ -143,7 +145,31 @@ public class MainController {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mRefListener.stopPlay();
+                mRefListener.stopConfigPlay();
+            }
+        });
+    }
+
+
+    /***
+     * 停止播放普通资源
+     */
+    public void addView(final View view) {
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                mRefListener.addView(view);
+            }
+        });
+    }
+    /***
+     * 停止播放普通资源
+     */
+    public void removeView(final View view) {
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                mRefListener.removeView(view);
             }
         });
     }
@@ -207,19 +233,7 @@ public class MainController {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mRefListener.updateLayerType(layerType);
-            }
-        });
-    }
-
-    /***
-     * 初始化播放器
-     */
-    public void initPlayer() {
-        ThreadUtil.getInstance().runInUIThread(new Runnable() {
-            @Override
-            public void run() {
-                mRefListener.initPlayer();
+                mRefListener.updateLayerType(layerType == 2);
             }
         });
     }
@@ -231,7 +245,7 @@ public class MainController {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mRefListener.openConsole();
+                ConsoleUtil.instance().openConsole();
             }
         });
     }
@@ -243,7 +257,7 @@ public class MainController {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mRefListener.closeConsole();
+                ConsoleUtil.instance().closeConsole();
             }
         });
 
@@ -257,7 +271,7 @@ public class MainController {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mRefListener.updateConsole(msg);
+                ConsoleUtil.instance().updateConsole(msg);
             }
         });
 
@@ -271,7 +285,7 @@ public class MainController {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mRefListener.initProgress(max);
+                ConsoleUtil.instance().initProgress(max);
             }
         });
 
@@ -285,7 +299,7 @@ public class MainController {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mRefListener.updateChildProgress(pg);
+                ConsoleUtil.instance().updateChildProgress(pg);
             }
         });
     }
@@ -298,7 +312,7 @@ public class MainController {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mRefListener.updateParentProgress(pg);
+                ConsoleUtil.instance().updateParentProgress(pg);
             }
         });
     }
@@ -311,7 +325,7 @@ public class MainController {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mRefListener.openLoading(loadingMsg);
+                ConsoleUtil.instance().openLoading(loadingMsg);
             }
         });
     }
@@ -323,7 +337,7 @@ public class MainController {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mRefListener.closeLoading();
+                ConsoleUtil.instance().closeLoading();
             }
         });
     }
@@ -332,7 +346,7 @@ public class MainController {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mRefListener.updateDownloadSpeed(speed);
+                ConsoleUtil.instance().updateDownloadSpeed(speed);
             }
         });
     }

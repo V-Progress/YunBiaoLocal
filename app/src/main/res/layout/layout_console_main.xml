@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:circleview="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/ll_update_area"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:background="#77000000"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingBottom="10dp"
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp"
+        android:paddingTop="10dp"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/pb_update"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="正在下载更新" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/fl_loading_main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#77000000"
+        android:orientation="vertical"
+        android:padding="5dp"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/pb_loading_main"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:id="@+id/tv_loading_main"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="5dp"
+            android:text="正在加载"
+            android:textSize="11dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_console_main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#77000000"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ScrollView
+            android:id="@+id/sv_console_main"
+            android:layout_width="match_parent"
+            android:layout_height="70dp">
+
+            <TextView
+                android:id="@+id/tv_console_main"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="bottom"
+                android:lineSpacingExtra="3dp"
+                android:paddingLeft="3dp"
+                android:textColor="@color/white"
+                android:textSize="12dp" />
+        </ScrollView>
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:padding="5dp">
+
+            <rjsv.circularview.CircleView
+                android:id="@+id/progress_child_main"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                circleview:arcBorderColor="@color/white"
+                circleview:arcColor="@color/white"
+                circleview:arcHasBorder="true"
+                circleview:arcWidth="3dp"
+                circleview:enabled="false"
+                circleview:progressBarSquared="true"
+                circleview:progressColor="@android:color/holo_blue_dark"
+                circleview:progressWidth="5dp"
+                circleview:textEnabled="false"
+                circleview:textSize="36sp" />
+
+            <rjsv.circularview.CircleView
+                android:id="@+id/progress_parent_main"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                circleview:arcBorderColor="@color/white"
+                circleview:arcColor="@color/white"
+                circleview:arcHasBorder="true"
+                circleview:arcWidth="3dp"
+                circleview:enabled="false"
+                circleview:progressBarSquared="true"
+                circleview:progressColor="@android:color/holo_blue_dark"
+                circleview:progressWidth="5dp"
+                circleview:textEnabled="false"
+                circleview:textSize="36sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_num_main"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textSize="13dp" />
+
+                <TextView
+                    android:id="@+id/tv_progress_main"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13dp" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tv_speed_main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:textSize="12dp" />
+    </LinearLayout>
+
+</FrameLayout>
