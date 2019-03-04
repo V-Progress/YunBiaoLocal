@@ -13,6 +13,7 @@ import com.yunbiao.cccm.net.resource.model.VideoDataModel;
 import com.yunbiao.cccm.sdOperator.HighVerSDController;
 import com.yunbiao.cccm.sdOperator.LowVerSDController;
 import com.yunbiao.cccm.utils.DateUtil;
+import com.yunbiao.cccm.utils.LogUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -122,6 +123,8 @@ public class ConfigDataResolver {
                             ResourceConst.addPlayItem(index + videoName + "(无)");
                             continue;
                         }
+
+                        LogUtil.E("视频路径："+Uri.fromFile(video).toString());
                         videoList.add(Uri.fromFile(video).toString());
                         ResourceConst.addPlayItem(index + videoName);
                         ResourceConst.addPreviewItem(videoName, Uri.fromFile(video).toString());
@@ -132,6 +135,7 @@ public class ConfigDataResolver {
                             continue;
                         }
 
+                        LogUtil.E("视频路径："+video.getUri().toString());
                         videoList.add(video.getUri().toString());
                         ResourceConst.addPlayItem(index + videoName);
                         ResourceConst.addPreviewItem(videoName, video.getUri().toString());
@@ -146,7 +150,6 @@ public class ConfigDataResolver {
                 //添加定时任务
                 Date beginTime = DateUtil.yyyyMMddHH_mm_Parse(playDay + times[0]);
                 Date endTime = DateUtil.yyyyMMddHH_mm_Parse(playDay + times[1]);
-
                 if (beginTime == null || endTime == null) {
                     continue;
                 }

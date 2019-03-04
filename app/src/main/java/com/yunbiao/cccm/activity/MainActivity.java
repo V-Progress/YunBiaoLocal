@@ -36,10 +36,7 @@ import com.yunbiao.cccm.utils.DialogUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.TimerUtil;
 
-import java.sql.Time;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import butterknife.BindView;
 import master.flame.danmaku.ui.widget.DanmakuView;
@@ -326,11 +323,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
                 currTime = vv.getCurrentPosition();
                 tempIndex = videoIndex;
                 VideoProgressUtil.instance().updateProgress(vv.getDuration(),currTime);
-                LogUtil.E("播放中" + currTime + "---");
-            } else{
-                LogUtil.D("暂停中");
             }
-
             videoHandler.sendEmptyMessageDelayed(0, 1000);
         }
     };

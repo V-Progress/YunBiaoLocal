@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.yunbiao.cccm.net.listener.MultiFileDownloadListener;
+import com.yunbiao.cccm.utils.LogUtil;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -87,6 +88,7 @@ public abstract class BPDownload {
      * @return
      */
     protected long getContentLength(String downloadUrl) {
+        int retryNum = 0;
         Request request = new Request.Builder().url(downloadUrl).build();
         try {
             Response response = okHttpClient.newCall(request).execute();
@@ -97,6 +99,11 @@ public abstract class BPDownload {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            if(retryNum < 3){
+                retryNum++;
+                LogUtil.E(TAG,"获取远程文件大小失败，重试次数：3，当前次数："+retryNum);
+                getContentLength(downloadUrl);
+            }
         }
         return 0;
     }
