@@ -52,18 +52,17 @@ public class VideoProgressUtil {
         tvCurr = (TextView) rootView.findViewById(R.id.tv_current_long);
         tvTotal = (TextView) rootView.findViewById(R.id.tv_total_long);
         pb = (ProgressBar) rootView.findViewById(R.id.progress_video);
-        tvPlayState = (TextView) rootView.findViewById(R.id.tv_play_state);
+        tvPlayState = (TextView) act.findViewById(R.id.tv_play_state);
     }
 
-    public void updateProgress(int total, int curr) {
-//        String currPosition = mmss.format(new Date(Long.valueOf(curr)));
-//        String duration = mmss.format(new Date(Long.valueOf(total)));
-//
-//        tvCurr.setText(currPosition);
-//        tvTotal.setText(duration);
-
-        pb.setMax(total);
-        pb.setProgress(curr);
+    public void updateProgress(final int total, final int curr) {
+        mAct.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                pb.setMax(total);
+                pb.setProgress(curr);
+            }
+        });
     }
 
     public void showProgress(int total,int curr) {
@@ -102,24 +101,27 @@ public class VideoProgressUtil {
     Timer stateTimer;
     public void showPlayState(int state){
         tvPlayState.setVisibility(View.VISIBLE);
-        switch (state) {
-            case 0:
-                tvPlayState.setText("播放");
-                break;
-            case 1:
-                tvPlayState.setText("暂停");
-                break;
-        }
         if(stateTimer != null){
             stateTimer.cancel();
         }
-        stateTimer = new Timer();
-        stateTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                tvPlayState.setVisibility(View.GONE);
-            }
-        },500);
 
+        if (state == 0) {
+            tvPlayState.setText("播放");
+            stateTimer = new Timer();
+            stateTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    mAct.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            tvPlayState.setVisibility(View.GONE);
+                        }
+                    });
+                }
+            },1500);
+            return;
+        }
+
+        tvPlayState.setText("暂停");
     }
 }

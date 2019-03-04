@@ -36,7 +36,10 @@ import com.yunbiao.cccm.utils.DialogUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.TimerUtil;
 
+import java.sql.Time;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import master.flame.danmaku.ui.widget.DanmakuView;
@@ -88,6 +91,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     }
 
     private void initPlayer() {
+        vv.setOnPreparedListener(onPreparedListener);
         vv.setOnErrorListener(errorListener);//播放错误监听
         vv.setOnInfoListener(infoListener);//播放信息监听
         vv.setOnCompletionListener(completionListener);
@@ -208,7 +212,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
             return;
         }
         isConfigPlaying = true;
-        playContinue(videoList);
+        play(videoList);
     }
 
 
@@ -263,64 +267,12 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     }
 
     //-----常规方法----------------------------------------------------------------
-    private int tempTime = 0;
-    private int tempIndex = 0;
-    private int offsetNum = 2000;
-    private Handler videoHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            // 获得当前播放时间和当前视频的长度
-            if (vv.isPlaying()) {
-                tempTime = vv.getCurrentPosition();
-                tempIndex = videoIndex;
-                VideoProgressUtil.instance().updateProgress(vv.getDuration(),tempTime);
-            }
-            videoHandler.sendEmptyMessageDelayed(0, 1000);
-        }
-    };
-
-    private void fastForward(){
-        if(vv == null || playLists == null || playLists.size()<=0){
-            return;
-        }
-        int seekTo = tempTime + offsetNum;
-        vv.seekTo(seekTo);
-        VideoProgressUtil.instance().showProgress(vv.getDuration(),seekTo);
-    }
-
-    private void fastBackward(){
-        if(vv == null || playLists == null || playLists.size()<=0){
-            return;
-        }
-        int currentPosition = vv.getCurrentPosition();
-        int seekTo = currentPosition < offsetNum ? 0 : currentPosition - offsetNum;
-        LogUtil.E("当前："+currentPosition +"---快退到："+seekTo);
-        VideoProgressUtil.instance().showProgress(vv.getDuration(),seekTo);
-        vv.seekTo(seekTo);
-    }
-
     private void stop() {
         if (vv == null) {
             return;
         }
         vv.stopPlayback();
         vv.setVisibility(View.GONE);
-    }
-
-    private void playContinue(final List<String> videoList){
-        if(playLists == null || playLists.size()<=0 || (!playLists.equals(videoList))){
-            playLists = videoList;
-            videoIndex = 0;
-        } else {
-            videoIndex = tempIndex;
-        }
-
-        videoHandler.sendEmptyMessageDelayed(0, 0);
-        vv.stopPlayback();
-        vv.setVideoURI(Uri.parse(playLists.get(videoIndex)));
-        vv.setVisibility(View.VISIBLE);
-        vv.start();
-        vv.seekTo(tempTime == 0 ? tempTime : tempTime - 1000);
     }
 
     private void play(final List<String> videoList) {
@@ -331,12 +283,11 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
             videoIndex = tempIndex;
         }
 
-        videoHandler.sendEmptyMessageDelayed(0, 0);
         vv.stopPlayback();
         vv.setVideoURI(Uri.parse(playLists.get(videoIndex)));
         vv.setVisibility(View.VISIBLE);
         vv.start();
-        vv.seekTo(tempTime == 0 ? tempTime : tempTime - 1000);
+        vv.seekTo(currTime == 0 ? currTime : currTime - 1000);
     }
 
     public void removeView(View view) {
@@ -350,6 +301,61 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     /*===========播放器监听关=====================================================================
      * 初始化播放器
      */
+    private MediaPlayer.OnPreparedListener onPreparedListener = new MediaPlayer.OnPreparedListener() {
+        @Override
+        public void onPrepared(MediaPlayer mp) {
+            videoHandler.removeMessages(0);
+            videoHandler.sendEmptyMessage(0);
+
+            mp.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+                @Override
+                public void onSeekComplete(MediaPlayer mp) {
+                    LogUtil.E("恢复");
+                    vv.start();
+                }
+            });
+        }
+    };
+
+    private Handler videoHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            // 获得当前播放时间和当前视频的长度
+            if(vv.isPlaying()){
+
+                currTime = vv.getCurrentPosition();
+                tempIndex = videoIndex;
+                VideoProgressUtil.instance().updateProgress(vv.getDuration(),currTime);
+                LogUtil.E("播放中" + currTime + "---");
+            } else{
+                LogUtil.D("暂停中");
+            }
+
+            videoHandler.sendEmptyMessageDelayed(0, 1000);
+        }
+    };
+
+    private int currTime = 0;
+    private int tempIndex = 0;
+    private int forwardOffsetNum = 2000;
+    private int backOffsetNum = 5000;
+
+    private void fastForward(){
+        if (vv.canSeekForward()) {
+            vv.pause();
+            vv.seekTo(vv.getCurrentPosition()+ forwardOffsetNum);
+            VideoProgressUtil.instance().showProgress(vv.getDuration(),vv.getCurrentPosition());
+        }
+    }
+
+    private void fastBackward(){
+        if (vv.canSeekBackward()) {
+            vv.pause();
+            vv.seekTo(vv.getCurrentPosition() - backOffsetNum);
+            VideoProgressUtil.instance().showProgress(vv.getDuration(),vv.getCurrentPosition());
+        }
+    }
+
     private MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
         @Override
         public boolean onError(MediaPlayer mp, int what, int extra) {
@@ -415,14 +421,13 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
             case KeyEvent.KEYCODE_DPAD_LEFT://快退
                 fastBackward();
                 break;
-            case KeyEvent.KEYCODE_DPAD_CENTER | KeyEvent.KEYCODE_ENTER:
-                LogUtil.E("enter键盘");
+            case KeyEvent.KEYCODE_DPAD_CENTER:
                 if(vv.isPlaying()){
                     vv.pause();
-                    VideoProgressUtil.instance().showPlayState(0);
+                    VideoProgressUtil.instance().showPlayState(1);
                 } else {
                     vv.start();
-                    VideoProgressUtil.instance().showPlayState(1);
+                    VideoProgressUtil.instance().showPlayState(0);
                 }
                 break;
             case KeyEvent.KEYCODE_MENU:
@@ -432,7 +437,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
                 APP.exit();
                 return false;
         }
-        return super.onKeyDown(keyCode, event);
+        return false;
     }
 
     @Override
@@ -445,7 +450,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     protected void onResume() {
         super.onResume();
         vv.start();
-        vv.seekTo(tempTime == 0 ? tempTime : tempTime - 1000);
+        vv.seekTo(currTime == 0 ? currTime : currTime - 1000);
         DanmakuManager.getInstance().resume();
     }
 

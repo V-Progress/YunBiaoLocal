@@ -16,6 +16,15 @@
 
     <include layout="@layout/layout_progress_video" />
 
+    <TextView
+        android:visibility="gone"
+        android:id="@+id/tv_play_state"
+        android:textColor="@android:color/white"
+        android:textSize="55dp"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <master.flame.danmaku.ui.widget.DanmakuView
         android:id="@+id/danmaku_view"
         android:layout_width="match_parent"
