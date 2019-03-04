@@ -27,6 +27,7 @@ public class VideoProgressUtil {
     private ProgressBar pb;
     private Timer pbTimer;
     private Activity mAct;
+    private TextView tvPlayState;
 
     public static VideoProgressUtil instance() {
         if (instance == null) {
@@ -51,6 +52,7 @@ public class VideoProgressUtil {
         tvCurr = (TextView) rootView.findViewById(R.id.tv_current_long);
         tvTotal = (TextView) rootView.findViewById(R.id.tv_total_long);
         pb = (ProgressBar) rootView.findViewById(R.id.progress_video);
+        tvPlayState = (TextView) rootView.findViewById(R.id.tv_play_state);
     }
 
     public void updateProgress(int total, int curr) {
@@ -94,5 +96,30 @@ public class VideoProgressUtil {
 
     public void cancel() {
         rootView.setVisibility(View.GONE);
+    }
+
+
+    Timer stateTimer;
+    public void showPlayState(int state){
+        tvPlayState.setVisibility(View.VISIBLE);
+        switch (state) {
+            case 0:
+                tvPlayState.setText("播放");
+                break;
+            case 1:
+                tvPlayState.setText("暂停");
+                break;
+        }
+        if(stateTimer != null){
+            stateTimer.cancel();
+        }
+        stateTimer = new Timer();
+        stateTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                tvPlayState.setVisibility(View.GONE);
+            }
+        },500);
+
     }
 }

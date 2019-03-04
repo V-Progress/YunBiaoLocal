@@ -416,10 +416,13 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
                 fastBackward();
                 break;
             case KeyEvent.KEYCODE_DPAD_CENTER | KeyEvent.KEYCODE_ENTER:
+                LogUtil.E("enter键盘");
                 if(vv.isPlaying()){
                     vv.pause();
+                    VideoProgressUtil.instance().showPlayState(0);
                 } else {
                     vv.start();
+                    VideoProgressUtil.instance().showPlayState(1);
                 }
                 break;
             case KeyEvent.KEYCODE_MENU:
