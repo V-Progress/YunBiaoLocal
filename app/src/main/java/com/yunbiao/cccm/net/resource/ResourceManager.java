@@ -11,7 +11,7 @@ import com.yunbiao.cccm.common.YunBiaoException;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.net.bean.ConfigResponse;
 import com.yunbiao.cccm.net.resource.model.VideoDataModel;
-import com.yunbiao.cccm.net.resource.resolve.VideoDataResolver;
+import com.yunbiao.cccm.net.resource.resolve.ConfigDataResolver;
 import com.yunbiao.cccm.net.resource.resolve.XMLParse;
 import com.yunbiao.cccm.net.listener.FileDownloadListener;
 import com.yunbiao.cccm.utils.DateUtil;
@@ -66,8 +66,8 @@ public class ResourceManager {
     /***
      * 加载已缓存的网络播放数据
      */
-    public void loadNetData() {
-        VideoDataResolver.getInstance().initPlayList();
+    public void loadData() {
+        ConfigDataResolver.getInstance().initPlayList();
     }
 
     /***

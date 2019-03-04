@@ -1,17 +1,13 @@
 package com.yunbiao.cccm.net.download;
 
-import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.provider.DocumentFile;
 import android.text.TextUtils;
 
-import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.common.YunBiaoException;
-import com.yunbiao.cccm.sdOperator.HighVerSDOperator;
+import com.yunbiao.cccm.sdOperator.HighVerSDController;
 import com.yunbiao.cccm.utils.DateUtil;
 import com.yunbiao.cccm.utils.LogUtil;
-import com.yunbiao.cccm.utils.SDUtil;
 import com.yunbiao.cccm.net.listener.MultiFileDownloadListener;
 
 import java.io.IOException;
@@ -30,15 +26,12 @@ import okhttp3.Response;
 
 public class BPDownloadHighVer extends BPDownload {
 
-    private HighVerSDOperator fileOperator;
+    private HighVerSDController sdController;
 
     public BPDownloadHighVer(@NonNull Object tag, MultiFileDownloadListener listener) {
         super(tag,listener);
-        fileOperator = HighVerSDOperator.instance();
 
-        String sdUri = PreferenceManager.getDefaultSharedPreferences(APP.getContext()).getString(SDUtil.PREF_DEFAULT_URI, null);
-        Uri uri = Uri.parse(sdUri);
-        fileOperator.generateStoragePath(uri);
+        sdController = HighVerSDController.instance();
     }
 
     @Override
@@ -73,7 +66,7 @@ public class BPDownloadHighVer extends BPDownload {
             }
 
             //查找该文件
-            DocumentFile localFile = fileOperator.findResource(fileName);
+            DocumentFile localFile = sdController.findResource(fileName);
             if(localFile != null && localFile.exists()){//如果文件存在
                 if(localFile.length() == contentLength){//并且大小等于远程
                     LogUtil.E("文件已下载完成，结束");
@@ -87,7 +80,7 @@ public class BPDownloadHighVer extends BPDownload {
                 }
             }
 
-            DocumentFile cacheFile = fileOperator.findResource(cacheFileName);
+            DocumentFile cacheFile = sdController.findResource(cacheFileName);
             if(cacheFile != null && cacheFile.exists()){//如果缓存文件存在
                 if(cacheFile.length() == contentLength){//并且已下载完
                     LogUtil.E("缓存文件已下载完毕，修改名称");
@@ -101,7 +94,7 @@ public class BPDownloadHighVer extends BPDownload {
 
                 }
             }else{//缓存文件不存在，创建
-                cacheFile = fileOperator.createVideoRes(cacheFileName);
+                cacheFile = sdController.createVideoRes(cacheFileName);
             }
             LogUtil.E("缓存文件的uri：" + cacheFile.getUri().toString());
 
@@ -117,7 +110,7 @@ public class BPDownloadHighVer extends BPDownload {
             Response response = new OkHttpClient().newCall(request).execute();
             if (response != null) {
                 is = response.body().byteStream();
-                os = fileOperator.getOutputStream(cacheFile);
+                os = sdController.getOutputStream(cacheFile);
 
                 int realProgress = 0;
 

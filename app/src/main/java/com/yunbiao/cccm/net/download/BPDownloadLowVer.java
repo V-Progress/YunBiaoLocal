@@ -1,15 +1,12 @@
 package com.yunbiao.cccm.net.download;
 
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
-import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.common.YunBiaoException;
-import com.yunbiao.cccm.sdOperator.LowVerSDOperator;
+import com.yunbiao.cccm.sdOperator.LowVerSDController;
 import com.yunbiao.cccm.utils.DateUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.net.listener.MultiFileDownloadListener;
-import com.yunbiao.cccm.utils.SDUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,15 +26,14 @@ import okhttp3.Response;
 
 public class BPDownloadLowVer extends BPDownload {
 
-//    private final File resourceDir;
-    private final LowVerSDOperator fileOperator;
+    private final LowVerSDController fileOperator;
 
     public BPDownloadLowVer(Object tag,MultiFileDownloadListener mListener) {
         super(tag,mListener);
-        fileOperator = LowVerSDOperator.instance();
+        fileOperator = LowVerSDController.instance();
 
-        String sdPath = PreferenceManager.getDefaultSharedPreferences(APP.getContext()).getString(SDUtil.PREF_DEFAULT_URI, null);
-        fileOperator.generateStoragePath(sdPath);
+//        String sdPath = PreferenceManager.getDefaultSharedPreferences(APP.getContext()).getString(SDManager.PREF_DEFAULT_URI, null);
+//        fileOperator.generateStoragePath(sdPath);
 
         /*resourceDir = checkRootDir(localPath);
         if(resourceDir == null){

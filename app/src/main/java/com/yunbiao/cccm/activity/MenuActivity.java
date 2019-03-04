@@ -23,7 +23,7 @@ import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
 import com.yunbiao.cccm.net.resource.ResourceManager;
 import com.yunbiao.cccm.utils.DialogUtil;
-import com.yunbiao.cccm.utils.SDUtil;
+import com.yunbiao.cccm.sdOperator.SDManager;
 import com.yunbiao.cccm.utils.TimerUtil;
 import com.yunbiao.cccm.utils.ToastUtil;
 
@@ -127,7 +127,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                         DialogUtil.getInstance().showError(MenuActivity.this, "提示", "正在切换至 网络模式\n本窗口3秒后自动关闭", 3, new Runnable() {
                             @Override
                             public void run() {
-                                SDUtil.instance().checkSD();
+                                SDManager.instance().checkSD();
                             }
                         });
                         break;
@@ -138,7 +138,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                         DialogUtil.getInstance().showError(MenuActivity.this, "提示", "正在切换至 本地模式\n本窗口3秒后自动关闭", 3, new Runnable() {
                             @Override
                             public void run() {
-                                SDUtil.instance().checkSD();
+                                SDManager.instance().checkSD();
                             }
                         });
                         break;

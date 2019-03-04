@@ -11,8 +11,8 @@ import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.local.control.PowerTool;
 import com.yunbiao.cccm.local.model.InsertDataModel;
 import com.yunbiao.cccm.local.model.VideoDataModel;
-import com.yunbiao.cccm.sdOperator.HighVerSDOperator;
-import com.yunbiao.cccm.sdOperator.LowVerSDOperator;
+import com.yunbiao.cccm.sdOperator.HighVerSDController;
+import com.yunbiao.cccm.sdOperator.LowVerSDController;
 import com.yunbiao.cccm.utils.DateUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
@@ -52,7 +52,8 @@ public class LocalManager {
             @Override
             public void run() {
                 if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
-                    File yunbiao = LowVerSDOperator.instance().getAppRootDir();
+//                    File yunbiao = LowVerSDController.instance().getAppRootDir();
+                    File yunbiao = LowVerSDController.instance().getAppRootDir();
                     //目录是否存在或可读
                     if (!yunbiao.exists() || !yunbiao.canRead()) {
                         ToastUtil.showShort(APP.getMainActivity(),"yunbiao目录不存在或拒绝读取");
@@ -127,7 +128,8 @@ public class LocalManager {
                     }
                 } else {
 
-                    DocumentFile yunbiao = HighVerSDOperator.instance().getAppRootDir();
+//                    DocumentFile yunbiao = HighVerSDController.instance().getAppRootDir();
+                    DocumentFile yunbiao = HighVerSDController.instance().getAppRootDir();
                     if(yunbiao == null || (!yunbiao.exists())){
                         ToastUtil.showShort(APP.getMainActivity(),"yunbiao目录不存在或拒绝读取");
                         return;

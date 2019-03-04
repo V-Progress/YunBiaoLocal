@@ -1,5 +1,7 @@
 package com.yunbiao.cccm.utils;
 
+import android.os.Handler;
+
 import com.yunbiao.cccm.common.Const;
 
 import java.util.Timer;
@@ -70,6 +72,10 @@ public class TimerUtil {
             }
         };
         new Timer().schedule(timerTask,delay);
+    }
+
+    public static void delayExeOfHandler(long delay, Runnable runnable){
+        new Handler().postDelayed(runnable,delay);
     }
 
     public static class OnTimerListener{

@@ -2,12 +2,13 @@ package com.yunbiao.cccm.sdOperator;
 
 import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v4.provider.DocumentFile;
+import android.text.TextUtils;
 
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.utils.LogUtil;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
 
@@ -16,67 +17,66 @@ import java.io.OutputStream;
  * Created by Administrator on 2019/2/20.
  */
 
-public class HighVerSDOperator implements SDOperator{
+public class HighVerSDController implements SDController{
     private Context mContext;
 
-    private DocumentFile sdRootDocument;
-    private DocumentFile appRootDocument;
+    private DocumentFile sdRootDir;
+    private DocumentFile appRootDir;
     private DocumentFile appResourceDir;
 
-    private static HighVerSDOperator instance;
+    private static HighVerSDController instance;
 
-    public static synchronized HighVerSDOperator instance() {
+    public static synchronized HighVerSDController instance() {
         if (instance == null) {
-            synchronized (HighVerSDOperator.class){
+            synchronized (HighVerSDController.class){
                 if(instance == null){
-                    instance = new HighVerSDOperator();
+                    instance = new HighVerSDController();
                 }
             }
         }
         return instance;
     }
 
-    private HighVerSDOperator() {
+    private HighVerSDController() {
         this.mContext = APP.getContext();
     }
 
-    /***
-     * 生成存储路径
-     * @param t 类型为 Uri或String
-     */
     @Override
-    public <T> void generateStoragePath(T t) {
-        if(t instanceof Uri){
-            Uri uri = (Uri) t;
-            //初始化SD卡目录
-            if (uri == null) {
-                return;
-            }
-            sdRootDocument = DocumentFile.fromTreeUri(mContext, uri);
-            LogUtil.D(TAG, "SD卡目录：" + sdRootDocument.getUri().toString());
-
-            //初始化云标根目录
-            if (sdRootDocument == null || (!isSDCanUsed())) {
-                return;
-            }
-            appRootDocument = sdRootDocument.findFile(appRootDirName);
-            if (appRootDocument == null || (!appRootDocument.exists()) || (!appRootDocument.isDirectory())) {
-                appRootDocument = sdRootDocument.createDirectory(appRootDirName);
-            }
-            LogUtil.D(TAG, "根目录：" + appRootDocument.getUri().toString());
-
-            //初始化资源目录
-            if (appRootDocument == null) {
-                return;
-            }
-            appResourceDir = appRootDocument.findFile(appResourceDirName);
-            if (exists(appRootDocument)) {
-                appResourceDir = appRootDocument.createDirectory(appResourceDirName);
-            }
-            LogUtil.D(TAG, "资源目录：" + appResourceDir.getUri().toString());
-        }else{
-            new Exception("参数类型错误").printStackTrace();
+    public boolean init(@NonNull Context context, @NonNull String pathOrUri) {
+        mContext = context;
+        if (mContext == null) {
+            LogUtil.D("Context为null");
+            return false;
         }
+        if (TextUtils.isEmpty(pathOrUri)) {
+            LogUtil.D("路径或URI为空");
+            return false;
+        }
+        Uri sdRootUri = Uri.parse(pathOrUri);
+        if(sdRootUri == null){
+            LogUtil.D("转换URI出错");
+            return false;
+        }
+
+        sdRootDir = DocumentFile.fromTreeUri(mContext, sdRootUri);
+        if(!isSDCanUsed()){
+            LogUtil.D("SD卡不可用");
+            return false;
+        }
+        LogUtil.D("SD卡路径："+sdRootDir.getUri().toString());
+
+        appRootDir = sdRootDir.findFile(APP_ROOT_DIR);
+        if(appRootDir == null || (!appRootDir.exists())){
+            appRootDir = sdRootDir.createDirectory(APP_ROOT_DIR);
+        }
+        LogUtil.D("APP根路径："+ appRootDir.getUri().toString());
+
+        appResourceDir = appRootDir.findFile(APP_RESOURCE_DIR);
+        if (exists(appRootDir)) {
+            appResourceDir = appRootDir.createDirectory(APP_RESOURCE_DIR);
+        }
+        LogUtil.D(TAG, "RESOURCE目录：" + appResourceDir.getUri().toString());
+        return true;
     }
 
     /***
@@ -85,9 +85,9 @@ public class HighVerSDOperator implements SDOperator{
      */
     @Override
     public boolean isSDCanUsed() {
-        if (sdRootDocument == null)
+        if (sdRootDir == null)
             return false;
-        return sdRootDocument.exists() && sdRootDocument.canRead() && sdRootDocument.canWrite();
+        return sdRootDir.exists() && sdRootDir.canRead() && sdRootDir.canWrite();
     }
 
     /***
@@ -132,20 +132,12 @@ public class HighVerSDOperator implements SDOperator{
 
     @Override
     public <T> T getAppRootDir() {
-        return (T) appRootDocument;
+        return (T) appRootDir;
     }
 
     @Override
     public <T> T getAppResourceDir() {
         return (T) appResourceDir;
-    }
-
-    @Override
-    public <T> T getListFiles() {
-        if(appResourceDir != null && appResourceDir.exists()){
-            return (T) appResourceDir.listFiles();
-        }
-        return null;
     }
 
     /***

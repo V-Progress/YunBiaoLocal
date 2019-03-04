@@ -219,7 +219,6 @@ public class MainController {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                LogUtil.E("初始化播放数据2222");
                 mRefListener.initPlayData();
             }
         });

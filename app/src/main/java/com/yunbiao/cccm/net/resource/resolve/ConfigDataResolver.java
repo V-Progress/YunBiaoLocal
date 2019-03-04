@@ -6,16 +6,13 @@ import android.support.v4.provider.DocumentFile;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
-import com.yunbiao.cccm.APP;
-import com.yunbiao.cccm.activity.MenuActivity;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.activity.MainController;
 import com.yunbiao.cccm.net.resource.model.VideoDataModel;
-import com.yunbiao.cccm.sdOperator.LowVerSDOperator;
+import com.yunbiao.cccm.sdOperator.HighVerSDController;
+import com.yunbiao.cccm.sdOperator.LowVerSDController;
 import com.yunbiao.cccm.utils.DateUtil;
-import com.yunbiao.cccm.utils.DialogUtil;
-import com.yunbiao.cccm.sdOperator.HighVerSDOperator;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,8 +21,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class VideoDataResolver {
-    private static VideoDataResolver instance;
+public class ConfigDataResolver {
+    private static ConfigDataResolver instance;
 
     private static List<PlayModel> playModelList = new ArrayList<>();
     private List<Timer> timerList;
@@ -33,30 +30,20 @@ public class VideoDataResolver {
     private final String todayStr;
     private final String tommStr;
 
-    public synchronized static VideoDataResolver getInstance() {
+    public static ConfigDataResolver getInstance() {
         if (instance == null) {
-            instance = new VideoDataResolver();
+            synchronized (ConfigDataResolver.class) {
+                if (instance == null) {
+                    instance = new ConfigDataResolver();
+                }
+            }
         }
         return instance;
     }
 
-    private VideoDataResolver() {
+    private ConfigDataResolver() {
         todayStr = DateUtil.getTodayStr();
         tommStr = DateUtil.getTommStr();
-    }
-
-    private void showProgress() {
-        MenuActivity menuActivity = APP.getMenuActivity();
-        if (menuActivity != null && menuActivity.isForeground()) {
-            DialogUtil.getInstance().showProgressDialog(menuActivity, "读取本地资源", "读取中...");
-        }
-    }
-
-    private void dissmissProgress(String msg) {
-        MenuActivity menuActivity = APP.getMenuActivity();
-        if (menuActivity != null && menuActivity.isForeground()) {
-            DialogUtil.getInstance().dissmissProgress(APP.getMainActivity(), msg);
-        }
     }
 
     /***
@@ -130,24 +117,24 @@ public class VideoDataResolver {
 
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                         //生成File
-                        File videoFile = LowVerSDOperator.instance().findResource(videoName);
-                        if (!videoFile.exists()) {
+                        File video = LowVerSDController.instance().findResource(videoName);
+                        if (!video.exists()) {
                             ResourceConst.addPlayItem(index + videoName + "(无)");
                             continue;
                         }
-                        videoList.add(Uri.fromFile(videoFile).toString());
+                        videoList.add(Uri.fromFile(video).toString());
                         ResourceConst.addPlayItem(index + videoName);
-                        ResourceConst.addPreviewItem(videoName, Uri.fromFile(videoFile).toString());
+                        ResourceConst.addPreviewItem(videoName, Uri.fromFile(video).toString());
                     } else {
-                        DocumentFile resource = HighVerSDOperator.instance().findResource(videoName);
-                        if (resource == null || (!resource.exists())) {
+                        DocumentFile video = HighVerSDController.instance().findResource(videoName);
+                        if (video == null || (!video.exists())) {
                             ResourceConst.addPlayItem(index + videoName + "(无)");
                             continue;
                         }
 
-                        videoList.add(resource.getUri().toString());
+                        videoList.add(video.getUri().toString());
                         ResourceConst.addPlayItem(index + videoName);
-                        ResourceConst.addPreviewItem(videoName, resource.getUri().toString());
+                        ResourceConst.addPreviewItem(videoName, video.getUri().toString());
                     }
                 }
 

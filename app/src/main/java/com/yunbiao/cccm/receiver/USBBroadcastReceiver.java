@@ -4,12 +4,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.cache.CacheManager;
-import com.yunbiao.cccm.utils.SDUtil;
+import com.yunbiao.cccm.sdOperator.SDManager;
 import com.yunbiao.cccm.activity.MainController;
 import com.yunbiao.cccm.utils.CopyUtil;
 import com.yunbiao.cccm.utils.LogUtil;
@@ -24,7 +25,7 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
     }
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(final Context context, Intent intent) {
         String action = intent.getAction();
         String path = intent.getDataString();
         if (TextUtils.equals(action, tempAction)) {
@@ -43,7 +44,7 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
             }
 
             //检测是U盘/SD卡
-            if (SDUtil.isUSBDisk(path)) {
+            if (SDManager.isUSBDisk(path)) {
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
                     ToastUtil.showShort(context,"Android 5.0或以上版本暂不支持U盘拷贝");
                     return;
@@ -56,23 +57,31 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
 
                 ToastUtil.showShort(context,"U盘已插入" + path);
                 CopyUtil.getInstance().USB2Local(path, this);
-            } else if (SDUtil.isSDCard(path)) {
+            } else if (SDManager.isSDCard(path)) {
                 ToastUtil.showShort(context, "SD卡已插入" + path);
-                TimerUtil.delayExecute(3000, new TimerUtil.OnTimerListener() {
+                TimerUtil.delayExecute(1000, new TimerUtil.OnTimerListener() {
                     @Override
                     public void onTimeFinish() {
-                        SDUtil.instance().checkSD();
+                        SDManager.instance().checkSD();
                     }
                 });
             }
 
         } else if (TextUtils.equals(Intent.ACTION_MEDIA_UNMOUNTED, action) || TextUtils.equals(Intent.ACTION_MEDIA_REMOVED, action)) {//3288移除只发这个
-            if (SDUtil.isUSBDisk(path)) {
+            if (SDManager.isUSBDisk(path)) {
                 ToastUtil.showShort(context, "U盘已移除");
-            } else if (SDUtil.isSDCard(path)) {
+            } else if (SDManager.isSDCard(path)) {
                 ToastUtil.showShort(context, "SD卡已移除");
+                if (APP.getMainActivity() != null && APP.getMainActivity().isForeground()) {
+                    SDManager.instance().checkSD();
+                }
 
-                SDUtil.instance().checkSD();
+                TimerUtil.delayExeOfHandler(800, new Runnable() {
+                    @Override
+                    public void run() {
+                        PreferenceManager.getDefaultSharedPreferences(context).edit().putString(SDManager.KEY_SD_URI_CACHE, "").commit();
+                    }
+                });
             }
         }
     }

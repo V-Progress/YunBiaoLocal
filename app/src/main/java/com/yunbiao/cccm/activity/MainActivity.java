@@ -7,17 +7,9 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.yunbiao.cccm.APP;
@@ -26,19 +18,18 @@ import com.yunbiao.cccm.activity.base.BaseActivity;
 import com.yunbiao.cccm.net.listener.MainRefreshListener;
 import com.yunbiao.cccm.net.resource.InsertTextManager;
 import com.yunbiao.cccm.cache.CacheManager;
-import com.yunbiao.cccm.common.Const;
-import com.yunbiao.cccm.sdOperator.HighVerSDOperator;
-import com.yunbiao.cccm.sdOperator.LowVerSDOperator;
+import com.yunbiao.cccm.sdOperator.HighVerSDController;
+import com.yunbiao.cccm.sdOperator.LowVerSDController;
+import com.yunbiao.cccm.sdOperator.SDManager;
 import com.yunbiao.cccm.utils.ConsoleUtil;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.net.resource.DanmakuManager;
 import com.yunbiao.cccm.local.LocalManager;
 import com.yunbiao.cccm.utils.VideoProgressUtil;
-import com.yunbiao.cccm.utils.SDUtil;
 import com.yunbiao.cccm.net.control.PowerOffTool;
 import com.yunbiao.cccm.net.listener.OnXmppConnListener;
 import com.yunbiao.cccm.xmpp.PnServerController;
-import com.yunbiao.cccm.net.resource.InsertManager;
+import com.yunbiao.cccm.net.resource.InsertVideoManager;
 import com.yunbiao.cccm.net.resource.ResourceManager;
 import com.yunbiao.cccm.utils.DeleteResUtil;
 import com.yunbiao.cccm.utils.DialogUtil;
@@ -49,9 +40,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import master.flame.danmaku.ui.widget.DanmakuView;
-import rjsv.circularview.CircleView;
 
-public class MainActivity extends BaseActivity implements MainRefreshListener, SDUtil.CheckSDListener {
+public class MainActivity extends BaseActivity implements MainRefreshListener, SDManager.CheckSDListener {
     /*视频播放----*/
     @BindView(R.id.video_view)
     VideoView vv;
@@ -94,7 +84,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
 
         PowerOffTool.getInstance().initPowerData();
         //检测SD卡
-        SDUtil.instance().init(this, this).checkSD();
+        SDManager.instance().init(this, this).checkSD();
     }
 
     private void initPlayer() {
@@ -134,13 +124,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        SDUtil.instance().onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        SDUtil.instance().onRequestPermissionsResult(requestCode, permissions, grantResults);
+        SDManager.instance().onActivityResult(requestCode, resultCode, data);
     }
 
     //开始请求获取资源
@@ -152,7 +136,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
                 ResourceManager.getInstance().initNetData();
 
                 //初始化广告插播，如果有未播完的广告则自动播放
-                InsertManager.getInstance(MainActivity.this).initData();
+                InsertVideoManager.getInstance().initData();
 
                 //初始化字幕
                 InsertTextManager.instance(MainActivity.this).initTXT();
@@ -170,9 +154,9 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
      */
     @Override
     public void initPlayData() {
-        if (SDUtil.isCanUsedHighVer() || SDUtil.isCanUsedLowVer()) {
+        if(HighVerSDController.instance().isSDCanUsed() || LowVerSDController.instance().isSDCanUsed()){
             if (CacheManager.SP.getMode() == 0) {
-                ResourceManager.getInstance().loadNetData();
+                ResourceManager.getInstance().loadData();
             } else {
                 LocalManager.getInstance().initData();
             }
@@ -183,11 +167,11 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     * 初始化插播数据
     * */
     public void initInsertData() {
-        if (!SDUtil.isCanUsedHighVer()) {
+        if (!HighVerSDController.instance().isSDCanUsed()) {
             return;
         }
         if (CacheManager.SP.getMode() == 0) {
-            InsertManager.getInstance(this).initData();
+            InsertVideoManager.getInstance().initData();
         } else {
             LocalManager.getInstance().initData();
         }
@@ -209,8 +193,8 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
             return;
         }
         priority_flag = isConfigOnTop;
-
-        if (CacheManager.SP.getMode() == 0 && (HighVerSDOperator.instance().isSDCanUsed() || LowVerSDOperator.instance().isSDCanUsed())) {
+        if (CacheManager.SP.getMode() == 0 && (HighVerSDController.instance().isSDCanUsed()
+                || LowVerSDController.instance().isSDCanUsed())) {
             //更新层次类型后再初始化一次播放资源
             startGetRes();
         }
@@ -224,7 +208,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
             return;
         }
         isConfigPlaying = true;
-        play(videoList);
+        playContinue(videoList);
     }
 
 
@@ -321,6 +305,22 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
         }
         vv.stopPlayback();
         vv.setVisibility(View.GONE);
+    }
+
+    private void playContinue(final List<String> videoList){
+        if(playLists == null || playLists.size()<=0 || (!playLists.equals(videoList))){
+            playLists = videoList;
+            videoIndex = 0;
+        } else {
+            videoIndex = tempIndex;
+        }
+
+        videoHandler.sendEmptyMessageDelayed(0, 0);
+        vv.stopPlayback();
+        vv.setVideoURI(Uri.parse(playLists.get(videoIndex)));
+        vv.setVisibility(View.VISIBLE);
+        vv.start();
+        vv.seekTo(tempTime == 0 ? tempTime : tempTime - 1000);
     }
 
     private void play(final List<String> videoList) {

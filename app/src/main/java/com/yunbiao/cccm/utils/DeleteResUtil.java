@@ -4,8 +4,8 @@ import android.os.Build;
 import android.support.v4.provider.DocumentFile;
 
 import com.yunbiao.cccm.common.ResourceConst;
-import com.yunbiao.cccm.sdOperator.HighVerSDOperator;
-import com.yunbiao.cccm.sdOperator.LowVerSDOperator;
+import com.yunbiao.cccm.sdOperator.HighVerSDController;
+import com.yunbiao.cccm.sdOperator.LowVerSDController;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -32,13 +32,13 @@ public class DeleteResUtil {
     }
 
     public static void removeExpireFileHighVer(){
-        DocumentFile appResourceDir = HighVerSDOperator.instance().getAppResourceDir();
+        DocumentFile appResourceDir = HighVerSDController.instance().getAppResourceDir();
         if(appResourceDir == null || (!appResourceDir.exists())){
             LogUtil.D(TAG, "不存在！");
             return;
         }
 
-        DocumentFile[] listFiles = HighVerSDOperator.instance().getListFiles();
+        DocumentFile[] listFiles = appResourceDir.listFiles();
         LogUtil.D(TAG, "共有：" + listFiles.length + " 个文件");
 
         //获取今天的日期
@@ -73,14 +73,15 @@ public class DeleteResUtil {
     
     
     public static void removeExpireFileLowVer() {
-        File resDir = LowVerSDOperator.instance().getAppResourceDir();
+//        File resDir = LowVerSDController.instance().getAppResourceDir();
+        File resDir = LowVerSDController.instance().getAppResourceDir();
         LogUtil.D(TAG, "当前目录：" + resDir);
         if (!resDir.exists()) {
             LogUtil.D(TAG, "不存在！" + resDir);
             return;
         }
 
-        File[] resFiles = LowVerSDOperator.instance().getListFiles();
+        File[] resFiles = resDir.listFiles();
         LogUtil.D(TAG, "共有：" + resFiles.length + " 个文件");
 
         //获取今天的日期

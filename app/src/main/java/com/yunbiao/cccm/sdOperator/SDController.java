@@ -1,5 +1,6 @@
 package com.yunbiao.cccm.sdOperator;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
 import java.io.FileNotFoundException;
@@ -9,15 +10,21 @@ import java.io.OutputStream;
  * Created by Administrator on 2019/2/25.
  */
 
-public interface SDOperator {
+public interface SDController {
     String TAG = "SDOperator";
-    String appRootDirName = "yunbiao";
-    String appResourceDirName = "resource";
+    String APP_ROOT_DIR = "yunbiao";
+    String APP_RESOURCE_DIR = "resource";
 
     String videoType = "video/x-msvideo";
     String outputMode = "wa";
 
-    <T> void generateStoragePath(@NonNull T t);
+    /***
+     * 初始化SD卡路径
+     * @param pathOrUri SD卡根路径
+     * @return SD卡是否可用
+     */
+    boolean init(@NonNull Context context, @NonNull String pathOrUri);
+
 
     boolean isSDCanUsed();
 
@@ -28,6 +35,4 @@ public interface SDOperator {
     <T> T getAppResourceDir();
 
     <T> T getAppRootDir();
-
-    <T> T getListFiles();
 }

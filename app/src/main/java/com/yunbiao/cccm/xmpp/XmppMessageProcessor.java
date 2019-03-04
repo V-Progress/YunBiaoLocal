@@ -7,7 +7,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.yunbiao.cccm.net.resource.InsertTextManager;
 import com.yunbiao.cccm.utils.NetUtil;
-import com.yunbiao.cccm.net.resource.InsertManager;
+import com.yunbiao.cccm.net.resource.InsertVideoManager;
 import com.yunbiao.cccm.activity.MainController;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
@@ -53,7 +53,6 @@ public class XmppMessageProcessor {
     private final static int SET_CLEAR_LAYOUT = 13;//一键删除布局
     private final static int PUSH_MESSAGE = 14;//推送广告消息，快发字幕
     private final static int CHANNEL_TYPE = 16;//输入源选择
-    private final static int VIDEO_PUSH = 22;//推送的视频
     private final static int INSERT_CONTENT_TYPE = 24;//推送的视频
     private final static int UPDATE_LAYER = 25;//推送的视频
 
@@ -190,7 +189,7 @@ public class XmppMessageProcessor {
                 break;
             case INSERT_CONTENT_TYPE://插播视频
                 if(mode == 0){
-                    InsertManager.getInstance(APP.getMainActivity()).initData();
+                    InsertVideoManager.getInstance().initData();
                 }
                 break;
             case UPDATE_LAYER://更新层级标签

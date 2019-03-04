@@ -47,6 +47,8 @@ public class CacheManager {
     private static final String TODAY_RES_DATA = "todayResData";//今天的资源数据
     private static final String TOMMOROW_RES_DATA = "tommResData";//明天的资源数据
 
+    private static final String INSERT_DATA = "insertData";//明天的资源数据
+
     private static final String PLAY_TAG = "isHasPlayData";
 
     private static final String SAVE_SOUND_MUSIC = "save_sound_music";
@@ -227,6 +229,15 @@ public class CacheManager {
     }
 
     public static class FILE {
+
+        public static void putInsertData(String insertData){
+            spCache.saveString(INSERT_DATA,insertData);
+        }
+
+        public static String getInsertData(){
+            return spCache.getString(INSERT_DATA,"");
+        }
+
         public static void putTodayResource(String dataJson){
             spCache.saveString(TODAY_RES_DATA,dataJson);
         }

@@ -3,7 +3,7 @@ package com.yunbiao.cccm.utils;
 import android.os.Build;
 import com.yunbiao.cccm.net.listener.copyFileListener;
 import com.yunbiao.cccm.local.VideoDirectoryFilter;
-import com.yunbiao.cccm.sdOperator.LowVerSDOperator;
+import com.yunbiao.cccm.sdOperator.LowVerSDController;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -72,11 +72,11 @@ public class CopyUtil {
 
                 //初始化本地目录
                 if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
-                    File appRootDir = LowVerSDOperator.instance().getAppRootDir();
+                    File appRootDir = LowVerSDController.instance().getAppRootDir();
                     //开始拷贝
                     copyFiles(usbFile, appRootDir);//复制文件
                 } else {
-//                    DocumentFile appRootDir = HighVerSDOperator.instance().getAppRootDir();
+//                    DocumentFile appRootDir = HighVerSDController.instance().getAppRootDir();
 //                    //开始拷贝
 //                    copyFiles(usbFile, appRootDir);//复制文件
                 }
