@@ -19,8 +19,7 @@ import java.util.List;
 
 public class DeleteResUtil {
     private static String TAG = "DeleteResUtil";
-    private static final int DAY_TAG = 5;//代表删除多少天前的数据
-
+    private static final int DAY_TAG = 14;//代表删除多少天前的数据
 
     public static void checkExpireFile(){
         LogUtil.D(TAG, "检查过期文件");

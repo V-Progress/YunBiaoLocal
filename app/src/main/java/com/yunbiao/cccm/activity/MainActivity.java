@@ -232,7 +232,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     //插播资源播放
     @Override
     public void startInsert(final boolean cycle, final List<String> videoList) {
-        LogUtil.E("layerType","插播时层级标签："+priority_flag);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -249,7 +248,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     //插播资源停止
     @Override
     public void stopInsert() {
-        LogUtil.E("layerType","停插时层级标签："+priority_flag);
         isInsertPlaying = false;
         if (priority_flag && isConfigPlaying) {
             return;
@@ -307,7 +305,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
             mp.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
                 @Override
                 public void onSeekComplete(MediaPlayer mp) {
-                    LogUtil.E("恢复");
                     vv.start();
                 }
             });
