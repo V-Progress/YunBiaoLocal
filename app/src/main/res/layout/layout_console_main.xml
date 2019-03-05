@@ -101,7 +101,7 @@
                 circleview:arcWidth="3dp"
                 circleview:enabled="false"
                 circleview:progressBarSquared="true"
-                circleview:progressColor="@android:color/holo_blue_dark"
+                circleview:progressColor="#55ff55"
                 circleview:progressWidth="5dp"
                 circleview:textEnabled="false"
                 circleview:textSize="36sp" />
@@ -117,7 +117,7 @@
                 circleview:arcWidth="3dp"
                 circleview:enabled="false"
                 circleview:progressBarSquared="true"
-                circleview:progressColor="@android:color/holo_blue_dark"
+                circleview:progressColor="#ff0000"
                 circleview:progressWidth="5dp"
                 circleview:textEnabled="false"
                 circleview:textSize="36sp" />
@@ -132,10 +132,11 @@
                     android:id="@+id/tv_num_main"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/white"
+                    android:textColor="#ff0000"
                     android:textSize="13dp" />
 
                 <TextView
+                    android:textColor="#55ff55"
                     android:id="@+id/tv_progress_main"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
