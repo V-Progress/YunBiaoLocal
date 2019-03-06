@@ -80,8 +80,6 @@ public class MainController {
                     return;
                 }
 
-                LogUtil.E("123","更新菜单："+isHasPlay +"---"+hasInsert +"---"+hasConfig);
-
                 if (mainActivity.isForeground() && !isHasPlay ) {
                     mainActivity.startActivity(new Intent(mainActivity, MenuActivity.class));
                 } else if (menuActivity != null && menuActivity.isForeground()) {

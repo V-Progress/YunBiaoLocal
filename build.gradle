@@ -16,6 +16,6 @@ allprojects {
     repositories {
         jcenter()
         maven { url 'https://jitpack.io' }
-        maven { url 'https://dl.bintray.com/umsdk/release' }
+//        mavenCentral()//如果友盟不能集成则打开这个
     }
 }

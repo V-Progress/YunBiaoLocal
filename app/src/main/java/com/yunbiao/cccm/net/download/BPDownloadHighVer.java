@@ -28,9 +28,9 @@ public class BPDownloadHighVer extends BPDownload {
 
     private HighVerSDController sdController;
 
-    public BPDownloadHighVer(@NonNull Object tag, MultiFileDownloadListener listener) {
+    public BPDownloadHighVer(@NonNull Object tag,int tn, MultiFileDownloadListener listener) {
         super(tag,listener);
-
+        totalNum = tn;
         sdController = HighVerSDController.instance();
     }
 

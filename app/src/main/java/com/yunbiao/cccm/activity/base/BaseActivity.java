@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
+import com.umeng.analytics.MobclickAgent;
 import com.yunbiao.cccm.APP;
 
 import java.util.List;
@@ -57,5 +58,17 @@ public abstract class BaseActivity extends FragmentActivity {
             }
         }
         return false;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
     }
 }

@@ -81,9 +81,9 @@ public class BPDownloadManager {
         l.onBefore(totalNum);
 
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
-            bpDownload = new BPDownloadLowVer(mTag,l);
+            bpDownload = new BPDownloadLowVer(mTag,totalNum,l);
         }else{
-            bpDownload = new BPDownloadHighVer(mTag,l);
+            bpDownload = new BPDownloadHighVer(mTag,totalNum,l);
         }
 
         bpDownload.breakPointDownload(urlQueue);

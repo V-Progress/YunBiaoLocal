@@ -28,8 +28,9 @@ public class BPDownloadLowVer extends BPDownload {
 
     private final LowVerSDController fileOperator;
 
-    public BPDownloadLowVer(Object tag,MultiFileDownloadListener mListener) {
+    public BPDownloadLowVer(Object tag,int tn,MultiFileDownloadListener mListener) {
         super(tag,mListener);
+        totalNum = tn;
         fileOperator = LowVerSDController.instance();
 
 //        String sdPath = PreferenceManager.getDefaultSharedPreferences(APP.getContext()).getString(SDManager.PREF_DEFAULT_URI, null);

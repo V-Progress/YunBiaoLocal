@@ -148,12 +148,9 @@
             <!--android:name="UMENG_CHANNEL"-->
             <!--android:value="${UMENG_CHANNEL_VALUE}" />-->
         <!--U盟配置-->
-        <meta-data
-            android:name="UMENG_APPKEY"
-            android:value="5c3c2f2cf1f556d9c30013de" />
-        <meta-data
-            android:name="UMENG_CHANNEL"
-            android:value="self" />
+
+        <meta-data android:value="5c7f89cf0cafb228fd000dd3" android:name="UMENG_APPKEY"/>
+        <meta-data android:value="cccm" android:name="UMENG_CHANNEL"/>
 
         <!--百度配置-->
         <meta-data

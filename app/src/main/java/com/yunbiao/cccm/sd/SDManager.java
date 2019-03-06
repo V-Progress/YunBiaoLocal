@@ -75,7 +75,6 @@ public class SDManager {
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        LogUtil.E("onActivityResult:"+requestCode +"---"+resultCode);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
             isDocumentTreeOpened = false;
             if (requestCode == REQUEST_CODE) {
