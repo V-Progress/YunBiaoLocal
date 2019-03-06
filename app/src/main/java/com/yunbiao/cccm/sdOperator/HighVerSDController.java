@@ -72,7 +72,7 @@ public class HighVerSDController implements SDController{
         LogUtil.D("APP根路径："+ appRootDir.getUri().toString());
 
         appResourceDir = appRootDir.findFile(APP_RESOURCE_DIR);
-        if (exists(appRootDir)) {
+        if(appResourceDir == null || (!appResourceDir.exists())){
             appResourceDir = appRootDir.createDirectory(APP_RESOURCE_DIR);
         }
         LogUtil.D(TAG, "RESOURCE目录：" + appResourceDir.getUri().toString());

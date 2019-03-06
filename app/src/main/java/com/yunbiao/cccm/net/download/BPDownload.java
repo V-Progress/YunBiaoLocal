@@ -88,21 +88,22 @@ public abstract class BPDownload {
      * @return
      */
     protected long getContentLength(String downloadUrl) {
-        int retryNum = 0;
+        int retryNum = 3;
         Request request = new Request.Builder().url(downloadUrl).build();
-        try {
-            Response response = okHttpClient.newCall(request).execute();
-            if (response != null && response.isSuccessful()) {
-                long contentLength = response.body().contentLength();
-                response.body().close();
-                return contentLength;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            if(retryNum < 3){
-                retryNum++;
-                LogUtil.E(TAG,"获取远程文件大小失败，重试次数：3，当前次数："+retryNum);
-                getContentLength(downloadUrl);
+        for (int i = 0; i < retryNum; i++) {
+            LogUtil.D("正在获取文件长度，第"+i+"次");
+            try {
+                Response response = okHttpClient.newCall(request).execute();
+                if (response != null && response.isSuccessful()) {
+                    long contentLength = response.body().contentLength();
+                    response.body().close();
+                    return contentLength;
+                } else {
+                    LogUtil.E(TAG,"获取远程文件大小失败，"+ (i<3 ?"重试":""));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                LogUtil.E(TAG,"获取远程文件大小失败，"+ (i<3 ?"重试":""));
             }
         }
         return 0;

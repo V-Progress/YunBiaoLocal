@@ -78,46 +78,9 @@ public class DanmakuManager {
         @Override
         public void prepareDrawing(final BaseDanmaku danmaku, boolean fromWorkerThread) {
             if (danmaku.text instanceof Spanned) { // 根据你的条件检查是否需要需要更新弹幕
-
                 if(danmakuView != null) {
                     danmakuView.invalidateDanmaku(danmaku, false);
                 }
-
-
-                // FIXME 这里只是简单启个线程来加载远程url图片，请使用你自己的异步线程池，最好加上你的缓存池
-               /* new Thread() {
-
-                    @Override
-                    public void run() {
-                        String url = "http://www.bilibili.com/favicon.ico";
-                        InputStream inputStream = null;
-                        Drawable drawable = mDrawable;
-                        if(drawable == null) {
-                            try {
-                                URLConnection urlConnection = new URL(url).openConnection();
-                                inputStream = urlConnection.getInputStream();
-                                drawable = BitmapDrawable.createFromStream(inputStream, "bitmap");
-                                mDrawable = drawable;
-                            } catch (MalformedURLException e) {
-                                e.printStackTrace();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            } finally {
-                                IOUtils.closeQuietly(inputStream);
-                            }
-                        }
-                        if (drawable != null) {
-                            drawable.setBounds(0, 0, 100, 100);
-                            SpannableStringBuilder spannable = createSpannable(danmaku.text.toString(),drawable);
-                            danmaku.text = spannable;
-                            if(danmakuView != null) {
-                                danmakuView.invalidateDanmaku(danmaku, false);
-                            }
-                            return;
-                        }
-                    }
-                }.start();*/
-
             }
         }
 

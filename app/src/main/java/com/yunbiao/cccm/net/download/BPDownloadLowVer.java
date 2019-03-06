@@ -116,14 +116,12 @@ public class BPDownloadLowVer extends BPDownload {
             Request request = new Request.Builder()
                     .addHeader("RANGE", "bytes=" + cacheFile.length() + "-")  //断点续传要用到的，指示下载的区间
                     .url(downloadUrl)
-                    .tag(this)
+                    .tag(mTag)
                     .build();
             Response response = new OkHttpClient().newCall(request).execute();
             if (response != null) {
                 is = response.body().byteStream();
-                os = new FileOutputStream(cacheFile,true);// TODO: 2019/2/22 本处需要处理
-
-
+                os = new FileOutputStream(cacheFile,true);
 
                 int realProgress = 0;
 

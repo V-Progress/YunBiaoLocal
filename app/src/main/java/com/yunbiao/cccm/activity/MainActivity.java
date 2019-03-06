@@ -60,6 +60,8 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     private List<String> playLists;//当前播放列表
     private static int videoIndex;//当前视频在列表中处于的位置
 
+    private boolean isPause = false;
+
     protected int setLayout() {
         return R.layout.activity_main;
     }
@@ -305,6 +307,9 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
             mp.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
                 @Override
                 public void onSeekComplete(MediaPlayer mp) {
+                    if(isPause){
+                        return;
+                    }
                     vv.start();
                 }
             });
@@ -414,9 +419,11 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
             case KeyEvent.KEYCODE_DPAD_CENTER:
                 if(vv.isPlaying()){
                     vv.pause();
+                    isPause = true;
                     VideoProgressUtil.instance().showPlayState(1);
                 } else {
                     vv.start();
+                    isPause = false;
                     VideoProgressUtil.instance().showPlayState(0);
                 }
                 break;
