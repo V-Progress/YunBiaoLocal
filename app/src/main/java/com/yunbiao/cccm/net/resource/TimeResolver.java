@@ -1,6 +1,6 @@
 package com.yunbiao.cccm.net.resource;
 
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.log.LogUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

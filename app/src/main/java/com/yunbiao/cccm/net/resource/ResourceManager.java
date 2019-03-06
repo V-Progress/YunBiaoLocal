@@ -15,7 +15,7 @@ import com.yunbiao.cccm.net.resource.resolve.ConfigDataResolver;
 import com.yunbiao.cccm.net.resource.resolve.XMLParse;
 import com.yunbiao.cccm.net.listener.FileDownloadListener;
 import com.yunbiao.cccm.utils.DateUtil;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.net.download.BPDownloadManager;
 

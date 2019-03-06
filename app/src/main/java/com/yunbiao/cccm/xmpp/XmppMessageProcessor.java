@@ -24,7 +24,7 @@ import com.yunbiao.cccm.net.model.PowerCtrlBean;
 import com.yunbiao.cccm.net.model.SerNumBean;
 import com.yunbiao.cccm.net.model.VoiceModel;
 import com.yunbiao.cccm.utils.CommonUtils;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.utils.SystemInfoUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.net.view.TipToast;
@@ -171,7 +171,6 @@ public class XmppMessageProcessor {
 
                 break;
             case PUSH_TO_UPDATE://检查更新
-                LogUtil.E("检查更新");
                 SystemInfoUtil.checkUpdateInfo();
                 break;
             case VOICE_TYPE://声音修改

@@ -1,7 +1,7 @@
 package com.yunbiao.cccm.net.control.power;
 
 import com.xboot.stdcall.posix;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.log.LogUtil;
 
 import java.util.Calendar;
 

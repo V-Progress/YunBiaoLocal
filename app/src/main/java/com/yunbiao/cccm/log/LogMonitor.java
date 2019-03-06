@@ -1,16 +1,14 @@
-package com.yunbiao.cccm;
+package com.yunbiao.cccm.log;
 
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.util.Log;
 
 /**
  * Created by Administrator on 2018/12/28.
  */
 
 public class LogMonitor {
-    private static final String TAG = "LogMonitor";
     private static LogMonitor sInstance = new LogMonitor();
     private Handler mIoHandler;
     //方法耗时的卡口,300毫秒
@@ -32,7 +30,6 @@ public class LogMonitor {
                 sb.append(s.toString());
                 sb.append("\n");
             }
-            Log.e(TAG, sb.toString());
         }
     };
 

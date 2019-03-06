@@ -14,7 +14,7 @@ import com.yunbiao.cccm.local.model.VideoDataModel;
 import com.yunbiao.cccm.sd.HighVerSDController;
 import com.yunbiao.cccm.sd.LowVerSDController;
 import com.yunbiao.cccm.utils.DateUtil;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.utils.ToastUtil;
 
@@ -85,8 +85,6 @@ public class LocalManager {
 
                     //解析播放列表
                     for (File file : files) {
-
-                        LogUtil.E("file："+file.getPath());
 
                         File configFile = null;
                         File insertFile = null;
@@ -245,7 +243,6 @@ public class LocalManager {
                 LogUtil.E("123", "结束时间" + playDay + times[1]);
                 Date beginTime = DateUtil.yyyyMMddHH_mm_Parse(playDay + times[0]);
                 Date endTime = DateUtil.yyyyMMddHH_mm_Parse(playDay + times[1]);
-                LogUtil.E(dirFile.getPath() + "  " + DateUtil.yyyy_MM_dd_HH_mm_Format(beginTime) + " 至 " + DateUtil.yyyy_MM_dd_HH_mm_Format(endTime));
 
                 //播放结束时间小于当前时间时，不添加定时任务
                 if ((endTime.getTime() - 10000 < System.currentTimeMillis())) {
@@ -324,11 +321,10 @@ public class LocalManager {
                 }
 
                 //添加定时任务
-                LogUtil.E("123", "开始时间" + playDay + times[0]);
-                LogUtil.E("123", "结束时间" + playDay + times[1]);
+//                LogUtil.E("123", "开始时间" + playDay + times[0]);
+//                LogUtil.E("123", "结束时间" + playDay + times[1]);
                 Date beginTime = DateUtil.yyyyMMddHH_mm_Parse(playDay + times[0]);
                 Date endTime = DateUtil.yyyyMMddHH_mm_Parse(playDay + times[1]);
-                LogUtil.E(dirFile.getUri().toString() + "  " + DateUtil.yyyy_MM_dd_HH_mm_Format(beginTime) + " 至 " + DateUtil.yyyy_MM_dd_HH_mm_Format(endTime));
 
                 //播放结束时间小于当前时间时，不添加定时任务
                 if ((endTime.getTime() - 10000 < System.currentTimeMillis())) {
@@ -403,11 +399,10 @@ public class LocalManager {
                 }
 
                 //添加定时任务
-                LogUtil.E("123", "开始时间" + playDay + times[0]);
-                LogUtil.E("123", "结束时间" + playDay + times[1]);
+//                LogUtil.E("123", "开始时间" + playDay + times[0]);
+//                LogUtil.E("123", "结束时间" + playDay + times[1]);
                 Date beginTime = DateUtil.yyyyMMddHH_mm_Parse(playDay + times[0]);
                 Date endTime = DateUtil.yyyyMMddHH_mm_Parse(playDay + times[1]);
-                LogUtil.E(dirFile.getPath() + "  " + DateUtil.yyyy_MM_dd_HH_mm_Format(beginTime) + " 至 " + DateUtil.yyyy_MM_dd_HH_mm_Format(endTime));
 
                 //播放结束时间小于当前时间时，不添加定时任务
                 if ((endTime.getTime() - 10000 < System.currentTimeMillis())) {
@@ -480,7 +475,6 @@ public class LocalManager {
 //                LogUtil.E("321", "结束时间" + playDay + times[1]);
                 Date beginTime = DateUtil.yyyyMMddHH_mm_Parse(playDay + times[0]);
                 Date endTime = DateUtil.yyyyMMddHH_mm_Parse(playDay + times[1]);
-                LogUtil.E(dirFile.getUri().toString() + "  " + DateUtil.yyyy_MM_dd_HH_mm_Format(beginTime) + " 至 " + DateUtil.yyyy_MM_dd_HH_mm_Format(endTime));
 
                 //播放结束时间小于当前时间时，不添加定时任务
                 if ((endTime.getTime() - 10000 < System.currentTimeMillis())) {

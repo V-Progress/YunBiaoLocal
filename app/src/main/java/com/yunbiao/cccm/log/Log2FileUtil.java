@@ -1,27 +1,26 @@
-package com.yunbiao.cccm.utils;
+package com.yunbiao.cccm.log;
 
 import android.content.Context;
 import android.os.Environment;
-import android.text.TextUtils;
 
+import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
 import com.yunbiao.cccm.common.HeartBeatClient;
+import com.yunbiao.cccm.utils.DateUtil;
+import com.yunbiao.cccm.utils.SystemInfoUtil;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 日志输出到文件工具类
+ *
  * @author 李超
  * @DateTime 2017/11/6
  * @Version V1.0.0
@@ -29,14 +28,16 @@ import java.util.List;
  */
 public class Log2FileUtil {
 
-    private static Log2FileUtil INSTANCE = null;
-    private SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("yyyyMMdd");
-    private static int mPId;
-    private static String PATH_LOGCAT;
-    private static String folderPath;
+    private String TAG = getClass().getSimpleName();
+
+    private static Log2FileUtil INSTANCE;
+
     private static final int LOG_FILE_MAX_NUM = 2;
-    private static String logHead;
+
     private LogDumper mLogDumper = null;
+    private static int mPId;
+    private static StringBuilder logHead = new StringBuilder();
+//    private static File folder;
 
     private static Log2FileUtil getInstance() {
         if (INSTANCE == null) {
@@ -47,80 +48,70 @@ public class Log2FileUtil {
 
     private Log2FileUtil() {
         mPId = android.os.Process.myPid();
-        String deviceNo = HeartBeatClient.getDeviceNo();
-        deviceNo = deviceNo == null? "11111111111" : deviceNo;
-        logHead = deviceNo
-                .concat(" ")
-                .concat(SystemInfoUtil.getVersionName())
-                .concat(" ")
-                .concat(SystemInfoUtil.getSystemVersion())
-                .concat(" ")
-                .concat(SystemInfoUtil.getSystemSDK());
+        logHead.append("APP_VER:"+SystemInfoUtil.getVersionName())
+                .append("\n")
+                .append("SYSTEM_SDK:"+SystemInfoUtil.getSystemSDK())
+                .append("\n")
+                .append("SYSTEM_VER:"+SystemInfoUtil.getSystemVersion())
+                .append("\n")
+                .append("BOARD_INFO:"+CacheManager.SP.getBroadInfo())
+                .append("\n")
+                .append("DEVICE_NO:" + HeartBeatClient.getDeviceNo())
+                .append("\n")
+                .append("------------------------------------------------------------------------------------------")
+                .append("\n");
     }
 
     public static void startLogcatManager(Context ctx) {
         if (Const.SYSTEM_CONFIG.IS_LOG_TO_FILE) {
-            if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                // save in SD card first
-                folderPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "yunbiao_Log";
-            } else {
-                // If the SD card does not exist, save in the directory of application.
-                folderPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "yunbiao_Log";
-            }
-
             getInstance().start();
         }
     }
 
     private void start() {
-        PATH_LOGCAT = setFolderPath(folderPath);
-        if(TextUtils.isEmpty(PATH_LOGCAT)){
-            return;
+        File folder = new File(Environment.getExternalStorageDirectory(), "yunbiao_Log");
+        if (!folder.exists()) {
+            boolean mkdirs = folder.mkdirs();
+            if (!mkdirs) {
+                LogUtil.E(TAG, "创建日志存储目录失败");
+            }
         }
-        checkFileNumb(folderPath);
-        if (mLogDumper == null){
-            mLogDumper = new LogDumper(String.valueOf(mPId), PATH_LOGCAT);
+
+        //检查过期文件
+        checkExpiFile(folder);
+
+        if (mLogDumper == null) {
+            mLogDumper = new LogDumper(String.valueOf(mPId), folder);
         }
         mLogDumper.start();
-    }
-
-    private String setFolderPath(String folderPath) {
-        File folder = new File(folderPath);
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-        if (!folder.isDirectory()){
-            LogUtil.E("The logcat folder path is not a directory: " + folderPath);
-            return null;
-        }
-        return folderPath.endsWith("/") ? folderPath : folderPath + "/";
     }
 
     /**
      * 检查文件数量
      * 日志文件值保留最近5天的
      */
-    private void checkFileNumb(String folderPath) {
+    private void checkExpiFile(File folder) {
         FilenameFilter filter = new FilenameFilter() {
             @Override
             public boolean accept(File dir, String filename) {
                 return filename.endsWith(".log");
             }
         };
-        File file = new File(folderPath);
-        File[] files = file.listFiles(filter);
-        List<String> list = new ArrayList<>();
-        for(File f : files){
-            list.add(f.getName().substring(0, 8));
+        File[] logFiles = folder.listFiles(filter);
+        if(logFiles == null || logFiles.length <= 0){
+            LogUtil.E(TAG,"日志目录中没有文件");
+            return;
         }
-        Collections.sort(list);
-        File delFile;
-        for (int i=0 ; i<list.size()-LOG_FILE_MAX_NUM ; i++) {
-            delFile = new File(folderPath, list.get(i)+".log");
-            if (delFile.delete()) {
-                LogUtil.D("删除日志文件成功:"+delFile.getName());
-            } else {
-                LogUtil.D("删除日志文件失败:"+delFile.getName());
+        for (File logFile : logFiles) {
+            String name = logFile.getName().substring(0, 8);
+            Date fileDate = DateUtil.yyyyMMdd_Parse(name);
+            Date todayDate = DateUtil.getTodayDate();
+            long day = (todayDate.getTime() - fileDate.getTime()) / (24 * 60 * 60 * 1000);
+            if (day > LOG_FILE_MAX_NUM) {
+                boolean delete = logFile.delete();
+                if (!delete) {
+                    LogUtil.E(TAG, "过期日志删除失败");
+                }
             }
         }
     }
@@ -136,11 +127,16 @@ public class Log2FileUtil {
         private String mPID;
         private FileOutputStream out = null;
 
-        public LogDumper(String pid, String dir) {
+        public LogDumper(String pid, File dir) {
             mPID = pid;
+
             try {
-                out = new FileOutputStream(new File(dir, simpleDateFormat1.format(new Date()) + ".log"), true);
-            } catch (FileNotFoundException e) {
+                File logFile = new File(dir, DateUtil.getTodayStr() + ".log");
+                out = new FileOutputStream(logFile, true);
+                if(logFile.length() <= 0){
+                    out.write(logHead.toString().getBytes());
+                }
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 
@@ -148,7 +144,7 @@ public class Log2FileUtil {
              * log level：*:v , *:d , *:w , *:e , *:f , *:s
              * */
             //show log of all level
-             cmds = "logcat | grep \"(" + mPID + ")\"";
+            cmds = "logcat | grep \"(" + mPID + ")\"";
 
             //Show the current mPID process level of E and W log.
 //            cmds = "logcat *:e | grep \"(" + mPID + ")\"";
@@ -165,9 +161,8 @@ public class Log2FileUtil {
         @Override
         public void run() {
             try {
-                LogUtil.D("日志记录开始");
+                LogUtil.D(TAG,"\n----------------------日志记录开始------------------------");
                 logcatProc = Runtime.getRuntime().exec(cmds);
-
                 mReader = new BufferedReader(new InputStreamReader(logcatProc.getInputStream()), 1024);
                 String line;
                 /**
@@ -184,10 +179,10 @@ public class Log2FileUtil {
                         continue;
                     }
                     if (out != null && line.contains(mPID)) {
-                        out.write((logHead + line + "\n").getBytes());
+                        out.write((line + "\n").getBytes());
                     }
                 }
-                LogUtil.D("日志记录结束");
+                LogUtil.D("-------------------------日志记录结束-----------------------------");
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -195,22 +190,8 @@ public class Log2FileUtil {
                     logcatProc.destroy();
                     logcatProc = null;
                 }
-                if (mReader != null) {
-                    try {
-                        mReader.close();
-                        mReader = null;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (out != null) {
-                    try {
-                        out.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    out = null;
-                }
+                close(mReader);
+                close(out);
             }
         }
     }
@@ -228,20 +209,28 @@ public class Log2FileUtil {
         }
     }
 
-    public static File[] queryUploadFiles(){
-        FilenameFilter filter = new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String filename) {
-                return filename.endsWith(".log");
+//    public static File[] queryUploadFiles() {
+//        FilenameFilter filter = new FilenameFilter() {
+//            @Override
+//            public boolean accept(File dir, String filename) {
+//                return filename.endsWith(".log");
+//            }
+//        };
+//        File[] files = folder.listFiles(filter);
+//        return files;
+//    }
+//
+//    public static String getFolerPath() {
+//        return folder.getPath();
+//    }
+
+    private void close(Closeable closeable){
+        if(closeable != null){
+            try {
+                closeable.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        };
-        File file = new File(folderPath);
-        File[] files = file.listFiles(filter);
-        return files;
+        }
     }
-
-    public static String getFolerPath() {
-        return folderPath;
-    }
-
 }

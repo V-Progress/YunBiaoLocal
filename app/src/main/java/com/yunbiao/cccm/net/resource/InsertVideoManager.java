@@ -1,21 +1,15 @@
 package com.yunbiao.cccm.net.resource;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
-import android.support.v4.provider.DocumentFile;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
-import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.activity.MainController;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.net.listener.FileDownloadListener;
 import com.yunbiao.cccm.net.resource.resolve.InsertDataResolver;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.net.resource.model.InsertVideoModel;
@@ -168,7 +162,6 @@ public class InsertVideoManager {
             return;
         }
 
-        LogUtil.E(urlList.toString());
         download(urlList);
     }
 

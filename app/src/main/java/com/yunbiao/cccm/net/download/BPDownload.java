@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.yunbiao.cccm.net.listener.MultiFileDownloadListener;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.log.LogUtil;
 
 import java.io.Closeable;
 import java.io.IOException;

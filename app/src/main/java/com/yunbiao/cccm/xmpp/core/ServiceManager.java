@@ -26,7 +26,7 @@ import android.util.Log;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
 import com.yunbiao.cccm.utils.ThreadUtil;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.log.LogUtil;
 
 import java.util.Properties;
 

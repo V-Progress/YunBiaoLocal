@@ -13,7 +13,6 @@ import com.yunbiao.cccm.net.resource.model.VideoDataModel;
 import com.yunbiao.cccm.sd.HighVerSDController;
 import com.yunbiao.cccm.sd.LowVerSDController;
 import com.yunbiao.cccm.utils.DateUtil;
-import com.yunbiao.cccm.utils.LogUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -124,7 +123,6 @@ public class ConfigDataResolver {
                             continue;
                         }
 
-                        LogUtil.E("视频路径："+Uri.fromFile(video).toString());
                         videoList.add(Uri.fromFile(video).toString());
                         ResourceConst.addPlayItem(index + videoName);
                         ResourceConst.addPreviewItem(videoName, Uri.fromFile(video).toString());
@@ -135,7 +133,6 @@ public class ConfigDataResolver {
                             continue;
                         }
 
-                        LogUtil.E("视频路径："+video.getUri().toString());
                         videoList.add(video.getUri().toString());
                         ResourceConst.addPlayItem(index + videoName);
                         ResourceConst.addPreviewItem(videoName, video.getUri().toString());

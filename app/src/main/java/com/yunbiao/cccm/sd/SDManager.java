@@ -9,7 +9,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.yunbiao.cccm.activity.MainActivity;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.log.LogUtil;
 
 /**
  * Created by Administrator on 2019/1/16.
@@ -53,11 +53,14 @@ public class SDManager {
     boolean isDocumentTreeOpened = false;
 
     public void checkSD() {
-        LogUtil.E("调用了检测SD卡");
+        LogUtil.D("调用了检测SD卡");
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             mListener.sdCanUsed(LowVerSDController.instance().init(mAct, "/mnt/extsd"));
         } else {
+            if(mAct == null){
+                return;
+            }
             String sdUriStr = PreferenceManager.getDefaultSharedPreferences(mAct).getString(KEY_SD_URI_CACHE, "");
             if (!TextUtils.isEmpty(sdUriStr)) {
                 mListener.sdCanUsed(HighVerSDController.instance().init(mAct, sdUriStr));

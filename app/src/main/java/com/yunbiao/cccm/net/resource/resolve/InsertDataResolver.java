@@ -17,7 +17,7 @@ import com.yunbiao.cccm.net.view.TipToast;
 import com.yunbiao.cccm.sd.HighVerSDController;
 import com.yunbiao.cccm.sd.LowVerSDController;
 import com.yunbiao.cccm.utils.CommonUtils;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.log.LogUtil;
 
 import java.io.File;
 import java.text.ParseException;

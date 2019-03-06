@@ -25,7 +25,7 @@ import android.widget.VideoView;
 
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.common.ResourceConst;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.log.LogUtil;
 
 /**
  * Created by Administrator on 2018/12/27.
@@ -74,7 +74,6 @@ public class PlayListFragment extends Fragment implements View.OnTouchListener {
 
     public void updateList(){
         if(arrayAdapter != null){
-            LogUtil.E("刷新");
             arrayAdapter.notifyDataSetChanged();
         }
     }

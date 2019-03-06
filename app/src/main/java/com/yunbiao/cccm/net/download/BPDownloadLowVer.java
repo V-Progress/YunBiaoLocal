@@ -5,7 +5,7 @@ import android.text.TextUtils;
 import com.yunbiao.cccm.common.YunBiaoException;
 import com.yunbiao.cccm.sd.LowVerSDController;
 import com.yunbiao.cccm.utils.DateUtil;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.net.listener.MultiFileDownloadListener;
 
 import java.io.File;
@@ -70,7 +70,7 @@ public class BPDownloadLowVer extends BPDownload {
         String downloadUrl = urlQueue.poll();
         String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/")).substring(1);
         String cacheFileName = "cache_" + fileName;
-        LogUtil.E("准备下载的文件名：" + fileName);
+        d("准备下载的文件名：" + fileName);
 
         InputStream is = null;
         OutputStream os = null;
@@ -78,7 +78,7 @@ public class BPDownloadLowVer extends BPDownload {
         try {
             //获取远程文件长度
             long contentLength = getContentLength(downloadUrl);
-            LogUtil.E("远程文件大小：" + contentLength);
+            d("远程文件大小：" + contentLength);
             //如果下载的文件长度为0并且重试次数未超
             if (contentLength == 0) {
                 throw new DownloadException(DownloadException.CODE_FAILED_CONTENT_LENGTH, "Get File's Length Error");

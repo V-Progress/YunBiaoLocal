@@ -7,7 +7,7 @@ import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.net.listener.MainRefreshListener;
 import com.yunbiao.cccm.utils.ConsoleUtil;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.yunbiao.cccm;
+package com.yunbiao.cccm.log;
 
 import android.os.Looper;
 import android.util.Printer;
@@ -8,7 +8,7 @@ import android.util.Printer;
  */
 
 public class BlockDetectByPrinter {
-    private static final boolean isCheck = false;
+    private static final boolean isCheck = true;
     public static void start() {
         if(isCheck){
             Looper.getMainLooper().setMessageLogging(new Printer() {

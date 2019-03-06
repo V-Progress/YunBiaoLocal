@@ -16,7 +16,7 @@ import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.utils.CommonUtils;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
@@ -77,7 +77,7 @@ public class ScreenShot {
                 File ssfile = new File(filePath);
                 if (ssfile.exists() && ssfile.isFile()) {
                     boolean delete = ssfile.delete();
-                    LogUtil.E("旧的截屏删除:" + delete);
+                    LogUtil.D("旧的截屏删除:" + delete);
                 }
 
                 //如果MainActivity不在前台就截Menu的图
@@ -111,7 +111,7 @@ public class ScreenShot {
                     long currentPosition = APP.getMainActivity().getVideoCurrTime();
                     String currPlayVideo = APP.getMainActivity().getCurrPlayVideo();
                     if (TextUtils.isEmpty(currPlayVideo)) {
-                        LogUtil.E("当前无播放的视频");
+                        LogUtil.D("当前无播放的视频");
                         return;
                     }
                     retriever.setDataSource(currPlayVideo);
@@ -158,7 +158,7 @@ public class ScreenShot {
                 bitmap.compress(Bitmap.CompressFormat.PNG, IMG_QUALITY, fileOutputStream);
                 fileOutputStream.flush();
                 fileOutputStream.close();
-                LogUtil.E("截屏成功！目录：" + filePath);
+                LogUtil.D("截屏成功！目录：" + filePath);
 
                 commitScreen(filePath);
                 return true;
@@ -190,7 +190,7 @@ public class ScreenShot {
 
                     @Override
                     public void onResponse(String response, int id) {
-                        LogUtil.E("上传结果：" + response.toString());
+                        LogUtil.D("上传结果：" + response.toString());
                     }
                 });
     }

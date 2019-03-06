@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.utils;
+package com.yunbiao.cccm.log;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -15,11 +15,18 @@ public class LogUtil {
         return o.getClass().getSimpleName().toString();
     }
 
+    public static void E(Object obj,String log){
+        if(!ISLOG){
+            return;
+        }
+        E(obj.getClass().getSimpleName(),log);
+    }
+
     public static void E(String log) {
         if(!ISLOG){
             return;
         }
-        E(null,log);
+        E("",log);
     }
 
     public static void E(String tag, String log) {
@@ -29,11 +36,18 @@ public class LogUtil {
         Log.e(TextUtils.isEmpty(tag) ? TAG : tag, "---"+log);
     }
 
+    public static void D(Object obj,String log){
+        if(!ISLOG){
+            return;
+        }
+        D(obj.getClass().getSimpleName(),log);
+    }
+
     public static void D(String log) {
         if(!ISLOG){
             return;
         }
-        D(null,log);
+        D("",log);
     }
 
     public static void D(String tag, String log) {

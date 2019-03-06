@@ -7,7 +7,7 @@ import android.text.TextUtils;
 import com.yunbiao.cccm.common.YunBiaoException;
 import com.yunbiao.cccm.sd.HighVerSDController;
 import com.yunbiao.cccm.utils.DateUtil;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.net.listener.MultiFileDownloadListener;
 
 import java.io.IOException;
@@ -51,7 +51,7 @@ public class BPDownloadHighVer extends BPDownload {
         //取出文件名称
         String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/")).substring(1);
         String cacheFileName = "cache_" + fileName;
-        LogUtil.E("准备下载的文件名：" + fileName);
+        d("准备下载：" + fileName);
 
         InputStream is = null;
         OutputStream os = null;
@@ -59,7 +59,7 @@ public class BPDownloadHighVer extends BPDownload {
         try {
             //获取远程文件长度
             long contentLength = getContentLength(downloadUrl);
-            LogUtil.E("远程文件大小：" + contentLength);
+            d("远程文件大小：" + contentLength);
             //如果下载的文件长度为0并且重试次数未超
             if (contentLength == 0) {
                 throw new DownloadException(DownloadException.CODE_FAILED_CONTENT_LENGTH, "Get File's Length Error");
@@ -69,7 +69,7 @@ public class BPDownloadHighVer extends BPDownload {
             DocumentFile localFile = sdController.findResource(fileName);
             if(localFile != null && localFile.exists()){//如果文件存在
                 if(localFile.length() == contentLength){//并且大小等于远程
-                    LogUtil.E("文件已下载完成，结束");
+                    d("文件已下载完成，结束");
                     throw new DownloadException(DownloadException.CODE_SUCCESS_DOWNLOAD, DateUtil.yyyy_MM_dd_HH_mm_Format(new Date()));
                 }else{
                     boolean delete = localFile.delete();
@@ -83,9 +83,9 @@ public class BPDownloadHighVer extends BPDownload {
             DocumentFile cacheFile = sdController.findResource(cacheFileName);
             if(cacheFile != null && cacheFile.exists()){//如果缓存文件存在
                 if(cacheFile.length() == contentLength){//并且已下载完
-                    LogUtil.E("缓存文件已下载完毕，修改名称");
+                    d("缓存文件已下载完毕，修改名称");
                     boolean renameTo = cacheFile.renameTo(fileName);
-                    LogUtil.E("修改名称结果："+renameTo);
+                    d("修改名称结果："+renameTo);
                     if (!renameTo) {//改名失败
                         throw new DownloadException(DownloadException.CODE_CACHE_DOWNLOADED_RENAME_FAILED, "download success, rename cacheFile failed");
                     }
@@ -96,8 +96,6 @@ public class BPDownloadHighVer extends BPDownload {
             }else{//缓存文件不存在，创建
                 cacheFile = sdController.createVideoRes(cacheFileName);
             }
-            LogUtil.E("缓存文件的uri：" + cacheFile.getUri().toString());
-
 
             d("start download...");
             mListener.onStart(currFileNum);

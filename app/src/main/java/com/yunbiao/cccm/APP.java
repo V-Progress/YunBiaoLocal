@@ -15,9 +15,11 @@ import com.yunbiao.cccm.activity.MainActivity;
 import com.yunbiao.cccm.activity.MenuActivity;
 import com.yunbiao.cccm.common.Const;
 import com.yunbiao.cccm.common.HeartBeatClient;
+import com.yunbiao.cccm.log.BlockDetectByPrinter;
 import com.yunbiao.cccm.utils.CommonUtils;
 import com.yunbiao.cccm.net.listener.BDLocationListener;
-import com.yunbiao.cccm.utils.Log2FileUtil;
+import com.yunbiao.cccm.log.Log2FileUtil;
+import com.yunbiao.cccm.log.LogUtil;
 import com.zhy.http.okhttp.OkHttpUtils;
 
 import java.util.ArrayList;
@@ -144,7 +146,7 @@ public class APP extends Application {
         }
         //清空缓存的activity
         actList.clear();
-
+        Log2FileUtil.stopLogcatManager();
         //关闭整个应用
         System.exit(0);
     }

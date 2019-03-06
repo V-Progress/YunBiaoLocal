@@ -12,7 +12,7 @@ import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.sd.SDManager;
 import com.yunbiao.cccm.activity.MainController;
 import com.yunbiao.cccm.utils.CopyUtil;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.utils.TimerUtil;
 import com.yunbiao.cccm.utils.ToastUtil;
 import com.yunbiao.cccm.net.listener.copyFileListener;
@@ -50,7 +50,7 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
                 }
 
                 if (CacheManager.SP.getMode() == 0) {
-                    LogUtil.E("网络模式下不响应U盘拷贝");
+                    LogUtil.D("网络模式下不响应U盘拷贝");
                     return;
                 }
 

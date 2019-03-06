@@ -1,6 +1,8 @@
 package com.yunbiao.cccm.utils;
 
 import android.os.Build;
+
+import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.net.listener.copyFileListener;
 import com.yunbiao.cccm.local.VideoDirectoryFilter;
 import com.yunbiao.cccm.sd.LowVerSDController;
@@ -97,8 +99,7 @@ public class CopyUtil {
      * 复制文件
      */
     private void copyFiles(final File usbFile, final File localFile) {
-
-        LogUtil.E(usbFile.getAbsolutePath() + "----->"+localFile.getAbsolutePath());
+        LogUtil.D("拷贝文件："+usbFile.getAbsolutePath() + "----->"+localFile.getAbsolutePath());
 
         if (usbFile.isDirectory()) {
             File newFile = new File(localFile, usbFile.getName());

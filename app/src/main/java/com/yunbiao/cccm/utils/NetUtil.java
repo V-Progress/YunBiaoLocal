@@ -7,6 +7,7 @@ import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.common.HeartBeatClient;
+import com.yunbiao.cccm.log.LogUtil;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.Callback;
 import com.zhy.http.okhttp.callback.FileCallBack;
@@ -234,7 +235,7 @@ public class NetUtil {
 
                     @Override
                     public void onResponse(String response, int id) {
-                        LogUtil.E(response);
+                        LogUtil.D("上传设备信息：" + response);
                     }
                 });
             }

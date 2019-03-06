@@ -33,7 +33,7 @@ import com.yunbiao.cccm.net.resource.InsertVideoManager;
 import com.yunbiao.cccm.net.resource.ResourceManager;
 import com.yunbiao.cccm.utils.DeleteResUtil;
 import com.yunbiao.cccm.utils.DialogUtil;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.utils.TimerUtil;
 
 import java.util.List;
@@ -389,9 +389,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
             videoIndex++;
             if (videoIndex > playLists.size() - 1) {
                 videoIndex = 0;
-                LogUtil.E("是否轮播");
                 if (!isCycle) {
-                    LogUtil.E("不轮播");
                     stopInsert();
                     return;
                 }

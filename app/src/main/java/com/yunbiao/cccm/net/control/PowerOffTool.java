@@ -15,11 +15,10 @@ import com.yunbiao.cccm.net.control.power.OnOffTool;
 import com.yunbiao.cccm.net.control.power.PowerTimesBean;
 import com.yunbiao.cccm.utils.CommonUtils;
 import com.yunbiao.cccm.utils.DialogUtil;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.utils.TimerUtil;
-import com.zhy.http.okhttp.callback.StringCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;

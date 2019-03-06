@@ -15,6 +15,7 @@ import com.yunbiao.cccm.common.Const;
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.common.HeartBeatClient;
+import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.net.view.TipToast;
 import com.zhy.http.okhttp.callback.StringCallback;
 
@@ -258,7 +259,7 @@ public class SystemInfoUtil {
                 if (response.startsWith("\"")) {
                     response = response.substring(1, response.length() - 1);
                 }
-                LogUtil.E("检查更新RESPONSE: " + response);
+                LogUtil.D("检查更新RESPONSE: " + response);
                 judgeIsUpdate(response,onDownLoadListener);
             }
         });

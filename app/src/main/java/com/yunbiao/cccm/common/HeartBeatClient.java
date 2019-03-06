@@ -16,7 +16,7 @@ import android.util.Log;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.utils.CommonUtils;
-import com.yunbiao.cccm.utils.LogUtil;
+import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.zhy.http.okhttp.callback.StringCallback;
 
