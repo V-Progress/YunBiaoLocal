@@ -23,7 +23,7 @@ import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
 import com.yunbiao.cccm.net.resource.ResourceManager;
 import com.yunbiao.cccm.utils.DialogUtil;
-import com.yunbiao.cccm.sdOperator.SDManager;
+import com.yunbiao.cccm.sd.SDManager;
 import com.yunbiao.cccm.utils.TimerUtil;
 import com.yunbiao.cccm.utils.ToastUtil;
 

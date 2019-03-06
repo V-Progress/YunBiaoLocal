@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.net.bean;
+package com.yunbiao.cccm.net.model;
 
 /**
  * Created by Administrator on 2018/12/4.

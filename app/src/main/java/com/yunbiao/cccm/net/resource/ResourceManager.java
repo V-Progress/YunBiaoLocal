@@ -9,7 +9,7 @@ import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.common.YunBiaoException;
 import com.yunbiao.cccm.utils.NetUtil;
-import com.yunbiao.cccm.net.bean.ConfigResponse;
+import com.yunbiao.cccm.net.model.ConfigResponse;
 import com.yunbiao.cccm.net.resource.model.VideoDataModel;
 import com.yunbiao.cccm.net.resource.resolve.ConfigDataResolver;
 import com.yunbiao.cccm.net.resource.resolve.XMLParse;

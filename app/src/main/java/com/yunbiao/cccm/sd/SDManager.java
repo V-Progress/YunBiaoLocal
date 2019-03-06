@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.sdOperator;
+package com.yunbiao.cccm.sd;
 
 import android.app.Activity;
 import android.content.Intent;

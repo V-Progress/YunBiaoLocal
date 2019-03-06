@@ -10,8 +10,8 @@ import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.activity.MainController;
 import com.yunbiao.cccm.net.resource.model.VideoDataModel;
-import com.yunbiao.cccm.sdOperator.HighVerSDController;
-import com.yunbiao.cccm.sdOperator.LowVerSDController;
+import com.yunbiao.cccm.sd.HighVerSDController;
+import com.yunbiao.cccm.sd.LowVerSDController;
 import com.yunbiao.cccm.utils.DateUtil;
 import com.yunbiao.cccm.utils.LogUtil;
 

@@ -14,8 +14,8 @@ import com.yunbiao.cccm.net.control.actions.XBHActions;
 import com.yunbiao.cccm.net.resource.TimeResolver;
 import com.yunbiao.cccm.net.resource.model.InsertVideoModel;
 import com.yunbiao.cccm.net.view.TipToast;
-import com.yunbiao.cccm.sdOperator.HighVerSDController;
-import com.yunbiao.cccm.sdOperator.LowVerSDController;
+import com.yunbiao.cccm.sd.HighVerSDController;
+import com.yunbiao.cccm.sd.LowVerSDController;
 import com.yunbiao.cccm.utils.CommonUtils;
 import com.yunbiao.cccm.utils.LogUtil;
 

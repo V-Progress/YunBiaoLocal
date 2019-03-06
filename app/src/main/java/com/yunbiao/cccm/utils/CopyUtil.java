@@ -3,7 +3,7 @@ package com.yunbiao.cccm.utils;
 import android.os.Build;
 import com.yunbiao.cccm.net.listener.copyFileListener;
 import com.yunbiao.cccm.local.VideoDirectoryFilter;
-import com.yunbiao.cccm.sdOperator.LowVerSDController;
+import com.yunbiao.cccm.sd.LowVerSDController;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

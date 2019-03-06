@@ -4,13 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.cache.CacheManager;
-import com.yunbiao.cccm.sdOperator.SDManager;
+import com.yunbiao.cccm.sd.SDManager;
 import com.yunbiao.cccm.activity.MainController;
 import com.yunbiao.cccm.utils.CopyUtil;
 import com.yunbiao.cccm.utils.LogUtil;
