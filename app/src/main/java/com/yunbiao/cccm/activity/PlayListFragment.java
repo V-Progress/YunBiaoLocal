@@ -74,7 +74,12 @@ public class PlayListFragment extends Fragment implements View.OnTouchListener {
 
     public void updateList(){
         if(arrayAdapter != null){
-            arrayAdapter.notifyDataSetChanged();
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    arrayAdapter.notifyDataSetChanged();
+                }
+            });
         }
     }
 

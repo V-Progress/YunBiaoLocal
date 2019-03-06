@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.VideoView;
 
+import com.umeng.analytics.MobclickAgent;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.activity.base.BaseActivity;
@@ -363,6 +364,9 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
                     , new Runnable() {
                         @Override
                         public void run() {
+                            if(playLists != null && playLists.size()>0 && videoIndex<playLists.size()){
+                                MobclickAgent.reportError(MainActivity.this,"播放错误："+playLists.get(videoIndex));
+                            }
                             stopInsert();
                         }
                     });
