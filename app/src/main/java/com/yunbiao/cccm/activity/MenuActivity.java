@@ -81,7 +81,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     private SoundPool soundPool;//用来管理和播放音频文件
     private int music;
     private TimerUtil timerUtil;
-    private PlayListFragment playListFragment;
+    private PlayListFragment playListFragment = new PlayListFragment();
 
     protected int setLayout() {
         APP.setMenuActivity(this);
@@ -109,10 +109,6 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
 
         tvMenuStartHints.setText(R.string.play);
         tvMenuStartHints2.setText(R.string.auto_play);
-
-//        tvMenuSettingHints.setText("微信消息查看");
-//        tvMenuSettingHints2.setText("微信上墙消息查看");
-        tvMenuSettingHints2.setText("即将开放");
 
         tvShowOnscreenTime.setText(String.valueOf(Const.SYSTEM_CONFIG.MENU_STAY_DURATION));
 
@@ -212,7 +208,6 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                     ToastUtil.showShort(this, "请不要重复点击");
                 } else {
                     onPause();
-                    playListFragment = new PlayListFragment();
                     FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
                     fragmentTransaction.setCustomAnimations(R.anim.dialog_top_enter, R.anim.dialog_top_exit);
                     fragmentTransaction.add(R.id.prl_root, playListFragment).commit();

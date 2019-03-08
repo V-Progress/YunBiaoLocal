@@ -21,8 +21,9 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class ConfigDataResolver {
-    private static ConfigDataResolver instance;
+// TODO: 2019/3/8
+public class ConfigResolver {
+    private static ConfigResolver instance;
 
     private static List<PlayModel> playModelList = new ArrayList<>();
     private List<Timer> timerList;
@@ -30,18 +31,18 @@ public class ConfigDataResolver {
     private final String todayStr;
     private final String tommStr;
 
-    public static ConfigDataResolver getInstance() {
+    public static ConfigResolver getInstance() {
         if (instance == null) {
-            synchronized (ConfigDataResolver.class) {
+            synchronized (ConfigResolver.class) {
                 if (instance == null) {
-                    instance = new ConfigDataResolver();
+                    instance = new ConfigResolver();
                 }
             }
         }
         return instance;
     }
 
-    private ConfigDataResolver() {
+    private ConfigResolver() {
         todayStr = DateUtil.getTodayStr();
         tommStr = DateUtil.getTommStr();
     }
@@ -51,7 +52,7 @@ public class ConfigDataResolver {
      */
     public void initPlayList() {
         //初始化之前先清除所有的资源
-        ResourceConst.clearPalyList();
+        ResourceConst.instance().clearPalyList();
         playModelList.clear();
 
         //初始化今天的资源
@@ -102,7 +103,7 @@ public class ConfigDataResolver {
                 List<String> videoList = new ArrayList<>();
 
                 String[] times = rule.getDate().trim().split("-");//播放时间
-                ResourceConst.addPlayItem(playDate + "\t\t\t" + times[0] + "-" + times[1]);
+                ResourceConst.instance().addPlayItem(playDate + "\t\t\t" + times[0] + "-" + times[1]);
 
                 //分割单条
                 String[] ress = rule.getRes().split(",");
@@ -119,23 +120,23 @@ public class ConfigDataResolver {
                         //生成File
                         File video = LowVerSDController.instance().findResource(videoName);
                         if (!video.exists()) {
-                            ResourceConst.addPlayItem(index + videoName + "(无)");
+                            ResourceConst.instance().addPlayItem(index + videoName + "(无)");
                             continue;
                         }
 
                         videoList.add(Uri.fromFile(video).toString());
-                        ResourceConst.addPlayItem(index + videoName);
-                        ResourceConst.addPreviewItem(videoName, Uri.fromFile(video).toString());
+                        ResourceConst.instance().addPlayItem(index + videoName);
+                        ResourceConst.instance().addPreviewItem(videoName, Uri.fromFile(video).toString());
                     } else {
                         DocumentFile video = HighVerSDController.instance().findResource(videoName);
                         if (video == null || (!video.exists())) {
-                            ResourceConst.addPlayItem(index + videoName + "(无)");
+                            ResourceConst.instance().addPlayItem(index + videoName + "(无)");
                             continue;
                         }
 
                         videoList.add(video.getUri().toString());
-                        ResourceConst.addPlayItem(index + videoName);
-                        ResourceConst.addPreviewItem(videoName, video.getUri().toString());
+                        ResourceConst.instance().addPlayItem(index + videoName);
+                        ResourceConst.instance().addPreviewItem(videoName, video.getUri().toString());
                     }
                 }
 

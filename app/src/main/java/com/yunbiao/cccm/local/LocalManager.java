@@ -81,7 +81,7 @@ public class LocalManager {
                         files[j] = fileMap.get(fileKey[j]);
                     }
                     //清空播放列表
-                    ResourceConst.clearPalyList();
+                    ResourceConst.instance().clearPalyList();
 
                     //解析播放列表
                     for (File file : files) {
@@ -142,7 +142,7 @@ public class LocalManager {
                     }
 
                     //清空播放列表
-                    ResourceConst.clearPalyList();
+                    ResourceConst.instance().clearPalyList();
 
                     //解析播放列表
                     for (DocumentFile file : docList) {
@@ -207,7 +207,7 @@ public class LocalManager {
             for (VideoDataModel.Play.Rule rule : rules) {
                 String[] times = rule.getDate().trim().split("-");
 
-                ResourceConst.addPlayItem(playDate + "\t\t\t" + times[0] + "-" + times[1]);
+                ResourceConst.instance().addPlayItem(playDate + "\t\t\t" + times[0] + "-" + times[1]);
 
                 String[] res = rule.getRes().trim().replace("，", ",").replaceAll("\\s*,\\s*", ",").split(",");
 
@@ -223,12 +223,12 @@ public class LocalManager {
                     File video = new File(dirFile, "resource/" + videoStr);
                     String index = k + 1 > 9 ? k + 1 + " " : k + 1 + "  ";
                     if (!video.exists()) {
-                        ResourceConst.addPlayItem(index + videoStr + "(无)");
+                        ResourceConst.instance().addPlayItem(index + videoStr + "(无)");
                         continue;
                     }
-                    ResourceConst.addPlayItem(index + videoStr);
+                    ResourceConst.instance().addPlayItem(index + videoStr);
 
-                    ResourceConst.addPreviewItem(videoName, Uri.fromFile(video).toString());
+                    ResourceConst.instance().addPreviewItem(videoName, Uri.fromFile(video).toString());
 
                     videoList.add(Uri.fromFile(video).toString());
                 }
@@ -288,7 +288,7 @@ public class LocalManager {
             for (VideoDataModel.Play.Rule rule : rules) {
                 String[] times = rule.getDate().trim().split("-");
 
-                ResourceConst.addPlayItem(playDate + "\t\t\t" + times[0] + "-" + times[1]);
+                ResourceConst.instance().addPlayItem(playDate + "\t\t\t" + times[0] + "-" + times[1]);
 
                 String[] res = rule.getRes().trim().replace("，", ",").replaceAll("\\s*,\\s*", ",").split(",");
 
@@ -305,12 +305,12 @@ public class LocalManager {
 
                     String index = k + 1 > 9 ? k + 1 + " " : k + 1 + "  ";
                     if (video == null || !video.exists()) {
-                        ResourceConst.addPlayItem(index + videoStr + "(无)");
+                        ResourceConst.instance().addPlayItem(index + videoStr + "(无)");
                         continue;
                     }
-                    ResourceConst.addPlayItem(index + videoStr);
+                    ResourceConst.instance().addPlayItem(index + videoStr);
 
-                    ResourceConst.addPreviewItem(videoName, video.getUri().toString());
+                    ResourceConst.instance().addPreviewItem(videoName, video.getUri().toString());
 
                     videoList.add(video.getUri().toString());
                 }

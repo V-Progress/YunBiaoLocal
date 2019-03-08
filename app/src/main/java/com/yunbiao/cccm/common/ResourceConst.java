@@ -3,12 +3,34 @@ package com.yunbiao.cccm.common;
 import android.os.Build;
 import android.os.Environment;
 
+import com.yunbiao.cccm.activity.MainController;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
-public class ResourceConst {
+public class ResourceConst extends Observable {
+
+    private static ResourceConst instance;
+
+    public static ResourceConst instance(){
+        if(instance == null){
+            synchronized(ResourceConst.class){
+                if(instance == null){
+                    instance = new ResourceConst();
+                }
+            }
+        }
+        return instance;
+    }
+
+    private ResourceConst(){
+        this.addObserver(MainController.getInstance());
+    }
+
 
     //播放列表和预览列表
     private static List<String> playList = new ArrayList<>();
@@ -25,17 +47,21 @@ public class ResourceConst {
     /***
      * 清空播放列表和预览列表
      */
-    public static void clearPalyList(){
+    public void clearPalyList(){
         playList.clear();
         previewMap.clear();
+        setChanged();
+        notifyObservers();
     }
 
     /***
      * 添加播放列表条目
      * @param item
      */
-    public static void addPlayItem(String item){
+    public void addPlayItem(String item){
         playList.add(item);
+        setChanged();
+        notifyObservers();
     }
 
     /***
@@ -43,9 +69,12 @@ public class ResourceConst {
      * @param key
      * @param value
      */
-    public static void addPreviewItem(String key,String value){
+    public void addPreviewItem(String key,String value){
         previewMap.put(key,value);
     }
+
+
+
 
     public static class LOCAL_RES {
         private static String EXTERNAL_ROOT_DIR = Environment.getExternalStorageDirectory().getAbsolutePath();//外存根目录

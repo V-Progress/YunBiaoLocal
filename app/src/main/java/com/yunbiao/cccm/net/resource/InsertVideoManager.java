@@ -8,7 +8,7 @@ import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.net.listener.FileDownloadListener;
-import com.yunbiao.cccm.net.resource.resolve.InsertDataResolver;
+import com.yunbiao.cccm.net.resource.resolve.InsertResolver;
 import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
@@ -102,7 +102,7 @@ public class InsertVideoManager {
         }
 
         urlList.clear();
-        InsertDataResolver.instance().stopInsert();
+        InsertResolver.instance().stopInsert();
 
         CacheManager.FILE.putInsertData(new Gson().toJson(ivm));
         InsertVideoModel.InsertData dateJson = ivm.getDateJson();
@@ -155,7 +155,7 @@ public class InsertVideoManager {
                 continue;
             }
 
-            InsertDataResolver.instance().init();
+            InsertResolver.instance().init();
         }
 
         if(urlList.size() <= 0){
@@ -199,7 +199,7 @@ public class InsertVideoManager {
             @Override
             public void onFinish() {
                 MainController.getInstance().closeLoading();
-                InsertDataResolver.instance().init();
+                InsertResolver.instance().init();
             }
 
         });

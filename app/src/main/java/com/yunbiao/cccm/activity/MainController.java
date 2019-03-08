@@ -11,6 +11,8 @@ import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * 内容控制器
@@ -18,7 +20,7 @@ import java.util.List;
  * Created by Administrator on 2018/12/11.
  */
 
-public class MainController {
+public class MainController implements Observer{
     private static MainController layoutRefresher;
     private MainRefreshListener mRefListener;
 
@@ -66,7 +68,7 @@ public class MainController {
      * 更新菜单界面的播放按钮
      * @param isHasPlay
      */
-    private void updateMenu(final boolean isHasPlay) {
+    private synchronized void updateMenu(final boolean isHasPlay) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
@@ -89,18 +91,19 @@ public class MainController {
         });
     }
 
-    /***
-     * 更新播放列表
-     */
-    public void updateList() {
-        final MenuActivity menuActivity = APP.getMenuActivity();
-        if (menuActivity != null) {
-            ThreadUtil.getInstance().runInUIThread(new Runnable() {
-                @Override
-                public void run() {
-                    menuActivity.updatePlayList();
-                }
-            });
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if(o.hasChanged()){
+            final MenuActivity menuActivity = APP.getMenuActivity();
+            if (menuActivity != null) {
+                ThreadUtil.getInstance().runInUIThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        menuActivity.updatePlayList();
+                    }
+                });
+            }
         }
     }
 
@@ -212,16 +215,16 @@ public class MainController {
 
     /***
      * 初始化播放数据
-     */
-    public void initPlayData() {
-        ThreadUtil.getInstance().runInUIThread(new Runnable() {
-            @Override
-            public void run() {
-                mRefListener.initPlayData();
-            }
-        });
-
-    }
+     */// TODO: 2019/3/8
+//    public void initPlayData() {
+//        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                mRefListener.initPlayData();
+//            }
+//        });
+//
+//    }
 
     public void updateLayerType(final Integer layerType){
         if(mRefListener == null){
@@ -233,31 +236,6 @@ public class MainController {
                 mRefListener.updateLayerType(layerType == 2);
             }
         });
-    }
-
-    /***
-     * 打开控制台进度条
-     */
-    public void openConsole() {
-        ThreadUtil.getInstance().runInUIThread(new Runnable() {
-            @Override
-            public void run() {
-                ConsoleUtil.instance().openConsole();
-            }
-        });
-    }
-
-    /***
-     * 关闭控制台
-     */
-    public void closeConsole() {
-        ThreadUtil.getInstance().runInUIThread(new Runnable() {
-            @Override
-            public void run() {
-                ConsoleUtil.instance().closeConsole();
-            }
-        });
-
     }
 
     /***
@@ -347,4 +325,5 @@ public class MainController {
             }
         });
     }
+
 }

@@ -42,6 +42,7 @@ import java.util.List;
 import butterknife.BindView;
 import master.flame.danmaku.ui.widget.DanmakuView;
 
+// TODO: 2019/3/8
 public class MainActivity extends BaseActivity implements MainRefreshListener, SDManager.CheckSDListener {
     /*视频播放----*/
     @BindView(R.id.video_view)
@@ -156,7 +157,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     /*
      * 初始化播放数据
      */
-    @Override
+//    @Override
     public void initPlayData() {
         if(HighVerSDController.instance().isSDCanUsed() || LowVerSDController.instance().isSDCanUsed()){
             if (CacheManager.SP.getMode() == 0) {
@@ -429,14 +430,23 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
                     VideoProgressUtil.instance().showPlayState(0);
                 }
                 break;
+            case KeyEvent.KEYCODE_DPAD_UP:
+                ConsoleUtil.instance().showConsole();
+                break;
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                ConsoleUtil.instance().hideConsole();
+                break;
             case KeyEvent.KEYCODE_MENU:
-                startActivity(new Intent(this, MenuActivity.class));
+                MenuActivity menuActivity = APP.getMenuActivity();
+                if(menuActivity ==null || !menuActivity.isForeground()){
+                    startActivity(new Intent(this, MenuActivity.class));
+                }
                 break;
             case KeyEvent.KEYCODE_BACK:
                 APP.exit();
                 return false;
         }
-        return false;
+        return true;
     }
 
     @Override

@@ -77,8 +77,13 @@ public class DateUtil {
         return yyyy_MM_dd.format(parse);
     }
 
-    public static Date yyyy_MM_dd_Parse(String s) throws ParseException {
-        return yyyy_MM_dd.parse(s);
+    public static Date yyyy_MM_dd_Parse(String s){
+        try {
+            return yyyy_MM_dd.parse(s);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static String yyyyMMddHH_mm_Format(Date d) {

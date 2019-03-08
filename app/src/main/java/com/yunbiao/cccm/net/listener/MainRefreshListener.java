@@ -29,7 +29,7 @@ public interface MainRefreshListener {
     void removeView(View view);
 
     //初始化数据
-    void initPlayData();
+//    void initPlayData();
     //清除播放数据
     void clearPlayData();
     //刷新layerType

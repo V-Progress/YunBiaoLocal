@@ -14,9 +14,8 @@ import android.widget.TextView;
 
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.activity.MainActivity;
-import com.yunbiao.cccm.common.Const;
+import com.yunbiao.cccm.log.LogUtil;
 
-import butterknife.BindView;
 import rjsv.circularview.CircleView;
 
 /**
@@ -93,35 +92,39 @@ public class ConsoleUtil {
         });
     }
 
-
     //------进度条控制----------------------------------------------------------------
     /*
     * 打开控制台
     */
-    public void openConsole() {
-        //如果是正式环境，则不开启控制台和进度条
-        if (!Const.SYSTEM_CONFIG.IS_PRO) {
-            llConsoleMain.setVisibility(View.VISIBLE);
+    Handler consoleHandler = new Handler();
+    Runnable consoleRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if(llConsoleMain.isShown()){
+                llConsoleMain.setVisibility(View.GONE);
+            }
         }
+    };
+
+    private final int CONSOLE_WHAT = 11;
+    private final int CONSOLE_SHOW_TIME = 10 * 1000;
+    public void showConsole(){
+        LogUtil.E("-------"+llConsoleMain.isShown());
+        llConsoleMain.setVisibility(View.VISIBLE);
+
+//        consoleHandler.removeCallbacks(consoleRunnable);
+//        consoleHandler.postDelayed(consoleRunnable,CONSOLE_SHOW_TIME);
     }
 
-    /*
-     * 关闭控制台
-     */
-    public void closeConsole() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                llConsoleMain.setVisibility(View.GONE);
-                progressParentMain.setMaximumValue(0);
-                tvConsoleMain.setText("");
-            }
-        }, 3000);
+    public void hideConsole(){
+        LogUtil.E("-------"+llConsoleMain.isShown());
+        llConsoleMain.setVisibility(View.GONE);
+        consoleHandler.removeCallbacks(consoleRunnable);
     }
 
     public void updateConsole(String msg) {
         String lastStr = tvConsoleMain.getText().toString();
-        tvConsoleMain.setText(lastStr + "\n" + msg);
+        tvConsoleMain.setText(lastStr + "\n\n" + msg);
     }
 
     public void initProgress(int parentMax) {
@@ -162,8 +165,5 @@ public class ConsoleUtil {
     public void closeLoading() {
         llLoadingMain.setVisibility(View.GONE);
     }
-
-
-
 
 }

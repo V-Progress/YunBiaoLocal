@@ -32,25 +32,25 @@ import java.util.TimerTask;
  * Created by Administrator on 2019/3/1.
  */
 
-public class InsertDataResolver {
-    private static InsertDataResolver instance;
+public class InsertResolver {
+    private static InsertResolver instance;
     private SimpleDateFormat yyyyMMddHH_mm_ss = new SimpleDateFormat("yyyyMMddHH:mm:ss");
     private final Date todayDate;
 
     private List<Timer> timerList = new ArrayList<>();
 
-    public static InsertDataResolver instance(){
+    public static InsertResolver instance(){
         if(instance == null){
-            synchronized(InsertDataResolver.class){
+            synchronized(InsertResolver.class){
                 if(instance == null){
-                    instance = new InsertDataResolver();
+                    instance = new InsertResolver();
                 }
             }
         }
         return instance;
     }
 
-    private InsertDataResolver(){
+    private InsertResolver(){
         todayDate = new Date(System.currentTimeMillis());
     }
 

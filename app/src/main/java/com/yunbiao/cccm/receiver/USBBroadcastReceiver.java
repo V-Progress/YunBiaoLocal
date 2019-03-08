@@ -87,7 +87,6 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
 
     @Override
     public void onCopyStart(final String usbFilePath) {
-        MainController.getInstance().openConsole();
         MainController.getInstance().updateConsole(usbFilePath);
     }
 
@@ -110,12 +109,11 @@ public class USBBroadcastReceiver extends BroadcastReceiver implements copyFileL
     @Override
     public void onCopyComplete() {
         MainController.getInstance().updateConsole("复制完成\n加载视频...");
-        MainController.getInstance().initPlayData();
+//        MainController.getInstance().initPlayData();// TODO: 2019/3/8  
     }
 
     @Override
     public void onFinish() {
-        MainController.getInstance().closeConsole();
     }
 
     @Override
