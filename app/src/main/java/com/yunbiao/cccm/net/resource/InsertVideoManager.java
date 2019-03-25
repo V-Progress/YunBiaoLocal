@@ -110,6 +110,7 @@ public class InsertVideoManager {
         List<InsertVideoModel.Data> insertArray = dateJson.getInsertArray();
         if (insertArray == null || insertArray.size() <= 0) {
             MainController.getInstance().setHasInsert(false);
+            InsertResolver.instance().stopInsert();
             return;
         }
 
