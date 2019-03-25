@@ -65,11 +65,12 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
         ConsoleUtil.instance().init(this);
         MainController.getInstance().registerActivity(this);
 
-        ijkPlayer.initSoLib();
-        ijkPlayer.enableController(true,false);
-        ijkPlayer.enableErrorAlert(false);
-        ijkPlayer.enableErrorDeleteUri(true);
-        ijkPlayer.setIjkPlayListener(this);
+        ijkPlayer.initSoLib();//初始化SO库
+        ijkPlayer.setNavigation(this);//调整底部栏
+        ijkPlayer.enableController(true,false);//设置控制条
+        ijkPlayer.enableErrorAlert(false);//关闭错误提示
+        ijkPlayer.enableErrorDeleteUri(true);//开启错误删除
+        ijkPlayer.setIjkPlayListener(this);//设置播放结束回调
     }
 
     protected void initData() {

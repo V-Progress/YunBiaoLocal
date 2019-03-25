@@ -25,8 +25,10 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -119,6 +121,8 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
     //当前播放位置
     private long currPosition = 0;
     private View controllerView;
+    private TextView tcpSpeed;
+    private LinearLayout loadingView;
 
     public EasyIJKPlayer(@NonNull Context context) {
         super(context);
@@ -194,11 +198,17 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
         timeline.setOnSeekBarChangeListener(onSeekBarChangeListener);
         ibPlayState.setOnClickListener(this);
 
+        loadingView = new LinearLayout(mContext);
+        loadingView.setOrientation(LinearLayout.VERTICAL);
+        loadingView.setGravity(Gravity.CENTER);
         bufferPb = new ProgressBar(mContext);
+        tcpSpeed = new TextView(mContext);
+        loadingView.addView(bufferPb);
+        loadingView.addView(tcpSpeed);
         LayoutParams pbParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         pbParams.gravity = Gravity.CENTER;
-        this.addView(bufferPb, pbParams);
-        bufferPb.setVisibility(View.GONE);
+        this.addView(loadingView, pbParams);
+        loadingView.setVisibility(View.GONE);
     }
 
     /***
@@ -257,7 +267,7 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
         Log.e(TAG, "loadUri: 指针："+playIndex );
         if(mPlayMode == MODE_LIST){
             if(playIndex >= playList.size()){
-                playIndex ++ ;
+                playIndex = 0 ;
             }
             currPlayUri = playList.get(playIndex);
         }
@@ -306,7 +316,7 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
         });
 
         showProgress();
-        bufferPb.setVisibility(View.GONE);
+        loadingView.setVisibility(View.GONE);
     }
 
     public String getCurrentVideo() {
@@ -349,9 +359,9 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
     public boolean onInfo(IMediaPlayer iMediaPlayer, int what, int extra) {
         Log.e(TAG, "onInfo: "+what + "-----"+extra);
         if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
-            bufferPb.setVisibility(View.VISIBLE);
+            loadingView.setVisibility(View.VISIBLE);
         } else if (what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
-            bufferPb.setVisibility(View.GONE);
+            loadingView.setVisibility(View.GONE);
         }
         return true;
     }
@@ -717,6 +727,11 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
                 return;
             }
 
+            long tcpSpeed = mMediaPlayer.getTcpSpeed();
+            if(tcpSpeed != 0){
+                tcpSpeed = tcpSpeed / 1024;
+            }
+            EasyIJKPlayer.this.tcpSpeed.setText(""+tcpSpeed+"k/s");
             long currentPosition = mMediaPlayer.getCurrentPosition();
             long duration = mMediaPlayer.getDuration();
             timeline.setMax((int) duration);
