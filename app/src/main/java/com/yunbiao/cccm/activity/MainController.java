@@ -20,7 +20,7 @@ import java.util.Observer;
  * Created by Administrator on 2018/12/11.
  */
 
-public class MainController implements Observer{
+public class MainController{
     private static MainController layoutRefresher;
     private MainRefreshListener mRefListener;
 
@@ -91,22 +91,6 @@ public class MainController implements Observer{
         });
     }
 
-
-    @Override
-    public void update(Observable o, Object arg) {
-        if(o.hasChanged()){
-            final MenuActivity menuActivity = APP.getMenuActivity();
-            if (menuActivity != null) {
-                ThreadUtil.getInstance().runInUIThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        menuActivity.updatePlayList();
-                    }
-                });
-            }
-        }
-    }
-
     /***
      * 更新设备编号和接入码
      */
@@ -131,6 +115,15 @@ public class MainController implements Observer{
             @Override
             public void run() {
                 mRefListener.startConfigPlay(videoString);
+            }
+        });
+    }
+
+    public void updatePlay(final List<String> videoList){
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                mRefListener.updateConfigPlay(videoList);
             }
         });
     }
@@ -192,11 +185,11 @@ public class MainController implements Observer{
      * @param isCycle
      * @param videoString
      */
-    public void startInsert(final boolean isCycle, final List<String> videoString) {
+    public void startInsert(final boolean isCycle, final List<String> videoString, final boolean isAdd) {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                mRefListener.startInsert(isCycle, videoString);
+                mRefListener.startInsert(isCycle, videoString,isAdd);
             }
         });
     }

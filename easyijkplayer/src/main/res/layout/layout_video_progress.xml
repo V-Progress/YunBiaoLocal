@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <ImageButton
+        android:background="@android:color/transparent"
+        android:id="@+id/ib_play_state"
+        android:layout_marginLeft="10dp"
+        android:src="@mipmap/pause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <SeekBar
+        android:layout_marginLeft="5dp"
+        android:id="@+id/timeline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:maxHeight="4.0dip"
+        android:minHeight="4.0dip"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:progressDrawable="@drawable/po_seekbar"
+        android:thumb="@drawable/seekbar_thumb" />
+</LinearLayout>

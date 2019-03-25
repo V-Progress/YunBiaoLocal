@@ -102,7 +102,6 @@ public class InsertVideoManager {
         }
 
         urlList.clear();
-        InsertResolver.instance().stopInsert();
 
         CacheManager.FILE.putInsertData(new Gson().toJson(ivm));
         InsertVideoModel.InsertData dateJson = ivm.getDateJson();
@@ -152,10 +151,9 @@ public class InsertVideoManager {
                         urlList.add(downloadUrl);
                     }
                 }
-                continue;
+            } else {
+                InsertResolver.instance().init();
             }
-
-            InsertResolver.instance().init();
         }
 
         if(urlList.size() <= 0){

@@ -55,6 +55,8 @@ public class InsertResolver {
     }
 
     public void init(){
+        InsertResolver.instance().stopInsert();
+
         String insertData = CacheManager.FILE.getInsertData();
         if(TextUtils.isEmpty(insertData)){
             LogUtil.D("插播缓存为空");
@@ -142,7 +144,7 @@ public class InsertResolver {
             @Override
             public void run() {
                 MainController.getInstance().setHasInsert(true);
-                MainController.getInstance().startInsert(isCycle, playList);
+                MainController.getInstance().startInsert(isCycle, playList,false);
             }
         }, endTime, new TimerTask() {
             @Override
@@ -159,7 +161,7 @@ public class InsertResolver {
                 List<String> list = new ArrayList<>();
                 list.add(liveUrl);
                 MainController.getInstance().setHasInsert(true);
-                MainController.getInstance().startInsert(isCycle, list);
+                MainController.getInstance().startInsert(isCycle, list,false);
             }
         }, endTime, new TimerTask() {
             @Override

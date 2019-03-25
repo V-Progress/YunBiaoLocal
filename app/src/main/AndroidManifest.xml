@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.yunbiao.cccm">
 
     <!--内存读写权限-->
@@ -97,6 +98,7 @@
         <receiver android:name="com.yunbiao.cccm.activity.weichat.WeiChatReceiver" />
 
         <activity android:name="com.yunbiao.cccm.activity.weichat.WeichatActivity" />
+        <activity android:name=".activity.PlayListActivity"/>
 
         <!--开机启动广播监听-->
         <receiver android:name=".receiver.BootBroadcastReceiver">

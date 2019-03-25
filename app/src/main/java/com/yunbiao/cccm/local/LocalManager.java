@@ -415,7 +415,7 @@ public class LocalManager {
                     @Override
                     public void run() {
 //                        boolean isCycle = Integer.valueOf(rule.getIsCycle()) == 1;
-                        MainController.getInstance().startInsert(true,videoList);
+                        MainController.getInstance().startInsert(true,videoList,false);
                     }
                 }, beginTime);
 
@@ -486,7 +486,7 @@ public class LocalManager {
                 beginTimer.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        MainController.getInstance().startInsert(true,videoList);
+                        MainController.getInstance().startInsert(true,videoList,false);
                     }
                 }, beginTime);
 

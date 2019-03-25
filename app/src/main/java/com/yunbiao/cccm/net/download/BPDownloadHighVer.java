@@ -45,6 +45,9 @@ public class BPDownloadHighVer extends BPDownload {
             return;
         }
 
+        d("start download...");
+        mListener.onStart(currFileNum);
+
         //取出URL
         String downloadUrl = urlQueue.poll();
 
@@ -96,9 +99,6 @@ public class BPDownloadHighVer extends BPDownload {
             }else{//缓存文件不存在，创建
                 cacheFile = sdController.createVideoRes(cacheFileName);
             }
-
-            d("start download...");
-            mListener.onStart(currFileNum);
 
             Request request = new Request.Builder()
                     .addHeader("RANGE", "bytes=" + cacheFile.length() + "-")  //断点续传要用到的，指示下载的区间

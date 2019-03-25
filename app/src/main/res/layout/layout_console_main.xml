@@ -70,7 +70,7 @@
         <ScrollView
             android:id="@+id/sv_console_main"
             android:layout_width="match_parent"
-            android:layout_height="150dp">
+            android:layout_height="130dp">
 
             <TextView
                 android:id="@+id/tv_console_main"
@@ -80,7 +80,7 @@
                 android:lineSpacingExtra="3dp"
                 android:paddingLeft="3dp"
                 android:textColor="@color/white"
-                android:textSize="14dp" />
+                android:textSize="12dp" />
         </ScrollView>
 
         <FrameLayout

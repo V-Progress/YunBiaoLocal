@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
-public class ResourceConst extends Observable {
+public class ResourceConst {
 
     private static ResourceConst instance;
 
@@ -28,7 +28,6 @@ public class ResourceConst extends Observable {
     }
 
     private ResourceConst(){
-        this.addObserver(MainController.getInstance());
     }
 
 
@@ -50,8 +49,6 @@ public class ResourceConst extends Observable {
     public void clearPalyList(){
         playList.clear();
         previewMap.clear();
-        setChanged();
-        notifyObservers();
     }
 
     /***
@@ -60,8 +57,6 @@ public class ResourceConst extends Observable {
      */
     public void addPlayItem(String item){
         playList.add(item);
-        setChanged();
-        notifyObservers();
     }
 
     /***

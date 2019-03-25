@@ -15,11 +15,13 @@ public interface MainRefreshListener {
 
     //开始播放
     void startConfigPlay(List<String> videoString);
+    //更新列表
+    void updateConfigPlay(List<String> videoList);
     //停止播放
     void stopConfigPlay();
 
     //开始播放插播
-    void startInsert(boolean isCycle, List<String> videoString);
+    void startInsert(boolean isCycle, List<String> videoString,boolean isAdd);
     //停止播放插播
     void stopInsert();
 

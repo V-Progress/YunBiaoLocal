@@ -67,6 +67,9 @@ public class BPDownloadLowVer extends BPDownload {
             return;
         }
 
+        d("start download...");
+        mListener.onStart(currFileNum);
+
         //取出URL
         String downloadUrl = urlQueue.poll();
         String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/")).substring(1);
@@ -110,9 +113,6 @@ public class BPDownloadLowVer extends BPDownload {
 
                 throw new DownloadException(DownloadException.CODE_SUCCESS_DOWNLOAD, DateUtil.yyyy_MM_dd_HH_mm_Format(new Date()));
             }
-
-            d("start download...");
-            mListener.onStart(currFileNum);
 
             Request request = new Request.Builder()
                     .addHeader("RANGE", "bytes=" + cacheFile.length() + "-")  //断点续传要用到的，指示下载的区间

@@ -3,16 +3,13 @@ package com.yunbiao.cccm.activity;
 import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Handler;
-import android.os.Message;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.VideoView;
 
-import com.umeng.analytics.MobclickAgent;
+import com.janev.easyijkplayer.EasyIJKPlayer;
+import com.janev.easyijkplayer.IjkPlayListener;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.activity.base.BaseActivity;
@@ -34,7 +31,6 @@ import com.yunbiao.cccm.net.resource.InsertVideoManager;
 import com.yunbiao.cccm.net.resource.ResourceManager;
 import com.yunbiao.cccm.utils.DeleteResUtil;
 import com.yunbiao.cccm.utils.DialogUtil;
-import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.utils.TimerUtil;
 
 import java.util.List;
@@ -43,10 +39,10 @@ import butterknife.BindView;
 import master.flame.danmaku.ui.widget.DanmakuView;
 
 // TODO: 2019/3/8
-public class MainActivity extends BaseActivity implements MainRefreshListener, SDManager.CheckSDListener {
+public class MainActivity extends BaseActivity implements MainRefreshListener, SDManager.CheckSDListener, IjkPlayListener {
     /*视频播放----*/
-    @BindView(R.id.video_view)
-    VideoView vv;
+    @BindView(R.id.ijk_player)
+    EasyIJKPlayer ijkPlayer;
 
     @BindView(R.id.fl_root)
     FrameLayout flRoot;
@@ -56,13 +52,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
 
     public boolean isInsertPlaying = false;//是否有insert正在播放
     public boolean isConfigPlaying = false;//是否有config正在播放
-    private boolean isCycle = true;//是否轮播
     private boolean priority_flag = false;//true:config优先，false:insert优先
-
-    private List<String> playLists;//当前播放列表
-    private static int videoIndex;//当前视频在列表中处于的位置
-
-    private boolean isPause = false;
 
     protected int setLayout() {
         return R.layout.activity_main;
@@ -74,28 +64,24 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
         VideoProgressUtil.instance().init(this);
         ConsoleUtil.instance().init(this);
         MainController.getInstance().registerActivity(this);
+
+        ijkPlayer.initSoLib();
+        ijkPlayer.enableController(true,false);
+        ijkPlayer.enableErrorAlert(false);
+        ijkPlayer.enableErrorDeleteUri(true);
+        ijkPlayer.setIjkPlayListener(this);
     }
 
     protected void initData() {
-
         //开启软件守护服务
         startService(new Intent(this, MyProtectService.class));
 
-        //初始化播放器
-        initPlayer();
         //连接XMPP
         PnServerController.startXMPP(MainActivity.this);
 
         PowerOffTool.getInstance().initPowerData();
         //检测SD卡
         SDManager.instance().init(this, this).checkSD();
-    }
-
-    private void initPlayer() {
-        vv.setOnPreparedListener(onPreparedListener);
-        vv.setOnErrorListener(errorListener);//播放错误监听
-        vv.setOnInfoListener(infoListener);//播放信息监听
-        vv.setOnCompletionListener(completionListener);
     }
 
     @Override
@@ -159,7 +145,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
      */
 //    @Override
     public void initPlayData() {
-        if(HighVerSDController.instance().isSDCanUsed() || LowVerSDController.instance().isSDCanUsed()){
+        if (HighVerSDController.instance().isSDCanUsed() || LowVerSDController.instance().isSDCanUsed()) {
             if (CacheManager.SP.getMode() == 0) {
                 ResourceManager.getInstance().loadData();
             } else {
@@ -184,11 +170,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
 
     @Override
     public void clearPlayData() {
-        videoIndex = 0;
         stop();
-        if(playLists != null){
-            playLists.clear();
-        }
     }
 
     //更新优先级标签
@@ -213,9 +195,20 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
             return;
         }
         isConfigPlaying = true;
+        ijkPlayer.enableListLoop(true);
         play(videoList);
     }
 
+    @Override
+    public void updateConfigPlay(List<String> videoList){
+        //如果标签为insert优先，且insert正在播放，则不开始播放普通资源
+        if (!priority_flag && isInsertPlaying) {
+            return;
+        }
+        isConfigPlaying = true;
+        ijkPlayer.enableListLoop(true);
+        play(videoList);
+    }
 
     //常规资源停止
     @Override
@@ -225,9 +218,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
         if (!priority_flag && isInsertPlaying) {
             return;
         }
-        if (playLists != null) {
-            playLists.clear();
-        }
         stop();
         //普通资源结束后解析插播资源
         initInsertData();
@@ -235,7 +225,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
 
     //插播资源播放
     @Override
-    public void startInsert(final boolean cycle, final List<String> videoList) {
+    public void startInsert(final boolean cycle, final List<String> videoList, final boolean isAdd) {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -243,7 +233,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
                     return;
                 }
                 isInsertPlaying = true;
-                isCycle = cycle;
+                ijkPlayer.enableListLoop(cycle);
                 play(videoList);
             }
         }, 2000);
@@ -256,37 +246,28 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
         if (priority_flag && isConfigPlaying) {
             return;
         }
-        if (playLists != null) {
-            playLists.clear();
-        }
-        isCycle = true;
         stop();
         //插播资源结束后解析普通资源
         initPlayData();
     }
 
+    @Override
+    public void onListCompletion() {
+        if(isInsertPlaying){
+            isInsertPlaying = false;
+            ResourceManager.getInstance().loadData();
+        }
+    }
+
     //-----常规方法----------------------------------------------------------------
     private void stop() {
-        if (vv == null) {
-            return;
+        if (ijkPlayer != null) {
+            ijkPlayer.stop();
         }
-        vv.stopPlayback();
-        vv.setVisibility(View.GONE);
     }
 
     private void play(final List<String> videoList) {
-        if(playLists == null || playLists.size()<=0 || (!playLists.equals(videoList))){
-            playLists = videoList;
-            videoIndex = 0;
-        } else {
-            videoIndex = tempIndex;
-        }
-
-        vv.stopPlayback();
-        vv.setVideoURI(Uri.parse(playLists.get(videoIndex)));
-        vv.setVisibility(View.VISIBLE);
-        vv.start();
-        vv.seekTo(currTime == 0 ? currTime : currTime - 1000);
+        ijkPlayer.setVideoList(videoList);
     }
 
     public void removeView(View view) {
@@ -300,111 +281,12 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     /*===========播放器监听关=====================================================================
      * 初始化播放器
      */
-    private MediaPlayer.OnPreparedListener onPreparedListener = new MediaPlayer.OnPreparedListener() {
-        @Override
-        public void onPrepared(MediaPlayer mp) {
-            videoHandler.removeMessages(0);
-            videoHandler.sendEmptyMessage(0);
 
-            mp.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
-                @Override
-                public void onSeekComplete(MediaPlayer mp) {
-                    if(isPause){
-                        return;
-                    }
-                    vv.start();
-                }
-            });
-        }
-    };
-
-    private Handler videoHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            // 获得当前播放时间和当前视频的长度
-            if(vv.isPlaying()){
-
-                currTime = vv.getCurrentPosition();
-                tempIndex = videoIndex;
-                VideoProgressUtil.instance().updateProgress(vv.getDuration(),currTime);
-            }
-            videoHandler.sendEmptyMessageDelayed(0, 1000);
-        }
-    };
-
-    private int currTime = 0;
+    private long currTime = 0;
     private int tempIndex = 0;
     private int forwardOffsetNum = 2000;
     private int backOffsetNum = 5000;
 
-    private void fastForward(){
-        if (vv.canSeekForward()) {
-            vv.pause();
-            vv.seekTo(vv.getCurrentPosition()+ forwardOffsetNum);
-            VideoProgressUtil.instance().showProgress(vv.getDuration(),vv.getCurrentPosition());
-        }
-    }
-
-    private void fastBackward(){
-        if (vv.canSeekBackward()) {
-            vv.pause();
-            vv.seekTo(vv.getCurrentPosition() - backOffsetNum);
-            VideoProgressUtil.instance().showProgress(vv.getDuration(),vv.getCurrentPosition());
-        }
-    }
-
-    private MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
-        @Override
-        public boolean onError(MediaPlayer mp, int what, int extra) {
-            LogUtil.E("播放错误代码：" + what + "-----" + extra);
-
-            DialogUtil.getInstance().showError(MainActivity.this
-                    , "播放失败"
-                    , "播放地址解析失败\n\n错误代码:" + what + " - " + extra + "\n\n本窗口于10秒后关闭"
-                    , 10
-                    , new Runnable() {
-                        @Override
-                        public void run() {
-                            if(playLists != null && playLists.size()>0 && videoIndex<playLists.size()){
-                                MobclickAgent.reportError(MainActivity.this,"播放错误："+playLists.get(videoIndex));
-                            }
-                            stopInsert();
-                        }
-                    });
-            return true;
-        }
-    };
-    //播放器信息监听
-    private MediaPlayer.OnInfoListener infoListener = new MediaPlayer.OnInfoListener() {
-        @Override
-        public boolean onInfo(MediaPlayer mp, int what, int extra) {
-            if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
-                ConsoleUtil.instance().openLoading("正在缓冲");
-            } else {
-                ConsoleUtil.instance().closeLoading();//关闭加载
-            }
-            return true;
-        }
-    };
-    //播放完毕监听
-    private MediaPlayer.OnCompletionListener completionListener = new MediaPlayer.OnCompletionListener() {
-        @Override
-        public void onCompletion(MediaPlayer mp) {
-            VideoProgressUtil.instance().cancel();
-            videoIndex++;
-            if (videoIndex > playLists.size() - 1) {
-                videoIndex = 0;
-                if (!isCycle) {
-                    stopInsert();
-                    return;
-                }
-            }
-
-            vv.stopPlayback();
-            vv.setVideoURI(Uri.parse(playLists.get(videoIndex)));
-            vv.start();
-        }
-    };
 
     /*===========页面控件相关=====================================================================
      * 初始化播放列表
@@ -414,21 +296,13 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
 
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_RIGHT://快进
-                fastForward();
+                ijkPlayer.fastForword();
                 break;
             case KeyEvent.KEYCODE_DPAD_LEFT://快退
-                fastBackward();
+                ijkPlayer.fastBackward();
                 break;
-            case KeyEvent.KEYCODE_DPAD_CENTER:
-                if(vv.isPlaying()){
-                    vv.pause();
-                    isPause = true;
-                    VideoProgressUtil.instance().showPlayState(1);
-                } else {
-                    vv.start();
-                    isPause = false;
-                    VideoProgressUtil.instance().showPlayState(0);
-                }
+            case KeyEvent.KEYCODE_DPAD_CENTER://按下中键
+                ijkPlayer.toggle();
                 break;
             case KeyEvent.KEYCODE_DPAD_UP:
                 ConsoleUtil.instance().showConsole();
@@ -438,7 +312,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
                 break;
             case KeyEvent.KEYCODE_MENU:
                 MenuActivity menuActivity = APP.getMenuActivity();
-                if(menuActivity ==null || !menuActivity.isForeground()){
+                if (menuActivity == null || !menuActivity.isForeground()) {
                     startActivity(new Intent(this, MenuActivity.class));
                 }
                 break;
@@ -458,16 +332,15 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     @Override
     protected void onResume() {
         super.onResume();
-        vv.start();
-        vv.seekTo(currTime == 0 ? currTime : currTime - 1000);
+        ijkPlayer.resume();
         DanmakuManager.getInstance().resume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        ijkPlayer.pause();
         DanmakuManager.getInstance().pause();
-        vv.pause();
     }
 
     @Override
@@ -480,21 +353,18 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     }
 
     public boolean isVideoPlaying() {
-        return vv != null && vv.isPlaying();
+        return ijkPlayer != null && ijkPlayer.isPlaying();
     }
 
     public Long getVideoCurrTime() {
-        if (vv != null && vv.isPlaying()) {
-            return Long.valueOf(vv.getCurrentPosition());
+        if (ijkPlayer != null && ijkPlayer.isPlaying()) {
+            return ijkPlayer.getCurrentPosition();
         }
         return 0L;
     }
 
     public String getCurrPlayVideo() {
-        if (playLists != null && playLists.size() > 0) {
-            return playLists.get(videoIndex);
-        }
-        return "null";
+        return ijkPlayer.getCurrentVideo();
     }
 
     /**
@@ -516,6 +386,25 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     public OnXmppConnListener xmppConnListener = null;
 
 
+//    //播放完毕监听
+//    private MediaPlayer.OnCompletionListener completionListener = new MediaPlayer.OnCompletionListener() {
+//        @Override
+//        public void onListCompletion(MediaPlayer mp) {
+//            VideoProgressUtil.instance().cancel();
+//            videoIndex++;
+//            if (videoIndex > playLists.size() - 1) {
+//                videoIndex = 0;
+//                if (!isCycle) {
+//                    stopInsert();
+//                    return;
+//                }
+//            }
+//
+//            vv.stopPlayback();
+//            vv.setVideoURI(Uri.parse(playLists.get(videoIndex)));
+//            vv.start();
+//        }
+//    };
     /*// TODO: 2019/1/27 弹幕测试
     if(!Const.SYSTEM_CONFIG.IS_PRO){
         DanmakuManager.getInstance().init(this, danmakuView, new DanmakuManager.DanmakuReadyListener() {

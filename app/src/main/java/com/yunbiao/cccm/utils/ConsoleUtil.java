@@ -112,8 +112,8 @@ public class ConsoleUtil {
         LogUtil.E("-------"+llConsoleMain.isShown());
         llConsoleMain.setVisibility(View.VISIBLE);
 
-//        consoleHandler.removeCallbacks(consoleRunnable);
-//        consoleHandler.postDelayed(consoleRunnable,CONSOLE_SHOW_TIME);
+        consoleHandler.removeCallbacks(consoleRunnable);
+        consoleHandler.postDelayed(consoleRunnable,CONSOLE_SHOW_TIME);
     }
 
     public void hideConsole(){

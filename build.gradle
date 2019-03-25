@@ -16,6 +16,7 @@ allprojects {
     repositories {
         jcenter()
         maven { url 'https://jitpack.io' }
+        maven { url 'https://maven.google.com' }
 //        mavenCentral()//如果友盟不能集成则打开这个
     }
 }

@@ -1,5 +1,6 @@
 package com.yunbiao.cccm.activity;
 
+import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -81,7 +82,6 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     private SoundPool soundPool;//用来管理和播放音频文件
     private int music;
     private TimerUtil timerUtil;
-    private PlayListFragment playListFragment = new PlayListFragment();
 
     protected int setLayout() {
         APP.setMenuActivity(this);
@@ -207,10 +207,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                 if (isFastClick()) {
                     ToastUtil.showShort(this, "请不要重复点击");
                 } else {
-                    onPause();
-                    FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-                    fragmentTransaction.setCustomAnimations(R.anim.dialog_top_enter, R.anim.dialog_top_exit);
-                    fragmentTransaction.add(R.id.prl_root, playListFragment).commit();
+                    startActivity(new Intent(this,PlayListActivity.class));
                 }
                 break;
             case R.id.btn_menu_wechat:
@@ -234,22 +231,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && playListFragment != null && playListFragment.isVisible()) {
-            backFragment(playListFragment);
-            return false;
-        }
         return super.onKeyDown(keyCode, event);
-    }
-
-    /***
-     * 回退Fragment
-     * @param fragment
-     */
-    public void backFragment(Fragment fragment) {
-        onResume();
-        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.dialog_top_enter, R.anim.dialog_top_exit);
-        fragmentTransaction.remove(fragment).commit();
     }
 
     @Override
@@ -296,9 +278,4 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         tvMenuInfoAccessCode.setText(CacheManager.SP.getAccessCode());
     }
 
-    public void updatePlayList(){
-        if(playListFragment != null){
-            playListFragment.updateList();
-        }
-    }
 }
