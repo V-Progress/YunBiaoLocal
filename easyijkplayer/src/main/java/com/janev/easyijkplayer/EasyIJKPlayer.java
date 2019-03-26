@@ -444,7 +444,11 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
             Log.e(TAG, "error: 删除错误uri："+remove);
         }
         playIndex++;
-
+        if(playList.size()<=0){
+            if(mListener != null){
+                mListener.onListCompletion();
+            }
+        }
         //测试判断指针如果等于列表尺寸或大于
         if(playIndex >= playList.size()){
             playIndex = 0;//重置指针
