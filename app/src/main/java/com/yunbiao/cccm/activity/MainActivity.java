@@ -201,17 +201,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
         play(videoList);
     }
 
-    @Override
-    public void updateConfigPlay(List<String> videoList) {
-        //如果标签为insert优先，且insert正在播放，则不开始播放普通资源
-        if (!priority_flag && isInsertPlaying) {
-            return;
-        }
-        isConfigPlaying = true;
-        ijkPlayer.enableListLoop(true);
-        play(videoList);
-    }
-
     //常规资源停止
     @Override
     public void stopConfigPlay() {
