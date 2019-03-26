@@ -104,10 +104,6 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
      * 列表模式
      */
     private final int MODE_LIST = 1;
-    /***
-     * 直播源模式
-     */
-    private static final int MODE_LIVE = 2;
 
     private IjkPlayListener mListener;
 
@@ -123,6 +119,7 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
     private View controllerView;
     private TextView tcpSpeed;
     private LinearLayout loadingView;
+    private int reLoadLiveFlag = 0;
 
     public EasyIJKPlayer(@NonNull Context context) {
         super(context);
@@ -218,7 +215,6 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
         return playList;
     }
 
-    private boolean isInitPlay = false;
     /***
      * 设置播放列表
      * @param videoList
@@ -228,7 +224,6 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
             return;
         }
         mPlayMode = MODE_LIST;//设置播放状态
-        isInitPlay = true;
         playList.clear();//清除列表
         playList.addAll(videoList);//添加内容
         Log.e(TAG, "setVideoList: "+playList.toString());
@@ -289,13 +284,13 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
         mMediaPlayer.setOnSeekCompleteListener(this);
         mMediaPlayer.setDisplay(surfaceView.getHolder());
         mMediaPlayer.setScreenOnWhilePlaying(true);
+        mMediaPlayer.setLogEnabled(false);
         //跳帧处理，保证音画同步
         mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER,"framedrop",5);
         //最大FPS
         mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER,"max-fps",30);
         //seekTo设置优化(会导致视频开启过慢，拖动进度条后视频会延迟播放)
-//        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", 1);
-
+        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", 1);
 
         setLiveOption();
 
@@ -365,8 +360,13 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
         Log.e(TAG, "onInfo: "+what + "-----"+extra);
         if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
             loadingView.setVisibility(View.VISIBLE);
+            isLoadLong = true;
+            Log.e(TAG, "onInfo: 开始加载-----" );
         } else if (what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
             loadingView.setVisibility(View.GONE);
+            isLoadLong = false;
+            reLoadLiveFlag = 0;
+            Log.e(TAG, "onInfo: 加载成功-----" );
         }
         return true;
     }
@@ -380,11 +380,6 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
     private void complete(){
         release();
         currPosition = 0;
-
-        if(mPlayMode == MODE_LIVE){
-            loadUri();
-            return;
-        }
 
         Log.e(TAG, "onListCompletion: 播放完毕");
         //如果当前是单个播放模式，则播放完毕后释放
@@ -716,6 +711,8 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
         }
     }
 
+    private boolean isLoadLong = false;
+
     private Handler progressHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -729,6 +726,16 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
 
             if (mMediaPlayer == null) {
                 return;
+            }
+
+            if(isLoadLong){
+                if(reLoadLiveFlag >= 30){
+                    Log.e(TAG, "onInfo: 时间到，重新加载" );
+                    reLoadLiveFlag = 0;
+                    loadUri();
+                }
+                reLoadLiveFlag++;
+                Log.e(TAG, "onInfo: 等待"+reLoadLiveFlag+"秒-----" );
             }
 
             long tcpSpeed = mMediaPlayer.getTcpSpeed();
@@ -767,26 +774,29 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
     };
 
     private void setLiveOption(){
-        if(mPlayMode != MODE_LIVE){
-            return;
-        }
         //开启变调
-        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER,"soundtouch",0);
-        //播放前最大探测时间
-        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT,"analyzemaxduration",100L);
-        //播放前探测时间1，达到首屏秒开
-        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT,"analyzeduration",1);
-        //播放前的探测Size，默认是1M, 改小一点会出画面更快
-        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT,"probesize",1024*10);
-        //每处理一个packet之后刷新io上下文
-        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT,"flush_packets",1L);
-        //预缓冲，秒开直播但可能丢帧卡顿
-        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER,"packet-buffering",1);
-        //播放重连次数
-        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER,"reconnect",5);
-        //设置最大缓冲尺寸kb
-//        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER,"max-buffer-size",1024 * 1024);
-        //预读的 packet 超过 MIN_FRAMES 个，那么 ffplay 就会停止预读(取值2-50000)
-        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "min-frames", 50000);
+//        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER,"soundtouch",0);
+//        //播放前最大探测时间
+//        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT,"analyzemaxduration",100L);
+//        //播放前探测时间1，达到首屏秒开
+//        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT,"analyzeduration",1);
+//        //播放前的探测Size，默认是1M, 改小一点会出画面更快
+//        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT,"probesize",1024*10);
+//        //每处理一个packet之后刷新io上下文
+//        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT,"flush_packets",1L);
+//        //播放重连次数
+//        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER,"reconnect",5);
+//        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-buffer-size", 512 * 1024);//设置缓冲区为100KB，目前我看来，多缓冲了4秒
+//        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "min-frames", 5000);// 视频的话，设置100帧即开始播放
+//        //设置最大缓冲尺寸kb
+////        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER,"max-buffer-size",1024 * 1024);
+//        //预读的 packet 超过 MIN_FRAMES 个，那么 ffplay 就会停止预读(取值2-50000)
+//        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "min-frames", 50000);
+//
+        //  关闭播放器缓冲，这个必须关闭，否则会出现播放一段时间后，一直卡主，控制PLAYER, "framedrop", 1L);
+//        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_clear", 1);
+//        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "p台打印 FFP_MSG_BUFFERING_START
+//        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", 0L);
+//        mMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_rotocol_whitelist", "crypto,file,http,https,tcp,tls,udp");
     }
 }
