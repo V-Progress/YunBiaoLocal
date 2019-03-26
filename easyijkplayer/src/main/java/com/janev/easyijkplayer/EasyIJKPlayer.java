@@ -307,6 +307,10 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
             public void onPrepared(IMediaPlayer iMediaPlayer) {
                 changeVideoSize();
                 iMediaPlayer.start();
+                //如果是直播源，则不跳转后面的内容，否则会导致无限缓冲
+                if(currPlayUri.contains("http") || currPlayUri.contains("m3u8") || currPlayUri.contains("rtsp")||currPlayUri.contains("rtmp")){
+                    return;
+                }
                 if(mCurrentState == STATE_RESUME){
                     iMediaPlayer.seekTo(currPosition);
                     timeline.setMax((int) iMediaPlayer.getDuration());
