@@ -15,8 +15,6 @@ public interface MainRefreshListener {
 
     //开始播放
     void startConfigPlay(List<String> videoString);
-    //更新列表
-    void updateConfigPlay(List<String> videoList);
     //停止播放
     void stopConfigPlay();
 

@@ -119,19 +119,6 @@ public class MainController{
         });
     }
 
-    public void updatePlay(final List<String> videoList){
-        ThreadUtil.getInstance().runInUIThread(new Runnable() {
-            @Override
-            public void run() {
-                mRefListener.updateConfigPlay(videoList);
-            }
-        });
-    }
-
-    /***
-     *
-     */
-
     /***
      * 停止播放普通资源
      */

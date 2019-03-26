@@ -502,7 +502,7 @@ public class ResourceManager {
     private void clearPlayList(){
         playList.clear();
         previewMap.clear();
-        EventBus.getDefault().postSticky(new UpdateEvent(0));
+        EventBus.getDefault().postSticky(new UpdateEvent(UpdateEvent.UPDATE_PLAYLIST));
     }
 
     static class Resolver {

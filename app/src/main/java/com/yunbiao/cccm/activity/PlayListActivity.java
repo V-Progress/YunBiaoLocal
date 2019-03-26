@@ -17,6 +17,8 @@ import android.widget.Toast;
 import com.janev.easyijkplayer.EasyIJKPlayer;
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.activity.base.BaseActivity;
+import com.yunbiao.cccm.cache.CacheManager;
+import com.yunbiao.cccm.local.LocalManager;
 import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.net.resource.ResourceManager;
 import com.yunbiao.cccm.net.resource.UpdateEvent;
@@ -26,6 +28,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +53,7 @@ public class PlayListActivity extends BaseActivity {
     private ArrayAdapter<String> arrayAdapter;
 
     private List<String> playList = new ArrayList<>();
-    private Map<String, String> previewMap;
+    private Map<String, String> previewMap = new HashMap<>();
 
     @Override
     protected int setLayout() {
@@ -70,8 +73,18 @@ public class PlayListActivity extends BaseActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void Event(UpdateEvent event) {
+        LogUtil.E("收到通知----------");
         if (event.getCode() == UpdateEvent.UPDATE_PLAYLIST) {
-            List<String> pl = ResourceManager.getInstance().getPlayList();
+            int mode = CacheManager.SP.getMode();
+            if(mode != 0){
+                updateList();
+                return;
+            }
+
+            List<String> pl= ResourceManager.getInstance().getPlayList();
+            if(pl == null || pl.size()<=0){
+                return;
+            }
             int position = playList.size();
             if (arrayAdapter != null) {
                 playList.clear();
@@ -87,9 +100,16 @@ public class PlayListActivity extends BaseActivity {
 
     private void updateList() {
         playList.clear();
-        playList.addAll(ResourceManager.getInstance().getPlayList());
-        previewMap = ResourceManager.getInstance().getPreview();
-        LogUtil.E("ResourceManager", "playList:" + playList.toString());
+        previewMap.clear();
+        if(CacheManager.SP.getMode() == 0){
+            playList.addAll(ResourceManager.getInstance().getPlayList());
+            previewMap = ResourceManager.getInstance().getPreview();
+        } else {
+            playList.addAll(LocalManager.getInstance().getPlayList());
+            previewMap = LocalManager.getInstance().getPreview();
+        }
+
+        LogUtil.E("PlayListActivity", "playList:" + playList.toString());
         initList();
     }
 

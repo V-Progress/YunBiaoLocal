@@ -7,16 +7,19 @@ import android.text.TextUtils;
 
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.activity.MainController;
-import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.local.control.PowerTool;
 import com.yunbiao.cccm.local.model.InsertDataModel;
 import com.yunbiao.cccm.local.model.VideoDataModel;
+import com.yunbiao.cccm.net.resource.UpdateEvent;
 import com.yunbiao.cccm.sd.HighVerSDController;
 import com.yunbiao.cccm.sd.LowVerSDController;
 import com.yunbiao.cccm.utils.DateUtil;
 import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.utils.ToastUtil;
+
+import org.greenrobot.eventbus.EventBus;
+import org.xbill.DNS.Update;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,6 +41,8 @@ public class LocalManager {
     private static ArrayList<Timer> insertTimerList = new ArrayList<>();
 
     private static LocalManager instance;
+    private static List<String> playList = new ArrayList<>();
+    private static Map<String,String> previewMap = new HashMap<>();
 
     public static synchronized LocalManager getInstance(){
         if(instance == null){
@@ -46,11 +51,20 @@ public class LocalManager {
         return instance;
     }
 
+    public List<String> getPlayList(){
+        return playList;
+    }
+
+    public Map<String, String> getPreview(){
+        return previewMap;
+    }
+
     // 解析本地资源
     public void initData() {
         ThreadUtil.getInstance().runInCommonThread(new Runnable() {
             @Override
             public void run() {
+                MainController.getInstance().clearPlayData();
                 if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
 //                    File yunbiao = LowVerSDController.instance().getAppRootDir();
                     File yunbiao = LowVerSDController.instance().getAppRootDir();
@@ -81,7 +95,9 @@ public class LocalManager {
                         files[j] = fileMap.get(fileKey[j]);
                     }
                     //清空播放列表
-                    ResourceConst.instance().clearPalyList();
+                    playList.clear();
+                    previewMap.clear();
+                    EventBus.getDefault().postSticky(new UpdateEvent(UpdateEvent.UPDATE_PLAYLIST));
 
                     //解析播放列表
                     for (File file : files) {
@@ -125,8 +141,6 @@ public class LocalManager {
                         }
                     }
                 } else {
-
-//                    DocumentFile yunbiao = HighVerSDController.instance().getAppRootDir();
                     DocumentFile yunbiao = HighVerSDController.instance().getAppRootDir();
                     if(yunbiao == null || (!yunbiao.exists())){
                         ToastUtil.showShort(APP.getMainActivity(),"yunbiao目录不存在或拒绝读取");
@@ -142,7 +156,10 @@ public class LocalManager {
                     }
 
                     //清空播放列表
-                    ResourceConst.instance().clearPalyList();
+                    playList.clear();
+                    previewMap.clear();
+                    //清空播放列表
+                    EventBus.getDefault().postSticky(new UpdateEvent(UpdateEvent.UPDATE_PLAYLIST));
 
                     //解析播放列表
                     for (DocumentFile file : docList) {
@@ -207,7 +224,7 @@ public class LocalManager {
             for (VideoDataModel.Play.Rule rule : rules) {
                 String[] times = rule.getDate().trim().split("-");
 
-                ResourceConst.instance().addPlayItem(playDate + "\t\t\t" + times[0] + "-" + times[1]);
+                playList.add(playDate + "\t\t\t" + times[0] + "-" + times[1]);
 
                 String[] res = rule.getRes().trim().replace("，", ",").replaceAll("\\s*,\\s*", ",").split(",");
 
@@ -223,12 +240,12 @@ public class LocalManager {
                     File video = new File(dirFile, "resource/" + videoStr);
                     String index = k + 1 > 9 ? k + 1 + " " : k + 1 + "  ";
                     if (!video.exists()) {
-                        ResourceConst.instance().addPlayItem(index + videoStr + "(无)");
+                        playList.add(index + videoStr + "(无)");
                         continue;
                     }
-                    ResourceConst.instance().addPlayItem(index + videoStr);
+                    playList.add(index + videoStr);
 
-                    ResourceConst.instance().addPreviewItem(videoName, Uri.fromFile(video).toString());
+                    previewMap.put(videoName, Uri.fromFile(video).toString());
 
                     videoList.add(Uri.fromFile(video).toString());
                 }
@@ -288,7 +305,7 @@ public class LocalManager {
             for (VideoDataModel.Play.Rule rule : rules) {
                 String[] times = rule.getDate().trim().split("-");
 
-                ResourceConst.instance().addPlayItem(playDate + "\t\t\t" + times[0] + "-" + times[1]);
+                playList.add(playDate + "\t\t\t" + times[0] + "-" + times[1]);
 
                 String[] res = rule.getRes().trim().replace("，", ",").replaceAll("\\s*,\\s*", ",").split(",");
 
@@ -305,12 +322,12 @@ public class LocalManager {
 
                     String index = k + 1 > 9 ? k + 1 + " " : k + 1 + "  ";
                     if (video == null || !video.exists()) {
-                        ResourceConst.instance().addPlayItem(index + videoStr + "(无)");
+                        playList.add(index + videoStr + "(无)");
                         continue;
                     }
-                    ResourceConst.instance().addPlayItem(index + videoStr);
+                    playList.add(index + videoStr);
 
-                    ResourceConst.instance().addPreviewItem(videoName, video.getUri().toString());
+                    previewMap.put(videoName, video.getUri().toString());
 
                     videoList.add(video.getUri().toString());
                 }
@@ -319,6 +336,8 @@ public class LocalManager {
                 if (videoList.size() == 0) {
                     continue;
                 }
+
+                EventBus.getDefault().postSticky(new UpdateEvent(UpdateEvent.UPDATE_PLAYLIST));
 
                 //添加定时任务
 //                LogUtil.E("123", "开始时间" + playDay + times[0]);
