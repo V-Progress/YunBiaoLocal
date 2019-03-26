@@ -28,25 +28,24 @@ public class ConsoleUtil {
     private MainActivity mainAct;
 
     /*加载框-----*/
-    LinearLayout llLoadingMain;
-    ProgressBar pbLoadingMain;
-    TextView tvLoadingMain;
+    private LinearLayout llLoadingMain;
+    private ProgressBar pbLoadingMain;
+    private TextView tvLoadingMain;
 
     /*更新下载进度条---*/
-    LinearLayout llUpdateArea;
-    FrameLayout flRoot;
-    ProgressBar pbUpdate;
-    TextView tvSpeed;
+    private LinearLayout llUpdateArea;
+    private FrameLayout flRoot;
+    private ProgressBar pbUpdate;
+    private TextView tvSpeed;
 
     /*资源下载进度条---*/
-    TextView tvConsoleMain;
-    ScrollView svConsoleMain;
-    CircleView progressChildMain;
-    CircleView progressParentMain;
-    TextView tvNumMain;
-    TextView tvProgressMain;
-    LinearLayout llConsoleMain;
-
+    private TextView tvConsoleMain;
+    private ScrollView svConsoleMain;
+    private CircleView progressChildMain;
+    private CircleView progressParentMain;
+    private TextView tvNumMain;
+    private TextView tvProgressMain;
+    private LinearLayout llConsoleMain;
 
     public static ConsoleUtil instance(){
         if(instance == null){
@@ -107,16 +106,17 @@ public class ConsoleUtil {
     };
 
     private final int CONSOLE_WHAT = 11;
-    private final int CONSOLE_SHOW_TIME = 10 * 1000;
+    private final int CONSOLE_SHOW_TIME = 15 * 1000;
     public void showConsole(){
         LogUtil.E("-------"+llConsoleMain.isShown());
         llConsoleMain.setVisibility(View.VISIBLE);
-
+        svConsoleMain.setFocusable(true);
         consoleHandler.removeCallbacks(consoleRunnable);
         consoleHandler.postDelayed(consoleRunnable,CONSOLE_SHOW_TIME);
     }
 
     public void hideConsole(){
+        svConsoleMain.setFocusable(false);
         LogUtil.E("-------"+llConsoleMain.isShown());
         llConsoleMain.setVisibility(View.GONE);
         consoleHandler.removeCallbacks(consoleRunnable);

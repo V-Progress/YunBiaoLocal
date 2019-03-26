@@ -266,9 +266,14 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
 
         Log.e(TAG, "loadUri: 指针："+playIndex );
         if(mPlayMode == MODE_LIST){
+            if(playList == null || playList.size()<=0){
+                return;
+            }
+
             if(playIndex >= playList.size()){
                 playIndex = 0 ;
             }
+
             currPlayUri = playList.get(playIndex);
         }
         if(TextUtils.isEmpty(currPlayUri)){
@@ -701,7 +706,6 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
 
     @Override
     public void onClick(View v) {
-
         if(v.getId() == R.id.ib_play_state){
             toggle();
             return;

@@ -13,6 +13,7 @@ import com.janev.easyijkplayer.IjkPlayListener;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.activity.base.BaseActivity;
+import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.net.listener.MainRefreshListener;
 import com.yunbiao.cccm.net.resource.InsertTextManager;
 import com.yunbiao.cccm.cache.CacheManager;
@@ -61,13 +62,13 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     protected void initView() {
         //先将插播fragment创建出来
         APP.setMainActivity(this);
-        VideoProgressUtil.instance().init(this);
+//        VideoProgressUtil.instance().init(this);
         ConsoleUtil.instance().init(this);
         MainController.getInstance().registerActivity(this);
 
         ijkPlayer.initSoLib();//初始化SO库
         ijkPlayer.setNavigation(this);//调整底部栏
-        ijkPlayer.enableController(true,false);//设置控制条
+        ijkPlayer.enableController(true, false);//设置控制条
         ijkPlayer.enableErrorAlert(false);//关闭错误提示
         ijkPlayer.enableErrorDeleteUri(true);//开启错误删除
         ijkPlayer.setIjkPlayListener(this);//设置播放结束回调
@@ -201,7 +202,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     }
 
     @Override
-    public void updateConfigPlay(List<String> videoList){
+    public void updateConfigPlay(List<String> videoList) {
         //如果标签为insert优先，且insert正在播放，则不开始播放普通资源
         if (!priority_flag && isInsertPlaying) {
             return;
@@ -254,7 +255,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
 
     @Override
     public void onListCompletion() {
-        if(isInsertPlaying){
+        if (isInsertPlaying) {
             isInsertPlaying = false;
             ResourceManager.getInstance().loadData();
         }
@@ -279,22 +280,37 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
         flRoot.addView(view);
     }
 
-    /*===========播放器监听关=====================================================================
-     * 初始化播放器
-     */
-
-    private long currTime = 0;
-    private int tempIndex = 0;
-    private int forwardOffsetNum = 2000;
-    private int backOffsetNum = 5000;
-
-
     /*===========页面控件相关=====================================================================
      * 初始化播放列表
      */
+
+    @Override
+    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_DPAD_UP:
+                LogUtil.E("-------长按下键");
+                ConsoleUtil.instance().showConsole();
+                return true;
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                LogUtil.E("-------长按下键");
+                ConsoleUtil.instance().hideConsole();
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+            return true;
+        } else if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN){
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_RIGHT://快进
                 ijkPlayer.fastForword();
@@ -306,17 +322,23 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
                 ijkPlayer.toggle();
                 break;
             case KeyEvent.KEYCODE_DPAD_UP:
-                ConsoleUtil.instance().showConsole();
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    event.startTracking();
+                    return true;
+                }
                 break;
             case KeyEvent.KEYCODE_DPAD_DOWN:
-                ConsoleUtil.instance().hideConsole();
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    event.startTracking();
+                    return true;
+                }
                 break;
             case KeyEvent.KEYCODE_MENU:
                 MenuActivity menuActivity = APP.getMenuActivity();
                 if (menuActivity == null || !menuActivity.isForeground()) {
                     startActivity(new Intent(this, MenuActivity.class));
                 }
-                break;
+                return false;
             case KeyEvent.KEYCODE_BACK:
                 APP.exit();
                 return false;
@@ -387,25 +409,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     public OnXmppConnListener xmppConnListener = null;
 
 
-//    //播放完毕监听
-//    private MediaPlayer.OnCompletionListener completionListener = new MediaPlayer.OnCompletionListener() {
-//        @Override
-//        public void onListCompletion(MediaPlayer mp) {
-//            VideoProgressUtil.instance().cancel();
-//            videoIndex++;
-//            if (videoIndex > playLists.size() - 1) {
-//                videoIndex = 0;
-//                if (!isCycle) {
-//                    stopInsert();
-//                    return;
-//                }
-//            }
-//
-//            vv.stopPlayback();
-//            vv.setVideoURI(Uri.parse(playLists.get(videoIndex)));
-//            vv.start();
-//        }
-//    };
     /*// TODO: 2019/1/27 弹幕测试
     if(!Const.SYSTEM_CONFIG.IS_PRO){
         DanmakuManager.getInstance().init(this, danmakuView, new DanmakuManager.DanmakuReadyListener() {
