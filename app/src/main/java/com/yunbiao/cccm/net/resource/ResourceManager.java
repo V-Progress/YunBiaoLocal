@@ -505,8 +505,18 @@ public class ResourceManager {
         EventBus.getDefault().postSticky(new UpdateEvent(UpdateEvent.UPDATE_PLAYLIST));
     }
 
+    public void clearTimer(){
+        Resolver.clearTimer();
+    }
+
     static class Resolver {
         private static List<Timer> todayTimerList = new ArrayList<>();
+        public static void clearTimer(){
+            for (Timer timer : todayTimerList) {
+                timer.cancel();
+            }
+            todayTimerList.clear();
+        }
         /***
          * 解析当前下载地址
          * @param playUrl config中配置的Url

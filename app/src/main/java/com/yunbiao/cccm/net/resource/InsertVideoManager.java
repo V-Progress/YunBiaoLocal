@@ -51,6 +51,10 @@ public class InsertVideoManager {
         todayDate = new Date(System.currentTimeMillis());
     }
 
+    public void clearTimer(){
+        InsertResolver.instance().clearTimer();
+    }
+
     /***
      * 初始化插播数据
      */

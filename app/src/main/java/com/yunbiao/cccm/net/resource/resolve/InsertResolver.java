@@ -216,7 +216,7 @@ public class InsertResolver {
         timerList.add(endTimer);
     }
 
-    private void clearTimer() {
+    public void clearTimer() {
         if (timerList != null && timerList.size() > 0) {
             for (Timer timer : timerList) {
                 timer.cancel();

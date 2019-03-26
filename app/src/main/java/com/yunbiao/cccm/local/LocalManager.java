@@ -51,6 +51,17 @@ public class LocalManager {
         return instance;
     }
 
+    public void clearTimer(){
+        for (Timer timer : videoTimerList) {
+            timer.cancel();
+        }
+        videoTimerList.clear();
+
+        for (Timer timer : insertTimerList) {
+            timer.cancel();
+        }
+        insertTimerList.clear();
+    }
     public List<String> getPlayList(){
         return playList;
     }

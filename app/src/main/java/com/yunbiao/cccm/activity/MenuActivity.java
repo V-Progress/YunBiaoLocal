@@ -22,6 +22,8 @@ import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.activity.base.BaseActivity;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.Const;
+import com.yunbiao.cccm.local.LocalManager;
+import com.yunbiao.cccm.net.resource.InsertVideoManager;
 import com.yunbiao.cccm.net.resource.ResourceManager;
 import com.yunbiao.cccm.utils.DialogUtil;
 import com.yunbiao.cccm.sd.SDManager;
@@ -119,7 +121,8 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                 switch (checkedId) {
                     case R.id.rb_mode_net:
                         CacheManager.SP.putMode(0);
-                        MainController.getInstance().clearPlayData();
+                        LocalManager.getInstance().clearTimer();//清除本地资源计时
+                        MainController.getInstance().clearPlayData();//重置播放数据
                         DialogUtil.getInstance().showError(MenuActivity.this, "提示", "正在切换至 网络模式\n本窗口3秒后自动关闭", 3, new Runnable() {
                             @Override
                             public void run() {
@@ -128,9 +131,11 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                         });
                         break;
                     case R.id.rb_mode_local:
-                        ResourceManager.getInstance().cancel();
                         CacheManager.SP.putMode(1);
-                        MainController.getInstance().clearPlayData();
+                        ResourceManager.getInstance().cancel();//取消下载
+                        ResourceManager.getInstance().clearTimer();//清除资源计时
+                        InsertVideoManager.getInstance().clearTimer();//清除插播计时
+                        MainController.getInstance().clearPlayData();//重置播放数据
                         DialogUtil.getInstance().showError(MenuActivity.this, "提示", "正在切换至 本地模式\n本窗口3秒后自动关闭", 3, new Runnable() {
                             @Override
                             public void run() {

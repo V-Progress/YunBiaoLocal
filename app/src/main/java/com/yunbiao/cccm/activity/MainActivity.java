@@ -172,6 +172,9 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
 
     @Override
     public void clearPlayData() {
+        isInsertPlaying = false;
+        isConfigPlaying = false;
+        priority_flag = false;
         stop();
     }
 

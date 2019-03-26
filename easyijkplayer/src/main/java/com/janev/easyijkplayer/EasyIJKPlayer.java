@@ -585,6 +585,8 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
      */
     public void stop() {
         mCurrentState = STATE_STOP;
+        playList.clear();
+        currPlayUri = "";
         if (mMediaPlayer != null) {
             toggle();
             currPosition = 0;
