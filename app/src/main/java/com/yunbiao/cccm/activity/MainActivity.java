@@ -99,7 +99,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
             stopInsert();
             stop();
             ResourceManager.getInstance().cancel();
-            DialogUtil.getInstance().showError(MainActivity.this, "读取错误", "请插入SD卡\n并确保SD卡可正常使用");
+            DialogUtil.getInstance().showError(MainActivity.this, "读取错误", "请插入SD卡\n并确保SD卡可正常使用",true);
             return;
         }
 

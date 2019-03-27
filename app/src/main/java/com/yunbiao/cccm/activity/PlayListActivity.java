@@ -1,8 +1,12 @@
 package com.yunbiao.cccm.activity;
 
+import android.content.Context;
+import android.graphics.Color;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -117,26 +121,9 @@ public class PlayListActivity extends BaseActivity {
         if (playList == null || playList.size() <= 0) {
             return;
         }
-        arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, playList) {
-            @Override
-            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                convertView = LayoutInflater.from(PlayListActivity.this).inflate(android.R.layout.simple_list_item_1, null);
-                TextView textView = (TextView) convertView;
-                String text = getItem(position);
-                textView.setText(text);
-                if (text.contains(".")) {
-                    textView.setTextColor(getResources().getColor(R.color.white));
-                    textView.setSingleLine();
-                    textView.setEllipsize(TextUtils.TruncateAt.END);
-                } else {
-                    textView.setBackgroundColor(getResources().getColor(R.color.trans_gray));
-                }
-                return convertView;
-            }
-        };
 
         listView.setDivider(getResources().getDrawable(R.drawable.divider_playlist));
-        listView.setAdapter(arrayAdapter);
+        listView.setAdapter(new PlayListAdapter(this, android.R.layout.simple_list_item_1, playList));
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -167,6 +154,28 @@ public class PlayListActivity extends BaseActivity {
         });
     }
 
+    class PlayListAdapter extends ArrayAdapter<String> {
+        public PlayListAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull List<String> objects) {
+            super(context, resource, objects);
+        }
+
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            convertView = LayoutInflater.from(PlayListActivity.this).inflate(android.R.layout.simple_list_item_1, null);
+            TextView textView = (TextView) convertView;
+            String text = getItem(position);
+            textView.setText(text);
+            if (text.contains(".")) {
+                textView.setTextColor(getResources().getColor(R.color.white));
+                textView.setSingleLine();
+                textView.setEllipsize(TextUtils.TruncateAt.END);
+            } else {
+                textView.setBackgroundColor(getResources().getColor(R.color.trans_gray));
+            }
+            return convertView;
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -184,6 +193,26 @@ public class PlayListActivity extends BaseActivity {
         super.onDestroy();
         easyIJKPlayer.release();
         EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_DPAD_RIGHT://快进
+                easyIJKPlayer.fastForword();
+                break;
+            case KeyEvent.KEYCODE_DPAD_LEFT://快退
+                easyIJKPlayer.fastBackward();
+                break;
+            case KeyEvent.KEYCODE_STEM_1:
+                easyIJKPlayer.toggle();
+                break;
+            case KeyEvent.KEYCODE_BACK:
+                this.finish();
+                break;
+        }
+
+        return true;
     }
 
 }

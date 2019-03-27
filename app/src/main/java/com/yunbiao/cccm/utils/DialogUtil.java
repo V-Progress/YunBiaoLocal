@@ -3,11 +3,14 @@ package com.yunbiao.cccm.utils;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
 
 import java.util.Timer;
@@ -58,8 +61,8 @@ public class DialogUtil {
         });
     }
 
-    public void showError(Context context,String title,String msg){
-        showError(context,title,msg,0,null);
+    public void showError(Context context,String title,String msg,boolean isExit){
+        showError(context,title,msg,0,isExit,null);
     }
 
     /***
@@ -71,7 +74,7 @@ public class DialogUtil {
      * @param delay
      * @param runnable
      */
-    public void showError(final Context context, final String title, final String msg, int delay, final Runnable runnable){
+    public void showError(final Context context, final String title, final String msg, int delay, final boolean isExit, final Runnable runnable){
 
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
@@ -84,6 +87,17 @@ public class DialogUtil {
                 alertDialog.setTitle(title);
                 alertDialog.setMessage(msg);
                 alertDialog.setCancelable(false);
+                if(isExit){
+                    alertDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+                        @Override
+                        public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+                            if(keyCode == KeyEvent.KEYCODE_BACK){
+                                APP.exit();
+                            }
+                            return true;
+                        }
+                    });
+                }
                 alertDialog.show();
             }
         });

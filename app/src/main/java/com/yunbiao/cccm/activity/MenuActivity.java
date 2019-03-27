@@ -123,7 +123,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                         CacheManager.SP.putMode(0);
                         LocalManager.getInstance().clearTimer();//清除本地资源计时
                         MainController.getInstance().clearPlayData();//重置播放数据
-                        DialogUtil.getInstance().showError(MenuActivity.this, "提示", "正在切换至 网络模式\n本窗口3秒后自动关闭", 3, new Runnable() {
+                        DialogUtil.getInstance().showError(MenuActivity.this, "提示", "正在切换至 网络模式\n本窗口3秒后自动关闭", 3, false,new Runnable() {
                             @Override
                             public void run() {
                                 SDManager.instance().checkSD();
@@ -136,7 +136,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                         ResourceManager.getInstance().clearTimer();//清除资源计时
                         InsertVideoManager.getInstance().clearTimer();//清除插播计时
                         MainController.getInstance().clearPlayData();//重置播放数据
-                        DialogUtil.getInstance().showError(MenuActivity.this, "提示", "正在切换至 本地模式\n本窗口3秒后自动关闭", 3, new Runnable() {
+                        DialogUtil.getInstance().showError(MenuActivity.this, "提示", "正在切换至 本地模式\n本窗口3秒后自动关闭", 3, false,new Runnable() {
                             @Override
                             public void run() {
                                 SDManager.instance().checkSD();

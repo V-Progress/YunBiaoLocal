@@ -7,6 +7,7 @@
     android:orientation="vertical">
 
     <TextView
+        android:focusable="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
@@ -15,6 +16,7 @@
         android:textSize="26dp" />
 
     <View
+        android:focusable="false"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginLeft="10dp"
@@ -30,6 +32,7 @@
         android:paddingRight="10dp">
 
         <ListView
+            android:focusable="true"
             android:id="@+id/playlist"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -44,6 +47,7 @@
             android:background="@color/white" />
 
         <FrameLayout
+            android:focusable="false"
             android:id="@+id/fl_video_container"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -55,6 +59,7 @@
 
 
             <com.janev.easyijkplayer.EasyIJKPlayer
+                android:focusable="false"
                 android:id="@+id/ijk_player"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>

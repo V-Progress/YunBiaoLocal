@@ -31,7 +31,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
@@ -56,7 +58,7 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
     private List<String> playList = new ArrayList<>();
 
     //控制条
-    private SeekBar timeline;
+    private ProgressBar timeline;
     //播放状态按钮
     private ImageButton ibPlayState;
     //开始更新进度条标识
@@ -119,7 +121,7 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
     private View controllerView;
     private TextView tcpSpeed;
     private LinearLayout loadingView;
-    private int reLoadLiveFlag = 0;
+    private TextView tvVideoTime;
 
     public EasyIJKPlayer(@NonNull Context context) {
         super(context);
@@ -164,7 +166,6 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
         createController();
         //获取焦点，不知道有没有必要~。~
         setFocusable(true);
-        setOnClickListener(this);
         setBackgroundColor(Color.BLACK);
     }
 
@@ -184,15 +185,16 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
 
     private void createController() {
         controllerView = View.inflate(mContext, R.layout.layout_video_progress, null);
-        timeline = controllerView.findViewById(R.id.timeline);
+        timeline = controllerView.findViewById(R.id.pb_timeline);
+        tvVideoTime = controllerView.findViewById(R.id.tv_video_time);
         ibPlayState = controllerView.findViewById(R.id.ib_play_state);
+        ibPlayState.requestFocus();
         LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.BOTTOM;
         params.bottomMargin = 30;
         this.addView(controllerView, params);
 
         controllerView.setVisibility(View.GONE);
-        timeline.setOnSeekBarChangeListener(onSeekBarChangeListener);
         ibPlayState.setOnClickListener(this);
 
         loadingView = new LinearLayout(mContext);
@@ -294,10 +296,10 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
 
         setLiveOption();
 
-        Uri videoUri = Uri.parse(currPlayUri);
         try {
+            Uri videoUri = Uri.parse(currPlayUri);
             mMediaPlayer.setDataSource(mContext,videoUri);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -361,16 +363,10 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
 
     @Override
     public boolean onInfo(IMediaPlayer iMediaPlayer, int what, int extra) {
-        Log.e(TAG, "onInfo: "+what + "-----"+extra);
         if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
             loadingView.setVisibility(View.VISIBLE);
-            isLoadLong = true;
-            Log.e(TAG, "onInfo: 开始加载-----" );
         } else if (what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
             loadingView.setVisibility(View.GONE);
-            isLoadLong = false;
-            reLoadLiveFlag = 0;
-            Log.e(TAG, "onInfo: 加载成功-----" );
         }
         return true;
     }
@@ -515,7 +511,9 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
     }
 
     public void toggle() {
-        controllerView.setVisibility(View.VISIBLE);
+        if (controllerEnable) {
+            controllerView.setVisibility(View.VISIBLE);
+        }
         mControllerTime = 0;
         if (isPlaying()) {
             ibPlayState.setImageResource(R.mipmap.play);
@@ -525,7 +523,6 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
             pause();
         } else {
             ibPlayState.setImageResource(R.mipmap.pause);
-
             //如果是停止状态，则把状态置为Resume
             if(mCurrentState == STATE_STOP){
                 mCurrentState = STATE_RESUME;
@@ -537,27 +534,41 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
             start();
         }
     }
-
+    private SimpleDateFormat sdf = new SimpleDateFormat("mm:ss");
     /**
      * 下面封装了一下控制视频的方法
      */
     public void fastForword() {
-        if (mMediaPlayer != null && (mMediaPlayer.getDuration() > 0)) {
-            long forword = mMediaPlayer.getCurrentPosition() + (seekToOffset * 1000);
-            mMediaPlayer.pause();
-            mMediaPlayer.seekTo(forword);
-            timeline.setProgress((int) forword);
+        if (controllerEnable) {
             controllerView.setVisibility(View.VISIBLE);
+            mControllerTime = 0;
+        }
+        if (mMediaPlayer != null && (mMediaPlayer.getDuration() > 0)) {
+            long fastForword = mMediaPlayer.getCurrentPosition() + (seekToOffset * 1000);
+            timeline.setProgress((int) fastForword);
+            mMediaPlayer.pause();
+            mMediaPlayer.seekTo(fastForword);
+
+            String progress = sdf.format(new Date(fastForword));
+            String duration = sdf.format(new Date(mMediaPlayer.getDuration()));
+            tvVideoTime.setText(progress+"/"+duration);
         }
     }
 
     public void fastBackward() {
+        if (controllerEnable) {
+            controllerView.setVisibility(View.VISIBLE);
+            mControllerTime = 0;
+        }
         if (mMediaPlayer != null && (mMediaPlayer.getDuration() > 0)) {
             long fastBackword = mMediaPlayer.getCurrentPosition() - (seekToOffset * 1000);
+            timeline.setProgress((int) fastBackword);
             mMediaPlayer.pause();
             mMediaPlayer.seekTo(fastBackword);
-            timeline.setProgress((int) fastBackword);
-            controllerView.setVisibility(View.VISIBLE);
+
+            String progress = sdf.format(new Date(fastBackword));
+            String duration = sdf.format(new Date(mMediaPlayer.getDuration()));
+            tvVideoTime.setText(progress+"/"+duration);
         }
     }
 
@@ -630,18 +641,6 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
     }
 
     /***
-     * 获取总时长
-     * @return
-     */
-    public long getDuration() {
-        if (mMediaPlayer != null) {
-            return mMediaPlayer.getDuration();
-        } else {
-            return 0;
-        }
-    }
-
-    /***
      * 获取当前进度
      * @return
      */
@@ -653,12 +652,6 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
         }
     }
 
-    public void seekTo(long l) {
-        if (mMediaPlayer != null) {
-            mMediaPlayer.seekTo(l);
-        }
-    }
-
     /***
      * 自动区========================================================================================
      */
@@ -666,12 +659,10 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
         try {
             double videoWidth = mMediaPlayer.getVideoWidth();
             double videoHeight = mMediaPlayer.getVideoHeight();
-            Log.e(TAG, "视频尺寸——" + videoWidth + "---" + videoHeight);
 
             ViewGroup parent = (ViewGroup) surfaceView.getParent();
             double surfaceWidth = Double.valueOf(parent.getWidth());
             double surfaceHeight = Double.valueOf(parent.getHeight());
-            Log.e(TAG, "父控件尺寸——" + surfaceWidth + "---" + surfaceHeight);
 
             //根据视频尺寸去计算-&gt;视频可以在sufaceView中放大的最大倍数。
             double prop = 1;
@@ -689,7 +680,6 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
 
             videoWidth = videoWidth * prop;
             videoHeight = videoHeight * prop;
-            Log.e(TAG, "计算出的尺寸——" + videoWidth + "---" + videoHeight);
 
             //无法直接设置视频尺寸，将计算出的视频尺寸设置到surfaceView 让视频自动填充。
             surfaceView.setLayoutParams(new LayoutParams((int) videoWidth, (int) videoHeight, Gravity.CENTER));
@@ -701,9 +691,10 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
     private void showProgress() {
         progressHandler.removeMessages(START_UPDATE_PROGRESS);
         progressHandler.sendEmptyMessage(START_UPDATE_PROGRESS);
-        if (controllerEnable) {
+        mControllerTime = 0;
+
+        if (controllerEnable && controllerLongShow) {
             controllerView.setVisibility(View.VISIBLE);
-            mControllerTime = 0;
         } else {
             controllerView.setVisibility(View.GONE);
         }
@@ -715,17 +706,15 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
             toggle();
             return;
         }
-        if (controllerEnable) {
-            controllerView.setVisibility(View.VISIBLE);
-            mControllerTime = 0;
-        }
     }
-
-    private boolean isLoadLong = false;
 
     private Handler progressHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+            if(isPlaying()){
+                ibPlayState.setImageResource(R.mipmap.pause);
+            }
+
             if (controllerEnable && !controllerLongShow) {//如果不是长显的话
                 if (mControllerTime >= 5) {//开始计算标识
                     mControllerTime = 0;
@@ -738,48 +727,22 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
                 return;
             }
 
-            if(isLoadLong){
-                if(reLoadLiveFlag >= 30){
-                    Log.e(TAG, "onInfo: 时间到，重新加载" );
-                    reLoadLiveFlag = 0;
-                    loadUri();
-                }
-                reLoadLiveFlag++;
-                Log.e(TAG, "onInfo: 等待"+reLoadLiveFlag+"秒-----" );
-            }
-
             long tcpSpeed = mMediaPlayer.getTcpSpeed();
             if(tcpSpeed != 0){
                 tcpSpeed = tcpSpeed / 1024;
             }
             EasyIJKPlayer.this.tcpSpeed.setText(""+tcpSpeed+"k/s");
+
             long currentPosition = mMediaPlayer.getCurrentPosition();
             long duration = mMediaPlayer.getDuration();
             timeline.setMax((int) duration);
             timeline.setProgress((int) currentPosition);
+
+            String pg = sdf.format(new Date(currentPosition));
+            String drt = sdf.format(new Date(duration));
+            tvVideoTime.setText(pg+"/"+drt);
+
             sendEmptyMessageDelayed(START_UPDATE_PROGRESS, UPDATE_TIME);
-        }
-    };
-
-    SeekBar.OnSeekBarChangeListener onSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            if (fromUser) {
-                mControllerTime = 0;
-                if (mMediaPlayer != null) {
-                    mMediaPlayer.seekTo(progress);
-                }
-            }
-        }
-
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-
-        }
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
-
         }
     };
 
