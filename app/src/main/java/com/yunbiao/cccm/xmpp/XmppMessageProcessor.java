@@ -5,6 +5,7 @@ import android.content.Intent;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
+import com.yunbiao.cccm.activity.MenuActivity;
 import com.yunbiao.cccm.net.resource.InsertTextManager;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.net.resource.InsertVideoManager;
@@ -67,6 +68,7 @@ public class XmppMessageProcessor {
 
         switch (Integer.valueOf(type)) {
             case ONLINE_TYPE://登录
+                MenuActivity.isServerConnected = true;
                 NetUtil.getInstance().upLoadHardWareMessage();
 
                 LoginModel loginModel = new Gson().fromJson(content, LoginModel.class);

@@ -122,53 +122,6 @@
             app:layout_heightPercent="60%"
             app:layout_marginRightPercent="2%"
             app:layout_widthPercent="9%" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@id/menu_info_ellipse_btn"
-            android:orientation="vertical"
-            app:layout_marginRightPercent="2%">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/menu_dev_num"
-                    android:textColor="#fff"
-                    android:textSize="@dimen/menu1080_tv_25_dp" />
-
-                <TextView
-                    android:id="@+id/tv_menu_info_equipmentMum"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/menu_bottom_num"
-                    android:textSize="@dimen/menu1080_tv_25_dp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/menu_access_num"
-                    android:textColor="#fff"
-                    android:textSize="@dimen/menu1080_tv_25_dp" />
-
-                <TextView
-                    android:id="@+id/tv_menu_info_accessCode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/menu_bottom_num"
-                    android:textSize="@dimen/menu1080_tv_25_dp" />
-            </LinearLayout>
-        </LinearLayout>
     </android.support.percent.PercentRelativeLayout>
 
     <!--中间四个按钮-->
@@ -278,7 +231,9 @@
                         android:id="@+id/btn_menu_playlist"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/menu_light_green_btn" />
+                        android:background="@drawable/menu_light_green_btn"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentStart="true" />
 
                     <ImageView
                         android:id="@+id/iv_menu_icon_offline"
@@ -334,13 +289,14 @@
 
         <!--3-->
         <android.support.percent.PercentRelativeLayout
-            android:visibility="invisible"
+            android:focusable="false"
             android:clickable="false"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1">
 
             <android.support.percent.PercentRelativeLayout
+                android:focusable="false"
                 android:id="@+id/perRe_position_04"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -349,62 +305,160 @@
                 app:layout_widthPercent="85%">
 
                 <Button
+                    android:focusable="false"
                     android:enabled="false"
                     android:id="@+id/btn_menu_wechat"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/menu_pur_btn" />
 
-                <ImageView
-                    android:id="@+id/iv_menu_icon_setting"
+                <LinearLayout
+                    android:paddingLeft="50dp"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:layout_alignParentTop="true"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:layout_centerInParent="true"
-                    android:src="@mipmap/menu_wechat"
-                    app:layout_heightPercent="50%"
-                    app:layout_widthPercent="50%" />
-
-                <TextView
-                    android:id="@+id/tv_menu_setting_hints"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/iv_menu_icon_setting"
-                    android:layout_centerHorizontal="true"
-                    android:textColor="#fff"
-                    android:textSize="@dimen/menu1080_tv_27_dp" />
-
-                <TextView
-                    android:id="@+id/tv_menu_setting_hints_2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/tv_menu_setting_hints"
-                    android:layout_centerHorizontal="true"
-                    android:textColor="#fff"
-                    android:textSize="@dimen/menu1080_tv_27_dp" />
-
-                <android.support.percent.PercentRelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_centerHorizontal="true"
-                    app:layout_heightPercent="5%"
-                    app:layout_marginPercent="2%"
-                    app:layout_widthPercent="90%">
-
-                    <TextView
+                    app:layout_heightPercent="33%"
+                    app:layout_widthPercent="100%">
+                    <LinearLayout
+                        android:orientation="horizontal"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#fff"
-                        android:textSize="@dimen/menu1080_tv_25_dp" />
+                        android:layout_height="wrap_content">
 
-                    <ImageView
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-                        app:layout_heightPercent="90%"
-                        app:layout_widthPercent="10%" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/menu_dev_num"
+                            android:textColor="#fff"
+                            android:textSize="16dp" />
 
-                </android.support.percent.PercentRelativeLayout>
+                        <TextView
+                            android:id="@+id/tv_menu_info_equipmentMum"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/menu_bottom_num"
+                            android:textSize="20dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_marginTop="10dp"
+                        android:orientation="horizontal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/menu_access_num"
+                            android:textColor="#fff"
+                            android:textSize="16dp" />
+
+                        <TextView
+                            android:id="@+id/tv_menu_info_accessCode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/menu_bottom_num"
+                            android:textSize="20dp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <FrameLayout
+                    android:gravity="center"
+                    android:layout_centerInParent="true"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_heightPercent="33%"
+                    app:layout_widthPercent="100%">
+                    <View
+                        android:layout_marginRight="15dp"
+                        android:layout_marginLeft="15dp"
+                        android:layout_gravity="top"
+                        android:background="@color/white"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"/>
+                    <LinearLayout
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:layout_alignParentBottom="true"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                        <ImageView
+                            android:id="@+id/iv_wifi_icon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                        <TextView
+                            android:layout_marginTop="10dp"
+                            android:maxLines="1"
+                            android:id="@+id/tv_wifi_name"
+                            android:textColor="@color/white"
+                            android:textSize="16dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_alignParentBottom="true"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_heightPercent="33%"
+                    app:layout_widthPercent="100%">
+
+                    <View
+                        android:layout_marginRight="15dp"
+                        android:layout_marginLeft="15dp"
+                        android:layout_gravity="top"
+                        android:background="@color/white"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentBottom="true"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:src="@mipmap/cloud" />
+
+                            <FrameLayout
+                                android:layout_gravity="center"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+                                <ProgressBar
+                                    android:visibility="gone"
+                                    android:layout_gravity="center"
+                                    android:id="@+id/pb_conn_state"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content" />
+                                <ImageView
+                                    android:layout_gravity="center"
+                                    android:id="@+id/iv_conn_state"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"/>
+                            </FrameLayout>
+                        </FrameLayout>
+
+                        <TextView
+                            android:id="@+id/tv_server_connect_state"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="15dp"
+                            android:textColor="@color/white"
+                            android:textSize="16dp" />
+                    </LinearLayout>
+                </FrameLayout>
             </android.support.percent.PercentRelativeLayout>
 
             <TextView
@@ -413,7 +467,7 @@
                 android:layout_height="wrap_content"
                 android:layout_above="@id/perRe_position_04"
                 android:layout_alignLeft="@id/perRe_position_04"
-                android:text="微信消息"
+                android:text="网络状态"
                 android:textColor="#fff"
                 android:textSize="@dimen/menu1080_tv_40_dp"
                 app:layout_marginBottomPercent="2%" />
