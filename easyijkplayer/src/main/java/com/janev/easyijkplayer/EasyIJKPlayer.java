@@ -511,7 +511,7 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
     }
 
     public void toggle() {
-        if (controllerEnable) {
+        if (controllerEnable && isPlaying()) {
             controllerView.setVisibility(View.VISIBLE);
         }
         mControllerTime = 0;
@@ -539,10 +539,10 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
      * 下面封装了一下控制视频的方法
      */
     public void fastForword() {
-        if (controllerEnable) {
+        if (controllerEnable && isPlaying()) {
             controllerView.setVisibility(View.VISIBLE);
-            mControllerTime = 0;
         }
+        mControllerTime = 0;
         if (mMediaPlayer != null && (mMediaPlayer.getDuration() > 0)) {
             long fastForword = mMediaPlayer.getCurrentPosition() + (seekToOffset * 1000);
             timeline.setProgress((int) fastForword);
@@ -556,10 +556,10 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
     }
 
     public void fastBackward() {
-        if (controllerEnable) {
+        if (controllerEnable && isPlaying()) {
             controllerView.setVisibility(View.VISIBLE);
-            mControllerTime = 0;
         }
+        mControllerTime = 0;
         if (mMediaPlayer != null && (mMediaPlayer.getDuration() > 0)) {
             long fastBackword = mMediaPlayer.getCurrentPosition() - (seekToOffset * 1000);
             timeline.setProgress((int) fastBackword);
