@@ -188,11 +188,13 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         registerReceiver(wifiReceiver, filter);
     }
 
+    //注销广播
     private void unRegister() {
         unregisterReceiver(wifiReceiver);
     }
 
-    BroadcastReceiver wifiReceiver = new BroadcastReceiver() {
+    //网络监听
+    private BroadcastReceiver wifiReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -204,6 +206,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         }
     };
 
+    //设置界面显示状态
     private void setNetState(){
         if(!isWifiEnabled()){//wifi未开，设置wifi图标为disable，连接状态为未连接
             isServerConnected = false;
