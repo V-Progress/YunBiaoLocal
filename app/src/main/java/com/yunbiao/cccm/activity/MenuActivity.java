@@ -336,7 +336,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         }
     };
 
-    @OnClick({R.id.btn_menu_start, R.id.btn_menu_playlist, R.id.btn_menu_wechat})
+    @OnClick({R.id.btn_menu_start, R.id.btn_menu_playlist})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_menu_start:
@@ -352,9 +352,6 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                 } else {
                     startActivity(new Intent(this, PlayListActivity.class));
                 }
-                break;
-            case R.id.btn_menu_wechat:
-                ToastUtil.showShort(this, "即将开放");
                 break;
         }
     }

@@ -54,10 +54,9 @@ public class PlayListActivity extends BaseActivity {
     @BindView(R.id.ijk_player)
     EasyIJKPlayer easyIJKPlayer;
 
-    private ArrayAdapter<String> arrayAdapter;
-
     private List<String> playList = new ArrayList<>();
     private Map<String, String> previewMap = new HashMap<>();
+    private PlayListAdapter playListAdapter;
 
     @Override
     protected int setLayout() {
@@ -68,6 +67,12 @@ public class PlayListActivity extends BaseActivity {
     protected void initView() {
         easyIJKPlayer.enableController(true,true);
         EventBus.getDefault().register(this);
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     @Override
@@ -90,11 +95,11 @@ public class PlayListActivity extends BaseActivity {
                 return;
             }
             int position = playList.size();
-            if (arrayAdapter != null) {
+            if (playListAdapter != null) {
                 playList.clear();
                 playList.addAll(pl);
                 previewMap = ResourceManager.getInstance().getPreview();
-                arrayAdapter.notifyDataSetChanged();
+                playListAdapter.notifyDataSetChanged();
             } else {
                 updateList();
             }
@@ -122,8 +127,9 @@ public class PlayListActivity extends BaseActivity {
             return;
         }
 
+        playListAdapter = new PlayListAdapter(this, android.R.layout.simple_list_item_1, playList);
         listView.setDivider(getResources().getDrawable(R.drawable.divider_playlist));
-        listView.setAdapter(new PlayListAdapter(this, android.R.layout.simple_list_item_1, playList));
+        listView.setAdapter(playListAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -146,12 +152,6 @@ public class PlayListActivity extends BaseActivity {
             }
         });
 
-        btnClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
     }
 
     class PlayListAdapter extends ArrayAdapter<String> {
