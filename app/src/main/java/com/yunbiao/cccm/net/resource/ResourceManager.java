@@ -4,8 +4,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v4.provider.DocumentFile;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.gson.Gson;
+import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.activity.MainController;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
@@ -13,10 +15,10 @@ import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.common.YunBiaoException;
 import com.yunbiao.cccm.sd.HighVerSDController;
 import com.yunbiao.cccm.sd.LowVerSDController;
+import com.yunbiao.cccm.utils.ConsoleUtil;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.net.model.ConfigResponse;
 import com.yunbiao.cccm.net.resource.model.VideoDataModel;
-import com.yunbiao.cccm.net.resource.resolve.ConfigResolver;
 import com.yunbiao.cccm.net.resource.resolve.XMLParse;
 import com.yunbiao.cccm.net.listener.FileDownloadListener;
 import com.yunbiao.cccm.utils.DateUtil;
@@ -70,6 +72,7 @@ public class ResourceManager {
 
     //今日数据缓存（只有每次请求完毕时才会初始化）
     private static VideoDataModel.Play todayPlay;
+    private static Date tommDate;
 
     public static synchronized ResourceManager getInstance() {
         if (instance == null) {
@@ -81,6 +84,7 @@ public class ResourceManager {
     public ResourceManager() {
         reqDatelist = new ArrayList<>();
         todayDate = DateUtil.getTodayDate();
+        tommDate = DateUtil.getTommDate(DateUtil.getTodayStr());
 
         for (int i = 0; i < REQ_DAY_NUM; i++) {
             String date = DateUtil.yyyy_MM_dd_Format(new Date(todayDate.getTime() + (dayMilliSec * i)));
@@ -211,6 +215,7 @@ public class ResourceManager {
                 long e = System.currentTimeMillis();
                 LogUtil.D(TAG,"总体请求结束："+e +"---耗时："+ (e-l));
 
+                Log.e(TAG, "run: ====="+urlListQueue.toString());
                 cancel();
                 down(urlListQueue);
             }
@@ -321,15 +326,48 @@ public class ResourceManager {
      */
     private void down(final Queue<DlBean> queue) {
         if (queue == null || queue.size() <= 0) {
+            // TODO: 2019/4/12 为空时再检查一次
+            if(faileQueue.size()>0){
+                Retryer retryer = new Retryer(faileQueue, new Retryer.FinishListener() {
+                    @Override
+                    public void finish() {
+                        down(queue);
+                    }
+                });
+                retryer.start();
+                // TODO: 2019/4/12 为空时再检查一次
+            }
             return;
         }
-        downloader = new Downloader(queue.poll(), new Downloader.FinishListener() {
+
+        // TODO: 2019/4/12 检查错误列表如果不为空则开始重试
+        final DlBean poll = queue.poll();
+        Date reqDate = DateUtil.yyyy_MM_dd_Parse(poll.date);
+        //日期不是今天也不是明天的时候检查错误列表
+        if(reqDate.after(tommDate) && faileQueue.size()>0){
+            Retryer retryer = new Retryer(faileQueue, new Retryer.FinishListener() {
+                @Override
+                public void finish() {
+                    down(queue);
+                }
+            });
+            retryer.start();
+            return;
+        }
+         // TODO: 2019/4/12 检查错误列表如果不为空则开始重试
+
+        //正常下载
+        downloader = new Downloader(poll, new Downloader.FinishListener() {
             @Override
             public void finish() {
                 down(queue);
             }
         });
         downloader.go();
+    }
+
+    private void download(){
+
     }
 
     /****
@@ -341,6 +379,95 @@ public class ResourceManager {
             downloader = null;
         }
     }
+
+    static class Retryer extends FileDownloadListener{
+
+        private BPDownloadManager downloadManager;
+        private String currUrl;
+        interface FinishListener {
+            void finish();
+        }
+        private Queue<String> mQueue;
+        private FinishListener mListener;
+
+        public Retryer(Queue<String> failedQueue,FinishListener listener){
+            mQueue = failedQueue;
+            mListener = listener;
+        }
+
+        public void start(){
+            cancel();
+            go();
+        }
+
+        private void go(){
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            if(mQueue == null || mQueue.size()<=0){
+                onFinish();
+                return;
+            }
+            currUrl = mQueue.poll();
+            downloadManager = new BPDownloadManager(getClass(), this);
+            downloadManager.downloadSingle(currUrl);
+        }
+
+        private void cancel(){
+            if(downloadManager != null){
+                downloadManager.cancel();
+            }
+        }
+
+        @Override
+        public void onStart(int currNum) {
+            APP.getMainActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ConsoleUtil.instance().openRetry();
+                    String name = currUrl.substring(currUrl.lastIndexOf("/")).substring(1);
+                    ConsoleUtil.instance().updateRetry(name,"0");
+                }
+            });
+        }
+
+        @Override
+        public void onProgress(final int progress) {
+            APP.getMainActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String name = currUrl.substring(currUrl.lastIndexOf("/")).substring(1);
+                    ConsoleUtil.instance().updateRetry(name,String.valueOf(progress));
+                }
+            });
+        }
+
+        @Override
+        public void onSuccess(int currFileNum, int totalNum, String fileName) {
+            go();
+        }
+
+        @Override
+        public void onError(Exception e, int currFileNum, int totalNum, String fileName) {
+            mQueue.offer(currUrl);
+            go();
+        }
+
+        @Override
+        public void onFinish() {
+            APP.getMainActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ConsoleUtil.instance().closeRetry();
+                }
+            });
+            mListener.finish();
+        }
+    }
+    private static Queue<String> faileQueue = new LinkedList<>();
 
     /***
      * 下载内部类
@@ -360,6 +487,7 @@ public class ResourceManager {
         private long realSpeed;
         private FinishListener finishListener;
         private Timer timer;//计算速度监听
+
 
         public Downloader(DlBean dlBean, FinishListener listener) {
             date = dlBean.date;
@@ -419,6 +547,19 @@ public class ResourceManager {
 
         @Override
         public void onError(Exception e, int currFileNum, int totalNum, String fileName) {
+
+            // TODO: 2019/4/12 如果是今天和明天的数据则添加到错误列表中
+            Date reqDate = DateUtil.yyyy_MM_dd_Parse(date);
+            if(reqDate.equals(todayDate) || reqDate.equals(tommDate)){
+                for (String s : urlList) {
+                    boolean contains = s.contains(fileName);
+                    if(contains){
+                        faileQueue.offer(s);
+                    }
+                }
+            }
+            // TODO: 2019/4/12 如果是今天和明天的数据则添加到错误列表中
+
             String errMsg;
             if (!TextUtils.isEmpty(e.getMessage())) {
                 errMsg = e.getMessage();
@@ -431,7 +572,6 @@ public class ResourceManager {
                 YunBiaoException ye = (YunBiaoException) e;
                 if (ye.getErrCode() == YunBiaoException.FAILED_REQ_CONFIG) {
                     LogUtil.E("====" + CacheManager.FILE.getTodayResource());
-                    ;
                     CacheManager.FILE.putTodayResource("");
                 }
 

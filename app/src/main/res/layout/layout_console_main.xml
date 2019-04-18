@@ -74,11 +74,55 @@
         android:focusable="false"
         android:id="@+id/ll_console_main"
         android:layout_width="300dp"
-        android:layout_height="500dp"
+        android:layout_height="560dp"
         android:orientation="vertical">
 
+        <LinearLayout
+            android:focusable="false"
+            android:layout_weight="0.1"
+            android:layout_gravity="top"
+            android:id="@+id/ll_retry_root"
+            android:gravity="center"
+            android:padding="5dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ProgressBar
+                android:focusable="false"
+                android:layout_width="26dp"
+                android:layout_height="wrap_content" />
+            <LinearLayout
+                android:focusable="false"
+                android:paddingLeft="10dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:focusable="false"
+                    android:maxLines="1"
+                    android:textSize="14dp"
+                    android:text="失败资源正在重试"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:focusable="false"
+                    android:ellipsize="end"
+                    android:maxEms="20"
+                    android:maxLines="1"
+                    android:id="@+id/tv_retry_filename"
+                    android:textSize="14dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/tv_retry_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+       </LinearLayout>
+
         <ScrollView
-            android:layout_weight="2"
+            android:layout_weight="2.1"
             android:focusable="true"
             android:id="@+id/sv_console_main"
             android:layout_width="match_parent"
@@ -95,12 +139,10 @@
         </ScrollView>
 
         <FrameLayout
-            android:layout_weight="1"
-            android:layout_marginLeft="20dp"
+            android:layout_weight="0.8"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_gravity="left"
-            android:padding="5dp">
+            android:layout_gravity="left">
 
             <rjsv.circularview.CircleView
                 android:focusable="false"
@@ -167,7 +209,7 @@
             android:id="@+id/tv_speed_main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="12dp" />
+            android:textSize="16dp" />
     </LinearLayout>
 
 </FrameLayout>

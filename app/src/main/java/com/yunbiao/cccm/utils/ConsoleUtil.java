@@ -46,6 +46,9 @@ public class ConsoleUtil {
     private TextView tvNumMain;
     private TextView tvProgressMain;
     private LinearLayout llConsoleMain;
+    private View retryRoot;
+    private TextView tvRetryProgress;
+    private TextView tvRetryName;
 
     public static ConsoleUtil instance(){
         if(instance == null){
@@ -70,6 +73,11 @@ public class ConsoleUtil {
         flRoot = mainAct.findViewById(R.id.fl_root);
         pbUpdate = mainAct.findViewById(R.id.pb_update);
         tvSpeed = mainAct.findViewById(R.id.tv_speed_main);
+
+        retryRoot = mainAct.findViewById(R.id.ll_retry_root);
+        retryRoot.setVisibility(View.GONE);
+        tvRetryName = mainAct.findViewById(R.id.tv_retry_filename);
+        tvRetryProgress = mainAct.findViewById(R.id.tv_retry_progress);
 
         tvConsoleMain = mainAct.findViewById(R.id.tv_console_main);
         svConsoleMain = mainAct.findViewById(R.id.sv_console_main);
@@ -166,4 +174,17 @@ public class ConsoleUtil {
         llLoadingMain.setVisibility(View.GONE);
     }
 
+    public void openRetry(){
+        retryRoot.setVisibility(View.VISIBLE);
+    }
+
+    public void updateRetry(String fileName,String progressStr){
+        tvRetryName.setText(fileName);
+        tvRetryProgress.setText(progressStr+"%");
+    }
+
+    public void closeRetry(){
+        retryRoot.setVisibility(View.GONE);
+
+    }
 }

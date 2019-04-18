@@ -41,6 +41,26 @@ public class BPDownloadManager {
         mTag = tag;
     }
 
+    public void downloadSingle(final String url) {
+        downloadThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (l == null) {
+                    l = new FileDownloadListener() {
+                    };
+                }
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                    bpDownload = new BPDownloadLowVer(mTag, totalNum, l);
+                } else {
+                    bpDownload = new BPDownloadHighVer(mTag, totalNum, l);
+                }
+
+                bpDownload.downloadSingle(url);
+            }
+        });
+        downloadThread.start();
+    }
 
     /***
      * 断点下载
@@ -61,7 +81,7 @@ public class BPDownloadManager {
      */
     public void cancel() {
         l.onCancel();
-        if(bpDownload != null){
+        if (bpDownload != null) {
             bpDownload.cancel();
         }
     }
@@ -80,10 +100,10 @@ public class BPDownloadManager {
         totalNum = urlQueue.size();
         l.onBefore(totalNum);
 
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
-            bpDownload = new BPDownloadLowVer(mTag,totalNum,l);
-        }else{
-            bpDownload = new BPDownloadHighVer(mTag,totalNum,l);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            bpDownload = new BPDownloadLowVer(mTag, totalNum, l);
+        } else {
+            bpDownload = new BPDownloadHighVer(mTag, totalNum, l);
         }
 
         bpDownload.breakPointDownload(urlQueue);

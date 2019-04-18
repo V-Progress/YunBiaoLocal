@@ -35,6 +35,125 @@ public class BPDownloadHighVer extends BPDownload {
     }
 
     @Override
+    void downloadSingle(String downloadUrl) {
+        if(TextUtils.isEmpty(downloadUrl)){
+            mListener.onFinish();
+            return;
+        }
+
+        if(cancel){
+            return;
+        }
+
+        mListener.onStart(1);
+
+        //取出文件名称
+        String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/")).substring(1);
+        String cacheFileName = "cache_" + fileName;
+        d("准备下载：" + fileName);
+
+        InputStream is = null;
+        OutputStream os = null;
+
+        try {
+            //获取远程文件长度
+            long contentLength = getContentLength(downloadUrl);
+            d("远程文件大小：" + contentLength);
+            //如果下载的文件长度为0并且重试次数未超
+            if (contentLength == 0) {
+                mListener.onError(null,0,0,fileName);
+                return;
+            }
+
+            //查找该文件
+            DocumentFile localFile = sdController.findResource(fileName);
+            if(localFile != null && localFile.exists()){//如果文件存在
+                if(localFile.length() == contentLength){//并且大小等于远程
+                    d("文件已下载完成，结束");
+                    mListener.onSuccess(0,0,fileName);
+                    return;
+                }else{
+                    boolean delete = localFile.delete();
+                    mListener.onError(null,0,0,fileName);
+                    return;
+                }
+            }
+
+            DocumentFile cacheFile = sdController.findResource(cacheFileName);
+            if(cacheFile != null && cacheFile.exists()){//如果缓存文件存在
+                if(cacheFile.length() == contentLength){//并且已下载完
+                    d("缓存文件已下载完毕，修改名称");
+                    boolean renameTo = cacheFile.renameTo(fileName);
+                    d("修改名称结果："+renameTo);
+                    if (!renameTo) {//改名失败
+                        mListener.onError(null,0,0,fileName);
+                        return;
+                    }
+                    mListener.onSuccess(0,0,fileName);
+                    return;
+                }
+            }else{//缓存文件不存在，创建
+                cacheFile = sdController.createVideoRes(cacheFileName);
+            }
+
+            Request request = new Request.Builder()
+                    .addHeader("RANGE", "bytes=" + cacheFile.length() + "-")  //断点续传要用到的，指示下载的区间
+                    .url(downloadUrl)
+                    .tag(mTag)
+                    .build();
+            Response response = new OkHttpClient().newCall(request).execute();
+            if (response != null) {
+                is = response.body().byteStream();
+                os = sdController.getOutputStream(cacheFile);
+
+                int realProgress = 0;
+
+                byte[] b = new byte[BUFFER_SIZE];
+                int len;
+                while ((len = is.read(b)) != -1) {
+                    mListener.onDownloadSpeed(len);
+
+                    if (cancel) {
+                        return;
+                    }
+
+                    os.write(b, 0, len);
+
+                    //计算已经下载的百分比
+                    int progress = 0;
+                    if (contentLength != 0) {
+                        progress = (int) (cacheFile.length() * 100 / contentLength);
+                    }
+                    if (realProgress != progress) {
+                        realProgress = progress;
+                        mListener.onProgress(realProgress);
+                    }
+                }
+                response.body().close();
+
+                //如果當前下載文件長度和遠程文件不相同，則刪除掉重新下載
+                if (cacheFile.length() != contentLength) {
+                    cacheFile.delete();
+                    mListener.onError(null,0,0,fileName);
+                } else {
+                    boolean rename = cacheFile.renameTo(fileName);
+                    if (rename) {//改名成功
+                        mListener.onSuccess(0,0,fileName);
+                    } else {//改名失败
+                        cacheFile.delete();//删除
+                        mListener.onError(null,0,0,fileName);
+                    }
+                }
+            }
+        }  catch (Exception e) {
+            mListener.onError(null,0,0,fileName);
+        } finally {
+            close(is);
+            close(os);
+        }
+    }
+
+    @Override
     public void breakPointDownload(Queue<String> urlQueue) {
         if (urlQueue.size() <= 0) {
             mListener.onFinish();
@@ -183,4 +302,5 @@ public class BPDownloadHighVer extends BPDownload {
         }
         breakPointDownload(urlQueue);
     }
+
 }

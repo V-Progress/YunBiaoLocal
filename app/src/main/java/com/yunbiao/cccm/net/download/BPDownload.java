@@ -65,6 +65,8 @@ public abstract class BPDownload {
 
     abstract void breakPointDownload(Queue<String> fileUrlList);
 
+    abstract void downloadSingle(String url);
+
     /***
      * 只有下载成功的时候才会增加文件索引
      */

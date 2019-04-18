@@ -57,6 +57,119 @@ public class BPDownloadLowVer extends BPDownload {
     }
 
     @Override
+    void downloadSingle(String downloadUrl) {
+        if(TextUtils.isEmpty(downloadUrl)){
+            return;
+        }
+
+        if (cancel) {
+            return;
+        }
+
+        d("start download...");
+        mListener.onStart(currFileNum);
+
+        //取出URL
+        String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/")).substring(1);
+        String cacheFileName = "cache_" + fileName;
+        d("准备下载的文件名：" + fileName);
+
+        InputStream is = null;
+        OutputStream os = null;
+
+        try {
+            //获取远程文件长度
+            long contentLength = getContentLength(downloadUrl);
+            d("远程文件大小：" + contentLength);
+            //如果下载的文件长度为0并且重试次数未超
+            if (contentLength == 0) {
+                mListener.onError(null,0,0,fileName);
+                return;
+            }
+
+            File localFile = fileOperator.findResource(fileName);
+            if(localFile.exists()){
+                //如果本地文件存在，并且大小等于远程，则下载完成，跳转下一个
+                if (localFile.length() == contentLength) {
+                    mListener.onSuccess(0,0,fileName);
+                    return;
+                } else {//存在但大小不正确，删除，重新下载
+                    boolean delete = localFile.delete();
+                    mListener.onError(null,0,0,fileName);
+                    return;
+                }
+            }
+            //如果本地文件不存在，创建缓存文件
+            File cacheFile = fileOperator.findResource(cacheFileName);
+            //如果本地文件的长度和远程的相等，代表下载完成
+            if (cacheFile.length() == contentLength) {
+                boolean b = cacheFile.renameTo(localFile);
+                if (!b) {//改名失败
+                    mListener.onError(null,0,0,fileName);
+                    return;
+                }
+                mListener.onSuccess(0,0,fileName);
+                return;
+            }
+
+            Request request = new Request.Builder()
+                    .addHeader("RANGE", "bytes=" + cacheFile.length() + "-")  //断点续传要用到的，指示下载的区间
+                    .url(downloadUrl)
+                    .tag(mTag)
+                    .build();
+            Response response = new OkHttpClient().newCall(request).execute();
+            if (response != null) {
+                is = response.body().byteStream();
+                os = new FileOutputStream(cacheFile,true);
+
+                int realProgress = 0;
+
+                byte[] b = new byte[BUFFER_SIZE];
+                int len;
+                while ((len = is.read(b)) != -1) {
+                    mListener.onDownloadSpeed(len);
+
+                    if (cancel) {
+                        return;
+                    }
+
+                    os.write(b, 0, len);
+
+                    //计算已经下载的百分比
+                    int progress = 0;
+                    if (contentLength != 0) {
+                        progress = (int) (cacheFile.length() * 100 / contentLength);
+                    }
+                    if (realProgress != progress) {
+                        realProgress = progress;
+                        mListener.onProgress(realProgress);
+                    }
+                }
+                response.body().close();
+
+                //如果當前下載文件長度和遠程文件不相同，則刪除掉重新下載
+                if (cacheFile.length() != contentLength) {
+                    cacheFile.delete();
+                    mListener.onError(null,0,0,fileName);
+                } else {
+                    boolean rename = cacheFile.renameTo(localFile);
+                    if (rename) {//改名成功
+                        mListener.onSuccess(0,0,fileName);
+                    } else {//改名失败
+                        cacheFile.delete();//删除
+                        mListener.onError(null,0,0,fileName);
+                    }
+                }
+            }
+        }  catch (Exception e) {
+            mListener.onError(null,0,0,fileName);
+        } finally {
+            close(is);
+            close(os);
+        }
+    }
+
+    @Override
     public void breakPointDownload(Queue<String> urlQueue) {
         if (urlQueue.size() <= 0) {
             mListener.onFinish();
