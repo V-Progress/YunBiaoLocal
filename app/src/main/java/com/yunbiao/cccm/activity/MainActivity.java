@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Handler;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -35,6 +36,7 @@ import com.yunbiao.cccm.utils.DialogUtil;
 import com.yunbiao.cccm.utils.TimerUtil;
 
 import java.util.List;
+import java.util.Timer;
 
 import butterknife.BindView;
 import master.flame.danmaku.ui.widget.DanmakuView;
@@ -133,7 +135,14 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
 
                 //初始化字幕
                 InsertTextManager.instance(MainActivity.this).initTXT();
+            }
+        });
 
+        //延时检查过期文件
+        TimerUtil.delayExecute(30 * 60 * 1000,new TimerUtil.OnTimerListener(){
+            @Override
+            public void onTimeFinish() {
+                Log.d("DeleteResUtil", "onTimeFinish: 检查过期文件");
                 //删除过期文件
                 DeleteResUtil.checkExpireFile();
             }

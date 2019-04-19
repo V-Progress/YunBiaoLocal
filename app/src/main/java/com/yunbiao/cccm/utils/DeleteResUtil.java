@@ -24,6 +24,10 @@ public class DeleteResUtil {
 
     public static void checkExpireFile(){
         LogUtil.D(TAG, "检查过期文件");
+
+        //检查过期的列表文件
+        BackupUtil.checkExpFile();
+
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
             removeExpireFileLowVer();
         } else {

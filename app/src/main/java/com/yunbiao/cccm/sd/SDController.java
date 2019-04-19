@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
@@ -14,6 +15,7 @@ public interface SDController {
     String TAG = "SDOperator";
     String APP_ROOT_DIR = "yunbiao";
     String APP_RESOURCE_DIR = "resource";
+    String APP_LIST_BACKUP = "listBackUp";
 
     String videoType = "video/x-msvideo";
     String outputMode = "wa";
@@ -31,6 +33,10 @@ public interface SDController {
     <T> T findResource(@NonNull String fileName);
 
     <T>OutputStream getOutputStream(@NonNull T t) throws FileNotFoundException;
+
+    <T>OutputStream getOutputStreamCover(@NonNull T t) throws FileNotFoundException;
+
+    <T>InputStream getInputStream(@NonNull T t) throws FileNotFoundException;
 
     <T> T getAppResourceDir();
 

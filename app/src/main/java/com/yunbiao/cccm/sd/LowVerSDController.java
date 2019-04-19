@@ -7,8 +7,10 @@ import android.text.TextUtils;
 import com.yunbiao.cccm.log.LogUtil;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
@@ -133,6 +135,26 @@ public class LowVerSDController implements SDController{
         if(t instanceof File){
             File file = (File) t;
             return new FileOutputStream(file,true);
+        }
+        new Exception("参数类型错误").printStackTrace();
+        return null;
+    }
+
+    @Override
+    public <T>OutputStream getOutputStreamCover(T t) throws FileNotFoundException {
+        if(t instanceof File){
+            File file = (File) t;
+            return new FileOutputStream(file,false);
+        }
+        new Exception("参数类型错误").printStackTrace();
+        return null;
+    }
+
+    @Override
+    public <T>InputStream getInputStream(T t) throws FileNotFoundException {
+        if(t instanceof File){
+            File file = (File) t;
+            return new FileInputStream(file);
         }
         new Exception("参数类型错误").printStackTrace();
         return null;

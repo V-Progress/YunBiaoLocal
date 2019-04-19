@@ -10,6 +10,7 @@ import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.log.LogUtil;
 
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 
@@ -125,6 +126,30 @@ public class HighVerSDController implements SDController{
         if(t instanceof DocumentFile){
             DocumentFile documentFile = (DocumentFile) t;
             return mContext.getContentResolver().openOutputStream(documentFile.getUri(),outputMode);
+        }
+        new Exception("参数类型错误").printStackTrace();
+        return null;
+    }
+
+    /***
+     * 获取当前文件的输出流
+     * @param t 类型为DocumentFile 或 File
+     * @return
+     * @throws FileNotFoundException
+     */
+    public <T> OutputStream getOutputStreamCover(T t) throws FileNotFoundException {
+        if(t instanceof DocumentFile){
+            DocumentFile documentFile = (DocumentFile) t;
+            return mContext.getContentResolver().openOutputStream(documentFile.getUri(),"rwt");
+        }
+        new Exception("参数类型错误").printStackTrace();
+        return null;
+    }
+
+    public <T>InputStream getInputStream(T t) throws FileNotFoundException{
+        if(t instanceof DocumentFile){
+            DocumentFile documentFile = (DocumentFile) t;
+            return mContext.getContentResolver().openInputStream(documentFile.getUri());
         }
         new Exception("参数类型错误").printStackTrace();
         return null;

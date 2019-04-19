@@ -13,6 +13,7 @@ import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.common.YunBiaoException;
+import com.yunbiao.cccm.utils.BackupUtil;
 import com.yunbiao.cccm.sd.HighVerSDController;
 import com.yunbiao.cccm.sd.LowVerSDController;
 import com.yunbiao.cccm.utils.ConsoleUtil;
@@ -128,6 +129,24 @@ public class ResourceManager {
 
                 clearPlayList();
 
+                // TODO: 2019/4/19 读取备份数据
+                BackupUtil.readBackup(new BackupUtil.ReadBackupListener() {
+                    @Override
+                    public void getData(List<VideoDataModel.Play> list) {
+                        Log.e(TAG, "getData: ********"+list.toString());
+                        for (VideoDataModel.Play play : list) {
+                            String playday = play.getPlayday();
+                            Date date = DateUtil.yyyyMMdd_Parse(playday);
+                            if(date.equals(todayDate)){
+                                todayPlay = play;
+                                //如果有今天的数据，则直接开始播放，未请求到时也不会暂停，请求到以后该内容会被替换，并且重新解析
+                                Resolver.resolveTodayData(true);
+                            }
+                            Resolver.resolvePlay(play);
+                        }
+                    }
+                });
+
                 if (reqDatelist == null || reqDatelist.size() <= 0) {
                     LogUtil.D(TAG, "请求日期列表为空，异常");
                     return;
@@ -142,7 +161,7 @@ public class ResourceManager {
 
                     switch (reCode) {
                         case REQ_FAILED_TAG://没有数据
-
+                            //检查今日数据，如果有则解析播放
                             if (reqDate != null && todayDate.equals(reqDate)) {
                                 todayPlay = null;
                                 MainController.getInstance().setHasConfig(false);
@@ -191,6 +210,7 @@ public class ResourceManager {
                                     MainController.getInstance().setHasConfig(true);
                                     LogUtil.E(TAG,"今日数据："+play.toString());
                                     todayPlay = play;
+                                    BackupUtil.backup(DateUtil.yyyyMMdd_Format(todayDate),todayPlay);
                                 }
 
                                 //解析播放列表并通知更新
@@ -366,10 +386,6 @@ public class ResourceManager {
         downloader.go();
     }
 
-    private void download(){
-
-    }
-
     /****
      * 取消下载
      */
@@ -487,7 +503,6 @@ public class ResourceManager {
         private long realSpeed;
         private FinishListener finishListener;
         private Timer timer;//计算速度监听
-
 
         public Downloader(DlBean dlBean, FinishListener listener) {
             date = dlBean.date;
