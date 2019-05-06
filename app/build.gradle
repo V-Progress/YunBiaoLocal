@@ -9,8 +9,8 @@ android {
         applicationId "com.yunbiao.cccm"
         minSdkVersion 17
         targetSdkVersion 22
-        versionCode 122
-        versionName "1.2.2"
+        versionCode 130
+        versionName "1.3.0"
         multiDexEnabled true
     }
     buildTypes {

@@ -51,6 +51,9 @@ public abstract class BPDownload {
     //总文件数量
     protected int totalNum = 0;
 
+    //是否开启逐个检查文件
+    protected boolean isSignleCheck = false;
+
     Object mTag;
 
     public BPDownload(@NonNull Object tag, @NonNull MultiFileDownloadListener listener) {
@@ -67,6 +70,10 @@ public abstract class BPDownload {
 
     abstract void downloadSingle(String url);
 
+    public void setCheckMode(boolean isSignleCheck){
+        this.isSignleCheck = isSignleCheck;
+    }
+
     /***
      * 只有下载成功的时候才会增加文件索引
      */
@@ -77,7 +84,7 @@ public abstract class BPDownload {
     }
 
     protected void onError(Exception e, int totalNum, String fileName) {
-        d("download onError...");
+        d("download onLatelyResourceError...");
         mListener.onError(e, currFileNum, totalNum, fileName);
         currFileNum++;
     }

@@ -1,6 +1,7 @@
 package com.yunbiao.cccm.activity;
 
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 
 import com.yunbiao.cccm.APP;
@@ -52,6 +53,7 @@ public class MainController{
      */
     public void setHasInsert(boolean hasInsert) {
         this.hasInsert = hasInsert;
+        Log.e("123", "setHasInsert: -------------" + hasInsert);
         updateMenu(hasConfig || hasInsert);
     }
 
@@ -61,6 +63,7 @@ public class MainController{
      */
     public void setHasConfig(boolean hasConfig) {
         this.hasConfig = hasConfig;
+        Log.e("123", "setHasConfig: -------------" + hasConfig);
         updateMenu(hasConfig || hasInsert);
     }
 

@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.net.resource.resolve;
+package com.yunbiao.cccm.net.resolve;
 
 import android.net.Uri;
 import android.os.Build;
@@ -9,7 +9,7 @@ import com.google.gson.Gson;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.activity.MainController;
-import com.yunbiao.cccm.net.resource.model.VideoDataModel;
+import com.yunbiao.cccm.net.model.VideoDataModel;
 import com.yunbiao.cccm.sd.HighVerSDController;
 import com.yunbiao.cccm.sd.LowVerSDController;
 import com.yunbiao.cccm.utils.DateUtil;

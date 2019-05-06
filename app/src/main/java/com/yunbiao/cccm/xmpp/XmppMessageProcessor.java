@@ -29,7 +29,7 @@ import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.utils.SystemInfoUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.net.view.TipToast;
-import com.yunbiao.cccm.net.resource.model.InsertTextModel;
+import com.yunbiao.cccm.net.model.InsertTextModel;
 
 /**
  * 核心类：Xmpp消息处理

@@ -36,6 +36,7 @@ import java.util.TimerTask;
  */
 
 public class LocalManager {
+    private static final String TAG = "LocalManager";
 
     private static ArrayList<Timer> videoTimerList = new ArrayList<>();
     private static ArrayList<Timer> insertTimerList = new ArrayList<>();

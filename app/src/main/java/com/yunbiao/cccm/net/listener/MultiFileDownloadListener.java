@@ -37,6 +37,11 @@ public interface MultiFileDownloadListener {
      */
     void onFinish();
 
+    /***
+     * 文件检查结束
+     */
+    void onFileCheckFinish();
+
     void onError(Exception e, int currFileNum, int totalNum, String fileName);
 
     void onSuccess(int currFileNum, int totalNum, String fileName);

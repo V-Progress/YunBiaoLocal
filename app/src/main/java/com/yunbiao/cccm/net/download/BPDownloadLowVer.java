@@ -38,7 +38,7 @@ public class BPDownloadLowVer extends BPDownload {
 
         /*resourceDir = checkRootDir(localPath);
         if(resourceDir == null){
-            this.mListener.onError(new YunBiaoException(YunBiaoException.ERROR_FILE_PERMISSION, null), currFileNum, totalNum, "");
+            this.mListener.onLatelyResourceError(new YunBiaoException(YunBiaoException.ERROR_FILE_PERMISSION, null), currFileNum, totalNum, "");
             return;
         }*/
     }

@@ -32,6 +32,11 @@ public abstract class FileDownloadListener implements MultiFileDownloadListener 
     }
 
     @Override
+    public void onFileCheckFinish(){
+
+    }
+
+    @Override
     public void onError(Exception e, int currFileNum, int totalNum, String fileName) {
 
     }

@@ -31,13 +31,40 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp">
 
-        <ListView
-            android:focusable="true"
-            android:id="@+id/playlist"
+        <RelativeLayout
+            android:layout_weight="0.7"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginTop="8dp"
-            android:layout_weight="0.7" />
+            android:layout_height="match_parent">
+
+            <ListView
+                android:layout_centerInParent="true"
+                android:visibility="gone"
+                android:focusable="true"
+                android:id="@+id/playlist"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp"/>
+            <ProgressBar
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:id="@+id/pb_playlist"
+                android:layout_width="70dp"
+                android:layout_height="70dp" />
+
+            <com.yunbiao.cccm.net.view.NumberProgressBar
+                app:progress_unreached_color="@color/light_gray"
+                app:progress_reached_color="@color/white"
+                app:progress_text_color="@color/white"
+                app:progress_text_size="30dp"
+                android:id="@+id/npb_playlist"
+                android:layout_marginTop="20dp"
+                android:layout_below="@+id/pb_playlist"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:layout_width="400dp"
+                android:layout_height="40dp" />
+        </RelativeLayout>
+
 
         <View
             android:layout_width="1dp"

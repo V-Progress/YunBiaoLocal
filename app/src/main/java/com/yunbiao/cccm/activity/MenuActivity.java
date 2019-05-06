@@ -12,6 +12,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.IdRes;
 import android.support.percent.PercentRelativeLayout;
 import android.text.TextUtils;
@@ -101,23 +103,36 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
 
     private SoundPool soundPool;//用来管理和播放音频文件
     private int music;
-    private TimerUtil timerUtil;
-    private static final String TAG = "MenuActivity";
     private WifiManager wifiManager;
     private ConnectivityManager connectManager;
-    private boolean isTimerRuning = false;
     private final String NETWORK_STATE_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
 
     public static boolean isServerConnected = false;
-
     protected int setLayout() {
         APP.setMenuActivity(this);
         getWindow().setFormat(PixelFormat.TRANSLUCENT);
         return R.layout.activity_menu;
     }
 
+    private boolean canTimer = false;
+    private int time = 60;
+    private Handler timerHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            tvShowOnscreenTime.setText("" + time);
+
+            if(canTimer){
+                if(time <= 0){
+                    time = 60;
+                    finish();
+                }
+                time--;
+            }
+            timerHandler.sendEmptyMessageDelayed(0,1000);
+        }
+    };
+
     protected void initData() {
-        timerUtil = TimerUtil.getInstance(onTimerListener);
         soundPool = new SoundPool(10, AudioManager.STREAM_RING, 5);//第一个参数为同时播放数据流的最大个数，第二数据流类型，第三为声音质量
         music = soundPool.load(this, R.raw.di, 1);
 
@@ -125,6 +140,9 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         connectManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
         registerBroadcast();
+
+        updatePlayButton();
+        timerHandler.sendEmptyMessage(0);
     }
 
     protected void initView() {
@@ -205,6 +223,101 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
             }
         }
     };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        canTimer = true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        canTimer = false;
+    }
+
+    @OnClick({R.id.btn_menu_start, R.id.btn_menu_playlist})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.btn_menu_start:
+                if (isFastClick()) {
+                    ToastUtil.showShort(this, "请不要重复点击");
+                } else {
+                    finish();
+                }
+                break;
+            case R.id.btn_menu_playlist:
+                if (isFastClick()) {
+                    ToastUtil.showShort(this, "请不要重复点击");
+                } else {
+                    startActivity(new Intent(this, PlayListActivity.class));
+                }
+                break;
+        }
+    }
+
+    private static final int MIN_DELAY_TIME = 1500;  // 两次点击间隔不能少于1000ms
+    private static long lastClickTime;
+    public static boolean isFastClick() {
+        boolean flag = true;
+        long currentClickTime = System.currentTimeMillis();
+        if ((currentClickTime - lastClickTime) >= MIN_DELAY_TIME) {
+            flag = false;
+        }
+        lastClickTime = currentClickTime;
+        return flag;
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onFocusChange(View v, boolean hasFocus) {
+        if (hasFocus) {
+            soundPool.play(music, 1, 1, 0, 0, 1);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        timerHandler.removeMessages(0);
+        unRegister();
+        APP.setMenuActivity(null);
+    }
+
+    //更新播放按钮
+    public void updatePlayButton() {
+        boolean isHasPlay = CacheManager.SP.getPlayTag();
+        Log.e("123", "updatePlayButton: ----------------" + isHasPlay);
+
+
+        time = 60;
+        canTimer = isHasPlay;
+
+        if (isHasPlay) {
+            btnMenuStart.setEnabled(true);
+            Drawable drawable = getResources().getDrawable(R.mipmap.menu_start);
+            drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+            ivMenuIconStart.setImageDrawable(drawable);
+            tvMenuStartHints.setText(R.string.play);
+            tvMenuStartHints2.setText(R.string.auto_play);
+        } else {
+            btnMenuStart.setEnabled(false);
+            Drawable drawable = getResources().getDrawable(R.mipmap.menu_nostart);
+            drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+            ivMenuIconStart.setImageDrawable(drawable);
+            tvMenuStartHints.setText("");
+            tvMenuStartHints2.setText("暂无播放资源");
+        }
+    }
+
+    public void updateDeviceNo() {
+        tvMenuInfoEquipmentMum.setText(CacheManager.SP.getDeviceNum());
+        tvMenuInfoAccessCode.setText(CacheManager.SP.getAccessCode());
+    }
 
     //设置界面显示状态
     private void setNetState(){
@@ -287,136 +400,6 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
             return strength;
         }
         return 0;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        updatePlayButton();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        timerPause();
-    }
-
-    protected void timerStart() {
-        if (timerUtil != null) {
-            timerUtil.start(60);//开始计时
-            isTimerRuning = true;
-        }
-    }
-
-    protected void timerPause() {
-        if (timerUtil != null) {
-            timerUtil.pause();//pause时停掉计时
-            isTimerRuning = false;
-        }
-    }
-
-    /***
-     * 倒计时监听
-     */
-    TimerUtil.OnTimerListener onTimerListener = new TimerUtil.OnTimerListener() {
-        @Override
-        public void onTimeStart() {
-            tvShowOnscreenTime.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        public void onTiming(int recLen) {
-            tvShowOnscreenTime.setText("" + recLen);
-        }
-
-        @Override
-        public void onTimeFinish() {
-            tvShowOnscreenTime.setVisibility(View.GONE);
-            finish();
-        }
-    };
-
-    @OnClick({R.id.btn_menu_start, R.id.btn_menu_playlist})
-    public void onViewClicked(View view) {
-        switch (view.getId()) {
-            case R.id.btn_menu_start:
-                if (isFastClick()) {
-                    ToastUtil.showShort(this, "请不要重复点击");
-                } else {
-                    finish();
-                }
-                break;
-            case R.id.btn_menu_playlist:
-                if (isFastClick()) {
-                    ToastUtil.showShort(this, "请不要重复点击");
-                } else {
-                    startActivity(new Intent(this, PlayListActivity.class));
-                }
-                break;
-        }
-    }
-
-    private static final int MIN_DELAY_TIME = 1500;  // 两次点击间隔不能少于1000ms
-    private static long lastClickTime;
-
-    public static boolean isFastClick() {
-        boolean flag = true;
-        long currentClickTime = System.currentTimeMillis();
-        if ((currentClickTime - lastClickTime) >= MIN_DELAY_TIME) {
-            flag = false;
-        }
-        lastClickTime = currentClickTime;
-        return flag;
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public void onFocusChange(View v, boolean hasFocus) {
-        if (hasFocus) {
-            soundPool.play(music, 1, 1, 0, 0, 1);
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unRegister();
-        APP.setMenuActivity(null);
-    }
-
-    //更新播放按钮
-    public void updatePlayButton() {
-        boolean isHasPlay = CacheManager.SP.getPlayTag();
-        if (!isHasPlay) {
-            if (isTimerRuning) {
-                timerPause();
-            }
-            btnMenuStart.setEnabled(false);
-            Drawable drawable = getResources().getDrawable(R.mipmap.menu_nostart);
-            drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
-            ivMenuIconStart.setImageDrawable(drawable);
-            tvMenuStartHints.setText("");
-            tvMenuStartHints2.setText("暂无播放资源");
-        } else {
-            if (!isTimerRuning) {
-                timerStart();
-            }
-            btnMenuStart.setEnabled(true);
-            Drawable drawable = getResources().getDrawable(R.mipmap.menu_start);
-            drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
-            ivMenuIconStart.setImageDrawable(drawable);
-            tvMenuStartHints.setText(R.string.play);
-            tvMenuStartHints2.setText(R.string.auto_play);
-        }
-    }
-
-    public void updateDeviceNo() {
-        tvMenuInfoEquipmentMum.setText(CacheManager.SP.getDeviceNum());
-        tvMenuInfoAccessCode.setText(CacheManager.SP.getAccessCode());
     }
 
 }

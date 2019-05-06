@@ -12,7 +12,7 @@ import android.widget.Toast;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.activity.MainController;
 import com.yunbiao.cccm.cache.CacheManager;
-import com.yunbiao.cccm.net.resource.model.InsertTextModel;
+import com.yunbiao.cccm.net.model.InsertTextModel;
 import com.yunbiao.cccm.net.view.MyScrollTextView;
 import com.yunbiao.cccm.utils.ThreadUtil;
 

@@ -8,11 +8,11 @@ import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.net.listener.FileDownloadListener;
-import com.yunbiao.cccm.net.resource.resolve.InsertResolver;
+import com.yunbiao.cccm.net.resolve.InsertResolver;
 import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
-import com.yunbiao.cccm.net.resource.model.InsertVideoModel;
+import com.yunbiao.cccm.net.model.InsertVideoModel;
 import com.yunbiao.cccm.net.download.BPDownloadManager;
 
 import java.text.ParseException;

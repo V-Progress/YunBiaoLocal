@@ -5,8 +5,7 @@ import android.text.TextUtils;
 import com.google.gson.Gson;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.common.ResourceConst;
-import com.yunbiao.cccm.net.resource.model.InsertTextModel;
-import com.yunbiao.cccm.net.resource.model.VideoDataModel;
+import com.yunbiao.cccm.net.model.InsertTextModel;
 
 import java.io.File;
 

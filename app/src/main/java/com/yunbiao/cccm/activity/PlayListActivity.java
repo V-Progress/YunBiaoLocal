@@ -2,10 +2,14 @@ package com.yunbiao.cccm.activity;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.provider.DocumentFile;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,11 +31,16 @@ import com.yunbiao.cccm.local.LocalManager;
 import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.net.resource.ResourceManager;
 import com.yunbiao.cccm.net.resource.UpdateEvent;
+import com.yunbiao.cccm.net.view.NumberProgressBar;
+import com.yunbiao.cccm.sd.HighVerSDController;
+import com.yunbiao.cccm.sd.LowVerSDController;
+import com.yunbiao.cccm.utils.ThreadUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +53,7 @@ import butterknife.BindView;
  */
 
 public class PlayListActivity extends BaseActivity {
+    private static final String TAG = "PlayListActivity";
     @BindView(R.id.playlist)
     ListView listView;
     @BindView(R.id.fl_video_container)
@@ -53,6 +64,10 @@ public class PlayListActivity extends BaseActivity {
     Button btnClose;
     @BindView(R.id.ijk_player)
     EasyIJKPlayer easyIJKPlayer;
+    @BindView(R.id.pb_playlist)
+    ProgressBar pbPlayList;
+    @BindView(R.id.npb_playlist)
+    NumberProgressBar npbPlayList;
 
     private List<String> playList = new ArrayList<>();
     private Map<String, String> previewMap = new HashMap<>();
@@ -65,7 +80,7 @@ public class PlayListActivity extends BaseActivity {
 
     @Override
     protected void initView() {
-        easyIJKPlayer.enableController(true,true);
+        easyIJKPlayer.enableController(true, true);
         EventBus.getDefault().register(this);
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,56 +92,113 @@ public class PlayListActivity extends BaseActivity {
 
     @Override
     protected void initData() {
-        updateList();
+        initList();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void Event(UpdateEvent event) {
         LogUtil.E("收到通知----------");
         if (event.getCode() == UpdateEvent.UPDATE_PLAYLIST) {
-            int mode = CacheManager.SP.getMode();
-            if(mode != 0){
-                updateList();
-                return;
-            }
-
-            List<String> pl= ResourceManager.getInstance().getPlayList();
-            if(pl == null || pl.size()<=0){
-                return;
-            }
-            int position = playList.size();
-            if (playListAdapter != null) {
-                playList.clear();
-                playList.addAll(pl);
-                previewMap = ResourceManager.getInstance().getPreview();
-                playListAdapter.notifyDataSetChanged();
-            } else {
-                updateList();
-            }
-            listView.smoothScrollToPositionFromTop(position, 120);
+            initList();
         }
-    }
-
-    private void updateList() {
-        playList.clear();
-        previewMap.clear();
-        if(CacheManager.SP.getMode() == 0){
-            playList.addAll(ResourceManager.getInstance().getPlayList());
-            previewMap = ResourceManager.getInstance().getPreview();
-        } else {
-            playList.addAll(LocalManager.getInstance().getPlayList());
-            previewMap = LocalManager.getInstance().getPreview();
-        }
-
-        LogUtil.E("PlayListActivity", "playList:" + playList.toString());
-        initList();
     }
 
     private void initList() {
-        if (playList == null || playList.size() <= 0) {
-            return;
-        }
+        npbPlayList.setVisibility(View.VISIBLE);
+        pbPlayList.setVisibility(View.VISIBLE);
+        listView.setVisibility(View.GONE);
 
+        ThreadUtil.getInstance().runInCommonThread(new Runnable() {
+            @Override
+            public void run() {
+                playList.clear();
+                previewMap.clear();
+
+                final List<String> tempList;
+                if (CacheManager.SP.getMode() == 0) {
+                    tempList = ResourceManager.getInstance().getPlayList();
+
+                    if (tempList == null || tempList.size() <= 0) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                pbPlayList.setVisibility(View.GONE);
+                                npbPlayList.setVisibility(View.GONE);
+                            }
+                        });
+                        return;
+                    }
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            npbPlayList.setMax(tempList.size());
+                        }
+                    });
+
+
+                    for (int i = 0; i < tempList.size(); i++) {
+                        String s = tempList.get(i);
+                        if (s.startsWith("*")) {
+                            playList.add(s.replace("*", ""));
+                            continue;
+                        }
+
+                        String[] split = s.split("\\*");
+                        if (split == null || split.length < 2) {
+                            continue;
+                        }
+
+                        String videoName = split[1];
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                            //生成File
+                            File video = LowVerSDController.instance().findResource(videoName);
+                            if (!video.exists()) {
+                                playList.add(split[0] + split[1] + "（无）");
+                                continue;
+                            }
+                            playList.add(split[0] + split[1]);
+                            previewMap.put(split[1], Uri.fromFile(video).toString());
+                        } else {
+                            DocumentFile video = HighVerSDController.instance().findResource(videoName);
+                            if (video == null || (!video.exists())) {
+                                playList.add(split[0] + split[1] + "（无）");
+                                continue;
+                            }
+                            playList.add(split[0] + split[1]);
+                            previewMap.put(split[1], video.getUri().toString());
+                        }
+
+                        Log.e(TAG, "run: 111111111111111");
+                        final int finalI = i;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                npbPlayList.setProgress(finalI);
+                            }
+                        });
+                    }
+                } else {
+                    tempList = LocalManager.getInstance().getPlayList();
+                    Log.e(TAG, "run: " + tempList.toString());
+                    playList = tempList;
+                    previewMap = LocalManager.getInstance().getPreview();
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        pbPlayList.setVisibility(View.GONE);
+                        npbPlayList.setVisibility(View.GONE);
+                        listView.setVisibility(View.VISIBLE);
+                        initListView();
+                    }
+                });
+            }
+        });
+    }
+
+    private void initListView() {
         playListAdapter = new PlayListAdapter(this, android.R.layout.simple_list_item_1, playList);
         listView.setDivider(getResources().getDrawable(R.drawable.divider_playlist));
         listView.setAdapter(playListAdapter);
@@ -135,16 +207,20 @@ public class PlayListActivity extends BaseActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 TextView textView = (TextView) view;
                 String text = textView.getText().toString();
+
                 if (!text.matches("^.+\\.\\S+$")) {
                     return;
                 }
 
-                String path = previewMap.get(text.substring(3));
+
+                String key = text.substring(3);
+                String path = previewMap.get(key);
+                Log.e("123", "onItemClick: -----" + key + "---" + path);
+
                 if (TextUtils.isEmpty(path)) {
                     Toast.makeText(PlayListActivity.this, "没有视频", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                LogUtil.E("ResourceManager", "要播放的地址：" + path);
 
                 easyIJKPlayer.setVideoUri(path);
                 easyIJKPlayer.setVisibility(View.VISIBLE);
@@ -153,6 +229,7 @@ public class PlayListActivity extends BaseActivity {
         });
 
     }
+
 
     class PlayListAdapter extends ArrayAdapter<String> {
         public PlayListAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull List<String> objects) {

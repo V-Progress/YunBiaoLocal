@@ -5,13 +5,18 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.yunbiao.cccm.log.LogUtil;
+import com.yunbiao.cccm.APP;
+import com.yunbiao.cccm.utils.DateUtil;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -24,18 +29,38 @@ public class MyProtectService extends Service {
 
     private final static int DELAY_TIME = 120 * 1000;//120s轮询一次
     private final static Timer timer = new Timer();
+    private Date mCurrDate;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mCurrDate = DateUtil.getTodayDate();
+    }
+
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            APP.restart();
+        }
+    };
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.e(TAG, "onStartCommand");
+        Log.e(TAG, "守护服务已开启...");
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                LogUtil.E(TAG,"轮询检测");
+                Date todayDate = DateUtil.getTodayDate();
+                if(!mCurrDate.equals(todayDate)){
+                    mCurrDate = todayDate;
+                    Random random = new Random();
+                    int delay = random.nextInt(60);
+                    delay = delay * 1000;
+                    handler.sendEmptyMessageDelayed(0,delay);
+                }
+
                 if (!isMyAppRunning(MyProtectService.this, packageName)) {
-                    LogUtil.E(TAG,"APP未运行，准备运行");
                     startTargetActivity(packageName, packageClassName);
-                    Log.e(TAG, "startTargetActivity");
                 }
             }
         },DELAY_TIME,DELAY_TIME);

@@ -29,6 +29,8 @@ public class BPDownloadManager {
 
     private int totalNum;
 
+    private boolean isSingleCheck = false;
+
     public BPDownloadManager(Object tag, FileDownloadListener fileDownloadListener) {
         if (fileDownloadListener == null) {
             l = new FileDownloadListener() {
@@ -104,6 +106,11 @@ public class BPDownloadManager {
             bpDownload = new BPDownloadLowVer(mTag, totalNum, l);
         } else {
             bpDownload = new BPDownloadHighVer(mTag, totalNum, l);
+        }
+
+        if (!isSingleCheck) {
+            // TODO: 2019/4/25  
+
         }
 
         bpDownload.breakPointDownload(urlQueue);

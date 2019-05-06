@@ -6,23 +6,22 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.yunbiao.cccm.net.resource.model.VideoDataModel;
+import com.yunbiao.cccm.net.model.VideoDataModel;
 import com.yunbiao.cccm.sd.HighVerSDController;
 import com.yunbiao.cccm.sd.LowVerSDController;
 import com.yunbiao.cccm.sd.SDController;
-import com.yunbiao.cccm.utils.DateUtil;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -105,13 +104,6 @@ public class BackupUtil {
                     for (DocumentFile documentFile : documentFiles) {
                         Log.e(TAG, "恢复: -----" + documentFile.getUri());
                         try {
-//                            String name = documentFile.getName();
-//                            Date todayDate = DateUtil.getTodayDate();
-//                            Date date = DateUtil.yyyyMMdd_Parse(name);
-//                            if(date.after(todayDate)){
-//                                continue;
-//                            }
-
                             String read = read(controller.getInputStream(documentFile));
                             Log.e(TAG, "恢复: ---" + read);
                             VideoDataModel.Play play = new Gson().fromJson(read, VideoDataModel.Play.class);
@@ -130,13 +122,6 @@ public class BackupUtil {
                     for (File file : files) {
                         Log.e(TAG, "恢复: -----" + file.getPath());
                         try {
-//                            String name = file.getName();
-//                            Date todayDate = DateUtil.getTodayDate();
-//                            Date date = DateUtil.yyyyMMdd_Parse(name);
-//                            if(date.after(todayDate)){
-//                                continue;
-//                            }
-
                             String read = read(controller.getInputStream(file));
                             Log.e(TAG, "恢复: ---" + read);
                             VideoDataModel.Play play = new Gson().fromJson(read, VideoDataModel.Play.class);
@@ -146,6 +131,24 @@ public class BackupUtil {
                         }
                     }
                 }
+
+                for (VideoDataModel.Play play : backupList) {
+                    Log.e(TAG, "getData: ===" +play.getPlayday());
+                }
+
+                Collections.sort(backupList,new Comparator<VideoDataModel.Play>() {
+                    @Override
+                    public int compare(VideoDataModel.Play o1, VideoDataModel.Play o2) {
+                        Date o1Date = DateUtil.yyyyMMdd_Parse(o1.getPlayday());
+                        Date o2Date = DateUtil.yyyyMMdd_Parse(o2.getPlayday());
+                        return (int) (o1Date.getTime() - o2Date.getTime());
+                    }
+                });
+
+                for (VideoDataModel.Play play : backupList) {
+                    Log.e(TAG, "getData: ===" +play.getPlayday());
+                }
+
 
                 if(listener != null){
                     listener.getData(backupList);

@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.net.resource.model;
+package com.yunbiao.cccm.net.model;
 
 import java.util.List;
 

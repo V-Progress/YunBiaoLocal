@@ -305,7 +305,7 @@ public class BPDownloadUtil {
     }
 
     private void onError(Exception e, int totalNum, String fileName) {
-        d("download onError...");
+        d("download onLatelyResourceError...");
         l.onError(e, currFileNum, totalNum, fileName);
         currFileNum++;
     }
@@ -500,7 +500,7 @@ public class BPDownloadUtil {
                     onSuccess(totalNum, fileName);
                     break;
                 case DownloadException.CODE_FAILED_CONTENT_LENGTH:
-                    onError(e, totalNum, fileName);
+                    onLatelyResourceError(e, totalNum, fileName);
                     break;
                 case DownloadException.CODE_CACHE_DOWNLOADED_LENGTH_ERROR:
                 case DownloadException.CODE_CACHE_DOWNLOADED_RENAME_FAILED:
@@ -513,7 +513,7 @@ public class BPDownloadUtil {
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            onError(e, totalNum, fileName);
+            onLatelyResourceError(e, totalNum, fileName);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -525,7 +525,7 @@ public class BPDownloadUtil {
                     os.close();
                 }
             } catch (final Exception e) {
-                onError(e, totalNum, fileName);
+                onLatelyResourceError(e, totalNum, fileName);
             }
         }
         download(context, sdPath, urlQueue, fileDownloadListener);

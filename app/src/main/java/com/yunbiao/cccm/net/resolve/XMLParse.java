@@ -1,8 +1,8 @@
-package com.yunbiao.cccm.net.resource.resolve;
+package com.yunbiao.cccm.net.resolve;
 
 import android.util.Xml;
 
-import com.yunbiao.cccm.net.resource.model.VideoDataModel;
+import com.yunbiao.cccm.net.model.VideoDataModel;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;

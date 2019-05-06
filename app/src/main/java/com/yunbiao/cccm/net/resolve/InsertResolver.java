@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.net.resource.resolve;
+package com.yunbiao.cccm.net.resolve;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -12,7 +12,7 @@ import com.yunbiao.cccm.activity.MainController;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.net.control.actions.XBHActions;
 import com.yunbiao.cccm.net.resource.TimeResolver;
-import com.yunbiao.cccm.net.resource.model.InsertVideoModel;
+import com.yunbiao.cccm.net.model.InsertVideoModel;
 import com.yunbiao.cccm.net.view.TipToast;
 import com.yunbiao.cccm.sd.HighVerSDController;
 import com.yunbiao.cccm.sd.LowVerSDController;

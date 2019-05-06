@@ -21,6 +21,7 @@ import com.yunbiao.cccm.log.BlockDetectByPrinter;
 import com.yunbiao.cccm.utils.CommonUtils;
 import com.yunbiao.cccm.net.listener.BDLocationListener;
 import com.yunbiao.cccm.log.Log2FileUtil;
+import com.yunbiao.cccm.utils.RestartAPPTool;
 import com.zhy.http.okhttp.OkHttpUtils;
 
 import java.util.ArrayList;
@@ -150,5 +151,9 @@ public class APP extends Application {
         Log2FileUtil.stopLogcatManager();
         //关闭整个应用
         System.exit(0);
+    }
+
+    public static void restart(){
+        RestartAPPTool.restartAPP(instance);
     }
 }
