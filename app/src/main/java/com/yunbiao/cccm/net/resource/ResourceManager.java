@@ -91,7 +91,7 @@ public class ResourceManager {
         ThreadUtil.getInstance().runInRemoteThread(new Runnable() {
             @Override
             public void run() {
-
+                cancel();
                 clearPlayList();
 
                 BackupUtil.readBackup(new BackupUtil.ReadBackupListener() {
@@ -189,7 +189,7 @@ public class ResourceManager {
                                 EventBus.getDefault().postSticky(new UpdateEvent(UpdateEvent.UPDATE_PLAYLIST));
 
                                 MainController.getInstance().updateConsole("请求Config结束，准备下载...");
-                                cancel();
+
                                 down(urlListQueue);
                             }
                         });
@@ -434,6 +434,7 @@ public class ResourceManager {
 
         @Override
         public void onCancel() {
+            cancelSpeedTimer();
             MainController.getInstance().updateConsole("已取消下载");
         }
 

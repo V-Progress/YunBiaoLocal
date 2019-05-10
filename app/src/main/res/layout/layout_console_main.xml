@@ -9,6 +9,7 @@
     android:focusable="false"
     android:gravity="bottom"
     android:orientation="vertical"
+    android:visibility="gone"
     android:weightSum="3">
 
     <LinearLayout
@@ -49,6 +50,7 @@
     </LinearLayout>
 
     <RelativeLayout
+        android:visibility="gone"
         android:id="@+id/rl_insert_area"
         android:layout_width="match_parent"
         android:layout_height="60dp"
@@ -112,6 +114,7 @@
     </RelativeLayout>
 
     <RelativeLayout
+        android:visibility="gone"
         android:id="@+id/ll_retry_root"
         android:layout_width="match_parent"
         android:layout_height="60dp"

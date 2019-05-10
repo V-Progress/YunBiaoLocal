@@ -114,7 +114,7 @@ public class ConsoleUtil {
     };
 
     private final int CONSOLE_WHAT = 11;
-    private final int CONSOLE_SHOW_TIME = 150 * 1000;
+    private final int CONSOLE_SHOW_TIME = 180 * 1000;
     public void showConsole(){
         LogUtil.E("-------"+llConsoleMain.isShown());
         llConsoleMain.setVisibility(View.VISIBLE);
