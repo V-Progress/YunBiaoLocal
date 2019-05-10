@@ -8,12 +8,9 @@ import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.net.listener.MainRefreshListener;
 import com.yunbiao.cccm.utils.ConsoleUtil;
-import com.yunbiao.cccm.log.LogUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 /**
  * 内容控制器
@@ -277,25 +274,41 @@ public class MainController{
 
     /***
      * 打开加载框，下载Insert资源时会用
-     * @param loadingMsg
      */
-    public void openLoading(final String loadingMsg) {
+    public void openInsertConsole() {
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                ConsoleUtil.instance().openLoading(loadingMsg);
+                ConsoleUtil.instance().openInsert();
             }
         });
     }
 
-    /***
-     * 关闭加载框
-     */
-    public void closeLoading() {
+    public void updateInsertName(final String name){
         ThreadUtil.getInstance().runInUIThread(new Runnable() {
             @Override
             public void run() {
-                ConsoleUtil.instance().closeLoading();
+                ConsoleUtil.instance().updateInsert(name);
+            }
+        });
+    }
+
+    public void updateInsertPb(final String pb){
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                ConsoleUtil.instance().updateInsertPb(pb);
+            }
+        });
+    }
+    /***
+     * 关闭加载框
+     */
+    public void closeInsertConsole() {
+        ThreadUtil.getInstance().runInUIThread(new Runnable() {
+            @Override
+            public void run() {
+                ConsoleUtil.instance().closeInsrt();
             }
         });
     }

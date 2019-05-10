@@ -17,6 +17,7 @@ public class Retryer extends FileDownloadListener {
     private BPDownloadManager downloadManager;
     private String currUrl;
     public interface FinishListener {
+        void onSucc(String fileName);
         void finish();
     }
     private Queue<String> mQueue;
@@ -79,6 +80,7 @@ public class Retryer extends FileDownloadListener {
 
     @Override
     public void onSuccess(int currFileNum, int totalNum, String fileName) {
+        mListener.onSucc(fileName);
         go();
     }
 

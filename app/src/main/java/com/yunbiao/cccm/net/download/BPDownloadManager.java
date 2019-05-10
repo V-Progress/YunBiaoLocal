@@ -108,11 +108,6 @@ public class BPDownloadManager {
             bpDownload = new BPDownloadHighVer(mTag, totalNum, l);
         }
 
-        if (!isSingleCheck) {
-            // TODO: 2019/4/25  
-
-        }
-
         bpDownload.breakPointDownload(urlQueue);
     }
 

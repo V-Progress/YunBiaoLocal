@@ -1,15 +1,19 @@
 package com.yunbiao.cccm.net.resource;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.gson.Gson;
+import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.activity.MainController;
 import com.yunbiao.cccm.cache.CacheManager;
 import com.yunbiao.cccm.common.HeartBeatClient;
 import com.yunbiao.cccm.common.ResourceConst;
 import com.yunbiao.cccm.net.listener.FileDownloadListener;
+import com.yunbiao.cccm.net.process.Retryer;
 import com.yunbiao.cccm.net.resolve.InsertResolver;
 import com.yunbiao.cccm.log.LogUtil;
+import com.yunbiao.cccm.utils.ConsoleUtil;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.utils.ThreadUtil;
 import com.yunbiao.cccm.net.model.InsertVideoModel;
@@ -20,8 +24,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 import okhttp3.Response;
 
@@ -169,6 +175,7 @@ public class InsertVideoManager {
     }
 
     /*=======视频处理流程================================================================*/
+    Queue<String> faileQueue = new LinkedList<>();
     public void download(final List<String> urlList) {
         if(bpDownloadManager != null){
             bpDownloadManager.cancel();
@@ -176,36 +183,136 @@ public class InsertVideoManager {
         bpDownloadManager = new BPDownloadManager(getClass(),new FileDownloadListener() {
             @Override
             public void onBefore(int totalNum) {
-                MainController.getInstance().openLoading("插播资源下载");
             }
 
             @Override
             public void onStart(int currNum) {
                 LogUtil.D(TAG, "开始下载");
+                MainController.getInstance().openInsertConsole();
+                MainController.getInstance().updateInsertName("第"+currNum+"个文件");
             }
 
             @Override
             public void onProgress(int progress) {
                 LogUtil.D(TAG, "进度：" + progress);
+                MainController.getInstance().updateInsertPb(String.valueOf(progress));
             }
 
             @Override
             public void onError(Exception e, int currFileNum, int totalNum, String fileName) {
                 LogUtil.D(TAG, "下载出错：" + e.getMessage());
+                for (String fileUrl : urlList) {
+                    boolean contains = fileUrl.contains(fileName);
+                    if(contains){
+                        faileQueue.offer(fileUrl);
+                    }
+                }
+            }
+
+            @Override
+            public void onSuccess(int currFileNum, int totalNum, String fileName) {
+                super.onSuccess(currFileNum, totalNum, fileName);
             }
 
             @Override
             public void onCancel() {
-                MainController.getInstance().closeLoading();
+                MainController.getInstance().closeInsertConsole();
             }
 
             @Override
             public void onFinish() {
-                MainController.getInstance().closeLoading();
+                Log.e(TAG, "onFinish: 1111111111111111");
+                if(faileQueue.size() <= 0){
+                    MainController.getInstance().closeInsertConsole();
+                }
                 InsertResolver.instance().init();
+                retry();
             }
-
         });
         bpDownloadManager.startDownload(urlList);
+    }
+
+    private void retry(){
+        if(!(faileQueue.size() > 0)){
+            return;
+        }
+        Retryer retryer = new Retryer(faileQueue);
+        retryer.start();
+    }
+
+
+    public class Retryer extends FileDownloadListener {
+
+        private BPDownloadManager downloadManager;
+        private String currUrl;
+        private Queue<String> mQueue;
+
+        public Retryer(Queue<String> failedQueue){
+            mQueue = failedQueue;
+        }
+
+        public void start(){
+            cancel();
+            go();
+        }
+
+        private void go(){
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            if(mQueue == null || mQueue.size()<=0){
+                onFinish();
+                return;
+            }
+            currUrl = mQueue.poll();
+            downloadManager = new BPDownloadManager(getClass(), this);
+            downloadManager.downloadSingle(currUrl);
+        }
+
+        private void cancel(){
+            if(downloadManager != null){
+                downloadManager.cancel();
+            }
+        }
+
+        @Override
+        public void onStart(int currNum) {
+            super.onStart(currNum);
+            String name = currUrl.substring(currUrl.lastIndexOf("/")).substring(1);
+            MainController.getInstance().updateInsertName("重试"+name);
+        }
+
+        @Override
+        public void onError(Exception e, int currFileNum, int totalNum, String fileName) {
+            super.onError(e, currFileNum, totalNum, fileName);
+            for (String fileUrl : urlList) {
+                boolean contains = fileUrl.contains(fileName);
+                if(contains){
+                    faileQueue.offer(fileUrl);
+                }
+            }
+            go();
+        }
+
+        @Override
+        public void onProgress(int progress) {
+            super.onProgress(progress);
+            MainController.getInstance().updateInsertPb(String.valueOf(progress));
+        }
+
+        @Override
+        public void onSuccess(int currFileNum, int totalNum, String fileName) {
+            super.onSuccess(currFileNum, totalNum, fileName);
+            go();
+        }
+
+        @Override
+        public void onFinish() {
+            MainController.getInstance().closeInsertConsole();
+            InsertResolver.instance().init();
+        }
     }
 }

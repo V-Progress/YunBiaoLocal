@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -28,9 +27,8 @@ public class ConsoleUtil {
     private MainActivity mainAct;
 
     /*加载框-----*/
-    private LinearLayout llLoadingMain;
-    private ProgressBar pbLoadingMain;
-    private TextView tvLoadingMain;
+    private View rlInsertArea;
+    private TextView tvInsertName;
 
     /*更新下载进度条---*/
     private LinearLayout llUpdateArea;
@@ -49,6 +47,7 @@ public class ConsoleUtil {
     private View retryRoot;
     private TextView tvRetryProgress;
     private TextView tvRetryName;
+    private TextView tvInserPb;
 
     public static ConsoleUtil instance(){
         if(instance == null){
@@ -65,20 +64,21 @@ public class ConsoleUtil {
 
     public void init(@NonNull MainActivity mainActivity){
         mainAct = mainActivity;
-        llLoadingMain = mainAct.findViewById(R.id.fl_loading_main);
-        pbLoadingMain = mainAct.findViewById(R.id.pb_loading_main);
-        tvLoadingMain = mainAct.findViewById(R.id.tv_loading_main);
-
+        //插播进度
+        rlInsertArea = mainAct.findViewById(R.id.rl_insert_area);
+        tvInsertName = mainAct.findViewById(R.id.tv_insert_name);
+        tvInserPb = mainAct.findViewById(R.id.tv_insert_progress);
+        //更新进度条
         llUpdateArea = mainAct.findViewById(R.id.ll_update_area);
         flRoot = mainAct.findViewById(R.id.fl_root);
         pbUpdate = mainAct.findViewById(R.id.pb_update);
         tvSpeed = mainAct.findViewById(R.id.tv_speed_main);
-
+        //重试进度
         retryRoot = mainAct.findViewById(R.id.ll_retry_root);
         retryRoot.setVisibility(View.GONE);
         tvRetryName = mainAct.findViewById(R.id.tv_retry_filename);
         tvRetryProgress = mainAct.findViewById(R.id.tv_retry_progress);
-
+        //主进度
         tvConsoleMain = mainAct.findViewById(R.id.tv_console_main);
         svConsoleMain = mainAct.findViewById(R.id.sv_console_main);
         progressChildMain = mainAct.findViewById(R.id.progress_child_main);
@@ -114,7 +114,7 @@ public class ConsoleUtil {
     };
 
     private final int CONSOLE_WHAT = 11;
-    private final int CONSOLE_SHOW_TIME = 15 * 1000;
+    private final int CONSOLE_SHOW_TIME = 150 * 1000;
     public void showConsole(){
         LogUtil.E("-------"+llConsoleMain.isShown());
         llConsoleMain.setVisibility(View.VISIBLE);
@@ -164,27 +164,30 @@ public class ConsoleUtil {
         tvSpeed.setText(speed);
     }
 
-    public void openLoading(String loadingMsg) {
-        tvLoadingMain.setText(loadingMsg);
-        pbLoadingMain.setInterpolator(new AccelerateDecelerateInterpolator());
-        llLoadingMain.setVisibility(View.VISIBLE);
-    }
-
-    public void closeLoading() {
-        llLoadingMain.setVisibility(View.GONE);
-    }
-
+    /*重试进度*/
     public void openRetry(){
         retryRoot.setVisibility(View.VISIBLE);
     }
-
     public void updateRetry(String fileName,String progressStr){
         tvRetryName.setText(fileName);
         tvRetryProgress.setText(progressStr+"%");
     }
-
     public void closeRetry(){
         retryRoot.setVisibility(View.GONE);
-
     }
+
+    /*插播进度*/
+    public void openInsert() {
+        rlInsertArea.setVisibility(View.VISIBLE);
+    }
+    public void updateInsert(String insertName){
+        tvInsertName.setText(insertName);
+    }
+    public void updateInsertPb(String progressStr){
+        tvInserPb.setText(progressStr+"%");
+    }
+    public void closeInsrt() {
+        rlInsertArea.setVisibility(View.GONE);
+    }
+
 }

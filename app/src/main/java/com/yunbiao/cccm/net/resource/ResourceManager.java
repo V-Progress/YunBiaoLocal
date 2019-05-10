@@ -1,5 +1,8 @@
 package com.yunbiao.cccm.net.resource;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -75,7 +78,8 @@ public class ResourceManager {
      * 加载已缓存的网络播放数据
      */
     public void loadData() {
-        Resolver.resolveTodayData(todayPlay);
+        Log.e(TAG, "loadData: 发送播放数据" );
+        sendPlayData();
     }
 
 
@@ -100,13 +104,14 @@ public class ResourceManager {
                             Date date = DateUtil.yyyyMMdd_Parse(playday);
                             if (date.equals(todayDate)) {
                                 todayPlay = play;
-                                Resolver.resolveTodayData(todayPlay);//如果有今天的数据，则直接开始播放，未请求到时也不会暂停，请求到以后该内容会被替换，并且重新解析
+                                Log.e(TAG, "readBackup: 发送播放数据");
+                                sendPlayData();//如果有今天的数据，则直接开始播放，未请求到时也不会暂停，请求到以后该内容会被替换，并且重新解析
                                 continue;
                             } else if (date.after(todayDate)) {
                                 continue;//今天之后的数据不解析
                             }
                             List<String> tempList = Resolver.resolvePlay(play);
-                            if (tempList != null || tempList.size() > 0) {
+                            if (tempList != null && tempList.size() > 0) {
                                 playList.addAll(tempList);
                             }
                         }
@@ -132,7 +137,7 @@ public class ResourceManager {
                             public void onError(Date reqDate, String errCode) {
                                 if (todayDate.equals(reqDate)) {
                                     List<String> tempList = Resolver.resolvePlay(todayPlay);
-                                    if (tempList != null || tempList.size() > 0) {
+                                    if (tempList != null && tempList.size() > 0) {
                                         playList.addAll(tempList);
                                     }
                                 }
@@ -154,7 +159,7 @@ public class ResourceManager {
                                     }
 
                                     List<String> tempList = Resolver.resolvePlay(play);
-                                    if (tempList != null || tempList.size() > 0) {
+                                    if (tempList != null && tempList.size() > 0) {
                                         playList.addAll(tempList);//解析播放列表
                                     }
 
@@ -194,6 +199,20 @@ public class ResourceManager {
         });
     }
 
+    private static int delay = 10 * 1000;
+    private static final int SEND_PLAY_TAG = 0;
+    private static Handler sendPlayDataDelay = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(Message msg) {
+            Resolver.resolveTodayData(todayPlay);
+        }
+    };
+    private static void sendPlayData(){
+        sendPlayDataDelay.removeMessages(SEND_PLAY_TAG);
+        sendPlayDataDelay.sendEmptyMessageDelayed(SEND_PLAY_TAG,delay);
+    }
+
+
     /***
      * 开始下载
      * @param queue
@@ -204,8 +223,15 @@ public class ResourceManager {
                 MainController.getInstance().updateConsole("检测到近两天内有下载失败的数据");
                 Retryer retryer = new Retryer(faileQueue, new Retryer.FinishListener() {
                     @Override
+                    public void onSucc(String fileName) {
+                        Log.e(TAG, "onSucc111111111111: 发送播放数据");
+                        sendPlayData();
+                    }
+
+                    @Override
                     public void finish() {
-                        Resolver.resolveTodayData(todayPlay);
+                        Log.e(TAG, "finish1111111111: 发送播放数据");
+                        sendPlayData();
                         down(queue);
                     }
                 });
@@ -220,8 +246,15 @@ public class ResourceManager {
             MainController.getInstance().updateConsole("检测到近两天内有下载失败的数据");
             Retryer retryer = new Retryer(faileQueue, new Retryer.FinishListener() {
                 @Override
+                public void onSucc(String fileName) {
+                    Log.e(TAG, "onSucc222222222222: 发送播放数据");
+                    sendPlayData();
+                }
+
+                @Override
                 public void finish() {
-                    Resolver.resolveTodayData(todayPlay);
+                    Log.e(TAG, "finish222222222222: 发送播放数据");
+                    sendPlayData();
                     down(queue);
                 }
             });
@@ -328,7 +361,8 @@ public class ResourceManager {
         @Override
         public void onStart(int currNum) {
             if (todayDate.equals(DateUtil.yyyy_MM_dd_Parse(date))) {
-                Resolver.resolveTodayData(todayPlay);
+                Log.e("ResourceManager", "onStart: 发送播放数据");
+                sendPlayData();
             }
             MainController.getInstance().updateParentProgress(currNum);
             MainController.getInstance().updateChildProgress(0);

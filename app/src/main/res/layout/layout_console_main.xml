@@ -1,215 +1,271 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:circleview="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-
-    <LinearLayout
-        android:focusable="false"
-        android:id="@+id/ll_update_area"
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:background="#77000000"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingBottom="10dp"
-        android:paddingLeft="50dp"
-        android:paddingRight="50dp"
-        android:paddingTop="10dp"
-        android:visibility="gone">
-
-        <ProgressBar
-            android:focusable="false"
-            android:id="@+id/pb_update"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="6dp"
-            android:layout_weight="1" />
-
-        <TextView
-            android:focusable="false"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="正在下载更新" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:focusable="false"
-        android:id="@+id/fl_loading_main"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#77000000"
-        android:orientation="vertical"
-        android:padding="5dp"
-        android:visibility="gone">
-
-        <ProgressBar
-            android:focusable="false"
-            android:id="@+id/pb_loading_main"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center" />
-
-        <TextView
-            android:focusable="false"
-            android:id="@+id/tv_loading_main"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="5dp"
-            android:text="正在加载"
-            android:textSize="11dp" />
-
-    </LinearLayout>
+    android:id="@+id/ll_console_main"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:background="#77000000"
+    android:focusable="false"
+    android:gravity="bottom"
+    android:orientation="vertical"
+    android:weightSum="3">
 
     <LinearLayout
         android:visibility="gone"
+        android:id="@+id/ll_update_area"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_gravity="center_horizontal"
         android:background="#77000000"
-        android:weightSum="3"
-        android:layout_gravity="bottom"
-        android:gravity="bottom"
         android:focusable="false"
-        android:id="@+id/ll_console_main"
-        android:layout_width="300dp"
-        android:layout_height="560dp"
-        android:orientation="vertical">
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingTop="10dp">
+
+        <ProgressBar
+            android:id="@+id/pb_update"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="23dp"
+            android:layout_weight="1"
+            android:focusable="false"
+            android:paddingLeft="50dp"
+            android:paddingRight="50dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:focusable="false"
+            android:text="正在下载更新"
+            android:textSize="12dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/white" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_insert_area"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:focusable="false"
+        android:orientation="horizontal">
+
+        <ProgressBar
+            android:interpolator="@android:anim/accelerate_decelerate_interpolator"
+            android:id="@+id/pb_insert_console"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:focusable="false" />
 
         <LinearLayout
-            android:focusable="false"
-            android:layout_weight="0.1"
-            android:layout_gravity="top"
-            android:id="@+id/ll_retry_root"
-            android:gravity="center"
-            android:padding="5dp"
             android:orientation="horizontal"
+            android:focusable="false"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/pb_insert_console"
+            android:layout_centerVertical="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <ProgressBar
-                android:focusable="false"
-                android:layout_width="26dp"
-                android:layout_height="wrap_content" />
             <LinearLayout
-                android:focusable="false"
-                android:paddingLeft="10dp"
-                android:layout_weight="1"
                 android:orientation="vertical"
+                android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content">
                 <TextView
-                    android:focusable="false"
-                    android:maxLines="1"
-                    android:textSize="14dp"
-                    android:text="失败资源正在重试"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:focusable="false"
-                    android:ellipsize="end"
-                    android:maxEms="20"
-                    android:maxLines="1"
-                    android:id="@+id/tv_retry_filename"
-                    android:textSize="14dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-            <TextView
-                android:id="@+id/tv_retry_progress"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-       </LinearLayout>
-
-        <ScrollView
-            android:layout_weight="2.1"
-            android:focusable="true"
-            android:id="@+id/sv_console_main"
-            android:layout_width="match_parent"
-            android:layout_height="0dp">
-
-            <TextView
-                android:id="@+id/tv_console_main"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:lineSpacingExtra="3dp"
-                android:paddingLeft="3dp"
-                android:textColor="@color/white"
-                android:textSize="12dp" />
-        </ScrollView>
-
-        <FrameLayout
-            android:layout_weight="0.8"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_gravity="left">
-
-            <rjsv.circularview.CircleView
-                android:focusable="false"
-                android:id="@+id/progress_child_main"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_gravity="center"
-                circleview:arcBorderColor="@color/white"
-                circleview:arcColor="@color/white"
-                circleview:arcHasBorder="true"
-                circleview:arcWidth="3dp"
-                circleview:enabled="false"
-                circleview:progressBarSquared="true"
-                circleview:progressColor="#55ff55"
-                circleview:progressWidth="5dp"
-                circleview:textEnabled="false"
-                circleview:textSize="36sp" />
-
-            <rjsv.circularview.CircleView
-                android:focusable="false"
-                android:id="@+id/progress_parent_main"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:layout_gravity="center"
-                circleview:arcBorderColor="@color/white"
-                circleview:arcColor="@color/white"
-                circleview:arcHasBorder="true"
-                circleview:arcWidth="3dp"
-                circleview:enabled="false"
-                circleview:progressBarSquared="true"
-                circleview:progressColor="#ff0000"
-                circleview:progressWidth="5dp"
-                circleview:textEnabled="false"
-                circleview:textSize="36sp" />
-
-            <LinearLayout
-                android:focusable="false"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:focusable="false"
-                    android:id="@+id/tv_num_main"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="#ff0000"
+                    android:maxLines="1"
+                    android:text="下载插播资源"
                     android:textSize="13dp" />
-
                 <TextView
-                    android:focusable="false"
-                    android:textColor="#55ff55"
-                    android:id="@+id/tv_progress_main"
+                    android:ellipsize="middle"
+                    android:maxLength="15"
                     android:layout_width="wrap_content"
+                    android:id="@+id/tv_insert_name"
                     android:layout_height="wrap_content"
+                    android:maxLines="1"
                     android:textSize="13dp" />
             </LinearLayout>
-        </FrameLayout>
 
-        <TextView
-            android:gravity="center_horizontal"
-            android:focusable="false"
-            android:id="@+id/tv_speed_main"
+            <TextView
+                android:gravity="right"
+                android:id="@+id/tv_insert_progress"
+                android:layout_width="45dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="0%"
+                android:textSize="14dp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/pb_insert_console"
+            android:layout_marginTop="10dp"
+            android:background="@color/white" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/ll_retry_root"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:focusable="false">
+
+        <ProgressBar
+            android:interpolator="@android:anim/accelerate_decelerate_interpolator"
+            android:id="@+id/pb_retry_console"
+            android:layout_width="26dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:focusable="false" />
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16dp" />
-    </LinearLayout>
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/pb_retry_console"
+            android:orientation="horizontal">
 
-</FrameLayout>
+            <LinearLayout
+                android:id="@+id/ll_retry_console"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/pb_retry_console"
+                android:layout_weight="1"
+                android:focusable="false"
+                android:orientation="vertical"
+                android:paddingLeft="10dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:maxLines="1"
+                    android:text="失败资源正在重试"
+                    android:textSize="14dp" />
+
+                <TextView
+                    android:id="@+id/tv_retry_filename"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:focusable="false"
+                    android:maxEms="20"
+                    android:maxLines="1"
+                    android:textSize="14dp" />
+            </LinearLayout>
+
+            <TextView
+                android:gravity="right"
+                android:id="@+id/tv_retry_progress"
+                android:layout_width="45dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="0%"
+                android:textSize="14dp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/white" />
+    </RelativeLayout>
+
+
+    <ScrollView
+        android:id="@+id/sv_console_main"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:focusable="true">
+
+        <TextView
+            android:id="@+id/tv_console_main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="3dp"
+            android:paddingLeft="3dp"
+            android:textColor="@color/white"
+            android:textSize="12dp" />
+    </ScrollView>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="110dp"
+        android:layout_gravity="left">
+
+        <rjsv.circularview.CircleView
+            android:id="@+id/progress_child_main"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:focusable="false"
+            circleview:arcBorderColor="@color/white"
+            circleview:arcColor="@color/white"
+            circleview:arcHasBorder="true"
+            circleview:arcWidth="3dp"
+            circleview:enabled="false"
+            circleview:progressBarSquared="true"
+            circleview:progressColor="#55ff55"
+            circleview:progressWidth="5dp"
+            circleview:textEnabled="false"
+            circleview:textSize="36sp" />
+
+        <rjsv.circularview.CircleView
+            android:id="@+id/progress_parent_main"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
+            android:focusable="false"
+            circleview:arcBorderColor="@color/white"
+            circleview:arcColor="@color/white"
+            circleview:arcHasBorder="true"
+            circleview:arcWidth="3dp"
+            circleview:enabled="false"
+            circleview:progressBarSquared="true"
+            circleview:progressColor="#ff0000"
+            circleview:progressWidth="5dp"
+            circleview:textEnabled="false"
+            circleview:textSize="36sp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:focusable="false"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_num_main"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:textColor="#ff0000"
+                android:textSize="13dp" />
+
+            <TextView
+                android:id="@+id/tv_progress_main"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:textColor="#55ff55"
+                android:textSize="13dp" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tv_speed_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="false"
+        android:gravity="center_horizontal"
+        android:textSize="16dp" />
+</LinearLayout>
