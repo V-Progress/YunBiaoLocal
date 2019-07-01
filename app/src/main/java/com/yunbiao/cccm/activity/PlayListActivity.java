@@ -1,9 +1,11 @@
 package com.yunbiao.cccm.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -80,7 +82,29 @@ public class PlayListActivity extends BaseActivity {
 
     @Override
     protected void initView() {
+        easyIJKPlayer.initSoLib();
+        easyIJKPlayer.enableController(true,true);
+        easyIJKPlayer.enableListLoop(false);
         easyIJKPlayer.enableController(true, true);
+        easyIJKPlayer.setFullScreenEnable(true);
+        easyIJKPlayer.setOnFullScreenCallback(new EasyIJKPlayer.OnFullScreenCallback() {
+            @Override
+            public void onFullScreen(View playerView) {
+                String currentVideo = easyIJKPlayer.getCurrentVideo();
+                long currentPosition = easyIJKPlayer.getCurrentPosition();
+                Log.e("123", "onFullScreen: ---------------要全屏的视频：" + currentVideo);
+
+                easyIJKPlayer.stop();
+
+                Bundle bundle = new Bundle();
+                bundle.putString("videoPath",currentVideo);
+                bundle.putLong("position",currentPosition);
+                Intent i = new Intent(PlayListActivity.this,FullscreenActivity.class);
+                i.putExtras(bundle);
+                startActivity(i);
+            }
+        });
+
         EventBus.getDefault().register(this);
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override

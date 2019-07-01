@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
+import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
@@ -18,8 +19,10 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -122,6 +125,7 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
     private TextView tcpSpeed;
     private LinearLayout loadingView;
     private TextView tvVideoTime;
+    private ImageButton ibPlayFull;
 
     public EasyIJKPlayer(@NonNull Context context) {
         super(context);
@@ -188,6 +192,7 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
         timeline = controllerView.findViewById(R.id.pb_timeline);
         tvVideoTime = controllerView.findViewById(R.id.tv_video_time);
         ibPlayState = controllerView.findViewById(R.id.ib_play_state);
+        ibPlayFull = controllerView.findViewById(R.id.ib_play_fullscreen);
         ibPlayState.requestFocus();
         LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.BOTTOM;
@@ -196,6 +201,7 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
 
         controllerView.setVisibility(View.GONE);
         ibPlayState.setOnClickListener(this);
+        ibPlayFull.setOnClickListener(this);
 
         loadingView = new LinearLayout(mContext);
         loadingView.setOrientation(LinearLayout.VERTICAL);
@@ -210,11 +216,25 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
         loadingView.setVisibility(View.GONE);
     }
 
+
+    public void setOnFullScreenCallback(OnFullScreenCallback callback){
+        onFullScreenCallback = callback;
+    }
+    private OnFullScreenCallback onFullScreenCallback;
+    public interface OnFullScreenCallback{
+        void onFullScreen(View playerView);
+    }
     /***
      * 资源设置区========================================================================================
      */
     public List<String> getPlayList(){
         return playList;
+    }
+
+    public void setFullScreenEnable(boolean isEnable){
+        if(ibPlayFull != null){
+            ibPlayFull.setVisibility(isEnable ? View.VISIBLE :View.GONE);
+        }
     }
 
     /***
@@ -510,6 +530,11 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
         seekToOffset = seconds;
     }
 
+    public void seekTo(long position){
+        if(mMediaPlayer != null){
+            mMediaPlayer.seekTo(position);
+        }
+    }
     public void toggle() {
         if (controllerEnable && isPlaying()) {
             controllerView.setVisibility(View.VISIBLE);
@@ -705,6 +730,11 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
         if(v.getId() == R.id.ib_play_state){
             toggle();
             return;
+        } else if(v.getId() == R.id.ib_play_fullscreen){
+            Log.e(TAG, "onClick: -----------------点击了全屏");
+            if(onFullScreenCallback != null){
+                onFullScreenCallback.onFullScreen(this);
+            }
         }
     }
 

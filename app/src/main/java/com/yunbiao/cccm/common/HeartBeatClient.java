@@ -40,67 +40,12 @@ public class HeartBeatClient {
      * @return
      */
     public static String getDeviceNo() {
-        String deviceUniCode = CacheManager.SP.getDeviceUniCode();
-        if(TextUtils.isEmpty(deviceUniCode)){
-            createDeviceNo();
+        String sbDeviceId = CacheManager.SP.getDeviceUniCode();
+        if(TextUtils.isEmpty(sbDeviceId)){
+            sbDeviceId = getMacAddress();
+            CacheManager.SP.putDeviceUniCode(sbDeviceId);
         }
-        return deviceUniCode;
-    }
-
-    /**
-     * 重新初始化设备id，需要获取到设备id
-     */
-    public static void initDeviceNo() {
-        if (sbDeviceId == null || sbDeviceId.equals("-1") || TextUtils.isEmpty(sbDeviceId)) {
-            createDeviceNo();
-        }
-    }
-
-    public static void createDeviceNo() {
-
-        // 最开始 100台 的时候使用AndroidID出现标识码改变的情况
-        // 先去到服务器上判断是否有设备id存在，如果不存在就用新设备id，如果有就还用之前的序号
-        final String tmPhone = getAndroidId();
-        Map<String, String> paramMap = new HashMap<>();
-        paramMap.put("deviceNo", tmPhone);
-
-        NetUtil.getInstance().post(ResourceConst.REMOTE_RES.SER_NUMBER, paramMap, new StringCallback() {
-            @Override
-            public void onError(Call call, Exception e, int id) {
-                LogUtil.E(TAG,"获取设备编号.-----"+e.getMessage());
-            }
-
-            @Override
-            public void onResponse(String response, int id) {
-                String deviceNo = "-1";
-
-                if (response.startsWith("\"")) {
-                    response = response.substring(1, response.length() - 1);
-                }
-                if (response.equals("1")) {//服务器中有，继续使用该数据
-                    deviceNo = tmPhone;
-                } else if (response.equals("0")) {//服务器中没有，就使用getMacAddress()获取唯一标识
-                    deviceNo = getMacAddress(5);//重复五次防止出厂从未打开wifi获取不到wifimac
-                }
-
-                if (!deviceNo.equals("-1")) {
-                    CacheManager.SP.putDeviceUniCode(deviceNo);
-                }
-
-                LogUtil.D(TAG, "createDeviceNo: " + deviceNo);
-            }
-        });
-    }
-
-    public static String getAndroidId() {
-        Context context = APP.getContext();
-        final TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        final String tmDevice, tmPhone, androidId;// tmSerial,
-        tmDevice = "" + tm.getDeviceId();
-        androidId = "" + Secure.getString(context.getContentResolver(), Secure.ANDROID_ID);
-        UUID deviceUuid = new UUID(androidId.hashCode(), ((long) tmDevice.hashCode() << 32));// | tmSerial.hashCode());
-        tmPhone = deviceUuid.toString();
-        return tmPhone;
+        return sbDeviceId;
     }
 
     @SuppressLint("HardwareIds")
@@ -202,20 +147,5 @@ public class HeartBeatClient {
         UUID uuid2 = new UUID(macS.hashCode(), mac.hashCode());
         LogUtil.D(TAG,"uuid2:"+uuid2.toString());
         return uuid2.toString();
-    }
-
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    private static void init() {
-        String strVer = Build.VERSION.RELEASE; // 获得当前系统版本
-        strVer = strVer.substring(0, 3).trim(); // 截取前3个字符 2.3.3转换成2.3
-        float fv = Float.valueOf(strVer);
-        if (fv > 2.3) {
-            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                    .detectDiskReads().detectDiskWrites().detectNetwork()
-                    .penaltyLog().build());
-            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                    .detectLeakedSqlLiteObjects().penaltyLog().penaltyDeath()
-                    .build());
-        }
     }
 }

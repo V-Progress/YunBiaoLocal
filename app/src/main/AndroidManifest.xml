@@ -91,7 +91,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity android:name=".activity.FullscreenActivity"/>
         <activity android:name="com.yunbiao.cccm.activity.MenuActivity"
             android:launchMode="singleTop"/>
 

@@ -66,18 +66,8 @@ public final class ServiceManager {
         }
 
         apiKey = Const.API_KEY;
-
-        String machineIpAdress = CacheManager.SP.getDeviceIP();
-        if(!TextUtils.isEmpty(machineIpAdress)){
-            String ipAdress = machineIpAdress.substring(0, machineIpAdress.indexOf(","));
-            if (!TextUtils.isEmpty(ipAdress)) {
-                xmppHost = ipAdress;
-            }
-        }else{
-            xmppHost = Const.HOSTS;
-        }
-
-        xmppPort = Const.SERVER_PORT;
+        xmppHost = Const.XMPP_HOSTS;
+        xmppPort = Const.XMPP_PORT;
         Log.i(LOGTAG, "apiKey=" + apiKey);
         Log.i(LOGTAG, "xmppHost=" + xmppHost);
         Log.i(LOGTAG, "xmppPort=" + xmppPort);

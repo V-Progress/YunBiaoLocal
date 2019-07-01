@@ -29,6 +29,7 @@
             android:layout_height="wrap_content" />
 
         <ProgressBar
+            android:layout_weight="1"
             style="@android:style/Widget.Holo.ProgressBar.Horizontal"
             android:focusable="false"
             android:clickable="false"
@@ -38,20 +39,16 @@
             android:maxHeight="4.0dp"
             android:paddingRight="20dp"
             android:paddingLeft="10dp"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content" />
-        <!--<SeekBar
+
+        <ImageButton
             android:visibility="gone"
-            android:layout_marginLeft="5dp"
-            android:id="@+id/sb_timeline"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:focusable="false"
-            android:maxHeight="4.0dip"
-            android:minHeight="4.0dip"
-            android:paddingLeft="10dp"
-            android:paddingRight="20dp"
-            android:progressDrawable="@drawable/po_seekbar"
-            android:thumb="@drawable/seekbar_thumb" />-->
+            android:layout_marginRight="10dp"
+            android:background="@android:color/transparent"
+            android:id="@+id/ib_play_fullscreen"
+            android:src="@mipmap/fullscreen1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 </LinearLayout>

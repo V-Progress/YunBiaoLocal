@@ -25,7 +25,6 @@ import com.yunbiao.cccm.utils.ConsoleUtil;
 import com.yunbiao.cccm.utils.NetUtil;
 import com.yunbiao.cccm.net.resource.DanmakuManager;
 import com.yunbiao.cccm.local.LocalManager;
-import com.yunbiao.cccm.utils.VideoProgressUtil;
 import com.yunbiao.cccm.net.control.PowerOffTool;
 import com.yunbiao.cccm.net.listener.OnXmppConnListener;
 import com.yunbiao.cccm.xmpp.PnServerController;
@@ -36,7 +35,6 @@ import com.yunbiao.cccm.utils.DialogUtil;
 import com.yunbiao.cccm.utils.TimerUtil;
 
 import java.util.List;
-import java.util.Timer;
 
 import butterknife.BindView;
 import master.flame.danmaku.ui.widget.DanmakuView;
@@ -204,12 +202,14 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     //常规资源播放
     @Override
     public void startConfigPlay(List<String> videoList) {
+        Log.e("123", "startConfigPlay: -----开始config");
         //如果标签为insert优先，且insert正在播放，则不开始播放普通资源
         if (!priority_flag && isInsertPlaying) {
+            Log.e("123", "startConfigPlay: -----开始config失败");
             return;
         }
+        Log.e("123", "startConfigPlay: -----开始config成功");
         isConfigPlaying = true;
-        ijkPlayer.enableListLoop(true);
         play(videoList);
     }
 
@@ -217,10 +217,13 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     @Override
     public void stopConfigPlay() {
         isConfigPlaying = false;
+        Log.e("123", "stopConfigPlay: -----停止config");
         //如果标签为insert优先，且insert正在播放，则不停止播放器
         if (!priority_flag && isInsertPlaying) {
+            Log.e("123", "stopConfigPlay: -----停止失败");
             return;
         }
+        Log.e("123", "stopConfigPlay: -----停止成功");
         stop();
         //普通资源结束后解析插播资源
         initInsertData();

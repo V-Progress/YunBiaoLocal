@@ -23,31 +23,6 @@ android {
         }
     }
 
-    productFlavors {
-        // 生产版本
-        pro {
-            // 服务地址
-            buildConfigField "String", "HOSTS", "com.yunbiao.cccm.common.Const.URL.PRO"
-            // 服务端口
-            buildConfigField "String", "PORT", "com.yunbiao.cccm.common.Const.PORT.PRO"
-            // 是否打印日志到文件
-            buildConfigField "boolean", "IS_LOG_TO_FILE", "true"
-
-            buildConfigField "boolean", "IS_PRO", "true"
-        }
-        // 开发版本
-        dev {
-            // 服务地址
-            buildConfigField "String", "HOSTS", "com.yunbiao.cccm.common.Const.URL.PRO"
-            // 服务端口
-            buildConfigField "String", "PORT", "com.yunbiao.cccm.common.Const.PORT.PRO"
-            // 是否打印日志到文件
-            buildConfigField "boolean", "IS_LOG_TO_FILE", "true"
-
-            buildConfigField "boolean", "IS_PRO", "false"
-        }
-    }
-
     repositories {
         flatDir { dirs 'libs' }
     }
@@ -87,7 +62,7 @@ android {
             def outputFile = output.outputFile
             if (outputFile != null && outputFile.name.endsWith('.apk')) {
                 //输出apk名称为：渠道名_打包类型_版本名.apk
-                def fileName = "cccm_${variant.productFlavors[0].name}_${variant.getBuildType().getName()}_v${defaultConfig.versionName}.apk"
+                def fileName = "cccm_${defaultConfig.versionName}_${defaultConfig.versionCode}.apk"
                 output.outputFile = new File(outputFile.parent, fileName)
             }
         }
