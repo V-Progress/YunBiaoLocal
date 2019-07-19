@@ -2,6 +2,7 @@ package com.yunbiao.cccm.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 
 import com.janev.easyijkplayer.EasyIJKPlayer;
 import com.yunbiao.cccm.R;
@@ -21,7 +22,7 @@ public class FullscreenActivity extends Activity {
         setContentView(R.layout.activity_fullscreen);
         ijkPlayer = findViewById(R.id.ijk_player);
         ijkPlayer.initSoLib();
-        ijkPlayer.enableController(true,true);
+        ijkPlayer.enableController(false,true);
         ijkPlayer.enableListLoop(false);
         ijkPlayer.setFullScreenEnable(false);
 
@@ -51,4 +52,24 @@ public class FullscreenActivity extends Activity {
         super.onDestroy();
         ijkPlayer.release();
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_DPAD_RIGHT://快进
+                ijkPlayer.fastForword();
+                break;
+            case KeyEvent.KEYCODE_DPAD_LEFT://快退
+                ijkPlayer.fastBackward();
+                break;
+            case KeyEvent.KEYCODE_STEM_1:
+                ijkPlayer.toggle();
+                break;
+            case KeyEvent.KEYCODE_BACK:
+                this.finish();
+                break;
+        }
+        return true;
+    }
+
 }
