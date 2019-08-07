@@ -216,6 +216,9 @@ public class EasyIJKPlayer extends FrameLayout implements IMediaPlayer.OnComplet
         loadingView.setVisibility(View.GONE);
     }
 
+    public ImageButton getFullScreenButton(){
+        return ibPlayFull;
+    }
 
     public void setOnFullScreenCallback(OnFullScreenCallback callback){
         onFullScreenCallback = callback;

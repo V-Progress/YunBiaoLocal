@@ -11,9 +11,11 @@ public class Const {
     private static final String SLASH = "/";//斜杠
     private static final String SUFFIX = "cccm/";//斜杠
 
-    public static final String SERVICE_HOSTS = "210.51.34.85";//基础IP地址
+    public static final String SERVICE_HOSTS = "210.51.34.85";//云端IP地址
+//    public static final String SERVICE_HOSTS = "192.168.1.114";//本地IP地址
     public static final String SERVICE_PORT = ":8080";
     public static final String XMPP_HOSTS = "210.51.34.85";//基础IP地址
+//    public static final String XMPP_HOSTS = "192.168.1.114";//基础IP地址
     public static final String XMPP_PORT = "5222";//端口号
 
     public static final String BASE_URL = PREFIX + SERVICE_HOSTS + SERVICE_PORT + SLASH + SUFFIX;//URL地址

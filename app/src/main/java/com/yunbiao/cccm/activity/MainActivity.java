@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 
 import com.janev.easyijkplayer.EasyIJKPlayer;
 import com.janev.easyijkplayer.IjkPlayListener;
@@ -51,6 +52,9 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     @BindView(R.id.danmaku_view)
     DanmakuView danmakuView;
 
+    @BindView(R.id.ll_check_progress)
+    View llCheckProgress;
+
     public boolean isInsertPlaying = false;//是否有insert正在播放
     public boolean isConfigPlaying = false;//是否有config正在播放
     private boolean priority_flag = false;//true:config优先，false:insert优先
@@ -68,7 +72,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
 
         ijkPlayer.initSoLib();//初始化SO库
         ijkPlayer.setNavigation(this);//调整底部栏
-        ijkPlayer.enableController(true, false);//设置控制条
+        ijkPlayer.enableController(false, false);//设置控制条
         ijkPlayer.enableErrorAlert(false);//关闭错误提示
         ijkPlayer.enableErrorDeleteUri(true);//开启错误删除
         ijkPlayer.setIjkPlayListener(this);//设置播放结束回调
@@ -87,30 +91,33 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
     }
 
     @Override
-    public void sdCanUsed(boolean isCanUsed) {
-        //不论SD卡是否可用，如果当前是菜单界面，都关掉
-        MenuActivity menuActivity = APP.getMenuActivity();
-        if (menuActivity != null && menuActivity.isForeground()) {
-            menuActivity.finish();
-        }
-        //SD卡不可用，停止一切操作并显示Alert
-        if (!isCanUsed) {
-            stop();
-            stopInsert();
-            stop();
-            ResourceManager.getInstance().cancel();
-            DialogUtil.getInstance().showError(MainActivity.this, "读取错误", "请插入SD卡\n并确保SD卡可正常使用",true);
-            return;
-        }
+    public void sdCanUsed(final boolean isCanUsed) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //不论SD卡是否可用，如果当前是菜单界面，都关掉
+                MenuActivity menuActivity = APP.getMenuActivity();
+                if (menuActivity != null && menuActivity.isForeground()) {
+                    menuActivity.finish();
+                }
+                //SD卡不可用，停止一切操作并显示Alert
+                if (!isCanUsed) {
+                    stop();
+                    stopInsert();
+                    stop();
+                    ResourceManager.getInstance().cancel();
+                    return;
+                }
 
-        //关闭Alert
-        DialogUtil.getInstance().dismissError();
-        if (CacheManager.SP.getMode() == 0) {
-            priority_flag = CacheManager.SP.getLaterType() == 2;
-            startGetRes();
-        } else {
-            LocalManager.getInstance().initData();
-        }
+                llCheckProgress.setVisibility(View.GONE);
+                if (CacheManager.SP.getMode() == 0) {
+                    priority_flag = CacheManager.SP.getLaterType() == 2;
+                    startGetRes();
+                } else {
+                    LocalManager.getInstance().initData();
+                }
+            }
+        });
     }
 
 

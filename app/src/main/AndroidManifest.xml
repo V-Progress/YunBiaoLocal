@@ -101,11 +101,11 @@
         <activity android:name=".activity.PlayListActivity"/>
 
         <!--开机启动广播监听-->
-        <receiver android:name=".receiver.BootBroadcastReceiver">
+        <receiver android:name=".receiver.BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <!--<category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.HOME" />-->
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </receiver>
 

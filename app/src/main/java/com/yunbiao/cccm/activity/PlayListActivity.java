@@ -20,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -310,6 +311,14 @@ public class PlayListActivity extends BaseActivity {
                 break;
             case KeyEvent.KEYCODE_BACK:
                 this.finish();
+                break;
+            case KeyEvent.KEYCODE_1:
+            case KeyEvent.KEYCODE_NUMPAD_1:
+            case KeyEvent.KEYCODE_MENU:
+                ImageButton fullScreenButton = easyIJKPlayer.getFullScreenButton();
+                if(fullScreenButton != null){
+                    fullScreenButton.performClick();
+                }
                 break;
         }
 
