@@ -351,6 +351,7 @@ public class ResourceManager {
 
         @Override
         public void onBefore(int totalNum) {
+            Log.e(TAG, "onBefore: " + totalNum);
             MainController.getInstance().initProgress(totalNum);
             String msg = ("准备下载" + date + "的资源...共有：" + totalNum + "个文件");
             MainController.getInstance().updateConsole(msg);
@@ -360,6 +361,7 @@ public class ResourceManager {
 
         @Override
         public void onStart(int currNum) {
+            Log.e(TAG, "onStart: " + currNum);
             if (todayDate.equals(DateUtil.yyyy_MM_dd_Parse(date))) {
                 Log.e("ResourceManager", "onStart: 发送播放数据");
                 sendPlayData();
@@ -381,6 +383,7 @@ public class ResourceManager {
 
         @Override
         public void onSuccess(int currFileNum, int totalNum, String fileName) {
+            Log.e(TAG, "onSuccess: " + fileName);
             MainController.getInstance().updateParentProgress(currFileNum);
             MainController.getInstance().updateConsole("第" + currFileNum + "个文件下载完成：" + fileName);
             NetUtil.getInstance().uploadProgress(date, currFileNum + "/" + totalNum, fileName, YunBiaoException.SUCCESS);
@@ -388,7 +391,7 @@ public class ResourceManager {
 
         @Override
         public void onError(Exception e, int currFileNum, int totalNum, String fileName) {
-
+            Log.e(TAG, "onError: 下载失败：" + (e == null ? "NULL" : e.getMessage()));
             // TODO: 2019/4/12 如果是今天和明天的数据则添加到错误列表中
             Date reqDate = DateUtil.yyyy_MM_dd_Parse(date);
             if(reqDate.equals(todayDate) || reqDate.equals(tommDate)){
@@ -422,6 +425,7 @@ public class ResourceManager {
             }
         }
 
+        private static final String TAG = "Downloader";
         @Override
         public void onFinish() {
             cancelSpeedTimer();
