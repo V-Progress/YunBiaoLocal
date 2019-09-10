@@ -9,6 +9,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.janev.easyijkplayer.EasyIJKPlayer;
 import com.janev.easyijkplayer.IjkPlayListener;
@@ -351,11 +352,18 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
                 }
                 return false;
             case KeyEvent.KEYCODE_BACK:
-                APP.exit();
+                long secondTime = System.currentTimeMillis();
+                if (secondTime - firstTime > 2000) {
+                    Toast.makeText(MainActivity.this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                    firstTime = secondTime;
+                } else{
+                    APP.exit();
+                }
                 return false;
         }
         return true;
     }
+    private long firstTime = 0;
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {

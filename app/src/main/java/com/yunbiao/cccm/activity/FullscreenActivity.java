@@ -62,7 +62,7 @@ public class FullscreenActivity extends Activity {
             case KeyEvent.KEYCODE_DPAD_LEFT://快退
                 ijkPlayer.fastBackward();
                 break;
-            case KeyEvent.KEYCODE_STEM_1:
+            case KeyEvent.KEYCODE_DPAD_CENTER:
                 ijkPlayer.toggle();
                 break;
             case KeyEvent.KEYCODE_BACK:
