@@ -93,7 +93,7 @@ public class Requester {
 
                     String playUrl = config.getPlayurl();
                     if (TextUtils.isEmpty(playUrl)) {
-                        listener.onError(reqDate, FAILED_RESOLVE_CONFIG);
+                        listener.onError(reqDate, FAILED_RESOLVE_CONFIG); // TODO: 2019/9/18 此处为解析失败
                         continue;
                     }
 

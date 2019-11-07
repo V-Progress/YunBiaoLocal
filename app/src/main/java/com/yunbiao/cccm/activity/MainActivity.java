@@ -33,7 +33,6 @@ import com.yunbiao.cccm.xmpp.PnServerController;
 import com.yunbiao.cccm.net.resource.InsertVideoManager;
 import com.yunbiao.cccm.net.resource.ResourceManager;
 import com.yunbiao.cccm.utils.DeleteResUtil;
-import com.yunbiao.cccm.utils.DialogUtil;
 import com.yunbiao.cccm.utils.TimerUtil;
 
 import java.util.List;
@@ -297,21 +296,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
      */
 
     @Override
-    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_DPAD_UP:
-                LogUtil.E("-------长按下键");
-                ConsoleUtil.instance().showConsole();
-                return true;
-            case KeyEvent.KEYCODE_DPAD_DOWN:
-                LogUtil.E("-------长按下键");
-                ConsoleUtil.instance().hideConsole();
-                return true;
-        }
-        return false;
-    }
-
-    @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
             return true;
@@ -334,16 +318,10 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, S
                 ijkPlayer.toggle();
                 break;
             case KeyEvent.KEYCODE_DPAD_UP:
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    event.startTracking();
-                    return true;
-                }
+                ConsoleUtil.instance().showConsole();
                 break;
             case KeyEvent.KEYCODE_DPAD_DOWN:
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    event.startTracking();
-                    return true;
-                }
+                ConsoleUtil.instance().hideConsole();
                 break;
             case KeyEvent.KEYCODE_MENU:
                 MenuActivity menuActivity = APP.getMenuActivity();

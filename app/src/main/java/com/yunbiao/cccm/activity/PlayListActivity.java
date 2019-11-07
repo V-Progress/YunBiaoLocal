@@ -237,7 +237,6 @@ public class PlayListActivity extends BaseActivity {
                     return;
                 }
 
-
                 String key = text.substring(3);
                 String path = previewMap.get(key);
                 Log.e("123", "onItemClick: -----" + key + "---" + path);
@@ -252,7 +251,11 @@ public class PlayListActivity extends BaseActivity {
                 tvPreview.setVisibility(View.GONE);
             }
         });
-
+        if(playList.size() <= 0){
+            btnClose.requestFocus();
+        } else {
+            listView.requestFocus();
+        }
     }
 
 
