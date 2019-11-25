@@ -330,7 +330,7 @@ public abstract class AbstractReferenceMap <K,V> extends AbstractHashedMap<K, V>
 
     //-----------------------------------------------------------------------
     /**
-     * Purges stale mappings from this map before read operations.
+     * Purges stale mappings from this map before ready operations.
      * <p/>
      * This implementation calls {@link #purge()} to maintain a consistent state.
      */
@@ -958,7 +958,7 @@ public abstract class AbstractReferenceMap <K,V> extends AbstractHashedMap<K, V>
      * <p/>
      * Serialization is not one of the JDK's nicest topics. Normal serialization will
      * initialise the superclass before the subclass. Sometimes however, this isn't
-     * what you want, as in this case the <code>put()</code> method on read can be
+     * what you want, as in this case the <code>put()</code> method on ready can be
      * affected by subclass state.
      * <p/>
      * The solution adopted here is to serialize the state data of this class in
@@ -966,7 +966,7 @@ public abstract class AbstractReferenceMap <K,V> extends AbstractHashedMap<K, V>
      * <code>writeObject()</code> of the first serializable subclass.
      * <p/>
      * Subclasses may override if they have a specific field that must be present
-     * on read before this implementation will work. Generally, the read determines
+     * on ready before this implementation will work. Generally, the ready determines
      * what must be serialized here, if anything.
      *
      * @param out the output stream
@@ -986,11 +986,11 @@ public abstract class AbstractReferenceMap <K,V> extends AbstractHashedMap<K, V>
     }
 
     /**
-     * Replaces the superclassm method to read the state of this class.
+     * Replaces the superclassm method to ready the state of this class.
      * <p/>
      * Serialization is not one of the JDK's nicest topics. Normal serialization will
      * initialise the superclass before the subclass. Sometimes however, this isn't
-     * what you want, as in this case the <code>put()</code> method on read can be
+     * what you want, as in this case the <code>put()</code> method on ready can be
      * affected by subclass state.
      * <p/>
      * The solution adopted here is to deserialize the state data of this class in

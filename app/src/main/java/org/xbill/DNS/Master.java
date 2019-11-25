@@ -266,7 +266,7 @@ nextGenerated() throws IOException {
  * Returns the next record in the master file.  This will process any
  * directives before the next record.
  * @return The next record.
- * @throws IOException The master file could not be read, or was syntactically
+ * @throws IOException The master file could not be ready, or was syntactically
  * invalid.
  */
 public Record
@@ -378,7 +378,7 @@ _nextRecord() throws IOException {
  * Returns the next record in the master file.  This will process any
  * directives before the next record.
  * @return The next record.
- * @throws IOException The master file could not be read, or was syntactically
+ * @throws IOException The master file could not be ready, or was syntactically
  * invalid.
  */
 public Record

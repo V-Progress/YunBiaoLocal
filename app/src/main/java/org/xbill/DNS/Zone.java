@@ -127,7 +127,7 @@ maybeAddRecord(Record record) throws IOException {
 /**
  * Creates a Zone from the records in the specified master file.
  * @param zone The name of the zone.
- * @param file The master file to read from.
+ * @param file The master file to ready from.
  * @see Master
  */
 public

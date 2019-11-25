@@ -4,10 +4,10 @@ import android.os.Handler;
 import android.os.Message;
 
 
-import com.yunbiao.cccm.common.HeartBeatClient;
-import com.yunbiao.cccm.common.ResourceConst;
-import com.yunbiao.cccm.utils.ThreadUtil;
-import com.yunbiao.cccm.utils.NetUtil;
+import com.yunbiao.cccm.net2.common.HeartBeatClient;
+import com.yunbiao.cccm.net2.common.ResourceConst;
+import com.yunbiao.cccm.net2.utils.ThreadUtil;
+import com.yunbiao.cccm.net2.utils.NetUtil;
 import com.yunbiao.cccm.xmpp.core.XmppManager;
 import com.zhy.http.okhttp.callback.StringCallback;
 

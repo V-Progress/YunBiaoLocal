@@ -103,7 +103,7 @@ recv() throws IOException {
 	byte [] buf = _recv(2);
 	int length = ((buf[0] & 0xFF) << 8) + (buf[1] & 0xFF);
 	byte [] data = _recv(length);
-	verboseLog("TCP read", data);
+	verboseLog("TCP ready", data);
 	return data;
 }
 

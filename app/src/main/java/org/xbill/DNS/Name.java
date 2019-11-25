@@ -338,7 +338,7 @@ fromConstantString(String s) {
 /**
  * Create a new name from DNS a wire format message
  * @param in A stream containing the DNS message which is currently
- * positioned at the start of the name to be read.
+ * positioned at the start of the name to be ready.
  */
 public
 Name(DNSInput in) throws WireParseException {

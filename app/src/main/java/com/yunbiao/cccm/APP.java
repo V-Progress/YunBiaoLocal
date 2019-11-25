@@ -11,17 +11,15 @@ import com.baidu.location.LocationClientOption;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.umeng.commonsdk.UMConfigure;
-import com.umeng.commonsdk.debug.UMLog;
-import com.umeng.commonsdk.utils.UMUtils;
-import com.yunbiao.cccm.activity.MainActivity;
-import com.yunbiao.cccm.activity.MenuActivity;
-import com.yunbiao.cccm.common.Const;
-import com.yunbiao.cccm.common.HeartBeatClient;
-import com.yunbiao.cccm.log.BlockDetectByPrinter;
-import com.yunbiao.cccm.utils.CommonUtils;
-import com.yunbiao.cccm.net.listener.BDLocationListener;
-import com.yunbiao.cccm.log.Log2FileUtil;
-import com.yunbiao.cccm.utils.RestartAPPTool;
+import com.yunbiao.cccm.net2.activity.MainActivity;
+import com.yunbiao.cccm.net2.activity.MenuActivity;
+import com.yunbiao.cccm.net2.common.Const;
+import com.yunbiao.cccm.net2.log.BlockDetectByPrinter;
+import com.yunbiao.cccm.net2.db.DaoManager;
+import com.yunbiao.cccm.net2.utils.CommonUtils;
+import com.yunbiao.cccm.net2.listener.BDLocationListener;
+import com.yunbiao.cccm.net2.log.Log2FileUtil;
+import com.yunbiao.cccm.net2.utils.RestartAPPTool;
 import com.zhy.http.okhttp.OkHttpUtils;
 
 import java.util.ArrayList;
@@ -79,6 +77,8 @@ public class APP extends Application {
 
         //保存主板信息
         CommonUtils.saveBroadInfo();
+
+        DaoManager.get().initDb();
     }
 
     private void initLocation() {
@@ -134,6 +134,17 @@ public class APP extends Application {
 
     public static void removeActivity(Activity activity) {
         actList.remove(activity);
+    }
+
+    public static void resetApp(){
+        //停止所有Activity
+        for (Activity a : actList) {
+            if (a != null) {
+                a.finish();
+            }
+        }
+        //清空缓存的activity
+        actList.clear();
     }
 
     public static void exit() {

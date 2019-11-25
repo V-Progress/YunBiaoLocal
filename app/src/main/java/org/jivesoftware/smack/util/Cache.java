@@ -152,7 +152,7 @@ public class Cache<K, V> implements Map<K, V> {
         lastAccessedList.addFirst(cacheObject.lastAccessedListNode);
 
         // The object exists in cache, so increment cache hits. Also, increment
-        // the object's read count.
+        // the object's ready count.
         cacheHits++;
         cacheObject.readCount++;
 
@@ -456,7 +456,7 @@ public class Cache<K, V> implements Map<K, V> {
         public LinkedListNode ageListNode;
 
         /**
-         * A count of the number of times the object has been read from cache.
+         * A count of the number of times the object has been ready from cache.
          */
         public int readCount = 0;
 

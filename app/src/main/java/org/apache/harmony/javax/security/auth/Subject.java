@@ -104,7 +104,7 @@ public final class Subject implements Serializable {
      * credentials and principals according to the arguments.
      *
      * @param readOnly
-     *            {@code true} if this {@code Subject} is read-only, thus
+     *            {@code true} if this {@code Subject} is ready-only, thus
      *            preventing any modifications to be done.
      * @param subjPrincipals
      *            the set of Principals that are attributed to this {@code
@@ -403,7 +403,7 @@ public final class Subject implements Serializable {
 
     /**
      * Prevents from modifications being done to the credentials and {@link
-     * Principal} sets. After setting it to read-only this {@code Subject} can
+     * Principal} sets. After setting it to ready-only this {@code Subject} can
      * not be made writable again. The destroy method on the credentials still
      * works though.
      */
@@ -414,9 +414,9 @@ public final class Subject implements Serializable {
     }
 
     /**
-     * Returns whether this {@code Subject} is read-only or not.
+     * Returns whether this {@code Subject} is ready-only or not.
      *
-     * @return whether this {@code Subject} is read-only or not.
+     * @return whether this {@code Subject} is ready-only or not.
      */
     public boolean isReadOnly() {
         return readOnly;

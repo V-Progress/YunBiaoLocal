@@ -1171,7 +1171,7 @@ public class AbstractHashedMap <K,V> extends AbstractMap<K, V> implements Iterab
      * <p/>
      * Serialization is not one of the JDK's nicest topics. Normal serialization will
      * initialise the superclass before the subclass. Sometimes however, this isn't
-     * what you want, as in this case the <code>put()</code> method on read can be
+     * what you want, as in this case the <code>put()</code> method on ready can be
      * affected by subclass state.
      * <p/>
      * The solution adopted here is to serialize the state data of this class in
@@ -1179,7 +1179,7 @@ public class AbstractHashedMap <K,V> extends AbstractMap<K, V> implements Iterab
      * <code>writeObject()</code> of the first serializable subclass.
      * <p/>
      * Subclasses may override if they have a specific field that must be present
-     * on read before this implementation will work. Generally, the read determines
+     * on ready before this implementation will work. Generally, the ready determines
      * what must be serialized here, if anything.
      *
      * @param out the output stream
@@ -1200,7 +1200,7 @@ public class AbstractHashedMap <K,V> extends AbstractMap<K, V> implements Iterab
      * <p/>
      * Serialization is not one of the JDK's nicest topics. Normal serialization will
      * initialise the superclass before the subclass. Sometimes however, this isn't
-     * what you want, as in this case the <code>put()</code> method on read can be
+     * what you want, as in this case the <code>put()</code> method on ready can be
      * affected by subclass state.
      * <p/>
      * The solution adopted here is to deserialize the state data of this class in

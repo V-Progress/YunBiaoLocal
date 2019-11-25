@@ -18,7 +18,7 @@ private int saved_end;
 
 /**
  * Creates a new DNSInput
- * @param input The byte array to read from
+ * @param input The byte array to ready from
  */
 public
 DNSInput(byte [] input) {
@@ -38,7 +38,7 @@ current() {
 }
 
 /**
- * Returns the number of bytes that can be read from this stream before
+ * Returns the number of bytes that can be ready from this stream before
  * reaching the end.
  */
 public int
@@ -160,7 +160,7 @@ readU32() throws WireParseException {
 /**
  * Reads a byte array of a specified length from the stream into an existing
  * array.
- * @param b The array to read into.
+ * @param b The array to ready into.
  * @param off The offset of the array to start copying data into.
  * @param len The number of bytes to copy.
  * @throws WireParseException The end of the stream was reached.

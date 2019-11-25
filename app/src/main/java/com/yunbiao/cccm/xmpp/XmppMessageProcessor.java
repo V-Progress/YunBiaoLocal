@@ -5,31 +5,31 @@ import android.content.Intent;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
-import com.yunbiao.cccm.activity.MenuActivity;
-import com.yunbiao.cccm.net.resource.InsertTextManager;
-import com.yunbiao.cccm.utils.NetUtil;
-import com.yunbiao.cccm.net.resource.InsertVideoManager;
-import com.yunbiao.cccm.activity.MainController;
-import com.yunbiao.cccm.cache.CacheManager;
-import com.yunbiao.cccm.common.HeartBeatClient;
-import com.yunbiao.cccm.net.control.ScreenShot;
-import com.yunbiao.cccm.net.control.PowerOffTool;
-import com.yunbiao.cccm.net.control.actions.XBHActions;
+import com.yunbiao.cccm.net2.DataLoader;
+import com.yunbiao.cccm.net2.activity.MenuActivity;
+import com.yunbiao.cccm.net2.SubtitleLoader;
+import com.yunbiao.cccm.net2.utils.NetUtil;
+import com.yunbiao.cccm.net2.InsertLoader;
+import com.yunbiao.cccm.net2.activity.MainController;
+import com.yunbiao.cccm.net2.cache.CacheManager;
+import com.yunbiao.cccm.net2.common.HeartBeatClient;
+import com.yunbiao.cccm.net2.control.ScreenShot;
+import com.yunbiao.cccm.net2.control.PowerOffTool;
+import com.yunbiao.cccm.net2.control.actions.XBHActions;
 import com.yunbiao.cccm.APP;
-import com.yunbiao.cccm.net.control.SoundControl;
-import com.yunbiao.cccm.net.resource.ResourceManager;
-import com.yunbiao.cccm.net.model.ChannelBean;
-import com.yunbiao.cccm.net.model.DiskInfoBean;
-import com.yunbiao.cccm.net.model.LoginModel;
-import com.yunbiao.cccm.net.model.PowerCtrlBean;
-import com.yunbiao.cccm.net.model.SerNumBean;
-import com.yunbiao.cccm.net.model.VoiceModel;
-import com.yunbiao.cccm.utils.CommonUtils;
-import com.yunbiao.cccm.log.LogUtil;
-import com.yunbiao.cccm.utils.SystemInfoUtil;
-import com.yunbiao.cccm.utils.ThreadUtil;
-import com.yunbiao.cccm.net.view.TipToast;
-import com.yunbiao.cccm.net.model.InsertTextModel;
+import com.yunbiao.cccm.net2.control.SoundControl;
+import com.yunbiao.cccm.net2.model.ChannelBean;
+import com.yunbiao.cccm.net2.model.DiskInfoBean;
+import com.yunbiao.cccm.net2.model.LoginModel;
+import com.yunbiao.cccm.net2.model.PowerCtrlBean;
+import com.yunbiao.cccm.net2.model.SerNumBean;
+import com.yunbiao.cccm.net2.model.VoiceModel;
+import com.yunbiao.cccm.net2.utils.CommonUtils;
+import com.yunbiao.cccm.net2.log.LogUtil;
+import com.yunbiao.cccm.net2.utils.SystemInfoUtil;
+import com.yunbiao.cccm.net2.utils.ThreadUtil;
+import com.yunbiao.cccm.net2.view.TipToast;
+import com.yunbiao.cccm.net2.model.InsertTextModel;
 
 /**
  * 核心类：Xmpp消息处理
@@ -91,7 +91,7 @@ public class XmppMessageProcessor {
             case SET_CLEAR_LAYOUT://清除布局
                 if(mode == 0){
                     MainController.getInstance().stopPlay();//停止播放，清空播放列表
-                    ResourceManager.getInstance().initNetData();//重新初始化布局内容
+                    DataLoader.getInstance().get();//重新初始化布局内容
                 }
                 break;
             case RUNSET_TYPE://设备自动开关机
@@ -180,17 +180,12 @@ public class XmppMessageProcessor {
                 SoundControl.setMusicSound(voiceModel.getVoice());
                 break;
             case PUSH_MESSAGE://插播字幕
-                ThreadUtil.getInstance().runInCommonThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        InsertTextModel insertTextModel = new Gson().fromJson(content, InsertTextModel.class);
-                        InsertTextManager.instance(APP.getMainActivity()).insertTXT(insertTextModel);
-                    }
-                });
+                InsertTextModel insertTextModel = new Gson().fromJson(content, InsertTextModel.class);
+                SubtitleLoader.instance().setTXT(insertTextModel);
                 break;
             case INSERT_CONTENT_TYPE://插播视频
                 if(mode == 0){
-                    InsertVideoManager.getInstance().initData();
+                    InsertLoader.getInstance().loadInsert();
                 }
                 break;
             case UPDATE_LAYER://更新层级标签

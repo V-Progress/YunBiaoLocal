@@ -79,7 +79,7 @@ public class PacketParserUtils {
         }
 
         // Parse sub-elements. We include extra logic to make sure the values
-        // are only read once. This is because it's possible for the names to appear
+        // are only ready once. This is because it's possible for the names to appear
         // in arbitrary sub-elements.
         boolean done = false;
         String thread = null;

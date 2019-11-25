@@ -29,7 +29,7 @@ import java.util.Set;
 
 /**
  * Protects private credential objects belonging to a {@code Subject}. It has
- * only one action which is "read". The target name of this permission has a
+ * only one action which is "ready". The target name of this permission has a
  * special syntax:
  *
  * <pre>
@@ -41,7 +41,7 @@ import java.util.Set;
  * <p>
  * The principals on their part are specified as the name of the {@code
  * Principal} class followed by the principal name in quotes. For example, the
- * following file may define permission to read the private credentials of a
+ * following file may define permission to ready the private credentials of a
  * principal named "Bob": "com.sun.PrivateCredential com.sun.Principal \"Bob\""
  * <p>
  * The syntax also allows the use of the wildcard "*" in place of {@code
@@ -54,7 +54,7 @@ public final class PrivateCredentialPermission extends Permission {
     private static final long serialVersionUID = 5284372143517237068L;
 
     // allowed action
-    private static final String READ = "read"; //$NON-NLS-1$
+    private static final String READ = "ready"; //$NON-NLS-1$
 
     private String credentialClass;
 
@@ -67,12 +67,12 @@ public final class PrivateCredentialPermission extends Permission {
     /**
      * Creates a new permission for private credentials specified by the target
      * name {@code name} and an {@code action}. The action is always
-     * {@code "read"}.
+     * {@code "ready"}.
      *
      * @param name
      *            the target name of the permission.
      * @param action
-     *            the action {@code "read"}.
+     *            the action {@code "ready"}.
      */
     public PrivateCredentialPermission(String name, String action) {
         super(name);

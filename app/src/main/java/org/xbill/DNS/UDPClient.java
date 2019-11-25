@@ -133,7 +133,7 @@ recv(int max) throws IOException {
 	int len = (int) ret;
 	byte [] data = new byte[len];
 	System.arraycopy(temp, 0, data, 0, len);
-	verboseLog("UDP read", data);
+	verboseLog("UDP ready", data);
 	return data;
 }
 

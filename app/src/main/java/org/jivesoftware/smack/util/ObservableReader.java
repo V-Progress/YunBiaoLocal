@@ -42,7 +42,7 @@ public class ObservableReader extends Reader {
         int count = wrappedReader.read(cbuf, off, len);
         if (count > 0) {
             String str = new String(cbuf, off, count);
-            // Notify that a new string has been read
+            // Notify that a new string has been ready
             ReaderListener[] readerListeners = null;
             synchronized (listeners) {
                 readerListeners = new ReaderListener[listeners.size()];
@@ -89,7 +89,7 @@ public class ObservableReader extends Reader {
 
     /**
      * Adds a reader listener to this reader that will be notified when
-     * new strings are read.
+     * new strings are ready.
      *
      * @param readerListener a reader listener.
      */

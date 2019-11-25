@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.jakewharton.butterknife'
+apply plugin: 'org.greenrobot.greendao' // GreenDao配置
 
 android {
     compileSdkVersion 26
@@ -9,8 +10,8 @@ android {
         applicationId "com.yunbiao.cccm"
         minSdkVersion 17
         targetSdkVersion 22
-        versionCode 133
-        versionName "1.3.3"
+        versionCode 134
+        versionName "1.4.0"
         multiDexEnabled true
     }
     buildTypes {
@@ -67,14 +68,21 @@ android {
             }
         }
     }
+
+    //greenDao配置信息
+    greendao {
+        schemaVersion 7//<--数据库的版本，用于升级时候进行更改
+        daoPackage 'com.yunbiao.cccm.net2.db'
+//这个是生成DAOs、DaoMaster、DaoSession代码保存的包名,默认为entities所在包名
+        targetGenDir 'src/main/java'
+//生成DAOs、DaoMaster、DaoSession的目录。默认为build/generated/source/greendao
+    }
+
 }
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:26.+'
     //27.+
-    compile 'com.android.support:percent:26.+'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
     //ImageLoader
     compile files('libs/universal-image-loader-1.9.5.jar')
     //声音控制
@@ -82,21 +90,28 @@ dependencies {
     //百度定位
     compile files('libs/BaiduLBS_Android.jar')
     //OKHttp
-    compile 'com.squareup.okhttp3:okhttp:3.10.0'
-    compile 'com.zhy:okhttputils:2.6.2'
     //Json解析
-    compile 'com.alibaba:fastjson:1.1.56.android'
     compile files('libs/gson-2.8.5.jar')
     //butterKnife
-    compile 'com.jakewharton:butterknife:8.8.1'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     //圆形进度条
-    compile 'com.github.rjsvieira:circularView:1.3.0'
     //友盟
-    compile 'com.umeng.analytics:analytics:latest.integration'
-    compile 'com.umeng.sdk:common:latest.integration'
     //eventbus
-    compile 'org.greenrobot:eventbus:3.0.0'
     //easyIjk
     compile project(path: ':easyijkplayer')
+    compile 'com.android.support:appcompat-v7:26.+'
+    compile 'com.android.support:percent:26.+'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.squareup.okhttp3:okhttp:3.10.0'
+    compile 'com.zhy:okhttputils:2.6.2'
+    compile 'com.alibaba:fastjson:1.1.56.android'
+    compile 'com.jakewharton:butterknife:8.8.1'
+    compile 'com.github.rjsvieira:circularView:1.3.0'
+    compile 'com.umeng.analytics:analytics:latest.integration'
+    compile 'com.umeng.sdk:common:latest.integration'
+    compile 'org.greenrobot:eventbus:3.0.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+
+    // GreenDao(√)
+    compile 'org.greenrobot:greendao:3.2.2'
+    compile 'com.github.yuweiguocn:GreenDaoUpgradeHelper:v1.4.0'
 }

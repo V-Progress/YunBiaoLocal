@@ -17,7 +17,7 @@ package com.yunbiao.cccm.xmpp;
 
 import android.app.Activity;
 
-import com.yunbiao.cccm.utils.ThreadUtil;
+import com.yunbiao.cccm.net2.utils.ThreadUtil;
 import com.yunbiao.cccm.xmpp.core.ServiceManager;
 
 /**

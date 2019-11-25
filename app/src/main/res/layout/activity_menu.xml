@@ -78,6 +78,7 @@
             app:layout_marginLeftPercent="1%" />
 
         <RadioGroup
+            android:visibility="gone"
             android:id="@+id/rg_mode_select"
             android:orientation="horizontal"
             android:weightSum="2"

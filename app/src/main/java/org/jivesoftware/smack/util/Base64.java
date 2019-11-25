@@ -46,10 +46,10 @@ package org.jivesoftware.smack.util;
  *  <li>v1.5 - Output stream pases on flush() command but doesn't do anything itself.
  *      This helps when using GZIP streams.
  *      Added the ability to GZip-compress objects before encoding them.</li>
- *  <li>v1.4 - Added helper methods to read/write files.</li>
+ *  <li>v1.4 - Added helper methods to ready/write files.</li>
  *  <li>v1.3.6 - Fixed OutputStream.flush() so that 'position' is reset.</li>
  *  <li>v1.3.5 - Added flag to turn on and off line breaks. Fixed bug in input stream
- *      where last buffer being read, if not completely full, was not returned.</li>
+ *      where last buffer being ready, if not completely full, was not returned.</li>
  *  <li>v1.3.4 - Fixed when "improperly padded stream" error was thrown at the wrong time.</li>
  *  <li>v1.3.3 - Fixed I/O streams which were totally messed up.</li>
  * </ul>
@@ -1293,7 +1293,7 @@ public class Base64
 
 
     /**
-     * A {@link InputStream} will read data from another
+     * A {@link InputStream} will ready data from another
      * <tt>java.io.InputStream</tt>, given in the constructor,
      * and encode/decode to/from Base64 notation on the fly.
      *
@@ -1317,7 +1317,7 @@ public class Base64
         /**
          * Constructs a {@link InputStream} in DECODE mode.
          *
-         * @param in the <tt>java.io.InputStream</tt> from which to read data.
+         * @param in the <tt>java.io.InputStream</tt> from which to ready data.
          * @since 1.3
          */
         public InputStream( java.io.InputStream in )
@@ -1331,7 +1331,7 @@ public class Base64
          * either ENCODE or DECODE mode.
          * <p>
          * Valid options:<pre>
-         *   ENCODE or DECODE: Encode or Decode as data is read.
+         *   ENCODE or DECODE: Encode or Decode as data is ready.
          *   DONT_BREAK_LINES: don't break lines at 76 characters
          *     (only meaningful when encoding)
          *     <i>Note: Technically, this makes your encoding non-compliant.</i>
@@ -1340,7 +1340,7 @@ public class Base64
          * Example: <code>new Base64.InputStream( in, Base64.DECODE )</code>
          *
          *
-         * @param in the <tt>java.io.InputStream</tt> from which to read data.
+         * @param in the <tt>java.io.InputStream</tt> from which to ready data.
          * @param options Specified options
          * @see Base64#ENCODE
          * @see Base64#DECODE
@@ -1390,7 +1390,7 @@ public class Base64
                                 numBinaryBytes++;
                             }   // end if: not end of stream
 
-                        }   // end try: read
+                        }   // end try: ready
                         catch( java.io.IOException e )
                         {
                             // Only a problem if we got no data at all.
@@ -1481,19 +1481,19 @@ public class Base64
                 // When JDK1.4 is more accepted, use an assertion here.
                 throw new java.io.IOException( "Error in Base64 code reading stream." );
             }   // end else
-        }   // end read
+        }   // end ready
 
 
         /**
          * Calls {@link #read()} repeatedly until the end of stream
-         * is reached or <var>len</var> bytes are read.
-         * Returns number of bytes read into array or -1 if
+         * is reached or <var>len</var> bytes are ready.
+         * Returns number of bytes ready into array or -1 if
          * end of stream is encountered.
          *
          * @param dest array to hold values
          * @param off offset for array
-         * @param len max number of bytes to read into array
-         * @return bytes read into array or -1 if end of stream is encountered.
+         * @param len max number of bytes to ready into array
+         * @return bytes ready into array or -1 if end of stream is encountered.
          * @since 1.3
          */
         public int read( byte[] dest, int off, int len ) throws java.io.IOException
@@ -1513,9 +1513,9 @@ public class Base64
                     return -1;
                 else
                     break; // Out of 'for' loop
-            }   // end for: each byte read
+            }   // end for: each byte ready
             return i;
-        }   // end read
+        }   // end ready
 
     }   // end inner class InputStream
 
@@ -1567,7 +1567,7 @@ public class Base64
          * either ENCODE or DECODE mode.
          * <p>
          * Valid options:<pre>
-         *   ENCODE or DECODE: Encode or Decode as data is read.
+         *   ENCODE or DECODE: Encode or Decode as data is ready.
          *   DONT_BREAK_LINES: don't break lines at 76 characters
          *     (only meaningful when encoding)
          *     <i>Note: Technically, this makes your encoding non-compliant.</i>
@@ -1667,9 +1667,9 @@ public class Base64
          * Calls {@link #write(int)} repeatedly until <var>len</var>
          * bytes are written.
          *
-         * @param theBytes array from which to read bytes
+         * @param theBytes array from which to ready bytes
          * @param off offset for array
-         * @param len max number of bytes to read into array
+         * @param len max number of bytes to ready into array
          * @since 1.3
          */
         public void write( byte[] theBytes, int off, int len ) throws java.io.IOException

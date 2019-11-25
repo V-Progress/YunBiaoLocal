@@ -31,7 +31,7 @@
         android:layout_marginLeft="10dp"
         android:orientation="vertical">
 
-        <com.yunbiao.cccm.net.view.NumberProgressBar
+        <com.yunbiao.cccm.net2.view.NumberProgressBar
             android:id="@+id/pp_weichat_pp"
             style="@style/NumberProgressBar_Passing_Green"
             android:layout_width="match_parent"

@@ -51,18 +51,17 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp" />
 
-            <com.yunbiao.cccm.net.view.NumberProgressBar
-                app:progress_unreached_color="@color/light_gray"
-                app:progress_reached_color="@color/white"
-                app:progress_text_color="@color/white"
-                app:progress_text_size="30dp"
-                android:id="@+id/npb_playlist"
-                android:layout_marginTop="20dp"
+            <TextView
+                android:id="@+id/tv_load_notice"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:layout_marginTop="10dp"
                 android:layout_below="@+id/pb_playlist"
                 android:layout_centerInParent="true"
-                android:layout_gravity="center"
-                android:layout_width="400dp"
-                android:layout_height="40dp" />
+                android:text="请稍等..."
+                android:textSize="24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </RelativeLayout>
 
 

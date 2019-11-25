@@ -57,7 +57,7 @@ public class posix {
     public final static native int write(int fd, byte[] buf);
 
     /**
-     * read a file descriptor.
+     * ready a file descriptor.
      */
     public final static native String read(int fd, int size);
 

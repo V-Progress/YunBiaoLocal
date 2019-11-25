@@ -32,9 +32,9 @@ package org.jivesoftware.smack.util;
 public interface ReaderListener {
 
     /**
-     * Notification that the Reader has read a new string.
+     * Notification that the Reader has ready a new string.
      * 
-     * @param str the read String
+     * @param str the ready String
      */
     public abstract void read(String str);
     

@@ -20,13 +20,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.text.TextUtils;
 import android.util.Log;
 
-import com.yunbiao.cccm.cache.CacheManager;
-import com.yunbiao.cccm.common.Const;
-import com.yunbiao.cccm.utils.ThreadUtil;
-import com.yunbiao.cccm.log.LogUtil;
+import com.yunbiao.cccm.net2.common.Const;
+import com.yunbiao.cccm.net2.utils.ThreadUtil;
+import com.yunbiao.cccm.net2.log.LogUtil;
 
 import java.util.Properties;
 
