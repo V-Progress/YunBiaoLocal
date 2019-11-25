@@ -75,12 +75,12 @@ public class DataLoader {
 
     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-    private void deleteUnUsed(){
+    private void deleteUnUsed() {
         List<Daily> dailies = DaoManager.get().queryAll(Daily.class);
         for (Daily daily : dailies) {
             try {
                 Date date = dateFormat.parse(daily.getDate());
-                if(date.equals(todayDate) || date.after(todayDate)){
+                if (date.equals(todayDate) || date.after(todayDate)) {
                     for (TimeSlot timeSlot : daily.getTimeSlots()) {
                         for (ItemBlock itemBlock : timeSlot.getItemBlocks()) {
                             DaoManager.get().deleteItemBlock(itemBlock);

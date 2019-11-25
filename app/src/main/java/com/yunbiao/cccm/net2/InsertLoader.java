@@ -71,7 +71,8 @@ public class InsertLoader {
     }
 
     private static final String TAG = "InsertLoader";
-    private void d(String log){
+
+    private void d(String log) {
         Log.d(TAG, log);
     }
 
@@ -80,9 +81,9 @@ public class InsertLoader {
         scheduledExecutorService.execute(new Runnable() {
             @Override
             public void run() {
+
+                InsertPlayer.getInstance().dismiss();
                 clearTimer();
-                MainController.getInstance().stopInsert();
-                MainController.getInstance().setHasInsert(false);
                 d("停止播放");
 
                 //获取数据
@@ -215,15 +216,15 @@ public class InsertLoader {
             public void run() {
                 final List<String> pathList = new ArrayList<>();
                 for (DownloadBean downloadBean : playList) {
-                    if(SystemVersion.isLowVer()){
+                    if (SystemVersion.isLowVer()) {
                         File resFileDir = PathManager.instance().getResFileDir();
                         File file = new File(resFileDir, downloadBean.name);
-                        if(file != null && file.exists()){
+                        if (file != null && file.exists()) {
                             pathList.add(file.getPath());
                         }
                     } else {
                         DocumentFile file = PathManager.instance().getResDocFileDir().findFile(downloadBean.name);
-                        if(file != null && file.exists()){
+                        if (file != null && file.exists()) {
                             pathList.add(file.getUri().toString());
                         }
                     }
@@ -235,15 +236,14 @@ public class InsertLoader {
                     @Override
                     public void run() {
                         d("开始插播，数据：" + playList.size());
-                        MainController.getInstance().setHasInsert(true);
-                        MainController.getInstance().startInsert(isCycle, pathList, false);
+                        InsertPlayer.getInstance().setPlayData(isCycle, pathList);
                     }
                 }, start);
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
                         d("停止插播");
-                        MainController.getInstance().stopInsert();
+                        InsertPlayer.getInstance().dismiss();
                     }
                 }, end);
                 timerList.add(timer);
@@ -259,15 +259,14 @@ public class InsertLoader {
             public void run() {
                 List<String> list = new ArrayList<>();
                 list.add(content);
-                MainController.getInstance().setHasInsert(true);
-                MainController.getInstance().startInsert(true, list, false);
+                InsertPlayer.getInstance().setPlayData(true, list);
             }
         }, start);
 
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                MainController.getInstance().stopInsert();
+                InsertPlayer.getInstance().dismiss();
             }
         }, end);
         timerList.add(timer);
@@ -281,7 +280,6 @@ public class InsertLoader {
             @Override
             public void run() {
                 LogUtil.E("切换到HDMI信号");
-                MainController.getInstance().setHasInsert(true);
                 checkHDMI(true);
             }
         }, start);

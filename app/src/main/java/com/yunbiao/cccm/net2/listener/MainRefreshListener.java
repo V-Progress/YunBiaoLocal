@@ -16,15 +16,6 @@ public interface MainRefreshListener {
     //停止播放
     void stopConfigPlay();
 
-    //开始播放插播
-    void startInsert(boolean isCycle, List<String> videoString,boolean isAdd);
-    //停止播放插播
-    void stopInsert();
-
-    //初始化数据
-//    void initPlayData();
-    //清除播放数据
-    void clearPlayData();
     //刷新layerType
     void updateLayerType(boolean isConfigOnTop);
 }

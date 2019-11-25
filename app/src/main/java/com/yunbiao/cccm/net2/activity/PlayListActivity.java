@@ -23,7 +23,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.janev.easyijkplayer.EasyIJKPlayer;
+import com.janev.easyijkplayer.EasyPlayer;
 import com.yunbiao.cccm.R;
 import com.yunbiao.cccm.net2.SystemVersion;
 import com.yunbiao.cccm.net2.activity.base.BaseActivity;
@@ -32,10 +32,8 @@ import com.yunbiao.cccm.net2.db.Daily;
 import com.yunbiao.cccm.net2.db.DaoManager;
 import com.yunbiao.cccm.net2.db.ItemBlock;
 import com.yunbiao.cccm.net2.db.TimeSlot;
-import com.yunbiao.cccm.net2.utils.ToastUtil;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -65,18 +63,16 @@ public class PlayListActivity extends BaseActivity {
     TextView tvPreview;
     @BindView(R.id.btn_close_playlist)
     Button btnClose;
-    @BindView(R.id.ijk_player)
-    EasyIJKPlayer easyIJKPlayer;
+    @BindView(R.id.easy_player)
+    EasyPlayer easyPlayer;
     @BindView(R.id.pb_playlist)
     ProgressBar pbPlayList;
     @BindView(R.id.tv_load_notice)
     TextView tvLoadNotice;
 
     private List<String> playList = new ArrayList<>();
-    private Map<String, String> previewMap = new HashMap<>();
     private PlayListAdapter playListAdapter;
     private ExecutorService executorService;
-    private String mCurrPlay = "";
 
     @Override
     protected int setLayout() {
@@ -87,33 +83,7 @@ public class PlayListActivity extends BaseActivity {
     protected void initView() {
         executorService = Executors.newSingleThreadExecutor();
 
-        easyIJKPlayer.initSoLib();
-        easyIJKPlayer.enableController(true,true);
-        easyIJKPlayer.enableListLoop(false);
-        easyIJKPlayer.enableController(true, true);
-        easyIJKPlayer.setFullScreenEnable(true);
-        easyIJKPlayer.setOnFullScreenCallback(new EasyIJKPlayer.OnFullScreenCallback() {
-            @Override
-            public void onFullScreen(View playerView) {
-                if(TextUtils.isEmpty(mCurrPlay)){
-                    ToastUtil.showShort(PlayListActivity.this,"请先选择一个视频");
-                    return;
-                }
-
-                long currentPosition = easyIJKPlayer.getCurrentPosition();
-                Log.e("123", "onFullScreen: ---------------要全屏的视频：" + mCurrPlay);
-
-                easyIJKPlayer.stop();
-
-                Bundle bundle = new Bundle();
-                bundle.putString("videoPath",mCurrPlay);
-                bundle.putLong("position",currentPosition);
-                Intent i = new Intent(PlayListActivity.this,FullscreenActivity.class);
-                i.putExtras(bundle);
-                startActivity(i);
-            }
-        });
-
+        easyPlayer.enableController(true);
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -138,6 +108,9 @@ public class PlayListActivity extends BaseActivity {
                 if(SystemVersion.isLowVer()){
                     File resFileDir = PathManager.instance().getResFileDir();
                     File file = new File(resFileDir,item);
+
+                    Log.e(TAG, "onItemClick: 文件目录：" + file.getPath());
+
                     if(file != null && file.exists()){
                         filePath = file.getPath();
                     }
@@ -153,9 +126,10 @@ public class PlayListActivity extends BaseActivity {
                     return;
                 }
 
-                mCurrPlay = filePath;
-                easyIJKPlayer.setVideoUri(filePath);
-                easyIJKPlayer.setVisibility(View.VISIBLE);
+                List<String> list = new ArrayList<>();
+                list.add(filePath);
+                easyPlayer.setVideos(list);
+                easyPlayer.setVisibility(View.VISIBLE);
                 tvPreview.setVisibility(View.GONE);
             }
         });
@@ -261,32 +235,37 @@ public class PlayListActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        easyIJKPlayer.resume();
+        easyPlayer.resume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        easyIJKPlayer.pause();
+        easyPlayer.pause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        easyPlayer.stop();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        easyIJKPlayer.release();
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_RIGHT://快进
-                easyIJKPlayer.fastForword();
+                easyPlayer.fastForward();
                 break;
             case KeyEvent.KEYCODE_DPAD_LEFT://快退
-                easyIJKPlayer.fastBackward();
+                easyPlayer.fastBackward();
                 break;
             case KeyEvent.KEYCODE_STEM_1:
-                easyIJKPlayer.toggle();
+                easyPlayer.toggle();
                 break;
             case KeyEvent.KEYCODE_BACK:
                 this.finish();
@@ -294,10 +273,15 @@ public class PlayListActivity extends BaseActivity {
             case KeyEvent.KEYCODE_1:
             case KeyEvent.KEYCODE_NUMPAD_1:
             case KeyEvent.KEYCODE_MENU:
-                ImageButton fullScreenButton = easyIJKPlayer.getFullScreenButton();
-                if(fullScreenButton != null){
-                    fullScreenButton.performClick();
-                }
+                easyPlayer.setCycle(false);
+                String currentPath = easyPlayer.getCurrentPath();
+                long currentPosition = easyPlayer.getCurrentPosition();
+                Bundle bundle = new Bundle();
+                bundle.putString("videoPath",currentPath);
+                bundle.putLong("position",currentPosition);
+                Intent i = new Intent(PlayListActivity.this,FullscreenActivity.class);
+                i.putExtras(bundle);
+                startActivity(i);
                 break;
         }
 

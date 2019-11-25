@@ -74,7 +74,8 @@ public class ConsoleDialog {
     }
 
     public static void addDownloadLog(String log) {
-        downloadTextBuffer.append("\n").append(log);
+//        downloadTextBuffer.append("\n").append(log);
+        logTextBuffer.append("\n").append(log);
     }
 
     public static void addProgramLog(String log) {

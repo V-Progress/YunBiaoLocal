@@ -11,6 +11,7 @@ import com.yunbiao.cccm.net2.db.ItemBlock;
 import com.yunbiao.cccm.net2.db.TimeSlot;
 import com.yunbiao.cccm.net2.utils.DateUtil;
 
+import java.io.File;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -57,7 +58,7 @@ public class ProgramLoader {
 
         @Override
         public void onStart(String date) {
-            ConsoleDialog.addProgramLog("开始加载节目：" + date);
+            ConsoleDialog.addProgramLog("开始加载节目：" + date + " -------------------------- ");
         }
 
         @Override
@@ -94,6 +95,10 @@ public class ProgramLoader {
         public void onFinished() {
             ConsoleDialog.addProgramLog("当前节目加载完毕");
         }
+    }
+
+    public void loadProgram(){
+        loadProgram(new AutoLogProgramListener());
     }
 
     public void loadProgram(final LoadProgramListener listener) {
@@ -229,15 +234,22 @@ public class ProgramLoader {
     private List<String> start(TimeSlot timeSlot) {
         List<String> list = new ArrayList<>();
         for (ItemBlock itemBlock : timeSlot.getItemBlocks()) {
-            DocumentFile file = PathManager.instance().getResDocFileDir().findFile(itemBlock.getName());
-            if(file == null || !file.exists()){
-                Log.e(TAG, "start: 文件不存在：" + itemBlock.getName());
+
+            if(SystemVersion.isLowVer()){
+                File resFileDir = PathManager.instance().getResFileDir();
+                File file = new File(resFileDir,itemBlock.getName());
+                if(file != null && file.exists()){
+                    Log.e(TAG, "start: 文件存在：" + itemBlock.getName());
+                    list.add(file.getPath());
+                }
             } else {
-                Log.e(TAG, "start: 文件存在：" + itemBlock.getName());
-                list.add(file.getUri().toString());
+                DocumentFile file = PathManager.instance().getResDocFileDir().findFile(itemBlock.getName());
+                if(file != null && file.exists()){
+                    Log.e(TAG, "start: 文件存在：" + itemBlock.getName());
+                    list.add(file.getUri().toString());
+                }
             }
         }
-
         return list;
     }
 

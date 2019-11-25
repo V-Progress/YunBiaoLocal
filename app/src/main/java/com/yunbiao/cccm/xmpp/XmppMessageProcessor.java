@@ -89,10 +89,8 @@ public class XmppMessageProcessor {
                 break;
             case CONTENT_TYPE://布局更新
             case SET_CLEAR_LAYOUT://清除布局
-                if(mode == 0){
-                    MainController.getInstance().stopPlay();//停止播放，清空播放列表
-                    DataLoader.getInstance().get();//重新初始化布局内容
-                }
+                MainController.getInstance().stopPlay();//停止播放，清空播放列表
+                DataLoader.getInstance().get();//重新初始化布局内容
                 break;
             case RUNSET_TYPE://设备自动开关机
                 ThreadUtil.getInstance().runInCommonThread(new Runnable() {
@@ -184,17 +182,13 @@ public class XmppMessageProcessor {
                 SubtitleLoader.instance().setTXT(insertTextModel);
                 break;
             case INSERT_CONTENT_TYPE://插播视频
-                if(mode == 0){
-                    InsertLoader.getInstance().loadInsert();
-                }
+                InsertLoader.getInstance().loadInsert();
                 break;
             case UPDATE_LAYER://更新层级标签
                 JSONObject layerModel = JSON.parseObject(content);
                 Integer layerType = layerModel.getInteger("layerType");
                 CacheManager.SP.putLayerType(layerType);
-                if(CacheManager.SP.getMode() == 0){//网络模式下才更新标签
-                    MainController.getInstance().updateLayerType(layerType);
-                }
+                MainController.getInstance().updateLayerType(layerType);
                 break;
         }
     }

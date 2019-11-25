@@ -106,12 +106,23 @@ public class Downloader {
                 for (TimeSlot timeSlot : timeSlots) {
                     List<ItemBlock> itemBlocks = timeSlot.getItemBlocks();
                     for (ItemBlock itemBlock : itemBlocks) {
-                        DocumentFile file = PathManager.instance().getResDocFileDir().findFile(itemBlock.getName());
-                        if (file != null && file.exists()) {
-                            readyList.add(itemBlock);
-                            continue;
+                        if(SystemVersion.isLowVer()){
+                            File resFileDir = PathManager.instance().getResFileDir();
+                            File file = new File(resFileDir, itemBlock.getName());
+                            if (file != null && file.exists()) {
+                                Log.e(TAG, "checkToday: " + itemBlock.getName() + " ----- " + (file != null && file.exists() ? "已存在" : "不存在"));
+                                readyList.add(itemBlock);
+                                continue;
+                            }
+                        } else {
+                            DocumentFile file = PathManager.instance().getResDocFileDir().findFile(itemBlock.getName());
+                            if (file != null && file.exists()) {
+                                Log.e(TAG, "checkToday: " + itemBlock.getName() + " ----- " + (file != null && file.exists() ? "已存在" : "不存在"));
+                                readyList.add(itemBlock);
+                                continue;
+                            }
                         }
-                        Log.e(TAG, "checkToday: " + itemBlock.getName() + " ----- " + (file != null && file.exists() ? "已存在" : "不存在"));
+
                         downloadQueue.offer(itemBlock);
                     }
                 }

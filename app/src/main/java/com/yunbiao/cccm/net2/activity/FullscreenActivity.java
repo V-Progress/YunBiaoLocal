@@ -4,8 +4,11 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.KeyEvent;
 
-import com.janev.easyijkplayer.EasyIJKPlayer;
+import com.janev.easyijkplayer.EasyPlayer;
 import com.yunbiao.cccm.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -13,57 +16,54 @@ import com.yunbiao.cccm.R;
  */
 public class FullscreenActivity extends Activity {
 
-    private EasyIJKPlayer ijkPlayer;
+    private EasyPlayer easyPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_fullscreen);
-        ijkPlayer = findViewById(R.id.ijk_player);
-        ijkPlayer.initSoLib();
-        ijkPlayer.enableController(false,true);
-        ijkPlayer.enableListLoop(false);
-        ijkPlayer.setFullScreenEnable(false);
+        easyPlayer = findViewById(R.id.easy_player);
+        easyPlayer.enableController(false);
 
         Bundle extras = getIntent().getExtras();
         String videoPath = extras.getString("videoPath");
         long position = extras.getLong("position");
-        ijkPlayer.setVideoUri(videoPath);
-        if(position > 0){
-            ijkPlayer.seekTo(position);
-        }
+
+        List<String> list = new ArrayList<>();
+        list.add(videoPath);
+        easyPlayer.setVideos(list);
+//        easyPlayer.seekTo(position);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        ijkPlayer.resume();
+        easyPlayer.resume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        ijkPlayer.pause();
+        easyPlayer.pause();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        ijkPlayer.release();
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_RIGHT://快进
-                ijkPlayer.fastForword();
+                easyPlayer.fastForward();
                 break;
             case KeyEvent.KEYCODE_DPAD_LEFT://快退
-                ijkPlayer.fastBackward();
+                easyPlayer.fastBackward();
                 break;
             case KeyEvent.KEYCODE_DPAD_CENTER:
-                ijkPlayer.toggle();
+                easyPlayer.toggle();
                 break;
             case KeyEvent.KEYCODE_BACK:
                 this.finish();

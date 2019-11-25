@@ -3,6 +3,7 @@ package com.yunbiao.cccm.net2;
 import android.content.Context;
 import android.net.Uri;
 import android.support.v4.provider.DocumentFile;
+import android.util.Log;
 
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.net2.cache.CacheManager;
@@ -53,16 +54,19 @@ public class PathManager {
 
     private void init_l(String path){
         File sdDir = new File(path);
+        Log.e(TAG, "init_l: SD根目录：" + sdDir.getPath());
 
         File appDir = new File(sdDir,APP_ROOT_DIR);
         if(appDir == null || !appDir.exists()){
             appDir.mkdirs();
         }
+        Log.e(TAG, "init_l: SD根目录：" + appDir.getPath());
 
         resFileDir = new File(appDir,APP_RESOURCE_DIR);
         if(resFileDir == null || !resFileDir.exists()){
             resFileDir.mkdirs();
         }
+        Log.e(TAG, "init_l: SD根目录：" + resFileDir.getPath());
     }
 
     private static final String TAG = "PathManager";

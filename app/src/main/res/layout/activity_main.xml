@@ -5,44 +5,15 @@
     android:layout_height="match_parent"
     tools:context=".net2.activity.MainActivity">
 
-    <com.janev.easyijkplayer.EasyIJKPlayer
-        android:id="@+id/ijk_player"
+    <com.janev.easyijkplayer.EasyPlayer
+        android:id="@+id/ep"
         android:layout_centerInParent="true"
         android:layout_gravity="center"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <include layout="@layout/layout_console_main" />
-
-    <include layout="@layout/layout_progress_video" />
-
-    <TextView
-        android:visibility="gone"
-        android:id="@+id/tv_play_state"
-        android:textColor="@android:color/white"
-        android:textSize="55dp"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
     <master.flame.danmaku.ui.widget.DanmakuView
         android:id="@+id/danmaku_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
-    <!--<LinearLayout-->
-        <!--android:id="@+id/ll_check_progress"-->
-        <!--android:gravity="center"-->
-        <!--android:orientation="vertical"-->
-        <!--android:layout_gravity="center"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content">-->
-        <!--<ProgressBar-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content" />-->
-        <!--<TextView-->
-            <!--android:text="正在检测SD卡"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content" />-->
-    <!--</LinearLayout>-->
 </FrameLayout>

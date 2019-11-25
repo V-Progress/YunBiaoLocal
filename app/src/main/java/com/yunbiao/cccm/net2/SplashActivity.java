@@ -19,13 +19,12 @@ public class SplashActivity extends BaseActivity{
 
     @Override
     protected void initView() {
-
+        //初始化系统版本
+        SystemVersion.initVersionTag();
     }
 
     @Override
     protected void initData() {
-        //初始化系统版本
-        SystemVersion.initVersionTag();
 
         //开启软件守护服务
         startService(new Intent(this, MyProtectService.class));
@@ -41,16 +40,19 @@ public class SplashActivity extends BaseActivity{
         @Override
         public void start() {
             Log.e(TAG, "start: 开始检测SD卡");
+            ConsoleDialog.addTextLog("正在检测SD卡");
         }
 
         @Override
         public void waitSD() {
             Log.e(TAG, "waitSD: 等待SD卡");
+            ConsoleDialog.addTextLog("等待插入SD卡");
         }
 
         @Override
         public void ready(String path) {
-            Log.e(TAG, "ready: 准备就绪");
+            Log.e(TAG, "ready: 准备就绪：" + path);
+            ConsoleDialog.addTextLog("SD卡已准备就绪：" + path);
 
             PathManager.instance().initPath();
 
@@ -61,6 +63,7 @@ public class SplashActivity extends BaseActivity{
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         super.onActivityResult(requestCode, resultCode, data);
         SDChecker.instance().onActivityResult(requestCode, resultCode, data);
     }

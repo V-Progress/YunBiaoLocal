@@ -1,7 +1,7 @@
-<com.janev.easyijkplayer.EasyIJKPlayer
+<com.janev.easyijkplayer.EasyPlayer
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/ijk_player"
+    android:id="@+id/easy_player"
     android:layout_centerInParent="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"/>

@@ -3,20 +3,19 @@ package com.yunbiao.cccm.net2.activity;
 import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import com.janev.easyijkplayer.EasyIJKPlayer;
-import com.janev.easyijkplayer.IjkPlayListener;
+import com.janev.easyijkplayer.EasyPlayer;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
+import com.yunbiao.cccm.net2.InsertPlayer;
+import com.yunbiao.cccm.net2.SystemVersion;
 import com.yunbiao.cccm.net2.activity.base.BaseActivity;
 import com.yunbiao.cccm.net2.event.DataLoadFinishedEvent;
 import com.yunbiao.cccm.net2.listener.MainRefreshListener;
-import com.yunbiao.cccm.net2.cache.CacheManager;
 import com.yunbiao.cccm.net2.ConsoleDialog;
 import com.yunbiao.cccm.net2.DataLoader;
 import com.yunbiao.cccm.net2.Downloader;
@@ -39,22 +38,16 @@ import butterknife.BindView;
 import master.flame.danmaku.ui.widget.DanmakuView;
 
 // TODO: 2019/3/8
-public class MainActivity extends BaseActivity implements MainRefreshListener, IjkPlayListener {
-    /*视频播放----*/
-    @BindView(R.id.ijk_player)
-    EasyIJKPlayer ijkPlayer;
+public class MainActivity extends BaseActivity implements MainRefreshListener{
+    public static boolean isDataLoadFinished;
+    @BindView(R.id.ep)
+    EasyPlayer easyPlayer;
 
     @BindView(R.id.fl_root)
     FrameLayout flRoot;
 
     @BindView(R.id.danmaku_view)
     DanmakuView danmakuView;
-
-    public boolean isInsertPlaying = false;//是否有insert正在播放
-    public boolean isConfigPlaying = false;//是否有config正在播放
-    private boolean priority_flag = false;//true:config优先，false:insert优先
-
-    public static boolean isDataLoadFinished = false;
 
     protected int setLayout() {
         return R.layout.activity_main;
@@ -69,29 +62,34 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, I
         APP.setMainActivity(this);
         MainController.getInstance().registerActivity(this);
 
-        ijkPlayer.initSoLib();//初始化SO库
-        ijkPlayer.setNavigation(this);//调整底部栏
-        ijkPlayer.enableController(false, false);//设置控制条
-        ijkPlayer.enableErrorAlert(false);//关闭错误提示
-        ijkPlayer.enableErrorDeleteUri(true);//开启错误删除
-        ijkPlayer.setIjkPlayListener(this);//设置播放结束回调
         consoleDialog = new ConsoleDialog(this);
+
+        SubtitleLoader.instance().init(MainActivity.this);
+
+        InsertPlayer.getInstance().init(this);
+        InsertPlayer.getInstance().setInsertCallback(new InsertPlayer.InsertCallback() {
+            @Override
+            public void onShow() {
+                easyPlayer.pause();
+            }
+
+            @Override
+            public void onHide() {
+                easyPlayer.resume();
+            }
+        });
     }
 
     protected void initData() {
         startActivity(new Intent(this, MenuActivity.class));
 
         PowerOffTool.getInstance().initPowerData();
-        priority_flag = CacheManager.SP.getLaterType() == 2;
+
         startGetRes();
     }
 
     //开始请求获取资源
     public void startGetRes() {
-        SubtitleLoader.instance().init(MainActivity.this);
-        //初始化广告插播，如果有未播完的广告则自动播放
-        InsertLoader.getInstance().loadInsert();
-
         DataLoader.getInstance().get(new DataLoader.AutoLogListener() {
             @Override
             public void loadSingleComplete(final String date, boolean isToday) {
@@ -101,14 +99,18 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, I
                     return;
                 }
 
+                //初始化广告插播，如果有未播完的广告则自动播放
+                InsertLoader.getInstance().loadInsert();
+
                 //下载今天的资源
                 Downloader.getInstance().check(date,new Downloader.AutoLogDownListener() {
                     @Override
                     public void onReadyProgram(String date, boolean hasProgram) {
+                        Log.e(TAG, "onReadyProgram: " + date);
                         //有资源则加载，没有则等待下载
                         if (hasProgram) {
                             Log.e(TAG, "onReadyProgram: 111111111111");
-                            ProgramLoader.getInstance().loadProgram(new ProgramLoader.AutoLogProgramListener());
+                            ProgramLoader.getInstance().loadProgram();
                         }
                     }
 
@@ -117,7 +119,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, I
                         super.onComplete(itemBlock);
                         //下载完一个后就重新加载
                         Log.e(TAG, "onReadyProgram: 111111111111");
-                        ProgramLoader.getInstance().loadProgram(new ProgramLoader.AutoLogProgramListener());
+                        ProgramLoader.getInstance().loadProgram();
                     }
 
                     @Override
@@ -141,6 +143,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, I
                 super.loadFinished();
                 isDataLoadFinished = true;
                 EventBus.getDefault().post(new DataLoadFinishedEvent());
+
             }
         });
 
@@ -150,115 +153,28 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, I
 
     //-------播放器控制----------------------------------------------------------------
 
-    /*
-     * 初始化播放数据
-     */
-//    @Override
-    public void initPlayData() {
-        Log.e(TAG, "initPlayData: 22222222222222");
-        ProgramLoader.getInstance().loadProgram(new ProgramLoader.AutoLogProgramListener());
-    }
-
-    /*
-    * 初始化插播数据
-    * */
-    public void initInsertData() {
-        InsertLoader.getInstance().loadInsert();
-    }
-
-    @Override
-    public void clearPlayData() {
-        isInsertPlaying = false;
-        isConfigPlaying = false;
-        priority_flag = false;
-        stop();
-    }
-
     //更新优先级标签
     @Override
     public void updateLayerType(boolean isConfigOnTop) {
-        if (priority_flag == isConfigOnTop) {
-            return;
+        SystemVersion.setIsInsertFirst(!isConfigOnTop);
+
+        if(isDataLoadFinished){
+            ProgramLoader.getInstance().loadProgram();
+            InsertLoader.getInstance().loadInsert();
         }
-        priority_flag = isConfigOnTop;
-        startGetRes();
     }
 
     //常规资源播放
     @Override
     public void startConfigPlay(List<String> videoList) {
-        Log.e("123", "startConfigPlay: -----开始config");
-        //如果标签为insert优先，且insert正在播放，则不开始播放普通资源
-        if (!priority_flag && isInsertPlaying) {
-            Log.e("123", "startConfigPlay: -----开始config失败");
-            return;
-        }
-        Log.e("123", "startConfigPlay: -----开始config成功");
-        isConfigPlaying = true;
-        play(videoList);
+        easyPlayer.setCycle(true);
+        easyPlayer.setVideos(videoList);
     }
 
     //常规资源停止
     @Override
     public void stopConfigPlay() {
-        isConfigPlaying = false;
-        Log.e("123", "stopConfigPlay: -----停止config");
-        //如果标签为insert优先，且insert正在播放，则不停止播放器
-        if (!priority_flag && isInsertPlaying) {
-            Log.e("123", "stopConfigPlay: -----停止失败");
-            return;
-        }
-        Log.e("123", "stopConfigPlay: -----停止成功");
-        stop();
-        //普通资源结束后解析插播资源
-        initInsertData();
-    }
-
-    //插播资源播放
-    @Override
-    public void startInsert(final boolean cycle, final List<String> videoList, final boolean isAdd) {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (priority_flag && isConfigPlaying) {
-                    return;
-                }
-                isInsertPlaying = true;
-                ijkPlayer.enableListLoop(cycle);
-                play(videoList);
-            }
-        }, 2000);
-    }
-
-    //插播资源停止
-    @Override
-    public void stopInsert() {
-        isInsertPlaying = false;
-        if (priority_flag && isConfigPlaying) {
-            return;
-        }
-        stop();
-        //插播资源结束后解析普通资源
-        initPlayData();
-    }
-
-    @Override
-    public void onListCompletion() {
-        if (isInsertPlaying) {
-            isInsertPlaying = false;
-            initPlayData();
-        }
-    }
-
-    //-----常规方法----------------------------------------------------------------
-    private void stop() {
-        if (ijkPlayer != null) {
-            ijkPlayer.stop();
-        }
-    }
-
-    private void play(final List<String> videoList) {
-        ijkPlayer.setVideoList(videoList);
+        easyPlayer.stop();
     }
 
     /*===========页面控件相关=====================================================================
@@ -279,13 +195,13 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, I
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_RIGHT://快进
-                ijkPlayer.fastForword();
+                easyPlayer.fastForward();
                 break;
             case KeyEvent.KEYCODE_DPAD_LEFT://快退
-                ijkPlayer.fastBackward();
+                easyPlayer.fastBackward();
                 break;
             case KeyEvent.KEYCODE_DPAD_CENTER://按下中键
-                ijkPlayer.toggle();
+                easyPlayer.toggle();
                 break;
             case KeyEvent.KEYCODE_DPAD_UP:
                 Log.e(TAG, "onKeyDown: 打开控制台");
@@ -296,10 +212,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, I
                 consoleDialog.dismiss();
                 break;
             case KeyEvent.KEYCODE_MENU:
-                MenuActivity menuActivity = APP.getMenuActivity();
-                if (menuActivity == null || !menuActivity.isForeground()) {
-                    startActivity(new Intent(this, MenuActivity.class));
-                }
+                startActivity(new Intent(this, MenuActivity.class));
                 return false;
             case KeyEvent.KEYCODE_BACK:
                 long secondTime = System.currentTimeMillis();
@@ -326,7 +239,8 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, I
     protected void onResume() {
         super.onResume();
         SubtitleLoader.instance().onResume();
-        ijkPlayer.resume();
+        InsertPlayer.getInstance().resume();
+        easyPlayer.resume();
         DanmakuManager.getInstance().resume();
     }
 
@@ -334,15 +248,17 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, I
     protected void onStop() {
         super.onStop();
         SubtitleLoader.instance().onStop();
+        InsertPlayer.getInstance().pause();
+        if (consoleDialog != null) {
+            consoleDialog.dismiss();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (consoleDialog != null) {
-            consoleDialog.dismiss();
-        }
-        ijkPlayer.pause();
+
+        easyPlayer.pause();
         DanmakuManager.getInstance().pause();
     }
 
@@ -356,18 +272,15 @@ public class MainActivity extends BaseActivity implements MainRefreshListener, I
     }
 
     public boolean isVideoPlaying() {
-        return ijkPlayer != null && ijkPlayer.isPlaying();
+        return easyPlayer.isPlaying();
     }
 
     public Long getVideoCurrTime() {
-        if (ijkPlayer != null && ijkPlayer.isPlaying()) {
-            return ijkPlayer.getCurrentPosition();
-        }
-        return 0L;
+        return easyPlayer.getCurrentPosition();
     }
 
     public String getCurrPlayVideo() {
-        return ijkPlayer.getCurrentVideo();
+        return easyPlayer.getCurrentPath();
     }
 
     /**

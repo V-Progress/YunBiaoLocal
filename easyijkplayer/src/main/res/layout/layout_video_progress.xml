@@ -43,7 +43,6 @@
             android:layout_height="wrap_content" />
 
         <ImageButton
-            android:visibility="gone"
             android:layout_marginRight="10dp"
             android:background="@android:color/transparent"
             android:id="@+id/ib_play_fullscreen"

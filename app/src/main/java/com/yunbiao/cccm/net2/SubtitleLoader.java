@@ -169,7 +169,7 @@ public class SubtitleLoader {
 
     private WindowManager.LayoutParams getParams(){
         WindowManager.LayoutParams params = new WindowManager.LayoutParams();
-        params.type = WindowManager.LayoutParams.TYPE_TOAST;// 类型
+        params.type = WindowManager.LayoutParams.TYPE_PHONE;// 类型
         params.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
         // 不设置这个弹出框的透明遮罩显示为黑色
         params.format = PixelFormat.TRANSLUCENT;

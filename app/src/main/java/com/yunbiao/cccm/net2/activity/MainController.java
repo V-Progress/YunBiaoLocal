@@ -3,7 +3,6 @@ package com.yunbiao.cccm.net2.activity;
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.net2.event.HasDataEvent;
 import com.yunbiao.cccm.net2.listener.MainRefreshListener;
-import com.yunbiao.cccm.net2.utils.ConsoleUtil;
 import com.yunbiao.cccm.net2.utils.ThreadUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -37,22 +36,6 @@ public class MainController{
             return;
         }
         mRefListener = refListener;
-    }
-
-    /***
-     * 设置是否有Insert资源的标签
-     * @param hasInsert
-     */
-    public void setHasInsert(boolean hasInsert) {
-        EventBus.getDefault().post(new HasDataEvent(hasInsert,1));
-    }
-
-    /***
-     * 设置是否有config资源的标签
-     * @param hasConfig
-     */
-    public void setHasConfig(boolean hasConfig) {
-        EventBus.getDefault().post(new HasDataEvent(hasConfig,0));
     }
 
     /***
@@ -91,44 +74,6 @@ public class MainController{
             @Override
             public void run() {
                 mRefListener.stopConfigPlay();
-            }
-        });
-    }
-
-    /***
-     * 完全清除播放内容
-     */
-    public void clearPlayData(){
-        ThreadUtil.getInstance().runInUIThread(new Runnable() {
-            @Override
-            public void run() {
-                mRefListener.clearPlayData();
-            }
-        });
-    }
-
-    /***
-     * 开始播放插播
-     * @param isCycle
-     * @param videoString
-     */
-    public void startInsert(final boolean isCycle, final List<String> videoString, final boolean isAdd) {
-        ThreadUtil.getInstance().runInUIThread(new Runnable() {
-            @Override
-            public void run() {
-                mRefListener.startInsert(isCycle, videoString,isAdd);
-            }
-        });
-    }
-
-    /***
-     * 停止插播
-     */
-    public void stopInsert() {
-        ThreadUtil.getInstance().runInUIThread(new Runnable() {
-            @Override
-            public void run() {
-                mRefListener.stopInsert();
             }
         });
     }
