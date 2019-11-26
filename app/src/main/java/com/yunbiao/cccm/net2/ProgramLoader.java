@@ -88,7 +88,7 @@ public class ProgramLoader {
 
         @Override
         public void onProgramStop(String end) {
-            ConsoleDialog.addProgramLog("开始播放：" + end);
+            ConsoleDialog.addProgramLog("停止播放：" + end);
         }
 
         @Override

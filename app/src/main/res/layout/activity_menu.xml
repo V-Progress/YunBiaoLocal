@@ -313,8 +313,7 @@
                     android:layout_height="match_parent"
                     android:background="@drawable/menu_pur_btn" />
 
-                <LinearLayout
-                    android:paddingLeft="50dp"
+                <FrameLayout
                     android:gravity="center_vertical"
                     android:orientation="vertical"
                     android:layout_alignParentTop="true"
@@ -322,10 +321,12 @@
                     android:layout_height="0dp"
                     app:layout_heightPercent="33%"
                     app:layout_widthPercent="100%">
-                    <LinearLayout
+
+                    <RelativeLayout
+                        android:padding="10dp"
                         android:orientation="horizontal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -335,34 +336,15 @@
                             android:textSize="26dp" />
 
                         <TextView
+                            android:layout_centerVertical="true"
                             android:id="@+id/tv_menu_info_equipmentMum"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="#ffffff"
-                            android:textSize="38dp" />
-                    </LinearLayout>
+                            android:textSize="36dp" />
+                    </RelativeLayout>
 
-                    <LinearLayout
-                        android:layout_marginTop="10dp"
-                        android:orientation="horizontal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/menu_access_num"
-                            android:textColor="#fff"
-                            android:textSize="26dp" />
-
-                        <TextView
-                            android:id="@+id/tv_menu_info_accessCode"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="#ffffff"
-                            android:textSize="38dp" />
-                    </LinearLayout>
-                </LinearLayout>
+                </FrameLayout>
 
                 <FrameLayout
                     android:gravity="center"
@@ -378,26 +360,27 @@
                         android:background="@color/white"
                         android:layout_width="match_parent"
                         android:layout_height="1dp"/>
-                    <LinearLayout
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:layout_alignParentBottom="true"
+
+                    <RelativeLayout
+                        android:padding="10dp"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
-                        <ImageView
-                            android:id="@+id/iv_wifi_icon"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-                        <TextView
-                            android:layout_marginTop="10dp"
-                            android:maxLines="1"
-                            android:id="@+id/tv_wifi_name"
-                            android:textColor="@color/white"
-                            android:textSize="16dp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
 
-                    </LinearLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/menu_access_num"
+                            android:textColor="#fff"
+                            android:textSize="26dp" />
+
+                        <TextView
+                            android:layout_centerVertical="true"
+                            android:id="@+id/tv_menu_info_accessCode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#ffffff"
+                            android:textSize="36dp" />
+                    </RelativeLayout>
                 </FrameLayout>
 
                 <FrameLayout
@@ -420,10 +403,33 @@
                         android:layout_height="match_parent"
                         android:layout_alignParentBottom="true"
                         android:gravity="center"
-                        android:orientation="vertical">
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_alignParentBottom="true"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content">
+                            <ImageView
+                                android:id="@+id/iv_wifi_icon"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                            <TextView
+                                android:layout_marginTop="10dp"
+                                android:maxLines="1"
+                                android:id="@+id/tv_wifi_name"
+                                android:textColor="@color/white"
+                                android:textSize="16dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+
+                        </LinearLayout>
 
                         <FrameLayout
-                            android:layout_width="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content">
 
                             <ImageView

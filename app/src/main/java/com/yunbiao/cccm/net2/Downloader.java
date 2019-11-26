@@ -218,8 +218,11 @@ public class Downloader {
             result = download_h(poll, downloadListener);
         }
 
-        if (result < 0 && isInfiniteRetry) {
-            itemBlockQueue.offer(poll);
+        if (result <= 0) {
+            Log.e(TAG, "downloadQueue: 返回值：" + result);
+            if(isInfiniteRetry){
+                itemBlockQueue.offer(poll);
+            }
             if (downloadListener != null) {
                 downloadListener.onFailed(poll);
             }
@@ -413,26 +416,12 @@ public class Downloader {
         }
     }
 
-    private Response getFile(ItemBlock itemBlock, DocumentFile cacheFile) {
-        Request request = new Request.Builder()
-                .addHeader("RANGE", "bytes=" + cacheFile.length() + "-")  //断点续传要用到的，指示下载的区间
-                .url(itemBlock.getUrl())
-                .tag(itemBlock.getUrl())
-                .build();
-        try {
-            Response response = new OkHttpClient().newCall(request).execute();
-            return response;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     private Response getFile(String url, int time, String key, String value) {
         Response response = null;
         for (int i = 0; i < time; i++) {
-            response = NetUtil.getInstance().getSync(url, key, value);
-            if (response != null) {
+            Response resp = NetUtil.getInstance().getSync(url, key, value);
+            if (resp != null) {
+                response = resp;
                 break;
             }
         }
@@ -443,12 +432,13 @@ public class Downloader {
         long contentLength = -1;
         for (int i = 0; i < time; i++) {
             Response response = NetUtil.getInstance().getSync(url);
-            long length = response.body().contentLength();
-            if (length <= 0) {
+            if(response == null){
                 continue;
             }
-            contentLength = length;
-            if (contentLength != -1) {
+            long length = response.body().contentLength();
+            Log.e(TAG, "getFileLength: 获取的文件长度：" + length);
+            if(length > 0){
+                contentLength = length;
                 break;
             }
         }

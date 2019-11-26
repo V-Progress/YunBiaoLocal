@@ -6,6 +6,7 @@
     tools:context=".net2.activity.MainActivity">
 
     <com.janev.easyijkplayer.EasyPlayer
+        android:visibility="gone"
         android:id="@+id/ep"
         android:layout_centerInParent="true"
         android:layout_gravity="center"

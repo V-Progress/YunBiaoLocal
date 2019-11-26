@@ -54,6 +54,7 @@ public class SplashActivity extends BaseActivity{
             Log.e(TAG, "ready: 准备就绪：" + path);
             ConsoleDialog.addTextLog("SD卡已准备就绪：" + path);
 
+            PathManager.savePath(path);
             PathManager.instance().initPath();
 
             startActivity(new Intent(SplashActivity.this, MainActivity.class));

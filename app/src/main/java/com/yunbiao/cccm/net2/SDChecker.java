@@ -1,15 +1,22 @@
 package com.yunbiao.cccm.net2;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
+import android.os.StatFs;
+import android.os.storage.StorageManager;
 import android.support.v4.provider.DocumentFile;
 import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -35,10 +42,9 @@ public class SDChecker {
         @Override
         public void run() {
             File sdPath = new File("/mnt/extsd");
-            boolean sdCanUsed = sdPath != null && sdPath.exists() && sdPath.canRead() && sdPath.canWrite();
+            boolean sdCanUsed = sdPath != null & sdPath.exists() & sdPath.canRead() & sdPath.canWrite();
 
             if (sdCanUsed) {
-                PathManager.savePath(sdPath.getPath());
                 ready(sdPath.getPath());
                 scheduledExecutorService.shutdownNow();
                 return;
@@ -47,6 +53,38 @@ public class SDChecker {
             waitSD();
         }
     };
+    public long getSDFreeSize(){
+        //取得SD卡文件路径
+        File path = Environment.getExternalStorageDirectory();
+        StatFs sf = new StatFs(path.getPath());
+        //获取单个数据块的大小(Byte)
+        long blockSize = sf.getBlockSize();
+        //空闲的数据块的数量
+        long freeBlocks = sf.getAvailableBlocks();
+        //返回SD卡空闲大小
+        //return freeBlocks * blockSize;  //单位Byte
+        //return (freeBlocks * blockSize)/1024;   //单位KB
+        return (freeBlocks * blockSize)/1024 /1024; //单位MB
+    }
+    public long getSDAllSize(){
+        //取得SD卡文件路径
+        File path = Environment.getExternalStorageDirectory();
+        StatFs sf = new StatFs(path.getPath());
+        //获取单个数据块的大小(Byte)
+        long blockSize = sf.getBlockSize();
+        //获取所有数据块数
+        long allBlocks = sf.getBlockCount();
+        //返回SD卡大小
+        //return allBlocks * blockSize; //单位Byte
+        //return (allBlocks * blockSize)/1024; //单位KB
+        return (allBlocks * blockSize)/1024/1024; //单位MB
+    }
+    private boolean ExistSDCard() {
+        if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED))
+            return true;
+        else
+            return false;
+    }
 
     private final int RESULT_OK = -1;
     private final int REQUEST_CODE = 111;
@@ -64,7 +102,7 @@ public class SDChecker {
             if (!TextUtils.isEmpty(path)) {
                 Uri sdUri = Uri.parse(path);
                 DocumentFile sdRootDir = DocumentFile.fromTreeUri(activity, sdUri);
-                boolean canUsed = sdRootDir!= null && sdRootDir.exists() && sdRootDir.canRead() && sdRootDir.canWrite();
+                boolean canUsed = sdRootDir!= null & sdRootDir.exists() & sdRootDir.canRead() & sdRootDir.canWrite();
                 d("路径是否可用：" + canUsed);
                 if (canUsed) {
                     ready(sdRootDir.getUri().getPath());
@@ -103,8 +141,7 @@ public class SDChecker {
                         boolean canUsed = sdRootDir.exists() && sdRootDir.canRead() && sdRootDir.canWrite();
                         Log.e(TAG, "onActivityResult: 获取了DocumentFile可用吗：" + canUsed);
                         if (canUsed) {
-                            PathManager.savePath(sdRootDir.getUri().toString());
-                            ready(sdRootDir.getUri().getPath());
+                            ready(sdRootDir.getUri().toString());
                             scheduledExecutorService.shutdownNow();
                             return;
                         }

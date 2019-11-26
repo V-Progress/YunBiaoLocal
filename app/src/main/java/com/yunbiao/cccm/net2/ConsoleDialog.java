@@ -10,6 +10,7 @@ import android.view.WindowManager;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
 
 /**
@@ -36,29 +37,32 @@ public class ConsoleDialog {
     private final TextView tvName;
 
     private String bytesToXX(long bytes) {
-        bytes = bytes / 1024;//转换成字节
         String result = "";
-        if (bytes >= 1024) {
-            bytes = bytes / 1024;//转换成kb
-            result = bytes + "kb";
-            if (bytes > 1000) {
-                bytes /= 1024;//转换成mb
-                result = bytes + "Mb";
-            }
+        if(bytes >= 1024){
+            bytes = bytes / 1024;
+            result = bytes + "Mb";
         } else {
-            result = bytes + "b";
+            result = bytes + "Kb";
         }
         return result;
     }
 
+    private long mLastUpBytes = 0;
+    private long mLastDownBytes = 0;
     private void updateText() {
         //更新日志
         tvConsole.setText(logTextBuffer.toString() + "\n" + downloadTextBuffer.toString() + "\n" + programTextBuffer.toString());
         svConsole.fullScroll(View.FOCUS_DOWN);
 
-        //更新网速
-        String up = bytesToXX(TrafficStats.getTotalTxBytes());
-        String down = bytesToXX(TrafficStats.getTotalRxBytes());
+        long upBytes = getUpBytes();
+        long downBytes = getDownBytes();
+        long realUpKb = upBytes - mLastUpBytes;
+        long realDownKb = downBytes - mLastDownBytes;
+        mLastUpBytes = upBytes;
+        mLastDownBytes = downBytes;
+
+        String up = bytesToXX(realUpKb);
+        String down = bytesToXX(realDownKb);
         tvSpeed.setText("上行：" + up + "\n下行：" + down);
 
         //更新下载信息
@@ -67,6 +71,24 @@ public class ConsoleDialog {
         tvIndex.setText("当前：" + index);
         tvProgress.setText("进度：" + progress);
         tvName.setText("名称：" + name);
+    }
+
+    private long getUpBytes() {
+        long uidTxBytes = TrafficStats.getUidTxBytes(APP.getContext().getApplicationInfo().uid);
+        if(uidTxBytes == TrafficStats.UNSUPPORTED){
+            return 0;
+        } else {
+            return uidTxBytes / 1024;
+        }
+    }
+
+    private long getDownBytes() {
+        long uidRxBytes = TrafficStats.getUidRxBytes(APP.getContext().getApplicationInfo().uid);
+        if(uidRxBytes == TrafficStats.UNSUPPORTED){
+            return 0;
+        } else {
+            return uidRxBytes / 1024;
+        }
     }
 
     public static void addTextLog(String log) {

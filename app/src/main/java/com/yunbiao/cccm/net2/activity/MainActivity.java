@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -102,6 +103,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener{
                 //初始化广告插播，如果有未播完的广告则自动播放
                 InsertLoader.getInstance().loadInsert();
 
+                Log.e(TAG, "loadSingleComplete: 11111111111111" );
                 //下载今天的资源
                 Downloader.getInstance().check(date,new Downloader.AutoLogDownListener() {
                     @Override
@@ -139,6 +141,14 @@ public class MainActivity extends BaseActivity implements MainRefreshListener{
             }
 
             @Override
+            public void failed(String date, boolean isToday, String type) {
+                //检查失败的时候加载一次本地节目
+                if(isToday){
+                    ProgramLoader.getInstance().loadProgram();
+                }
+            }
+
+            @Override
             public void loadFinished() {
                 super.loadFinished();
                 isDataLoadFinished = true;
@@ -167,6 +177,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener{
     //常规资源播放
     @Override
     public void startConfigPlay(List<String> videoList) {
+        easyPlayer.setVisibility(View.VISIBLE);
         easyPlayer.setCycle(true);
         easyPlayer.setVideos(videoList);
     }
@@ -175,6 +186,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener{
     @Override
     public void stopConfigPlay() {
         easyPlayer.stop();
+        easyPlayer.setVisibility(View.GONE);
     }
 
     /*===========页面控件相关=====================================================================

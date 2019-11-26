@@ -46,7 +46,7 @@ public class DataLoader {
 
     private static DataLoader request = new DataLoader();
     private final ExecutorService executorService;
-    private final String today_str;
+    private String today_str;
 
     public static DataLoader getInstance() {
         return request;
@@ -73,34 +73,27 @@ public class DataLoader {
         startLoading();
     }
 
-    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-    private void deleteUnUsed() {
-        List<Daily> dailies = DaoManager.get().queryAll(Daily.class);
-        for (Daily daily : dailies) {
-            try {
-                Date date = dateFormat.parse(daily.getDate());
-                if (date.equals(todayDate) || date.after(todayDate)) {
-                    for (TimeSlot timeSlot : daily.getTimeSlots()) {
-                        for (ItemBlock itemBlock : timeSlot.getItemBlocks()) {
-                            DaoManager.get().deleteItemBlock(itemBlock);
-                        }
-                        DaoManager.get().deleteTimeSlot(timeSlot);
-                    }
-                    DaoManager.get().deleteDaily(daily);
-                }
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+    //删除当前请求日期之前留存的数据
+    private void deleteOldDataByDate(String date){
+        d("删除已存的数据：" + date);
+        Daily daily = DaoManager.get().queryByDate(date);
+        if(daily == null){
+            d("无可删除");
+            return;
         }
+        for (TimeSlot timeSlot : daily.getTimeSlots()) {
+            for (ItemBlock itemBlock : timeSlot.getItemBlocks()) {
+                DaoManager.get().delete(itemBlock);
+            }
+            DaoManager.get().delete(timeSlot);
+        }
+        DaoManager.get().delete(daily);
     }
 
     private void startLoading() {
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                deleteUnUsed();
-
                 startLoad();
 
                 for (String date : reqDatelist) {
@@ -109,6 +102,7 @@ public class DataLoader {
                     Map<String, String> map = new HashMap<>();
                     map.put("deviceNo", HeartBeatClient.getDeviceNo());
                     map.put("playDate", date);
+                    //开始请求，5次重试
                     Response response = request(ResourceConst.REMOTE_RES.GET_RESOURCE, map, 5);
 
                     if (response == null) {
@@ -177,6 +171,9 @@ public class DataLoader {
                         continue;
                     }
 
+                    //请求并解析成功后删除已存的当日数据
+                    deleteOldDataByDate(date);
+
                     List<VideoDataModel.Play> playlist = videoDataModel.getPlaylist();
                     VideoDataModel.Config config = videoDataModel.getConfig();
                     String playurl = config.getPlayurl();
@@ -206,7 +203,6 @@ public class DataLoader {
 
                     for (VideoDataModel.Play.Rule currRule : currRules) {
                         TimeSlot timeSlot = new TimeSlot();
-//                        timeSlot.setUrl(ftpServiceUrl + playurl);
                         timeSlot.setParentDate(daily.getDate());
                         timeSlot.setDateTime(daily.getDate() + currRule.getDate());
 
@@ -214,7 +210,6 @@ public class DataLoader {
                         timeSlot.setStart(split1[0]);
                         timeSlot.setEnd(split1[1]);
 
-//                        timeSlot.setPlayList(currRule.getRes());
                         DaoManager.get().addOrUpdate(timeSlot);
 
                         String[] split = currRule.getRes().split(",");
@@ -231,6 +226,7 @@ public class DataLoader {
                             itemBlock.setUnique(timeSlot.getDateTime() + resName);
                             DaoManager.get().addOrUpdate(itemBlock);
                         }
+
                     }
                     loadSingleComplete(date);
                 }
@@ -358,7 +354,15 @@ public class DataLoader {
     }
 
     public static class AutoLogListener implements DataListener {
-        public void failed(String date, String type) {
+
+        private final String today_str;
+
+        public AutoLogListener() {
+            today_str = DateUtil.getToday_str();
+        }
+
+        public void failed(String date, boolean isToday , String type) {
+
         }
 
         @Override
@@ -378,7 +382,6 @@ public class DataLoader {
          */
         public void loadDataFailToRetry(String date, int time) {
             ConsoleDialog.addTextLog("加载数据失败"/*： （日期：" + date*/ + "，重试第 " + time + "次");
-            failed(date, "loadDataFailToRetry");
         }
 
         /***
@@ -387,7 +390,7 @@ public class DataLoader {
          */
         public void loadDataFiled(String date) {
             ConsoleDialog.addTextLog("加载数据失败"/*： （日期：" + date*/);
-            failed(date, "loadDataFiled");
+            failed(date,TextUtils.equals(today_str, date),"loadDataFiled");
         }
 
         /**
@@ -397,7 +400,7 @@ public class DataLoader {
          */
         public void resolveDataFailed(String date) {
             ConsoleDialog.addTextLog("解析数据失败"/*： （日期：" + date*/);
-            failed(date, "resolveDataFailed");
+            failed(date,TextUtils.equals(today_str, date),"resolveDataFailed");
         }
 
         /***
@@ -407,7 +410,6 @@ public class DataLoader {
          */
         public void loadConfigFailToRetry(String date, int time) {
             ConsoleDialog.addTextLog("加载Config失败"/*： （日期：" + date */ + "，重试第 " + time + "次");
-            failed(date, "loadConfigFailToRetry");
         }
 
         /***
@@ -416,7 +418,7 @@ public class DataLoader {
          */
         public void loadConfigFailed(String date) {
             ConsoleDialog.addTextLog("加载Config失败"/*： （日期：" + date*/);
-            failed(date, "loadConfigFailed");
+            failed(date,TextUtils.equals(today_str, date),"loadConfigFailed");
         }
 
         /***
@@ -425,7 +427,7 @@ public class DataLoader {
          */
         public void resolveConfigFailed(String date) {
             ConsoleDialog.addTextLog("解析Config失败"/*： （日期：" + date*/);
-            failed(date, "resolveConfigFailed");
+            failed(date,TextUtils.equals(today_str, date),"resolveConfigFailed");
         }
 
         /***
@@ -434,7 +436,7 @@ public class DataLoader {
          */
         public void resolveConfigFailed(String date, Exception e) {
             ConsoleDialog.addTextLog("解析Config失败"/*： （日期：" + date + "，"*/ + (e == null ? "NULL" : e.getMessage()));
-            failed(date, "resolveConfigFailed");
+            failed(date,TextUtils.equals(today_str, date),"resolveConfigFailed");
         }
 
         @Override

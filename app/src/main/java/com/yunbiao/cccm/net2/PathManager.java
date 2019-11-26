@@ -54,19 +54,19 @@ public class PathManager {
 
     private void init_l(String path){
         File sdDir = new File(path);
-        Log.e(TAG, "init_l: SD根目录：" + sdDir.getPath());
+        Log.e(TAG, "init_l: SD根目录：" + sdDir.getPath() + "，是否可读写：" + sdDir.canRead() + "，" + sdDir.canWrite());
 
         File appDir = new File(sdDir,APP_ROOT_DIR);
         if(appDir == null || !appDir.exists()){
             appDir.mkdirs();
         }
-        Log.e(TAG, "init_l: SD根目录：" + appDir.getPath());
+        Log.e(TAG, "init_l: SD根目录：" + appDir.getPath() + "，是否可读写：" + appDir.canRead() + "，" + appDir.canWrite());
 
         resFileDir = new File(appDir,APP_RESOURCE_DIR);
         if(resFileDir == null || !resFileDir.exists()){
             resFileDir.mkdirs();
         }
-        Log.e(TAG, "init_l: SD根目录：" + resFileDir.getPath());
+        Log.e(TAG, "init_l: SD根目录：" + resFileDir.getPath() + "，是否可读写：" + resFileDir.canRead() + "，" + resFileDir.canWrite());
     }
 
     private static final String TAG = "PathManager";

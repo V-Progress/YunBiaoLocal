@@ -4,9 +4,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Log;
 
 public class USBBroadcastReceiver extends BroadcastReceiver{
     private String tempAction;
+    private static final String TAG = "USBBroadcastReceiver";
 
     public USBBroadcastReceiver() {
     }
