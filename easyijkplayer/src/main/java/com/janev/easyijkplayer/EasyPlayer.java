@@ -3,8 +3,6 @@ package com.janev.easyijkplayer;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.AttrRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,6 +14,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -32,12 +31,11 @@ public class EasyPlayer extends FrameLayout {
     private boolean canUsedHardCodec;
     private Context mContext;
     private List<String> playList = new ArrayList<>();
-    private TextureVideoView videoView;
-    private IjkVideoView ijkVideoView;
+    private VideoView hdVideoView;
+    private IjkVideoView sdVideoView;
     private Queue<String> playQueue = new LinkedList<>();
     private boolean isCycle = true;
     private String currentPath = "";
-//    private PlayController playController;
 
     public EasyPlayer(@NonNull Context context) {
         this(context, null);
@@ -59,11 +57,11 @@ public class EasyPlayer extends FrameLayout {
 
         View view = null;
         if (canUsedHardCodec) {
-            videoView = createVideoView(mContext);
-            view = videoView;
+            hdVideoView = createVideoView(mContext);
+            view = hdVideoView;
         } else {
-            ijkVideoView = createIjkVideoView(mContext);
-            view = ijkVideoView;
+            sdVideoView = createIjkVideo(mContext);
+            view = sdVideoView;
         }
 
         LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
@@ -71,15 +69,16 @@ public class EasyPlayer extends FrameLayout {
 
     }
 
-    private TextureVideoView createVideoView(Context context) {
-        TextureVideoView videoView = new TextureVideoView(context);
-        HCPlayerListener listener = new HCPlayerListener(videoView);
+    private VideoView createVideoView(Context context) {
+//        TextureVideoView hdVideoView = new TextureVideoView(context);
+        VideoView videoView = new VideoView(context);
+        new HCPlayerListener(videoView);
         return videoView;
     }
 
-    private IjkVideoView createIjkVideoView(Context context) {
+    private IjkVideoView createIjkVideo(Context context) {
         IjkVideoView ijkVideoView = new IjkVideoView(context);
-        IjkPlayerListener listener = new IjkPlayerListener(ijkVideoView);
+        new IjkPlayerListen(ijkVideoView);
         return ijkVideoView;
     }
 
@@ -98,9 +97,9 @@ public class EasyPlayer extends FrameLayout {
 
     public void seekTo(long position) {
         if(canUsedHardCodec){
-            videoView.seekTo((int) position);
+            hdVideoView.seekTo((int) position);
         } else {
-            ijkVideoView.seekTo((int) position);
+            sdVideoView.seekTo((int) position);
         }
     }
 
@@ -131,84 +130,84 @@ public class EasyPlayer extends FrameLayout {
             playQueue.offer(playPath);
         }
         if (canUsedHardCodec) {
-            videoView.setVideoPath(playPath);
-            videoView.start();
+            hdVideoView.setVideoPath(playPath);
+            hdVideoView.start();
         } else {
-            ijkVideoView.setVideoPath(playPath);
-            ijkVideoView.start();
+            sdVideoView.setVideoPath(playPath);
+            sdVideoView.start();
         }
     }
 
     public void stop() {
         currentPath = "";
         if (canUsedHardCodec) {
-            videoView.stopPlayback();
+            hdVideoView.stopPlayback();
         } else {
-            ijkVideoView.stopPlayback();
+            sdVideoView.stopPlayback();
         }
     }
 
     public void pause() {
         if (canUsedHardCodec) {
-            videoView.pause();
+            hdVideoView.pause();
         } else {
-            ijkVideoView.pause();
+            sdVideoView.pause();
         }
     }
 
     public void resume() {
         if (canUsedHardCodec) {
-            videoView.resume();
-            videoView.start();
+            hdVideoView.resume();
+            hdVideoView.start();
         } else {
-            ijkVideoView.resume();
-            ijkVideoView.start();
+            sdVideoView.resume();
+            sdVideoView.start();
         }
     }
 
     private int seekToOffset = 3;//快进偏移量，单位：秒
     public void fastForward(){
         if(canUsedHardCodec){
-            int forward = videoView.getCurrentPosition() + (seekToOffset * 1000);
-            videoView.seekTo(forward);
+            int forward = hdVideoView.getCurrentPosition() + (seekToOffset * 1000);
+            hdVideoView.seekTo(forward);
         } else {
-            long forward = ijkVideoView.getCurrentPosition() + (seekToOffset * 1000);
-            ijkVideoView.seekTo((int) forward);
+            long forward = sdVideoView.getCurrentPosition() + (seekToOffset * 1000);
+            sdVideoView.seekTo((int) forward);
         }
     }
 
     public void fastBackward(){
         if(canUsedHardCodec){
-            int backward = videoView.getCurrentPosition() - (seekToOffset * 1000);
-            videoView.seekTo(backward);
+            int backward = hdVideoView.getCurrentPosition() - (seekToOffset * 1000);
+            hdVideoView.seekTo(backward);
         } else {
-            long backward = ijkVideoView.getCurrentPosition() - (seekToOffset * 1000);
-            ijkVideoView.seekTo((int) backward);
+            long backward = sdVideoView.getCurrentPosition() - (seekToOffset * 1000);
+            sdVideoView.seekTo((int) backward);
         }
     }
 
     public void toggle(){
         if(canUsedHardCodec){
-            if (videoView.isPlaying()) {
-                videoView.pause();
+            if (hdVideoView.isPlaying()) {
+                hdVideoView.pause();
             } else {
-                videoView.start();
+                hdVideoView.start();
             }
         } else {
-            if (ijkVideoView.isPlaying()) {
-                ijkVideoView.pause();
+            if (sdVideoView.isPlaying()) {
+                sdVideoView.pause();
             } else {
-                ijkVideoView.start();
+                sdVideoView.start();
             }
         }
     }
 
     public boolean isPlaying(){
-        return canUsedHardCodec ? videoView.isPlaying() : ijkVideoView.isPlaying();
+        return canUsedHardCodec ? hdVideoView.isPlaying() : sdVideoView.isPlaying();
     }
 
     public long getCurrentPosition(){
-        return canUsedHardCodec ? videoView.getCurrentPosition() : ijkVideoView.getCurrentPosition();
+        return canUsedHardCodec ? hdVideoView.getCurrentPosition() : sdVideoView.getCurrentPosition();
     }
 
     public String getCurrentPath(){
@@ -218,8 +217,8 @@ public class EasyPlayer extends FrameLayout {
     class HCPlayerListener implements MediaPlayer.OnCompletionListener,
             MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener {
 
-        public HCPlayerListener(TextureVideoView videoView) {
-//            videoView.setOnPreparedListener(this);
+        public HCPlayerListener(VideoView videoView) {
+//            hdVideoView.setOnPreparedListener(this);
             videoView.setOnCompletionListener(this);
             videoView.setOnErrorListener(this);
             videoView.setOnInfoListener(this);
@@ -243,11 +242,11 @@ public class EasyPlayer extends FrameLayout {
 
     }
 
-    class IjkPlayerListener implements IMediaPlayer.OnErrorListener,
+    class IjkPlayerListen implements IMediaPlayer.OnErrorListener,
             IMediaPlayer.OnInfoListener, IMediaPlayer.OnCompletionListener {
 
-        public IjkPlayerListener(IjkVideoView ijkVideoView) {
-//            ijkVideoView.setOnPreparedListener(this);
+        public IjkPlayerListen(IjkVideoView ijkVideoView) {
+//            sdVideoView.setOnPreparedListener(this);
             ijkVideoView.setOnCompletionListener(this);
             ijkVideoView.setOnErrorListener(this);
             ijkVideoView.setOnInfoListener(this);
@@ -303,9 +302,9 @@ public class EasyPlayer extends FrameLayout {
     private Runnable updateRunnable = new Runnable() {
         @Override
         public void run() {
-            if(videoView != null){
+            if(hdVideoView != null){
                 updateForVideoView();
-            } else if(ijkVideoView != null){
+            } else if(sdVideoView != null){
                 updateForIjk();
             }
             startUpdate(500);
@@ -313,14 +312,14 @@ public class EasyPlayer extends FrameLayout {
     };
 
     private void updateForVideoView(){
-        if(videoView.isPlaying()){
+        if(hdVideoView.isPlaying()){
             ibPlayState.setImageResource(R.mipmap.pause);
         } else {
             ibPlayState.setImageResource(R.mipmap.play);
         }
 
-        int currentPosition = videoView.getCurrentPosition();
-        int duration = videoView.getDuration();
+        int currentPosition = hdVideoView.getCurrentPosition();
+        int duration = hdVideoView.getDuration();
 
         timeline.setMax(duration);
         timeline.setProgress(currentPosition);
@@ -328,14 +327,14 @@ public class EasyPlayer extends FrameLayout {
     }
 
     private void updateForIjk(){
-        if(ijkVideoView.isPlaying()){
+        if(sdVideoView.isPlaying()){
             ibPlayState.setImageResource(R.mipmap.pause);
         } else {
             ibPlayState.setImageResource(R.mipmap.play);
         }
 
-        int currentPosition = (int) ijkVideoView.getCurrentPosition();
-        int duration = (int) ijkVideoView.getDuration();
+        int currentPosition = (int) sdVideoView.getCurrentPosition();
+        int duration = (int) sdVideoView.getDuration();
 
         timeline.setMax(duration);
         timeline.setProgress(currentPosition);

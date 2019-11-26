@@ -2,6 +2,7 @@ package com.janev.easyijkplayer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -10,8 +11,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.view.Surface;
+import android.view.TextureView;
 import android.view.WindowManager;
 
 import java.io.IOException;
@@ -20,7 +21,7 @@ import java.util.Map;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
-public class IjkVideoView extends SurfaceView/* implements MediaController.MediaPlayerControl*/ {
+public class IjkTextureVideoView extends TextureView/* implements MediaController.MediaPlayerControl*/ {
     private static final String TAG = "VideoView";
 
     // all possible internal states
@@ -63,22 +64,23 @@ public class IjkVideoView extends SurfaceView/* implements MediaController.Media
     private boolean mCanSeekForward;
 
     private Context mContext;
+    private SurfaceTexture mSurfaceTexture;
 
-    public IjkVideoView(Context context) {
+    public IjkTextureVideoView(Context context) {
         this(context, null);
     }
 
-    public IjkVideoView(Context context, AttributeSet attrs) {
+    public IjkTextureVideoView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public IjkVideoView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public IjkTextureVideoView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public IjkVideoView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public IjkTextureVideoView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         setNavigation((Activity) context);
         initSoLib();
@@ -166,7 +168,7 @@ public class IjkVideoView extends SurfaceView/* implements MediaController.Media
 
     @Override
     public CharSequence getAccessibilityClassName() {
-        return IjkVideoView.class.getName();
+        return IjkTextureVideoView.class.getName();
     }
 
     /**
@@ -219,7 +221,7 @@ public class IjkVideoView extends SurfaceView/* implements MediaController.Media
     }
 
     private void openVideo() {
-        if (mUri == null || null == mSurfaceHolder) {
+        if (mUri == null || null == mSurfaceTexture) {
             // not ready for playback just yet, will try again later
             return;
         }
@@ -256,7 +258,7 @@ public class IjkVideoView extends SurfaceView/* implements MediaController.Media
             mCurrentBufferPercentage = 0;
             mMediaPlayer.setDataSource(mContext, mUri, mHeaders);
             // modified
-            mMediaPlayer.setDisplay(mSurfaceHolder);
+            mMediaPlayer.setSurface(new Surface(mSurfaceTexture));
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setScreenOnWhilePlaying(true);
             mMediaPlayer.prepareAsync();
@@ -283,7 +285,7 @@ public class IjkVideoView extends SurfaceView/* implements MediaController.Media
 
     //设置是否开启硬解码
     private void setEnableMediaCodec(IjkMediaPlayer ijkMediaPlayer) {
-        int value = Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT ? 1 : 0;
+        int value = android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT ? 1 : 0;
         Log.e(TAG, "setEnableMediaCodec: 是否开启硬解码：" + value);
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec", value);//开启硬解码
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-auto-rotate", value);
@@ -640,10 +642,8 @@ public class IjkVideoView extends SurfaceView/* implements MediaController.Media
         mTargetState = STATE_IDLE;
         mContext = getContext();
 
-        getHolder().addCallback(callback);
+        setSurfaceTextureListener(mSurfaceTextureListener);
     }
-
-    private SurfaceHolder mSurfaceHolder = null;
 
     private void setFixedSize(int width, int height) {
         mSurfaceWidth = this.mVideoWidth;
@@ -655,15 +655,18 @@ public class IjkVideoView extends SurfaceView/* implements MediaController.Media
         }
     }
 
-    private SurfaceHolder.Callback callback = new SurfaceHolder.Callback() {
+    /**
+     * surface回调，需要在这里获取mSurfaceTexture
+     */
+    private SurfaceTextureListener mSurfaceTextureListener = new SurfaceTextureListener() {
         @Override
-        public void surfaceCreated(SurfaceHolder surfaceHolder) {
-            mSurfaceHolder = surfaceHolder;
+        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+            mSurfaceTexture = surface;
             openVideo();
         }
 
         @Override
-        public void surfaceChanged(SurfaceHolder surfaceHolder, int format, int width, int height) {
+        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
             mSurfaceWidth = width;
             mSurfaceHeight = height;
             boolean isValidState = (mTargetState == STATE_PLAYING);
@@ -677,12 +680,18 @@ public class IjkVideoView extends SurfaceView/* implements MediaController.Media
         }
 
         @Override
-        public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-            mSurfaceHolder = null;
+        public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+            mSurfaceTexture = null;
             /*if (mMediaController != null) {
                 mMediaController.hide();
             }*/
             release(true);
+            return false;
+        }
+
+        @Override
+        public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+
         }
     };
 }

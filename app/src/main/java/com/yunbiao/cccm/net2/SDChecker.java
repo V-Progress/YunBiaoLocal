@@ -105,7 +105,7 @@ public class SDChecker {
                 boolean canUsed = sdRootDir!= null & sdRootDir.exists() & sdRootDir.canRead() & sdRootDir.canWrite();
                 d("路径是否可用：" + canUsed);
                 if (canUsed) {
-                    ready(sdRootDir.getUri().getPath());
+                    ready(sdRootDir.getUri().toString());
                     scheduledExecutorService.shutdownNow();
                     return;
                 }
