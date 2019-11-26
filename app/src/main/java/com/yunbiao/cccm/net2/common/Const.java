@@ -33,4 +33,11 @@ public class Const {
         int TYPE = MESSAGE_DISTRIBUTE;
     }
 
+    public static final int TYPE_SD_CARD = 0;
+    public static final int TYPE_USB_DISK = 1;
+
+    /***
+     * 当前设备的存储类型
+     */
+    public static final int STORAGE_TYPE = TYPE_USB_DISK;
 }

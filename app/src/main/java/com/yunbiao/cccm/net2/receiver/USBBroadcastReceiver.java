@@ -22,6 +22,9 @@ public class USBBroadcastReceiver extends BroadcastReceiver{
         }
         tempAction = action;
 
+        Log.e(TAG, "onReceive: " + action);
+        Log.e(TAG, "onReceive: " + path);
+
         //判断插拔动作
         if (TextUtils.equals(Intent.ACTION_MEDIA_MOUNTED, action)) {//U盘插入
 

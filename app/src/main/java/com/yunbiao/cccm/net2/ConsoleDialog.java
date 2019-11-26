@@ -165,7 +165,7 @@ public class ConsoleDialog {
         @Override
         public void run() {
             updateText();
-            tvConsole.postDelayed(runnable, 1500);
+            tvConsole.postDelayed(runnable, 1000);
         }
     };
 

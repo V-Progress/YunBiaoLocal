@@ -409,7 +409,6 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:orientation="vertical"
-                            android:layout_alignParentBottom="true"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content">
                             <ImageView
@@ -427,43 +426,52 @@
 
                         </LinearLayout>
 
-                        <FrameLayout
+                        <LinearLayout
                             android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content">
 
-                            <ImageView
+                            <FrameLayout
+                                android:layout_weight="1"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+
+                                <ImageView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:src="@mipmap/cloud" />
+
+                                <FrameLayout
+                                    android:layout_gravity="center"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content">
+                                    <ProgressBar
+                                        android:visibility="gone"
+                                        android:layout_gravity="center"
+                                        android:id="@+id/pb_conn_state"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content" />
+                                    <ImageView
+                                        android:layout_gravity="center"
+                                        android:id="@+id/iv_conn_state"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"/>
+                                </FrameLayout>
+                            </FrameLayout>
+
+                            <TextView
+                                android:id="@+id/tv_server_connect_state"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
-                                android:src="@mipmap/cloud" />
+                                android:layout_marginTop="15dp"
+                                android:textColor="@color/white"
+                                android:textSize="16dp" />
+                        </LinearLayout>
 
-                            <FrameLayout
-                                android:layout_gravity="center"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content">
-                                <ProgressBar
-                                    android:visibility="gone"
-                                    android:layout_gravity="center"
-                                    android:id="@+id/pb_conn_state"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content" />
-                                <ImageView
-                                    android:layout_gravity="center"
-                                    android:id="@+id/iv_conn_state"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"/>
-                            </FrameLayout>
-                        </FrameLayout>
-
-                        <TextView
-                            android:id="@+id/tv_server_connect_state"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_marginTop="15dp"
-                            android:textColor="@color/white"
-                            android:textSize="16dp" />
                     </LinearLayout>
                 </FrameLayout>
             </android.support.percent.PercentRelativeLayout>
