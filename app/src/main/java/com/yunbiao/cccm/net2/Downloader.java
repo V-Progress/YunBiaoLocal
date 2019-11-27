@@ -53,10 +53,13 @@ public class Downloader {
         return downloader;
     }
 
+    /***
+     * 自动检查之后的数据
+     */
     public void autoCheck() {
         Date todayDate = DateUtil.getTodayDate();
         for (int i = 0; i < REQ_DAY_NUM; i++) {
-            if(i <= 1){
+            if (i <= 1) {
                 continue;
             }
             String date = DateUtil.yyyy_MM_dd_Format(new Date(todayDate.getTime() + (dayMilliSec * i)));
@@ -65,14 +68,17 @@ public class Downloader {
         checkDateList();
     }
 
-    public void checkDateList(){
-        if(dateQueue == null || dateQueue.size() <= 0){
+    /***
+     * 自动检查dateList
+     */
+    public void checkDateList() {
+        if (dateQueue == null || dateQueue.size() <= 0) {
             return;
         }
         String poll = dateQueue.poll();
         Daily daily = DaoManager.get().queryByDate(poll);
         //如果没有当日的数据则跳过
-        if(daily == null){
+        if (daily == null) {
             checkDateList();
             return;
         }
@@ -83,13 +89,23 @@ public class Downloader {
                 super.onFinished(date);
                 checkDateList();
             }
-        },true);
+        }, true);
     }
 
+    /***
+     * 检查明天的
+     * @param multiDownloadListener
+     */
     public void checkTomm(final MultiDownloadListener multiDownloadListener) {
         check(DateUtil.getTomm_str(), multiDownloadListener, true);
     }
 
+    /***
+     * 检查某个日期的
+     * @param date
+     * @param multiDownloadListener
+     * @param isInfinite
+     */
     public void check(final String date, final MultiDownloadListener multiDownloadListener, final boolean isInfinite) {
         scheduledExecutorService.schedule(new Runnable() {
             @Override
@@ -106,7 +122,7 @@ public class Downloader {
                 for (TimeSlot timeSlot : timeSlots) {
                     List<ItemBlock> itemBlocks = timeSlot.getItemBlocks();
                     for (ItemBlock itemBlock : itemBlocks) {
-                        if(SystemVersion.isLowVer()){
+                        if (SystemVersion.isLowVer()) {
                             File resFileDir = PathManager.instance().getResFileDir();
                             File file = new File(resFileDir, itemBlock.getName());
                             if (file != null && file.exists()) {
@@ -140,64 +156,6 @@ public class Downloader {
         }, 3, TimeUnit.SECONDS);
     }
 
-    public interface MultiDownloadListener {
-
-        void onReadyProgram(String date, boolean hasProgram);
-
-        void onStart(String date, int total);
-
-        void onSingleStart(ItemBlock itemBlock, int index);
-
-        void onProgress(int progress);
-
-        void onFailed(ItemBlock itemBlock,Exception e);
-
-        void onComplete(ItemBlock itemBlock);
-
-        void onFinished(String date);
-    }
-
-    public abstract static class AutoLogDownListener implements MultiDownloadListener {
-        @Override
-        public void onReadyProgram(String date, boolean hasProgram) {
-
-        }
-
-        @Override
-        public void onStart(String date, int total) {
-            ConsoleDialog.addDownloadLog("开始下载 " + date);
-            ConsoleDialog.updateDownloadDate(date);
-            ConsoleDialog.updateTotal(total);
-        }
-
-        @Override
-        public void onSingleStart(ItemBlock itemBlock, int index) {
-            ConsoleDialog.updateIndex(index);
-            ConsoleDialog.updateName(itemBlock.getName());
-        }
-
-        @Override
-        public void onProgress(int progress) {
-            ConsoleDialog.updateProgress(progress);
-        }
-
-        @Override
-        public void onFailed(ItemBlock itemBlock,Exception e) {
-            ConsoleDialog.updateProgress(0);
-            ConsoleDialog.addDownloadLog("下载失败：" + itemBlock.getName() + "，" + e.getMessage());
-        }
-
-        @Override
-        public void onComplete(ItemBlock itemBlock) {
-            ConsoleDialog.addDownloadLog("下载成功：" + itemBlock.getName());
-        }
-
-        @Override
-        public void onFinished(String date) {
-            ConsoleDialog.addDownloadLog("全部下载结束 " + date);
-        }
-    }
-
     private void downloadQueue(String date, Queue<ItemBlock> itemBlockQueue, boolean isInfiniteRetry, MultiDownloadListener downloadListener) {
         if (itemBlockQueue.size() <= 0) {
             if (downloadListener != null) {
@@ -211,35 +169,20 @@ public class Downloader {
             downloadListener.onSingleStart(poll, itemBlockQueue.size());
         }
 
-        int result = 0;
+        DownloadResponse response;
         if (SystemVersion.isLowVer()) {
-            result = download_l(poll, downloadListener);
+            response = download_l(poll, downloadListener);
         } else {
-            result = download_h(poll, downloadListener);
+            response = download_h(poll, downloadListener);
         }
 
-        if (result <= 0) {
-            Log.e(TAG, "downloadQueue: 返回值：" + result);
-            if(isInfiniteRetry){
+        if (response.resultCode <= 0) {
+            Log.e(TAG, "downloadQueue: 返回值：" + response.resultCode);
+            if (isInfiniteRetry) {
                 itemBlockQueue.offer(poll);
             }
             if (downloadListener != null) {
-                String exception = "";
-                switch (result) {
-                    case FLAG_GET_LENGTH_FAILED:
-                        exception = "获取文件尺寸失败";
-                        break;
-                    case FLAG_GET_FILE_FAILED:
-                        exception = "获取文件失败";
-                        break;
-                    case FLAG_DOWNLOAD_EXCEPTION_FILE_NOT_FOUND:
-                        exception = "文件未找到";
-                        break;
-                    case FLAG_DOWNLOAD_EXCEPTION_IO:
-                        exception = "IO异常";
-                        break;
-                }
-                downloadListener.onFailed(poll,new Exception(exception));
+                downloadListener.onFailed(poll, response.exception);
             }
         } else {
             if (downloadListener != null) {
@@ -256,15 +199,15 @@ public class Downloader {
     private final static int FLAG_DOWNLOAD_EXCEPTION_FILE_NOT_FOUND = -3;
     private final static int FLAG_DOWNLOAD_EXCEPTION_IO = -4;
 
-    public int download_l(ItemBlock itemBlock, MultiDownloadListener listener) {
-        return download_l(itemBlock.getUrl(),itemBlock.getName(),listener);
+    public DownloadResponse download_l(ItemBlock itemBlock, MultiDownloadListener listener) {
+        return download_l(itemBlock.getUrl(), itemBlock.getName(), listener);
     }
 
-    public int download_h(ItemBlock itemBlock, MultiDownloadListener listener) {
-        return download_h(itemBlock.getUrl(),itemBlock.getName(),listener);
+    public DownloadResponse download_h(ItemBlock itemBlock, MultiDownloadListener listener) {
+        return download_h(itemBlock.getUrl(), itemBlock.getName(), listener);
     }
 
-    public int download_l(String url,String name, MultiDownloadListener listener) {
+    public DownloadResponse download_l(String url, String name, MultiDownloadListener listener) {
         File resFileDir = PathManager.instance().getResFileDir();
 
         //取出缓存文件名
@@ -272,7 +215,7 @@ public class Downloader {
 
         File file = new File(resFileDir, name);
         if (file != null && file.exists()) {
-            return FLAG_COMPLETE;
+            return new DownloadResponse(FLAG_COMPLETE);
         }
 
         File cacheFile = new File(resFileDir, cacheName);
@@ -286,17 +229,17 @@ public class Downloader {
 
         long fileLength = getFileLength(url, 3);
         if (fileLength == -1) {
-            return FLAG_GET_LENGTH_FAILED;
+            return new DownloadResponse(FLAG_GET_LENGTH_FAILED, new Exception("Failed to get file length"));
         }
 
         if (cacheFile.length() == fileLength) {
             cacheFile.renameTo(file);
-            return FLAG_COMPLETE;
+            return new DownloadResponse(FLAG_COMPLETE);
         }
 
         Response response = getFile(url, 3, "RANGE", "bytes=" + cacheFile.length() + "-");
         if (response == null) {
-            return FLAG_GET_FILE_FAILED;
+            return new DownloadResponse(FLAG_GET_FILE_FAILED, new Exception("Failed to get file"));
         }
 
         BufferedInputStream bis = null;
@@ -326,13 +269,13 @@ public class Downloader {
                 }
             }
             cacheFile.renameTo(file);
-            return FLAG_COMPLETE;
+            return new DownloadResponse(FLAG_COMPLETE);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            return FLAG_DOWNLOAD_EXCEPTION_FILE_NOT_FOUND;
+            return new DownloadResponse(FLAG_DOWNLOAD_EXCEPTION_FILE_NOT_FOUND, e);
         } catch (IOException e) {
             e.printStackTrace();
-            return FLAG_DOWNLOAD_EXCEPTION_IO;
+            return new DownloadResponse(FLAG_DOWNLOAD_EXCEPTION_IO, e);
         } finally {
             response.body().close();
             close(bis);
@@ -340,7 +283,7 @@ public class Downloader {
         }
     }
 
-    public int download_h(String url,String name, MultiDownloadListener listener) {
+    public DownloadResponse download_h(String url, String name, MultiDownloadListener listener) {
         DocumentFile resDocFileDir = PathManager.instance().getResDocFileDir();
 
         //取出缓存文件名
@@ -350,7 +293,7 @@ public class Downloader {
         //如果存在就是已下载完毕
         if (file != null && file.exists()) {
             //下载失败
-            return FLAG_COMPLETE;
+            return new DownloadResponse(FLAG_COMPLETE);
         }
 
         //如果不存在就检查缓存文件
@@ -365,17 +308,17 @@ public class Downloader {
         long fileLength = getFileLength(url, 3);
         if (fileLength == -1) {
             //下载失败
-            return FLAG_GET_LENGTH_FAILED;
+            return new DownloadResponse(FLAG_GET_LENGTH_FAILED, new Exception("Failed to get file length"));
         }
 
         if (cacheFile.length() == fileLength) {
             cacheFile.renameTo(name);
-            return FLAG_COMPLETE;
+            return new DownloadResponse(FLAG_COMPLETE);
         }
 
         Response response = getFile(url, 3, "RANGE", "bytes=" + cacheFile.length() + "-");
         if (response == null) {
-            return FLAG_GET_FILE_FAILED;
+            return new DownloadResponse(FLAG_GET_FILE_FAILED, new Exception("Failed to get file"));
         }
 
         BufferedInputStream bis = null;
@@ -408,19 +351,50 @@ public class Downloader {
             }
             bos.flush();
             cacheFile.renameTo(name);
-            return FLAG_COMPLETE;
+            return new DownloadResponse(FLAG_COMPLETE);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            return FLAG_DOWNLOAD_EXCEPTION_FILE_NOT_FOUND;
+            return new DownloadResponse(FLAG_DOWNLOAD_EXCEPTION_FILE_NOT_FOUND, e);
         } catch (IOException e) {
             e.printStackTrace();
-            return FLAG_DOWNLOAD_EXCEPTION_IO;
+            return new DownloadResponse(FLAG_DOWNLOAD_EXCEPTION_IO, e);
         } finally {
             response.body().close();
             close(bis);
             close(bos);
         }
     }
+
+    class DownloadResponse {
+        public DownloadResponse(int resultCode) {
+            this.resultCode = resultCode;
+        }
+
+        public DownloadResponse(int resultCode, Exception exception) {
+            this.resultCode = resultCode;
+            this.exception = exception;
+        }
+
+        private int resultCode;
+        private Exception exception;
+
+        public int getResultCode() {
+            return resultCode;
+        }
+
+        public void setResultCode(int resultCode) {
+            this.resultCode = resultCode;
+        }
+
+        public Exception getException() {
+            return exception;
+        }
+
+        public void setException(Exception exception) {
+            this.exception = exception;
+        }
+    }
+
 
     private void close(Closeable closeable) {
         if (closeable != null) {
@@ -449,16 +423,75 @@ public class Downloader {
         long contentLength = -1;
         for (int i = 0; i < time; i++) {
             Response response = NetUtil.getInstance().getSync(url);
-            if(response == null){
+            if (response == null) {
                 continue;
             }
             long length = response.body().contentLength();
             Log.e(TAG, "getFileLength: 获取的文件长度：" + length);
-            if(length > 0){
+            if (length > 0) {
                 contentLength = length;
                 break;
             }
         }
         return contentLength;
     }
+
+    public interface MultiDownloadListener {
+
+        void onReadyProgram(String date, boolean hasProgram);
+
+        void onStart(String date, int total);
+
+        void onSingleStart(ItemBlock itemBlock, int index);
+
+        void onProgress(int progress);
+
+        void onFailed(ItemBlock itemBlock, Exception e);
+
+        void onComplete(ItemBlock itemBlock);
+
+        void onFinished(String date);
+    }
+
+    public abstract static class AutoLogDownListener implements MultiDownloadListener {
+        @Override
+        public void onReadyProgram(String date, boolean hasProgram) {
+
+        }
+
+        @Override
+        public void onStart(String date, int total) {
+            ConsoleDialog.addDownloadLog("开始下载 " + date);
+            ConsoleDialog.updateDownloadDate(date);
+            ConsoleDialog.updateTotal(total);
+        }
+
+        @Override
+        public void onSingleStart(ItemBlock itemBlock, int index) {
+            ConsoleDialog.updateIndex(index);
+            ConsoleDialog.updateName(itemBlock.getName());
+        }
+
+        @Override
+        public void onProgress(int progress) {
+            ConsoleDialog.updateProgress(progress);
+        }
+
+        @Override
+        public void onFailed(ItemBlock itemBlock, Exception e) {
+            ConsoleDialog.updateProgress(0);
+            ConsoleDialog.addDownloadLog("下载失败：" + itemBlock.getName() + "，" + e.getMessage());
+        }
+
+        @Override
+        public void onComplete(ItemBlock itemBlock) {
+            ConsoleDialog.addDownloadLog("下载成功：" + itemBlock.getName());
+        }
+
+        @Override
+        public void onFinished(String date) {
+            ConsoleDialog.addDownloadLog("全部下载结束 " + date);
+        }
+    }
+
 }

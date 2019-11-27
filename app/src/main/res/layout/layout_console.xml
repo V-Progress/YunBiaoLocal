@@ -23,7 +23,7 @@
                 android:layout_height="match_parent"
                 android:gravity="bottom"
                 android:textColor="@color/white"
-                android:textSize="26dp" />
+                android:textSize="23dp" />
         </ScrollView>
 
         <View
@@ -123,7 +123,7 @@
                 android:layout_height="match_parent"
                 android:gravity="bottom"
                 android:textColor="@color/white"
-                android:textSize="26dp" />
+                android:textSize="23dp" />
         </ScrollView>
     </LinearLayout>
 </FrameLayout>

@@ -346,7 +346,7 @@ public class InsertLoader {
         DownloadBean poll = urlQueue.poll();
         d("开始下载：" + poll.url);
 
-        int result = -1;
+        Downloader.DownloadResponse result;
         if (SystemVersion.isLowVer()) {
             File file = new File(PathManager.instance().getResFileDir(), poll.name);
             if (file != null && file.exists()) {
@@ -368,7 +368,7 @@ public class InsertLoader {
             result = Downloader.getInstance().download_h(poll.url, poll.name, listener);
         }
 
-        if (result != 1) {
+        if (result.getResultCode() != 1) {
             urlQueue.offer(poll);
             d("下载失败：" + result);
         }

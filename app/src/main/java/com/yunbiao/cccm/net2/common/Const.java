@@ -39,5 +39,5 @@ public class Const {
     /***
      * 当前设备的存储类型
      */
-    public static final int STORAGE_TYPE = TYPE_SD_CARD;
+    public static final int STORAGE_TYPE = TYPE_USB_DISK;
 }
