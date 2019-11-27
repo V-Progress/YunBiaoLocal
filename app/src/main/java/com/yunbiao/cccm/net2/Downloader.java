@@ -150,7 +150,7 @@ public class Downloader {
 
         void onProgress(int progress);
 
-        void onFailed(ItemBlock itemBlock);
+        void onFailed(ItemBlock itemBlock,Exception e);
 
         void onComplete(ItemBlock itemBlock);
 
@@ -182,9 +182,9 @@ public class Downloader {
         }
 
         @Override
-        public void onFailed(ItemBlock itemBlock) {
+        public void onFailed(ItemBlock itemBlock,Exception e) {
             ConsoleDialog.updateProgress(0);
-            ConsoleDialog.addDownloadLog("下载失败：" + itemBlock.getName());
+            ConsoleDialog.addDownloadLog("下载失败：" + itemBlock.getName() + "，" + e.getMessage());
         }
 
         @Override
@@ -224,7 +224,22 @@ public class Downloader {
                 itemBlockQueue.offer(poll);
             }
             if (downloadListener != null) {
-                downloadListener.onFailed(poll);
+                String exception = "";
+                switch (result) {
+                    case FLAG_GET_LENGTH_FAILED:
+                        exception = "获取文件尺寸失败";
+                        break;
+                    case FLAG_GET_FILE_FAILED:
+                        exception = "获取文件失败";
+                        break;
+                    case FLAG_DOWNLOAD_EXCEPTION_FILE_NOT_FOUND:
+                        exception = "文件未找到";
+                        break;
+                    case FLAG_DOWNLOAD_EXCEPTION_IO:
+                        exception = "IO异常";
+                        break;
+                }
+                downloadListener.onFailed(poll,new Exception(exception));
             }
         } else {
             if (downloadListener != null) {
@@ -235,10 +250,11 @@ public class Downloader {
         downloadQueue(date, itemBlockQueue, isInfiniteRetry, downloadListener);
     }
 
-    private int FLAG_COMPLETE = 1;
-    private int FLAG_GET_LENGTH_FAILED = -1;
-    private int FLAG_GET_FILE_FAILED = -2;
-    private int FLAG_DOWNLOAD_EXCEPTION = -3;
+    private final static int FLAG_COMPLETE = 1;
+    private final static int FLAG_GET_LENGTH_FAILED = -1;
+    private final static int FLAG_GET_FILE_FAILED = -2;
+    private final static int FLAG_DOWNLOAD_EXCEPTION_FILE_NOT_FOUND = -3;
+    private final static int FLAG_DOWNLOAD_EXCEPTION_IO = -4;
 
     public int download_l(ItemBlock itemBlock, MultiDownloadListener listener) {
         return download_l(itemBlock.getUrl(),itemBlock.getName(),listener);
@@ -313,10 +329,10 @@ public class Downloader {
             return FLAG_COMPLETE;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            return FLAG_DOWNLOAD_EXCEPTION;
+            return FLAG_DOWNLOAD_EXCEPTION_FILE_NOT_FOUND;
         } catch (IOException e) {
             e.printStackTrace();
-            return FLAG_DOWNLOAD_EXCEPTION;
+            return FLAG_DOWNLOAD_EXCEPTION_IO;
         } finally {
             response.body().close();
             close(bis);
@@ -395,10 +411,10 @@ public class Downloader {
             return FLAG_COMPLETE;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            return FLAG_DOWNLOAD_EXCEPTION;
+            return FLAG_DOWNLOAD_EXCEPTION_FILE_NOT_FOUND;
         } catch (IOException e) {
             e.printStackTrace();
-            return FLAG_DOWNLOAD_EXCEPTION;
+            return FLAG_DOWNLOAD_EXCEPTION_IO;
         } finally {
             response.body().close();
             close(bis);
@@ -417,7 +433,7 @@ public class Downloader {
     }
 
     private Response getFile(String url, int time, String key, String value) {
-        Response response = null;
+        /*Response response = null;
         for (int i = 0; i < time; i++) {
             Response resp = NetUtil.getInstance().getSync(url, key, value);
             if (resp != null) {
@@ -425,7 +441,8 @@ public class Downloader {
                 break;
             }
         }
-        return response;
+        return response;*/
+        return NetUtil.getInstance().getSync(url, key, value);
     }
 
     private long getFileLength(String url, int time) {

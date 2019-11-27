@@ -52,7 +52,7 @@ public class SplashActivity extends BaseActivity{
         @Override
         public void ready(String path) {
             Log.e(TAG, "ready: 准备就绪：" + path);
-            ConsoleDialog.addTextLog("SD卡已准备就绪：" + path);
+            ConsoleDialog.addTextLog("SD卡已准备就绪");
 
             PathManager.savePath(path);
             PathManager.instance().initPath();

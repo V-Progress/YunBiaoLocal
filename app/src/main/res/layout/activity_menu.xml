@@ -406,6 +406,7 @@
                         android:orientation="horizontal">
 
                         <LinearLayout
+                            android:padding="8dp"
                             android:layout_weight="1"
                             android:gravity="center"
                             android:orientation="vertical"
@@ -427,6 +428,7 @@
                         </LinearLayout>
 
                         <LinearLayout
+                            android:padding="8dp"
                             android:layout_weight="1"
                             android:gravity="center"
                             android:orientation="vertical"

@@ -3,6 +3,8 @@ package com.yunbiao.cccm.net2;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.net.TrafficStats;
+import android.os.Handler;
+import android.os.Message;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -20,7 +22,6 @@ import com.yunbiao.cccm.R;
 public class ConsoleDialog {
     public static StringBuffer logTextBuffer = new StringBuffer();
     public static StringBuffer programTextBuffer = new StringBuffer();
-    public static StringBuffer downloadTextBuffer = new StringBuffer();
 
     private final ScrollView svConsole;
     private final TextView tvConsole;
@@ -35,6 +36,8 @@ public class ConsoleDialog {
     private final TextView tvProgress;
     private final TextView tvDate;
     private final TextView tvName;
+    private final ScrollView svProgram;
+    private final TextView tvProgram;
 
     private String bytesToXX(long bytes) {
         String result = "";
@@ -51,8 +54,10 @@ public class ConsoleDialog {
     private long mLastDownBytes = 0;
     private void updateText() {
         //更新日志
-        tvConsole.setText(logTextBuffer.toString() + "\n" + downloadTextBuffer.toString() + "\n" + programTextBuffer.toString());
+        tvConsole.setText(logTextBuffer.toString());
+        tvProgram.setText(programTextBuffer.toString());
         svConsole.fullScroll(View.FOCUS_DOWN);
+        svProgram.fullScroll(View.FOCUS_DOWN);
 
         long upBytes = getUpBytes();
         long downBytes = getDownBytes();
@@ -107,6 +112,8 @@ public class ConsoleDialog {
     public ConsoleDialog(Context context) {
         inflate = View.inflate(context, R.layout.layout_console, null);
         svConsole = inflate.findViewById(R.id.sv_console);
+        svProgram = inflate.findViewById(R.id.sv_program);
+        tvProgram = inflate.findViewById(R.id.tv_program);
         tvConsole = inflate.findViewById(R.id.tv_console);
         tvSpeed = inflate.findViewById(R.id.tv_net_speed);
         tvTotal = inflate.findViewById(R.id.tv_total);
@@ -135,7 +142,7 @@ public class ConsoleDialog {
         inflate.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
-                if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+                if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_BACK)  {
                     dismiss();
                 }
                 return false;
@@ -148,7 +155,7 @@ public class ConsoleDialog {
     public synchronized void show() {
         if (!isShown) {
             mWindowManager.addView(inflate, params);
-            tvConsole.post(runnable);
+            mHandler.sendEmptyMessage(0);
             isShown = true;
         }
     }
@@ -156,16 +163,16 @@ public class ConsoleDialog {
     public synchronized void dismiss() {
         if (isShown) {
             mWindowManager.removeViewImmediate(inflate);
-            tvConsole.removeCallbacks(runnable);
+            mHandler.removeMessages(0);
             isShown = false;
         }
     }
 
-    private Runnable runnable = new Runnable() {
+    private Handler mHandler = new Handler(){
         @Override
-        public void run() {
+        public void handleMessage(Message msg) {
             updateText();
-            tvConsole.postDelayed(runnable, 1000);
+            mHandler.sendEmptyMessageDelayed(0,1000);
         }
     };
 

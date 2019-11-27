@@ -322,7 +322,7 @@ public class InsertLoader {
         }
 
         @Override
-        public void onFailed(ItemBlock itemBlock) {
+        public void onFailed(ItemBlock itemBlock,Exception e) {
 
         }
 

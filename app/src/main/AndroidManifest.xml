@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:installLocation="internalOnly"
     package="com.yunbiao.cccm">
 
     <!-- 内存读写权限 -->
@@ -107,12 +108,21 @@
         <activity android:name=".net2.activity.PlayListActivity" />
 
         <!-- 开机启动广播监听 -->
-        <receiver android:name=".net2.receiver.BootReceiver">
+        <!--<receiver android:name=".net2.receiver.BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.HOME" />
+            </intent-filter>
+        </receiver>-->
+
+        <receiver
+            android:name=".net2.receiver.MyBootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter android:priority="1000">
+                <action android:name="android.intent.action.BOOT_COMPLETED"></action>
             </intent-filter>
         </receiver>
 
