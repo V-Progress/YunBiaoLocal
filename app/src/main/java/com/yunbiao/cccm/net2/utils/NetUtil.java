@@ -83,7 +83,17 @@ public class NetUtil {
         return response;
     }
 
-    public Response getSync(String url){
+    public Response postSync(String url, String name, String value) {
+        Response response = null;
+        try {
+            response = OkHttpUtils.post().addHeader(name, value).url(url).tag(this).build().execute();
+        } catch (IOException e) {
+            LogUtil.E(url + " 请求失败:" + e.getMessage() + " ，重新请求");
+        }
+        return response;
+    }
+
+    public Response getSync(String url) {
         try {
             return OkHttpUtils.get().url(url).tag(url).build().execute();
         } catch (IOException e) {
@@ -92,9 +102,9 @@ public class NetUtil {
         return null;
     }
 
-    public Response getSync(String url,String headerKey,String headerValue){
+    public Response getSync(String url, String headerKey, String headerValue) {
         try {
-            return OkHttpUtils.get().url(url).addHeader(headerKey,headerValue).tag(url).build().execute();
+            return OkHttpUtils.get().url(url).addHeader(headerKey, headerValue).tag(url).build().execute();
         } catch (IOException e) {
             e.printStackTrace();
         }

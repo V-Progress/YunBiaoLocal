@@ -246,11 +246,11 @@ public class Downloader {
         BufferedOutputStream bos = null;
 
         try {
-            InputStream inputStream = response.body().byteStream();
-            bis = new BufferedInputStream(inputStream);
-            OutputStream outputStream = new FileOutputStream(cacheFile, true);
-            bos = new BufferedOutputStream(outputStream);
-            byte[] bytes = new byte[1024];
+            InputStream is = response.body().byteStream();
+            bis = new BufferedInputStream(is);
+            OutputStream os = new FileOutputStream(cacheFile, true);
+            bos = new BufferedOutputStream(os);
+            byte[] bytes = new byte[2048];
             int length = 0;
             int realProgress = 0;
             while ((length = bis.read(bytes)) != -1) {
@@ -324,12 +324,12 @@ public class Downloader {
         BufferedInputStream bis = null;
         BufferedOutputStream bos = null;
         try {
-            InputStream inputStream = response.body().byteStream();
-            bis = new BufferedInputStream(inputStream);
-            OutputStream outputStream = PathManager.instance().openOutputStream(cacheFile.getUri());
-            bos = new BufferedOutputStream(outputStream);
+            InputStream is = response.body().byteStream();
+            bis = new BufferedInputStream(is);
+            OutputStream os = PathManager.instance().openOutputStream(cacheFile.getUri());
+            bos = new BufferedOutputStream(os);
 
-            byte[] bytes = new byte[1024];
+            byte[] bytes = new byte[2048];
             int length = 0;
 
             int realProgress = 0;
@@ -407,16 +407,7 @@ public class Downloader {
     }
 
     private Response getFile(String url, int time, String key, String value) {
-        /*Response response = null;
-        for (int i = 0; i < time; i++) {
-            Response resp = NetUtil.getInstance().getSync(url, key, value);
-            if (resp != null) {
-                response = resp;
-                break;
-            }
-        }
-        return response;*/
-        return NetUtil.getInstance().getSync(url, key, value);
+        return NetUtil.getInstance().postSync(url,key,value);
     }
 
     private long getFileLength(String url, int time) {
@@ -480,7 +471,7 @@ public class Downloader {
         @Override
         public void onFailed(ItemBlock itemBlock, Exception e) {
             ConsoleDialog.updateProgress(0);
-            ConsoleDialog.addDownloadLog("下载失败：" + itemBlock.getName() + "，" + e.getMessage());
+            ConsoleDialog.addDownloadLog("下载失败：" + itemBlock.getName() + "，" + e.getClass().getSimpleName() + ": " + e.getMessage());
         }
 
         @Override
