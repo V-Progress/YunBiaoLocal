@@ -62,6 +62,7 @@ public class APP extends Application {
         //初始化OKHTTPUTILS
         okHttpClient = new OkHttpClient()
                 .newBuilder()
+                .retryOnConnectionFailure(true)
                 .connectTimeout(Const.NET_TIME_OUT, TimeUnit.MINUTES)
                 .readTimeout(Const.NET_TIME_OUT, TimeUnit.MINUTES)
                 .writeTimeout(Const.NET_TIME_OUT, TimeUnit.MINUTES)

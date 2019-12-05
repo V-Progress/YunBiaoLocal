@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.support.v4.provider.DocumentFile;
 import android.text.TextUtils;
 import android.util.Log;
@@ -41,77 +42,64 @@ public class SDChecker {
         return sdChecker;
     }
 
-    private boolean canUsed(File file){
+    private boolean canUsed(File file) {
         return file != null & file.exists() & file.canRead() & file.canWrite();
     }
 
     private Runnable checkSDLow = new Runnable() {
         @Override
         public void run() {
-            if(Const.STORAGE_TYPE == Const.TYPE_USB_DISK){
-                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
-                    File usbFile1 = new File(LOW_USB_DISK1);
-                    boolean b1 = canUsed(usbFile1);
-                    if(b1){
-                        ready(usbFile1.getPath());
-                        scheduledExecutorService.shutdownNow();
-                        return;
-                    }
+            File localFile = null;
 
-                    File usbFile2 = new File(LOW_USB_DISK2);
-                    boolean b2 = canUsed(usbFile2);
-                    if(b2){
-                        ready(usbFile2.getPath());
-                        scheduledExecutorService.shutdownNow();
-                        return;
+            switch (Const.STORAGE_TYPE) {
+                case Const.TYPE_ENVIRONMENT_STORAGE://如果是内部存储
+                    localFile = new File(Environment.getExternalStorageDirectory().getPath());
+                    break;
+                case Const.TYPE_USB_DISK://如果是U盘
+                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {//如果是低版本则使用低版本的路径
+                        localFile = initPath(LOW_USB_DISK1, LOW_USB_DISK2, LOW_USB_DISK3);
+                    } else {
+                        localFile = initPath(HIGH_USB_DISK1, HIGH_USB_DISK2, HIGH_USB_DISK3);
                     }
-
-                    File  usbFile3 = new File(LOW_USB_DISK3);
-                    boolean b3 = canUsed(usbFile3);
-                    if(b3){
-                        ready(usbFile3.getPath());
-                        scheduledExecutorService.shutdownNow();
-                        return;
-                    }
-                } else {
-                    File usbFile1 = new File(HIGH_USB_DISK1);
-                    boolean b1 = canUsed(usbFile1);
-                    if(b1){
-                        ready(usbFile1.getPath());
-                        scheduledExecutorService.shutdownNow();
-                        return;
-                    }
-
-                    File usbFile2 = new File(HIGH_USB_DISK2);
-                    boolean b2 = canUsed(usbFile2);
-                    if(b2){
-                        ready(usbFile2.getPath());
-                        scheduledExecutorService.shutdownNow();
-                        return;
-                    }
-
-                    File  usbFile3 = new File(HIGH_USB_DISK3);
-                    boolean b3 = canUsed(usbFile3);
-                    if(b3){
-                        ready(usbFile3.getPath());
-                        scheduledExecutorService.shutdownNow();
-                        return;
-                    }
-                }
-            } else {
-                File sdPath = new File(LOW_SD_PATH);
-                boolean sdCanUsed = sdPath != null & sdPath.exists() & sdPath.canRead() & sdPath.canWrite();
-
-                if (sdCanUsed) {
-                    ready(sdPath.getPath());
-                    scheduledExecutorService.shutdownNow();
-                    return;
-                }
-
+                    break;
+                case Const.TYPE_SD_CARD://如果是低版本下的SD卡
+                    localFile = new File(LOW_SD_PATH);
+                    break;
             }
+
+            if (localFile != null) {
+                Log.e(TAG, "检测到路径：" + localFile.getPath());
+                ready(localFile.getPath());
+                scheduledExecutorService.shutdownNow();
+                return;
+            }
+
             waitSD();
         }
     };
+
+    private File initPath(String path1, String path2, String path3) {
+        File file1 = null, file2 = null, file3 = null;
+        if (!TextUtils.isEmpty(path1))
+            file1 = new File(path1);
+        if (!TextUtils.isEmpty(path1))
+            file2 = new File(path2);
+        if (!TextUtils.isEmpty(path1))
+            file3 = new File(path3);
+
+        Log.e(TAG, "initPath: " + (file1 != null ? file1.getPath() : "NULL1"));
+        Log.e(TAG, "initPath: " + (file2 != null ? file2.getPath() : "NULL2"));
+        Log.e(TAG, "initPath: " + (file3 != null ? file3.getPath() : "NULL3"));
+
+        if (canUsed(file1))
+            return file1;
+        else if (canUsed(file2))
+            return file2;
+        else if (canUsed(file3))
+            return file3;
+        else
+            return null;
+    }
 
     private final int RESULT_OK = -1;
     private final int REQUEST_CODE = 111;

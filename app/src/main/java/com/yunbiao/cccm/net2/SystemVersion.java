@@ -18,7 +18,7 @@ public class SystemVersion {
 
     public static void initVersionTag(){
         // TODO: 2019/11/26
-        isLowVer = Const.STORAGE_TYPE == Const.TYPE_USB_DISK ? true : Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP;
+        isLowVer = Const.STORAGE_TYPE == Const.TYPE_USB_DISK || Const.STORAGE_TYPE == Const.TYPE_ENVIRONMENT_STORAGE ? true : Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP;
 
         Log.e(TAG, "initVersionTag: 当前系统版本：" + Build.VERSION.SDK_INT);
         Log.e(TAG, "initVersionTag: 目标系统版本：" + Build.VERSION_CODES.LOLLIPOP);

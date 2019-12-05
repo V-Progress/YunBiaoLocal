@@ -1,5 +1,7 @@
 package com.yunbiao.cccm.net2.common;
 
+import android.os.Environment;
+
 /**
  * Created by Administrator on 2018/11/28.
  */
@@ -18,7 +20,7 @@ public class Const {
 
     public static final String BASE_URL = PREFIX + SERVICE_HOSTS + SERVICE_PORT + SLASH;//URL地址
 
-    public static final int NET_TIME_OUT = 5;//网络超时时间，单位：分钟
+    public static final int NET_TIME_OUT = 8;//网络超时时间，单位：分钟
     private static final int MESSAGE_DISTRIBUTE = 1; //信息发布
 
     public interface SYSTEM_CONFIG {
@@ -33,11 +35,12 @@ public class Const {
         int TYPE = MESSAGE_DISTRIBUTE;
     }
 
-    public static final int TYPE_SD_CARD = 0;
-    public static final int TYPE_USB_DISK = 1;
+    public static final int TYPE_SD_CARD = 0;//基础路径为SD卡
+    public static final int TYPE_USB_DISK = 1;//U盘
+    public static final int TYPE_ENVIRONMENT_STORAGE = 2;//内部存储
 
     /***
      * 当前设备的存储类型
      */
-    public static final int STORAGE_TYPE = TYPE_SD_CARD;
+    public static final int STORAGE_TYPE = TYPE_ENVIRONMENT_STORAGE;
 }
