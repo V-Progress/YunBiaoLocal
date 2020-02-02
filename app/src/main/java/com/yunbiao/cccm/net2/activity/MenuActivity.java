@@ -2,6 +2,7 @@ package com.yunbiao.cccm.net2.activity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.PixelFormat;
@@ -14,28 +15,32 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.IdRes;
 import android.support.percent.PercentRelativeLayout;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.yunbiao.cccm.APP;
 import com.yunbiao.cccm.R;
+import com.yunbiao.cccm.SplashActivity;
 import com.yunbiao.cccm.net2.activity.base.BaseActivity;
 import com.yunbiao.cccm.net2.cache.CacheManager;
 import com.yunbiao.cccm.net2.common.Const;
 import com.yunbiao.cccm.net2.event.DataLoadFinishedEvent;
 import com.yunbiao.cccm.net2.event.HasDataEvent;
 import com.yunbiao.cccm.net2.utils.ToastUtil;
+
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -89,12 +94,11 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     @BindView(R.id.iv_menu_icon_start)
     ImageView ivMenuIconStart;
 
-    @BindView(R.id.rg_mode_select)
-    RadioGroup rgModeSelect;
-    @BindView(R.id.rb_mode_net)
-    RadioButton rbModeNet;
-    @BindView(R.id.rb_mode_local)
-    RadioButton rbModeLocal;
+    @BindView(R.id.spn_storage_mode)
+    Spinner spnStorage;
+
+    @BindView(R.id.btn_offline)
+    TextView btnOffline;
 
     private SoundPool soundPool;//用来管理和播放音频文件
     private int music;
@@ -105,6 +109,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     private boolean isDataLoadFinished = false;
 
     public static boolean isServerConnected = false;
+
     protected int setLayout() {
         APP.setMenuActivity(this);
         getWindow().setFormat(PixelFormat.TRANSLUCENT);
@@ -112,16 +117,16 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     }
 
     private int time = 60;
-    private Handler timerHandler = new Handler(){
+    private Handler timerHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             tvShowOnscreenTime.setText("" + time);
-            if(time <= 0){
+            if (time <= 0) {
                 time = 60;
                 finish();
             }
             time--;
-            timerHandler.sendEmptyMessageDelayed(0,1000);
+            timerHandler.sendEmptyMessageDelayed(0, 1000);
         }
     };
 
@@ -156,39 +161,66 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
 
         tvShowOnscreenTime.setText(String.valueOf(Const.SYSTEM_CONFIG.MENU_STAY_DURATION));
 
-        /*rgModeSelect.check(CacheManager.SP.getMode() == 0 ? R.id.rb_mode_net : R.id.rb_mode_local);
-        rgModeSelect.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, @IdRes final int checkedId) {
-                switch (checkedId) {
-                    case R.id.rb_mode_net:
-                        CacheManager.SP.putMode(0);
-                        LocalManager.getInstance().clearTimer();//清除本地资源计时
-                        MainController.getInstance().clearPlayData();//重置播放数据
-                        DialogUtil.getInstance().showError(MenuActivity.this, "提示", "正在切换至 网络模式\n本窗口3秒后自动关闭", 3, false, new Runnable() {
-                            @Override
-                            public void run() {
-                                SDManager.instance().checkSD();
-                            }
-                        });
-                        break;
-                    case R.id.rb_mode_local:
-                        CacheManager.SP.putMode(1);
-                        ResourceManager.getInstance().cancel();//取消下载
-                        ResourceManager.getInstance().clearTimer();//清除资源计时
-                        InsertLoader.getInstance().clearTimer();//清除插播计时
-                        MainController.getInstance().clearPlayData();//重置播放数据
-                        DialogUtil.getInstance().showError(MenuActivity.this, "提示", "正在切换至 本地模式\n本窗口3秒后自动关闭", 3, false, new Runnable() {
-                            @Override
-                            public void run() {
-                                SDManager.instance().checkSD();
-                            }
-                        });
-                        break;
-                }
-            }
-        });*/
+        btnMenuStart.requestFocus();
+
+        initVersionSpinner();
+
+        initStorageSpinner();
+
         updateDeviceNo();
+    }
+
+    private void initVersionSpinner(){
+        btnOffline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CacheManager.SP.putMode(0);
+
+                APP.restart();
+//
+//                startActivity(new Intent(MenuActivity.this, SplashActivity.class));
+//
+//                APP.exit();
+            }
+        });
+    }
+
+    private void initStorageSpinner() {
+        List<String> storageList = new ArrayList<>();
+        storageList.add("SD卡模式");
+        storageList.add("U盘模式");
+        storageList.add("本地存储模式");
+        StorageAdapter storageAdapter = new StorageAdapter(this, storageList);
+        Drawable drawable = getResources().getDrawable(R.drawable.shape_employ_button);
+        spnStorage.setPopupBackgroundDrawable(drawable);
+        spnStorage.setAdapter(storageAdapter);
+        spnStorage.setSelection(Const.STORAGE_TYPE);
+        spnStorage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, final int position, long l) {
+                if(Const.STORAGE_TYPE == position){
+                    return;
+                }
+
+                showExitDialog(MenuActivity.this, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        spnStorage.setSelection(Const.STORAGE_TYPE);
+                    }
+                }, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        CacheManager.SP.put(CacheManager.STORAGE_TYPE, position + "");
+                        APP.restart();
+                    }
+                });
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 
     private boolean hasConfig = false;
@@ -196,8 +228,9 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
 
     private boolean hasData = false;
     private HasDataEvent mEvent;
+
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void update(HasDataEvent event){
+    public void update(HasDataEvent event) {
         if (event.getType() == 0) {
             hasConfig = event.isHasData();
         } else {
@@ -209,7 +242,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void update(DataLoadFinishedEvent event){
+    public void update(DataLoadFinishedEvent event) {
         isDataLoadFinished = true;
     }
 
@@ -232,9 +265,9 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if(TextUtils.equals(action,NETWORK_STATE_CHANGE)
-                    || TextUtils.equals(action,WifiManager.WIFI_STATE_CHANGED_ACTION)
-                    || TextUtils.equals(action,WifiManager.RSSI_CHANGED_ACTION)){
+            if (TextUtils.equals(action, NETWORK_STATE_CHANGE)
+                    || TextUtils.equals(action, WifiManager.WIFI_STATE_CHANGED_ACTION)
+                    || TextUtils.equals(action, WifiManager.RSSI_CHANGED_ACTION)) {
                 setNetState();
             }
         }
@@ -263,14 +296,14 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
                 }
                 break;
             case R.id.btn_menu_playlist:
-                if(isDataLoadFinished){
+                if (isDataLoadFinished) {
                     if (isFastClick()) {
                         ToastUtil.showShort(this, "请不要重复点击");
                     } else {
                         startActivity(new Intent(this, PlayListActivity.class));
                     }
                 } else {
-                    ToastUtil.showShort(this,"数据未加载完毕，请等待");
+                    ToastUtil.showShort(this, "数据未加载完毕，请等待");
                 }
                 break;
         }
@@ -278,6 +311,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
 
     private static final int MIN_DELAY_TIME = 1500;  // 两次点击间隔不能少于1000ms
     private static long lastClickTime;
+
     public static boolean isFastClick() {
         boolean flag = true;
         long currentClickTime = System.currentTimeMillis();
@@ -309,9 +343,10 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     }
 
     private boolean mCacheHasData = false;
+
     //更新播放按钮
     public void updatePlayButton() {
-        if(mCacheHasData == hasData){
+        if (mCacheHasData == hasData) {
             return;
         }
         mCacheHasData = hasData;
@@ -323,7 +358,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         }
     }
 
-    private void hasData(){
+    private void hasData() {
         time = 60;
         timerHandler.sendEmptyMessage(0);
         btnMenuStart.setEnabled(true);
@@ -334,8 +369,8 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         tvMenuStartHints2.setText(R.string.auto_play);
     }
 
-    private void noData(){
-        time  = 60;
+    private void noData() {
+        time = 60;
         timerHandler.removeMessages(0);
         btnMenuStart.setEnabled(false);
         Drawable drawable = getResources().getDrawable(R.mipmap.menu_nostart);
@@ -351,8 +386,8 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     }
 
     //设置界面显示状态
-    private void setNetState(){
-        if(!isWifiEnabled()){//wifi未开，设置wifi图标为disable，连接状态为未连接
+    private void setNetState() {
+        if (!isWifiEnabled()) {//wifi未开，设置wifi图标为disable，连接状态为未连接
             isServerConnected = false;
             ivWifiIcon.setImageResource(R.mipmap.wifi_disable);
             ivConnState.setImageResource(R.mipmap.conn_error);
@@ -361,7 +396,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
             return;
         }
 
-        if(!isWifiConnected()){//wifi未联网，设置wifi图标为noConnected，连接状态为未连接
+        if (!isWifiConnected()) {//wifi未联网，设置wifi图标为noConnected，连接状态为未连接
             isServerConnected = false;
             ivWifiIcon.setImageResource(R.mipmap.wifi_disconn);
             ivConnState.setImageResource(R.mipmap.conn_error);
@@ -389,7 +424,7 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
         }
 
         //连接成功
-        if(isServerConnected){
+        if (isServerConnected) {
             ivConnState.setVisibility(View.VISIBLE);
             pbConnState.setVisibility(View.GONE);
             ivConnState.setImageResource(R.mipmap.conn_succ);
@@ -403,21 +438,21 @@ public class MenuActivity extends BaseActivity implements View.OnFocusChangeList
     }
 
     //获取wifi状态
-    public boolean isWifiEnabled(){
+    public boolean isWifiEnabled() {
         int wifiState = wifiManager.getWifiState();
         return wifiState == WifiManager.WIFI_STATE_ENABLED;
     }
 
-    public boolean isWifiConnected(){
+    public boolean isWifiConnected() {
         //wifi连接
         NetworkInfo info = connectManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         return info.isConnected();
     }
 
     //获取wifi名称
-    public String getWifiName(){
+    public String getWifiName() {
         WifiInfo info = wifiManager.getConnectionInfo();
-        if((info != null) && (!TextUtils.isEmpty(info.getSSID()))){
+        if ((info != null) && (!TextUtils.isEmpty(info.getSSID()))) {
             return info.getSSID();
         }
         return "NULL";

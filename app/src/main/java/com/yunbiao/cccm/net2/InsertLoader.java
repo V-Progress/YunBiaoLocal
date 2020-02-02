@@ -8,7 +8,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.yunbiao.cccm.APP;
-import com.yunbiao.cccm.net2.activity.MainController;
+import com.yunbiao.cccm.PathManager;
 import com.yunbiao.cccm.net2.common.HeartBeatClient;
 import com.yunbiao.cccm.net2.common.ResourceConst;
 import com.yunbiao.cccm.net2.control.actions.XBHActions;
@@ -21,7 +21,6 @@ import com.yunbiao.cccm.net2.view.TipToast;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;

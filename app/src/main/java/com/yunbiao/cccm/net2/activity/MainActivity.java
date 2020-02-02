@@ -27,6 +27,10 @@ import com.yunbiao.cccm.net2.utils.NetUtil;
 import com.yunbiao.cccm.net2.DanmakuManager;
 import com.yunbiao.cccm.net2.control.PowerOffTool;
 import com.yunbiao.cccm.net2.listener.OnXmppConnListener;
+import com.yunbiao.cccm.net2.utils.network.NetStateChangeObserver;
+import com.yunbiao.cccm.net2.utils.network.NetStateChangeReceiver;
+import com.yunbiao.cccm.net2.utils.network.NetworkType;
+import com.yunbiao.cccm.net2.utils.network.NetworkUtil;
 import com.yunbiao.cccm.xmpp.PnServerController;
 import com.yunbiao.cccm.net2.InsertLoader;
 import com.yunbiao.cccm.net2.utils.DeleteResUtil;
@@ -40,6 +44,8 @@ import master.flame.danmaku.ui.widget.DanmakuView;
 
 // TODO: 2019/3/8
 public class MainActivity extends BaseActivity implements MainRefreshListener{
+    private static final String TAG = "MainActivity";
+    private ConsoleDialog consoleDialog;
     public static boolean isDataLoadFinished;
     @BindView(R.id.ep)
     EasyPlayer easyPlayer;
@@ -53,10 +59,6 @@ public class MainActivity extends BaseActivity implements MainRefreshListener{
     protected int setLayout() {
         return R.layout.activity_main;
     }
-
-    private ConsoleDialog consoleDialog;
-
-    private static final String TAG = "MainActivity";
 
     protected void initView() {
         //先将插播fragment创建出来
@@ -84,82 +86,152 @@ public class MainActivity extends BaseActivity implements MainRefreshListener{
     protected void initData() {
         startActivity(new Intent(this, MenuActivity.class));
 
+        NetStateChangeReceiver.registerReceiver(this);
+
         PowerOffTool.getInstance().initPowerData();
 
-        startGetRes();
+        Log.e(TAG, "initData: 加载节目");
+        ProgramLoader.getInstance().loadProgram( new Runnable() {
+            @Override
+            public void run() {
+                boolean networkAvalible = NetworkUtil.isNetworkAvalible(MainActivity.this);
+                Log.e(TAG, "run: 加载完成后检测网络状态：" + networkAvalible);
+
+                if(!networkAvalible){
+                    ConsoleDialog.addTextLog("网络不可用，等待网络");
+                    return;
+                }
+                startGetRes();
+            }
+        });
     }
+
+    private NetStateChangeObserver netStateChangeObserver = new NetStateChangeObserver() {
+        @Override
+        public void onNetDisconnected() {
+            ConsoleDialog.addTextLog("网络已断开");
+        }
+
+        @Override
+        public void onNetConnected(NetworkType networkType) {
+            ConsoleDialog.addTextLog("网络已连接");
+            boolean networkAvalible = NetworkUtil.isNetworkAvalible(MainActivity.this);
+            if(networkAvalible){
+                if(!DataLoader.isCurrDataComplete()){//如果当前日期的数据已加载完毕
+                    startGetRes();
+                } else {
+
+                }
+            } else {
+                ConsoleDialog.addTextLog("无法连接网络，请检查");
+            }
+        }
+    };
 
     //开始请求获取资源
     public void startGetRes() {
-        DataLoader.getInstance().get(new DataLoader.AutoLogListener() {
-            @Override
-            public void loadSingleComplete(final String date, boolean isToday) {
-                super.loadSingleComplete(date, isToday);
-
-                if (!isToday) {
-                    return;
-                }
-
-                //初始化广告插播，如果有未播完的广告则自动播放
-                InsertLoader.getInstance().loadInsert();
-
-                Log.e(TAG, "loadSingleComplete: 11111111111111" );
-                //下载今天的资源
-                Downloader.getInstance().check(date,new Downloader.AutoLogDownListener() {
-                    @Override
-                    public void onReadyProgram(String date, boolean hasProgram) {
-                        Log.e(TAG, "onReadyProgram: " + date);
-                        //有资源则加载，没有则等待下载
-                        if (hasProgram) {
-                            Log.e(TAG, "onReadyProgram: 111111111111");
-                            ProgramLoader.getInstance().loadProgram();
-                        }
-                    }
-
-                    @Override
-                    public void onComplete(ItemBlock itemBlock) {
-                        super.onComplete(itemBlock);
-                        //下载完一个后就重新加载
-                        Log.e(TAG, "onReadyProgram: 111111111111");
-                        ProgramLoader.getInstance().loadProgram();
-                    }
-
-                    @Override
-                    public void onFinished(String date) {
-                        super.onFinished(date);
-                        //下载结束后开始无限下载明天的数据
-                        Downloader.getInstance().checkTomm(new Downloader.AutoLogDownListener() {
-                            @Override
-                            public void onFinished(String date) {
-                                super.onFinished(date);
-                                //明天的数据下载结束后开始循环往后检测
-                                Downloader.getInstance().autoCheck();
-                            }
-                        });
-                    }
-                },true);
-            }
-
-            @Override
-            public void failed(String date, boolean isToday, String type) {
-                //检查失败的时候加载一次本地节目
-                if(isToday){
-                    ProgramLoader.getInstance().loadProgram();
-                }
-            }
-
-            @Override
-            public void loadFinished() {
-                super.loadFinished();
-                isDataLoadFinished = true;
-                EventBus.getDefault().post(new DataLoadFinishedEvent());
-
-            }
-        });
+        DataLoader.getInstance().get(autoLogListener);
 
         //检查过期文件
         DeleteResUtil.checkExpireFile();
     }
+
+    //今天有节目的情况，onFinish的时候不加载明天数据
+    private boolean isTodayHasProgram = false;
+
+    /***
+     * 获取节目列表的回调
+     */
+    private DataLoader.AutoLogListener autoLogListener = new DataLoader.AutoLogListener() {
+        @Override
+        public void loadSingleComplete(final String date, boolean isToday, boolean hasProgram) {
+            super.loadSingleComplete(date, isToday, hasProgram);
+            if (!isToday) {
+                return;
+            }
+
+            isTodayHasProgram = hasProgram;
+
+            Log.e(TAG, "loadSingleComplete: 11111111111111" );
+            //下载今天的资源
+            Downloader.getInstance().check(date,autoLogDownListener);
+        }
+
+        @Override
+        public void failed(String date, boolean isToday, String type) {
+            //检查失败的时候加载一次本地节目
+            if(isToday){
+//                ProgramLoader.getInstance().loadProgram();
+            }
+        }
+
+        @Override
+        public void loadFinished() {
+            super.loadFinished();
+            isDataLoadFinished = true;
+            EventBus.getDefault().post(new DataLoadFinishedEvent());
+
+            //今天没有节目，结束的时候加载全部
+            if(!isTodayHasProgram){
+                Log.e(TAG, "loadFinished: 节目全部加载完毕，且今天没有节目，代表下载结束的地方不会检查，所以此处检查");
+                //下载结束后开始无限下载明天的数据
+                Downloader.getInstance().checkTomm(new Downloader.AutoLogDownListener() {
+                    @Override
+                    public void onFinished(String date) {
+                        super.onFinished(date);
+                        //明天的数据下载结束后开始循环往后检测
+                        Downloader.getInstance().autoCheck();
+                    }
+                });
+            } else {
+                Log.e(TAG, "loadFinished: 节目全部加载完毕，且今天有节目，代表下载结束的地方会检查，所以此处不检查" );
+            }
+        }
+    };
+
+    /***
+     * 自动下载的回调
+     */
+    private Downloader.AutoLogDownListener autoLogDownListener = new Downloader.AutoLogDownListener() {
+        @Override
+        public void onReadyProgram(String date, boolean hasProgram) {
+            Log.e(TAG, "onReadyProgram: " + date);
+            //有资源则加载，没有则等待下载
+            if (hasProgram) {
+                Log.e(TAG, "onReadyProgram: 111111111111");
+                ProgramLoader.getInstance().loadProgram();
+            }
+        }
+
+        @Override
+        public void onComplete(ItemBlock itemBlock) {
+            super.onComplete(itemBlock);
+            //下载完一个后就重新加载
+            Log.e(TAG, "onReadyProgram: 111111111111");
+            ProgramLoader.getInstance().loadProgram();
+        }
+
+        @Override
+        public void onFinished(String date) {
+            super.onFinished(date);
+
+            //今天的节目先下载完 且 全部节目后加载完的情况，判断今天是否有节目，有的话，代表加载结束时没有开始下载
+            if(isTodayHasProgram){
+                Log.e(TAG, "onFinished: 今天有节目，代表加载结束的地方不会开始检查，从此处开始检查" );
+                //下载结束后开始无限下载明天的数据
+                Downloader.getInstance().checkTomm(new Downloader.AutoLogDownListener() {
+                    @Override
+                    public void onFinished(String date) {
+                        super.onFinished(date);
+                        //明天的数据下载结束后开始循环往后检测
+                        Downloader.getInstance().autoCheck();
+                    }
+                });
+            } else {
+                Log.e(TAG, "onFinished: 今天没有节目，代表加载结束的地方会开始检查，此处不检查");
+            }
+        }
+    };
 
     //-------播放器控制----------------------------------------------------------------
 
@@ -254,6 +326,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener{
         InsertPlayer.getInstance().resume();
         easyPlayer.resume();
         DanmakuManager.getInstance().resume();
+        NetStateChangeReceiver.registerObserver(netStateChangeObserver);
     }
 
     @Override
@@ -277,6 +350,7 @@ public class MainActivity extends BaseActivity implements MainRefreshListener{
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        NetStateChangeReceiver.unRegisterReceiver(this);
         DanmakuManager.getInstance().destroy();
         NetUtil.getInstance().stop();
         PnServerController.stopXMPP();

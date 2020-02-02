@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.media.AudioManager;
 
 import com.yunbiao.cccm.APP;
-import com.yunbiao.cccm.net2.SplashActivity;
+import com.yunbiao.cccm.SplashActivity;
 
 /**
  * Created by Administrator on 2019/11/27.

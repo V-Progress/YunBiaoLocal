@@ -22,6 +22,7 @@ import com.yunbiao.cccm.R;
 public class ConsoleDialog {
     public static StringBuffer logTextBuffer = new StringBuffer();
     public static StringBuffer programTextBuffer = new StringBuffer();
+    public static StringBuffer deleteTextBuffer = new StringBuffer();
 
     private final ScrollView svConsole;
     private final TextView tvConsole;
@@ -41,7 +42,7 @@ public class ConsoleDialog {
 
     private String bytesToXX(long bytes) {
         String result = "";
-        if(bytes >= 1024){
+        if (bytes >= 1024) {
             bytes = bytes / 1024;
             result = bytes + "Mb";
         } else {
@@ -52,6 +53,7 @@ public class ConsoleDialog {
 
     private long mLastUpBytes = 0;
     private long mLastDownBytes = 0;
+
     private void updateText() {
         //更新日志
         tvConsole.setText(logTextBuffer.toString());
@@ -80,7 +82,7 @@ public class ConsoleDialog {
 
     private long getUpBytes() {
         long uidTxBytes = TrafficStats.getUidTxBytes(APP.getContext().getApplicationInfo().uid);
-        if(uidTxBytes == TrafficStats.UNSUPPORTED){
+        if (uidTxBytes == TrafficStats.UNSUPPORTED) {
             return 0;
         } else {
             return uidTxBytes / 1024;
@@ -89,7 +91,7 @@ public class ConsoleDialog {
 
     private long getDownBytes() {
         long uidRxBytes = TrafficStats.getUidRxBytes(APP.getContext().getApplicationInfo().uid);
-        if(uidRxBytes == TrafficStats.UNSUPPORTED){
+        if (uidRxBytes == TrafficStats.UNSUPPORTED) {
             return 0;
         } else {
             return uidRxBytes / 1024;
@@ -107,6 +109,10 @@ public class ConsoleDialog {
 
     public static void addProgramLog(String log) {
         programTextBuffer.append("\n").append(log);
+    }
+
+    public static void addDeleteLog(String log) {
+        deleteTextBuffer.append("\n").append(log);
     }
 
     public ConsoleDialog(Context context) {
@@ -142,7 +148,7 @@ public class ConsoleDialog {
         inflate.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
-                if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_BACK)  {
+                if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_BACK) {
                     dismiss();
                 }
                 return false;
@@ -168,11 +174,11 @@ public class ConsoleDialog {
         }
     }
 
-    private Handler mHandler = new Handler(){
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             updateText();
-            mHandler.sendEmptyMessageDelayed(0,1000);
+            mHandler.sendEmptyMessageDelayed(0, 1000);
         }
     };
 

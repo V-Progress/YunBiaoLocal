@@ -16,9 +16,6 @@ import com.yunbiao.cccm.net2.utils.DateUtil;
 import com.yunbiao.cccm.net2.utils.NetUtil;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -47,9 +44,14 @@ public class DataLoader {
     private static DataLoader request = new DataLoader();
     private final ExecutorService executorService;
     private String today_str;
+    private static boolean isTodayLoadComplete = false;
 
     public static DataLoader getInstance() {
         return request;
+    }
+
+    public static boolean isCurrDataComplete(){
+        return isTodayLoadComplete;
     }
 
     private DataLoader() {
@@ -129,7 +131,7 @@ public class DataLoader {
                     ConfigResponse configResponse = new Gson().fromJson(responseString, ConfigResponse.class);
 
                     if (configResponse.getResult() == -1) {
-                        noProgram(date);
+                        loadSingleComplete(date,false);
                         continue;
                     }
 
@@ -174,6 +176,8 @@ public class DataLoader {
                     //请求并解析成功后删除已存的当日数据
                     deleteOldDataByDate(date);
 
+                    isTodayLoadComplete = true;
+
                     List<VideoDataModel.Play> playlist = videoDataModel.getPlaylist();
                     VideoDataModel.Config config = videoDataModel.getConfig();
                     String playurl = config.getPlayurl();
@@ -190,45 +194,45 @@ public class DataLoader {
                         }
                     }
 
-                    if (currRules == null || currRules.size() <= 0) {
-                        d("当前日期暂无节目");
-                        noProgram(date);
-                        continue;
-                    }
+                    boolean hasProgram = currRules != null && currRules.size() > 0;
 
-                    //设置日期
-                    Daily daily = new Daily();
-                    daily.setDate(currDate);
-                    DaoManager.get().addOrUpdate(daily);
+                    //判断有节目时才处理
+                    if(hasProgram){
+                        //设置日期
+                        Daily daily = new Daily();
+                        daily.setDate(currDate);
+                        DaoManager.get().addOrUpdate(daily);
 
-                    for (VideoDataModel.Play.Rule currRule : currRules) {
-                        TimeSlot timeSlot = new TimeSlot();
-                        timeSlot.setParentDate(daily.getDate());
-                        timeSlot.setDateTime(daily.getDate() + currRule.getDate());
+                        for (VideoDataModel.Play.Rule currRule : currRules) {
+                            TimeSlot timeSlot = new TimeSlot();
+                            timeSlot.setParentDate(daily.getDate());
+                            timeSlot.setDateTime(daily.getDate() + currRule.getDate());
 
-                        String[] split1 = currRule.getDate().split("-");
-                        timeSlot.setStart(split1[0]);
-                        timeSlot.setEnd(split1[1]);
+                            String[] split1 = currRule.getDate().split("-");
+                            timeSlot.setStart(split1[0]);
+                            timeSlot.setEnd(split1[1]);
 
-                        DaoManager.get().addOrUpdate(timeSlot);
+                            DaoManager.get().addOrUpdate(timeSlot);
 
-                        String[] split = currRule.getRes().split(",");
-                        for (String resName : split) {
-                            resName = resName.trim().replaceAll("%20", "").replaceAll("\n", "");
-                            if (TextUtils.isEmpty(resName)) {
-                                continue;
+                            String[] split = currRule.getRes().split(",");
+                            for (String resName : split) {
+                                resName = resName.trim().replaceAll("%20", "").replaceAll("\n", "");
+                                if (TextUtils.isEmpty(resName)) {
+                                    continue;
+                                }
+
+                                ItemBlock itemBlock = new ItemBlock();
+                                itemBlock.setDateTime(timeSlot.getDateTime());
+                                itemBlock.setUrl(resolveUrl(ftpServiceUrl, playurl, resName));
+                                itemBlock.setName(resName);
+                                itemBlock.setUnique(timeSlot.getDateTime() + resName);
+                                DaoManager.get().addOrUpdate(itemBlock);
                             }
 
-                            ItemBlock itemBlock = new ItemBlock();
-                            itemBlock.setDateTime(timeSlot.getDateTime());
-                            itemBlock.setUrl(resolveUrl(ftpServiceUrl, playurl, resName));
-                            itemBlock.setName(resName);
-                            itemBlock.setUnique(timeSlot.getDateTime() + resName);
-                            DaoManager.get().addOrUpdate(itemBlock);
                         }
-
                     }
-                    loadSingleComplete(date);
+
+                    loadSingleComplete(date,hasProgram);
                 }
 
                 loadFinished();
@@ -243,8 +247,9 @@ public class DataLoader {
         Response response = null;
         for (int i = 0; i < retryNum; i++) {
             d("请求第" + i + "次");
-            response = NetUtil.getInstance().postSync(ResourceConst.REMOTE_RES.GET_RESOURCE, map);
-            if (response != null) {
+            Response resp = NetUtil.getInstance().postSync(ResourceConst.REMOTE_RES.GET_RESOURCE, map);
+            if (resp != null && resp.code() == 200) {
+                response = resp;
                 break;
             }
         }
@@ -323,15 +328,9 @@ public class DataLoader {
         }
     }
 
-    private void noProgram(String date) {
+    private void loadSingleComplete(String date, boolean hasProgram) {
         if (dataListener != null) {
-            dataListener.noProgram(date, TextUtils.equals(today_str, date));
-        }
-    }
-
-    private void loadSingleComplete(String date) {
-        if (dataListener != null) {
-            dataListener.loadSingleComplete(date, TextUtils.equals(today_str, date));
+            dataListener.loadSingleComplete(date, TextUtils.equals(today_str, date),hasProgram);
         }
     }
 
@@ -440,13 +439,12 @@ public class DataLoader {
         }
 
         @Override
-        public void noProgram(String date, boolean isToday) {
-            ConsoleDialog.addTextLog("暂无节目安排"/*： （日期：" + date + "，" + isToday*/);
-        }
-
-        @Override
-        public void loadSingleComplete(String date, boolean isToday) {
-            ConsoleDialog.addTextLog("加载成功"/*： （日期：" + date + "，" + isToday*/);
+        public void loadSingleComplete(String date, boolean isToday, boolean hasProgram) {
+            if(hasProgram){
+                ConsoleDialog.addTextLog("加载成功"/*： （日期：" + date + "，" + isToday*/);
+            } else {
+                ConsoleDialog.addTextLog("暂无节目安排"/*： （日期：" + date + "，" + isToday*/);
+            }
         }
 
         @Override
@@ -517,13 +515,14 @@ public class DataLoader {
          * 当前日期无节目
          * @param date
          */
-        void noProgram(String date, boolean isToday);
+//        void noProgram(String date, boolean isToday);
 
         /***
          * 单个加载完成
          * @param date
+         * @param hasProgram
          */
-        void loadSingleComplete(String date, boolean isToday);
+        void loadSingleComplete(String date, boolean isToday, boolean hasProgram);
 
         /***
          * 全部加载完成

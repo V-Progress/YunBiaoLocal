@@ -98,6 +98,8 @@ dependencies {
     //eventbus
     //easyIjk
     compile project(path: ':easyijkplayer')
+
+    // GreenDao(√)
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support:percent:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
@@ -109,9 +111,7 @@ dependencies {
     compile 'com.umeng.analytics:analytics:latest.integration'
     compile 'com.umeng.sdk:common:latest.integration'
     compile 'org.greenrobot:eventbus:3.0.0'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
-
-    // GreenDao(√)
     compile 'org.greenrobot:greendao:3.2.2'
     compile 'com.github.yuweiguocn:GreenDaoUpgradeHelper:v1.4.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 }

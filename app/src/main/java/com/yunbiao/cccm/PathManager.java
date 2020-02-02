@@ -1,11 +1,11 @@
-package com.yunbiao.cccm.net2;
+package com.yunbiao.cccm;
 
 import android.content.Context;
 import android.net.Uri;
 import android.support.v4.provider.DocumentFile;
 import android.util.Log;
 
-import com.yunbiao.cccm.APP;
+import com.yunbiao.cccm.net2.SystemVersion;
 import com.yunbiao.cccm.net2.cache.CacheManager;
 
 import java.io.File;
@@ -26,6 +26,8 @@ public class PathManager {
 
     private DocumentFile resDocFileDir;
     private File resFileDir;
+    private File appDir;
+    private DocumentFile appDocDir;
 
     public static PathManager instance() {
         return pathManager;
@@ -56,7 +58,7 @@ public class PathManager {
         File sdDir = new File(path);
         Log.e(TAG, "init_l: SD根目录：" + sdDir.getPath() + "，是否可读写：" + sdDir.canRead() + "，" + sdDir.canWrite());
 
-        File appDir = new File(sdDir,APP_ROOT_DIR);
+        appDir = new File(sdDir,APP_ROOT_DIR);
         if(appDir == null || !appDir.exists()){
             appDir.mkdirs();
         }
@@ -73,15 +75,23 @@ public class PathManager {
     private void init_h(String path){
         DocumentFile sdDir = DocumentFile.fromTreeUri(context, Uri.parse(path));
 
-        DocumentFile appDir = sdDir.findFile(APP_ROOT_DIR);
-        if(appDir == null || !appDir.exists()){
-            appDir = sdDir.createDirectory(APP_ROOT_DIR);
+        appDocDir = sdDir.findFile(APP_ROOT_DIR);
+        if(appDocDir == null || !appDocDir.exists()){
+            appDocDir = sdDir.createDirectory(APP_ROOT_DIR);
         }
 
-        resDocFileDir = appDir.findFile(APP_RESOURCE_DIR);
+        resDocFileDir = appDocDir.findFile(APP_RESOURCE_DIR);
         if(resDocFileDir == null || !resDocFileDir.exists()){
-            resDocFileDir = appDir.createDirectory(APP_RESOURCE_DIR);
+            resDocFileDir = appDocDir.createDirectory(APP_RESOURCE_DIR);
         }
+    }
+
+    public File getAppDir(){
+        return appDir;
+    }
+
+    public DocumentFile getAppDocDir(){
+        return appDocDir;
     }
 
     public File getResFileDir(){

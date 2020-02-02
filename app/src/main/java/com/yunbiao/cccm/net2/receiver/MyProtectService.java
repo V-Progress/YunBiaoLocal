@@ -1,4 +1,4 @@
-package com.yunbiao.cccm.net2.activity;
+package com.yunbiao.cccm.net2.receiver;
 
 import android.app.ActivityManager;
 import android.app.Service;
@@ -25,7 +25,7 @@ public class MyProtectService extends Service {
 
     //看门狗service
     private String packageName = "com.yunbiao.cccm";
-    private String packageClassName = "com.yunbiao.cccm.net2.activity.MainActivity";
+    private String packageClassName = "com.yunbiao.cccm.SplashActivity";
 
     private final static int DELAY_TIME = 120 * 1000;//120s轮询一次
     private final static Timer timer = new Timer();

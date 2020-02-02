@@ -21,6 +21,8 @@ public class CacheManager {
         spCache = new SPCache(APP.getContext());
     }
 
+    public static final String STORAGE_TYPE = "storageType";
+
     //SP缓存----------------------------------------------------------
     //登录信息
     private static final String DEVICE_NAME = "deciveName";//设备名称
@@ -217,7 +219,7 @@ public class CacheManager {
         }
 
         public static int getMode(){
-            return spCache.getInt(KEY_APP_MODE,0);
+            return spCache.getInt(KEY_APP_MODE,1);
         }
     }
 

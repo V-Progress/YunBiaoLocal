@@ -86,6 +86,10 @@ public class XmppMessageProcessor {
                 if(CacheManager.SP.getMode() == 0){//网络模式下才更新标签
                     MainController.getInstance().updateLayerType(loginModel.getLayerType());
                 }
+
+                //初始化广告插播，如果有未播完的广告则自动播放
+                InsertLoader.getInstance().loadInsert();
+
                 break;
             case CONTENT_TYPE://布局更新
             case SET_CLEAR_LAYOUT://清除布局

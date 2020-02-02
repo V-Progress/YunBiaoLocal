@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.yunbiao.cccm.net2.SplashActivity">
+    tools:context="com.yunbiao.cccm.SplashActivity">
 
     <LinearLayout
         android:paddingLeft="50dp"
@@ -29,6 +29,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp" />
             <TextView
+                android:id="@+id/tv_tips"
                 android:textSize="22dp"
                 android:textColor="@color/black"
                 android:gravity="center_vertical"
@@ -44,6 +45,7 @@
             android:layout_height="50dp" />
 
         <TextView
+            android:id="@+id/tv_message"
             android:textColor="@color/black"
             android:textSize="28dp"
             android:layout_marginTop="20dp"

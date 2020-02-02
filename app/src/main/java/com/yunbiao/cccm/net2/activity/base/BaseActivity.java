@@ -1,9 +1,13 @@
 package com.yunbiao.cccm.net2.activity.base;
 
+import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.view.WindowManager;
 
 import com.umeng.analytics.MobclickAgent;
 import com.yunbiao.cccm.APP;
@@ -23,6 +27,11 @@ public abstract class BaseActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //隐藏navigation
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+        // 隐藏状态栏
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         APP.addActivity(this);
         setContentView(setLayout());
         ButterKnife.bind(this);
@@ -32,11 +41,11 @@ public abstract class BaseActivity extends FragmentActivity {
         initData();
     }
 
-    protected abstract void initData();
+    protected abstract int setLayout();
 
     protected abstract void initView();
 
-    protected abstract int setLayout();
+    protected abstract void initData();
 
     @Override
     protected void onDestroy() {
@@ -71,4 +80,15 @@ public abstract class BaseActivity extends FragmentActivity {
         super.onPause();
         MobclickAgent.onPause(this);
     }
+
+    public static void showExitDialog(Activity act, DialogInterface.OnClickListener cancel, DialogInterface.OnClickListener confirm){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(act);
+        alertDialog.setCancelable(true);
+        alertDialog.setMessage("修改此项需要重启应用，是否继续？");
+        alertDialog.setNegativeButton("取消", cancel);
+        alertDialog.setPositiveButton("确定",confirm);
+        AlertDialog alertDialog1 = alertDialog.create();
+        alertDialog1.show();
+    }
+
 }

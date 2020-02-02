@@ -1,9 +1,9 @@
 package com.yunbiao.cccm.net2;
 
 import android.support.v4.provider.DocumentFile;
-import android.text.TextUtils;
 import android.util.Log;
 
+import com.yunbiao.cccm.PathManager;
 import com.yunbiao.cccm.net2.activity.MainController;
 import com.yunbiao.cccm.net2.db.Daily;
 import com.yunbiao.cccm.net2.db.DaoManager;
@@ -93,12 +93,22 @@ public class ProgramLoader {
 
         @Override
         public void onFinished() {
-            ConsoleDialog.addProgramLog("当前节目加载完毕");
+            ConsoleDialog.addProgramLog("加载完毕");
         }
     }
 
     public void loadProgram(){
         loadProgram(new AutoLogProgramListener());
+    }
+
+    public void loadProgram(final Runnable runnable) {
+        loadProgram(new AutoLogProgramListener() {
+            @Override
+            public void onFinished() {
+                super.onFinished();
+                runnable.run();
+            }
+        });
     }
 
     public void loadProgram(final LoadProgramListener listener) {
@@ -120,6 +130,7 @@ public class ProgramLoader {
                 if (currentDaily == null) {
                     if(listener != null){
                         listener.noProgram();
+                        listener.onFinished();
                     }
                     d("无节目111");
                     return;
@@ -129,6 +140,7 @@ public class ProgramLoader {
                 if (timeSlots == null || timeSlots.size() <= 0) {
                     if(listener != null){
                         listener.noTimeSlot();
+                        listener.onFinished();
                     }
                     d("无节目222");
                     return;

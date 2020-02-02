@@ -1,8 +1,10 @@
 package com.yunbiao.cccm.net2;
 
+import android.os.FileUtils;
 import android.support.v4.provider.DocumentFile;
 import android.util.Log;
 
+import com.yunbiao.cccm.PathManager;
 import com.yunbiao.cccm.net2.db.Daily;
 import com.yunbiao.cccm.net2.db.DaoManager;
 import com.yunbiao.cccm.net2.db.ItemBlock;
@@ -28,8 +30,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.Response;
 
 /**
@@ -89,7 +89,7 @@ public class Downloader {
                 super.onFinished(date);
                 checkDateList();
             }
-        }, true);
+        });
     }
 
     /***
@@ -97,66 +97,68 @@ public class Downloader {
      * @param multiDownloadListener
      */
     public void checkTomm(final MultiDownloadListener multiDownloadListener) {
-        check(DateUtil.getTomm_str(), multiDownloadListener, true);
+        check(DateUtil.getTomm_str(), multiDownloadListener);
     }
 
     /***
      * 检查某个日期的
      * @param date
      * @param multiDownloadListener
-     * @param isInfinite
      */
-    public void check(final String date, final MultiDownloadListener multiDownloadListener, final boolean isInfinite) {
+    public void check(final String date, final MultiDownloadListener multiDownloadListener) {
         scheduledExecutorService.schedule(new Runnable() {
             @Override
             public void run() {
                 Daily daily = DaoManager.get().queryByDate(date);
-                if (daily == null) {
-                    return;
-                }
 
                 List<ItemBlock> readyList = new ArrayList<>();
                 Queue<ItemBlock> downloadQueue = new LinkedList<>();
 
-                List<TimeSlot> timeSlots = daily.getTimeSlots();
-                for (TimeSlot timeSlot : timeSlots) {
-                    List<ItemBlock> itemBlocks = timeSlot.getItemBlocks();
-                    for (ItemBlock itemBlock : itemBlocks) {
-                        if (SystemVersion.isLowVer()) {
-                            File resFileDir = PathManager.instance().getResFileDir();
-                            File file = new File(resFileDir, itemBlock.getName());
-                            if (file != null && file.exists()) {
-                                Log.e(TAG, "checkToday: " + itemBlock.getName() + " ----- " + (file != null && file.exists() ? "已存在" : "不存在"));
-                                readyList.add(itemBlock);
-                                continue;
+                if (daily != null) {
+                    List<TimeSlot> timeSlots = daily.getTimeSlots();
+                    for (TimeSlot timeSlot : timeSlots) {
+                        List<ItemBlock> itemBlocks = timeSlot.getItemBlocks();
+                        for (ItemBlock itemBlock : itemBlocks) {
+                            if (SystemVersion.isLowVer()) {
+                                File resFileDir = PathManager.instance().getResFileDir();
+                                File file = new File(resFileDir, itemBlock.getName());
+                                if (file != null && file.exists()) {
+                                    Log.e(TAG, "checkToday: " + itemBlock.getName() + " ----- " + (file != null && file.exists() ? "已存在" : "不存在"));
+                                    readyList.add(itemBlock);
+                                    continue;
+                                }
+                            } else {
+                                DocumentFile file = PathManager.instance().getResDocFileDir().findFile(itemBlock.getName());
+                                if (file != null && file.exists()) {
+                                    Log.e(TAG, "checkToday: " + itemBlock.getName() + " ----- " + (file != null && file.exists() ? "已存在" : "不存在"));
+                                    readyList.add(itemBlock);
+                                    continue;
+                                }
                             }
-                        } else {
-                            DocumentFile file = PathManager.instance().getResDocFileDir().findFile(itemBlock.getName());
-                            if (file != null && file.exists()) {
-                                Log.e(TAG, "checkToday: " + itemBlock.getName() + " ----- " + (file != null && file.exists() ? "已存在" : "不存在"));
-                                readyList.add(itemBlock);
-                                continue;
-                            }
-                        }
 
-                        downloadQueue.offer(itemBlock);
+                            downloadQueue.offer(itemBlock);
+                        }
                     }
                 }
-
                 if (multiDownloadListener != null) {
-                    multiDownloadListener.onReadyProgram(daily.getDate(), readyList != null && readyList.size() > 0);
+                    multiDownloadListener.onReadyProgram(daily.getDate(), readyList.size() > 0);
                 }
 
                 if (multiDownloadListener != null) {
                     multiDownloadListener.onStart(daily.getDate(), downloadQueue.size());
                 }
 
-                downloadQueue(daily.getDate(), downloadQueue, isInfinite, multiDownloadListener);
+                //重试次数设置为3倍大小
+                mRetryNum = downloadQueue.size() * 2;
+
+                downloadQueue(daily.getDate(), downloadQueue, multiDownloadListener);
             }
         }, 3, TimeUnit.SECONDS);
     }
 
-    private void downloadQueue(String date, Queue<ItemBlock> itemBlockQueue, boolean isInfiniteRetry, MultiDownloadListener downloadListener) {
+    private int mRetryNum = 0;
+
+    private void downloadQueue(String date, Queue<ItemBlock> itemBlockQueue, MultiDownloadListener downloadListener) {
         if (itemBlockQueue.size() <= 0) {
             if (downloadListener != null) {
                 downloadListener.onFinished(date);
@@ -169,6 +171,8 @@ public class Downloader {
             downloadListener.onSingleStart(poll, itemBlockQueue.size());
         }
 
+        Log.e(TAG, "downloadQueue: 当前下载地址：" + poll.getUrl());
+
         DownloadResponse response;
         if (SystemVersion.isLowVer()) {
             response = download_l(poll, downloadListener);
@@ -178,7 +182,8 @@ public class Downloader {
 
         if (response.resultCode <= 0) {
             Log.e(TAG, "downloadQueue: 返回值：" + response.resultCode);
-            if (isInfiniteRetry) {
+            if (mRetryNum > 0) {
+                mRetryNum--;
                 itemBlockQueue.offer(poll);
             }
             if (downloadListener != null) {
@@ -190,7 +195,7 @@ public class Downloader {
             }
         }
 
-        downloadQueue(date, itemBlockQueue, isInfiniteRetry, downloadListener);
+        downloadQueue(date, itemBlockQueue, downloadListener);
     }
 
     private final static int FLAG_COMPLETE = 1;
@@ -208,28 +213,33 @@ public class Downloader {
     }
 
     public DownloadResponse download_l(String url, String name, MultiDownloadListener listener) {
+        Log.e(TAG, "download_l: ---------------------------------");
+        Log.e(TAG, "download_l: 开始下载");
+        Log.e(TAG, "download_l: 请求地址：" + url);
+
+        long fileLength = getFileLength(url, 3);
+        Log.e(TAG, "download_l: 获取文件长度：" + fileLength);
+        if (fileLength == -1) {
+            return new DownloadResponse(FLAG_GET_LENGTH_FAILED, new Exception("Failed to get file length"));
+        }
+
+        //检查缓存文件是否存在
         File resFileDir = PathManager.instance().getResFileDir();
-
-        //取出缓存文件名
-        String cacheName = "cache_" + name;
-
         File file = new File(resFileDir, name);
+        Log.e(TAG, "download_l: 资源文件地址：" + file.getPath() + " ---是否存在： " + file.exists());
         if (file != null && file.exists()) {
             return new DownloadResponse(FLAG_COMPLETE);
         }
 
+        String cacheName = "cache_" + name;
         File cacheFile = new File(resFileDir, cacheName);
+        Log.e(TAG, "download_l: 缓存文件地址：" + cacheFile.getPath() + " ---是否存在： " + cacheFile.exists());
         if (cacheFile == null || !cacheFile.exists()) {
             try {
                 cacheFile.createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-
-        long fileLength = getFileLength(url, 3);
-        if (fileLength == -1) {
-            return new DownloadResponse(FLAG_GET_LENGTH_FAILED, new Exception("Failed to get file length"));
         }
 
         if (cacheFile.length() == fileLength) {
@@ -239,8 +249,10 @@ public class Downloader {
 
         Response response = getFile(url, 3, "RANGE", "bytes=" + cacheFile.length() + "-");
         if (response == null) {
+            Log.e(TAG, "download_l: 获取文件错误");
             return new DownloadResponse(FLAG_GET_FILE_FAILED, new Exception("Failed to get file"));
         }
+        Log.e(TAG, "download_l: 获取文件结果：" + response.code());
 
         BufferedInputStream bis = null;
         BufferedOutputStream bos = null;
@@ -284,32 +296,35 @@ public class Downloader {
     }
 
     public DownloadResponse download_h(String url, String name, MultiDownloadListener listener) {
+        Log.e(TAG, "download_h: ---------------------------------");
+        Log.e(TAG, "download_h: 开始下载");
+        Log.e(TAG, "download_h: 请求地址：" + url);
+
+        //获取文件长度，如果为-1代表3次获取失败
+        long fileLength = getFileLength(url, 3);
+        Log.e(TAG, "download_h: 获取文件长度：" + fileLength);
+        if (fileLength == -1) {
+            //下载失败
+            return new DownloadResponse(FLAG_GET_LENGTH_FAILED, new Exception("Failed to get file length"));
+        }
+
         DocumentFile resDocFileDir = PathManager.instance().getResDocFileDir();
-
-        //取出缓存文件名
-        String cacheName = "cache_" + name;
-
         DocumentFile file = resDocFileDir.findFile(name);
+        Log.e(TAG, "download_h: 资源文件地址：" + (file == null ? "NULL" : file.getUri().getPath() + " ---是否存在： " + file.exists()));
         //如果存在就是已下载完毕
         if (file != null && file.exists()) {
             //下载失败
             return new DownloadResponse(FLAG_COMPLETE);
         }
 
-        //如果不存在就检查缓存文件
+        //取出缓存文件名
+        String cacheName = "cache_" + name;
         DocumentFile cacheFile = resDocFileDir.findFile(cacheName);
         //如果缓存不存在就创建
         if (cacheFile == null || !cacheFile.exists()) {
             cacheFile = resDocFileDir.createFile("video/x-msvideo", cacheName);
-            Log.e(TAG, "download_h: " + cacheName + "不存在，创建：" + cacheFile.getName());
         }
-
-        //获取文件长度，如果为-1代表3次获取失败
-        long fileLength = getFileLength(url, 3);
-        if (fileLength == -1) {
-            //下载失败
-            return new DownloadResponse(FLAG_GET_LENGTH_FAILED, new Exception("Failed to get file length"));
-        }
+        Log.e(TAG, "download_h: 缓存文件地址：" + (cacheFile == null ? "NULL" : cacheFile.getUri().getPath() + " ---是否存在： " + cacheFile.exists()));
 
         if (cacheFile.length() == fileLength) {
             cacheFile.renameTo(name);
@@ -318,8 +333,10 @@ public class Downloader {
 
         Response response = getFile(url, 3, "RANGE", "bytes=" + cacheFile.length() + "-");
         if (response == null) {
+            Log.e(TAG, "download_l: 获取文件错误");
             return new DownloadResponse(FLAG_GET_FILE_FAILED, new Exception("Failed to get file"));
         }
+        Log.e(TAG, "download_l: 获取文件结果：" + response.code());
 
         BufferedInputStream bis = null;
         BufferedOutputStream bos = null;
@@ -395,7 +412,6 @@ public class Downloader {
         }
     }
 
-
     private void close(Closeable closeable) {
         if (closeable != null) {
             try {
@@ -407,7 +423,7 @@ public class Downloader {
     }
 
     private Response getFile(String url, int time, String key, String value) {
-        return NetUtil.getInstance().postSync(url,key,value);
+        return NetUtil.getInstance().postSync(url, key, value);
     }
 
     private long getFileLength(String url, int time) {
@@ -417,8 +433,13 @@ public class Downloader {
             if (response == null) {
                 continue;
             }
+
+            int code = response.code();
+            if (code != 200) {
+                return contentLength;
+            }
+
             long length = response.body().contentLength();
-            Log.e(TAG, "getFileLength: 获取的文件长度：" + length);
             if (length > 0) {
                 contentLength = length;
                 break;

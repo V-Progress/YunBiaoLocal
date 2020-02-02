@@ -1,9 +1,12 @@
 package com.yunbiao.cccm;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.Application;
+import android.app.PendingIntent;
 import android.app.smdt.SmdtManager;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 
 import com.baidu.location.LocationClient;
@@ -49,6 +52,9 @@ public class APP extends Application {
         super.onCreate();
         BlockDetectByPrinter.start();
 
+        //初始化本地包
+        com.yunbiao.cccm.yunbiaolocal.APP.onCreate(this);
+
         instance = this;
         actList = new ArrayList<>();
         smdt = SmdtManager.create(this);
@@ -56,7 +62,7 @@ public class APP extends Application {
 
         Log2FileUtil.startLogcatManager(this);
 
-        UMConfigure.init(this, UMConfigure.DEVICE_TYPE_BOX,"");
+        UMConfigure.init(this, UMConfigure.DEVICE_TYPE_BOX, "");
         UMConfigure.setLogEnabled(true);
 
         //初始化OKHTTPUTILS
@@ -137,7 +143,7 @@ public class APP extends Application {
         actList.remove(activity);
     }
 
-    public static void resetApp(){
+    public static void resetApp() {
         //停止所有Activity
         for (Activity a : actList) {
             if (a != null) {
@@ -162,7 +168,12 @@ public class APP extends Application {
         System.exit(0);
     }
 
-    public static void restart(){
-        RestartAPPTool.restartAPP(instance);
+    public static void restart() {
+        Intent intent = instance.getPackageManager().getLaunchIntentForPackage(instance.getPackageName());
+        PendingIntent restartIntent = PendingIntent.getActivity(instance, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+        AlarmManager mgr = (AlarmManager) instance.getSystemService(Context.ALARM_SERVICE);
+        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, restartIntent); // 1秒钟后重启应用
+
+        exit();
     }
 }
